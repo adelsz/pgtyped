@@ -1,0 +1,23 @@
+{
+  "name": "@pg-typed/cli",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc --declaration",
+    "dev": "yarn build && DEBUG=* node ./lib/index.js"
+  },
+  "jest": {
+    "roots": [
+      "src"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    }
+  },
+  "dependencies": {
+    "@types/debug": "^4.1.4",
+    "debug": "^4.1.1"
+  }
+}

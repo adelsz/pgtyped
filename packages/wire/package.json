@@ -1,0 +1,22 @@
+{
+  "name": "@pg-typed/wire",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc --declaration",
+    "dev": "yarn build && DEBUG=client* node ./lib/index.js"
+  },
+  "jest": {
+    "testRegex": "(/tests/.*|(\\.|/)test)\\.tsx?$",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    }
+  },
+  "dependencies": {
+    "@types/debug": "^4.1.4",
+    "debug": "^4.1.1"
+  }
+}

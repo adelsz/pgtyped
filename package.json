@@ -1,0 +1,29 @@
+{
+  "name": "pg-repo",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "Adel Salakh <***REMOVED***>",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.12",
+    "@types/node": "^12.0.0",
+    "jest": "^24.8.0",
+    "lerna": "^3.14.1",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.4.5"
+  },
+  "dependencies": {
+    "cli": "file:packages/cli",
+    "query": "file:packages/query",
+    "wire": "file:packages/wire"
+  },
+  "jest": {
+    "testRegex": "(/tests/.*|(\\.|/)test)\\.tsx?$",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    }
+  }
+}
