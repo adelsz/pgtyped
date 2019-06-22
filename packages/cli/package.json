@@ -6,7 +6,10 @@
   "scripts": {
     "test": "jest",
     "build": "tsc --declaration",
-    "dev": "yarn build && DEBUG=* node ./lib/index.js"
+    "watch": "yarn build --watch --preserveWatchOutput"
+  },
+  "bin": {
+    "pg-typegen": "./lib/index.js"
   },
   "jest": {
     "roots": [
@@ -17,7 +20,10 @@
     }
   },
   "dependencies": {
+    "@pg-typed/query": "^0.0.1",
     "@types/debug": "^4.1.4",
-    "debug": "^4.1.1"
+    "@types/minimist": "^1.2.0",
+    "debug": "^4.1.1",
+    "minimist": "^1.2.0"
   }
 }

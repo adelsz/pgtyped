@@ -5,7 +5,9 @@
   "author": "Adel Salakh <***REMOVED***>",
   "license": "MIT",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "lerna run build",
+    "watch": "lerna run --parallel watch"
   },
   "devDependencies": {
     "@types/jest": "^24.0.12",

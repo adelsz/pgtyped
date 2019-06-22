@@ -7,7 +7,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc --declaration",
-    "dev": "yarn build && DEBUG=client* node ./lib/index.js"
+    "watch": "yarn build --watch --preserveWatchOutput"
   },
   "jest": {
     "testRegex": "(/tests/.*|(\\.|/)test)\\.tsx?$",

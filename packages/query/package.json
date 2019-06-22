@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc --declaration",
-    "dev": "yarn build && DEBUG=* node ./lib/index.js"
+    "watch": "yarn build --watch --preserveWatchOutput"
   },
   "jest": {
     "roots": [
