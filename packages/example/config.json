@@ -1,0 +1,8 @@
+{
+  "typeDir": "./types/",
+  "srcDir": "./src/",
+  "db": {
+    "user": "adel",
+    "dbName": "testdb"
+  }
+}

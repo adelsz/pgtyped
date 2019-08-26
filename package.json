@@ -20,7 +20,8 @@
   "dependencies": {
     "cli": "file:packages/cli",
     "query": "file:packages/query",
-    "wire": "file:packages/wire"
+    "wire": "file:packages/wire",
+    "io-ts": "1.8.6"
   },
   "jest": {
     "testRegex": "(/tests/.*|(\\.|/)test)\\.tsx?$",

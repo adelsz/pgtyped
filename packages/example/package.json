@@ -18,6 +18,7 @@
   },
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1",
+    "typegen": "DEBUG=pg-typegen pg-typegen -c config.json",
     "build": "tsc --declaration"
   },
   "dependencies": {
