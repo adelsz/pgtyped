@@ -1,5 +1,9 @@
 {
-  "typeDir": "./types/",
+  "emit": {
+    "mode": "query-file",
+    "queryFileName": "queries.ts",
+    "emitFileName": "queries.types.ts"
+  },
   "srcDir": "./src/",
   "db": {
     "user": "adel",

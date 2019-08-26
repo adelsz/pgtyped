@@ -35,7 +35,12 @@ if (
 export const debug = debugBase('pg-typegen');
 
 async function main(config: IConfig) {
-  const fileList = glob.sync('src/**/*.ts');
+  const { emit: emitMode } = config;
+  if (emitMode.mode !== 'query-file') {
+    console.log('Unsupported emit mode.\nExiting.')
+    return;
+  }
+  const fileList = glob.sync(`${config.srcDir}/**/${emitMode.queryFileName}`);
   console.log(fileList)
   const connection = new AsyncQueue();
   debug('starting codegenerator')

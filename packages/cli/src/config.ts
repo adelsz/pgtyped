@@ -6,7 +6,16 @@ import * as Option from 'fp-ts/lib/Option';
 import * as Either from 'fp-ts/lib/Either';
 
 const configParser = t.type({
-  typeDir: t.string,
+  emit: t.union([
+    t.type({
+      mode: t.literal('query-file'),
+      queryFileName: t.string,
+      emitFileName: t.string,
+    }),
+    t.type({
+      mode: t.literal('multiple-file'),
+    }),
+  ]),
   srcDir: t.string,
   db: t.type({
     user: t.string,
