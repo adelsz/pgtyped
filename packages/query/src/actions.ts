@@ -76,36 +76,44 @@ export function desugarQuery(query: string) {
 /**
  * Returns the raw query type data as returned by the Describe message
  * @param query query string, can only contain proper Postgres numeric placeholders
+ * @param query name, should be unique per query body
  * @param queue 
  */
 export async function getTypeData(
   query: string,
+  name: string,
   queue: AsyncQueue,
 ) {
   // Send all the messages needed and then flush
   await queue.send(messages.parse, {
-    name: 'basic_select',
+    name,
     query,
     dataTypes: [],
   });
   await queue.send(messages.describe, {
-    name: 'basic_select',
+    name,
     type: PreparedObjectType.Statement,
   });
   await queue.send(messages.close, {
     target: PreparedObjectType.Statement,
-    targetName: 'basic_select',
+    targetName: name,
   });
   await queue.send(messages.flush, {});
 
   await queue.reply(messages.parseComplete);
-  const { params } = await queue.reply(messages.parameterDescription);
-  const { fields } = await queue.reply(messages.rowDescription);
+  const paramsResult = await queue.reply(messages.parameterDescription, messages.noData);
+  const params = 'params' in paramsResult ? paramsResult.params : [];
+  const fieldsResult = await queue.reply(messages.rowDescription, messages.noData);
+  const fields = 'fields' in fieldsResult ? fieldsResult.fields : [];
   await queue.reply(messages.closeComplete);
   return { params, fields };
 }
 
-export async function getTypes(query: string, queue: AsyncQueue): Promise<TQueryTypes> {
+export async function getTypes(
+  query: string,
+  name: string,
+  queue: AsyncQueue,
+): Promise<TQueryTypes> {
   const {
     desugaredQuery,
     paramNames,
@@ -114,7 +122,7 @@ export async function getTypes(query: string, queue: AsyncQueue): Promise<TQuery
   const {
     params,
     fields,
-  } = await getTypeData(desugaredQuery, queue);
+  } = await getTypeData(desugaredQuery, name, queue);
 
   const paramTypeOIDs = params.map(p => p.oid);
   const returnTypesOIDs = fields.map(f => f.typeOID);
@@ -137,7 +145,9 @@ export async function getTypes(query: string, queue: AsyncQueue): Promise<TQuery
     columnAttrNumber: number,
   }) => `(attrelid = ${tableOID} and attnum = ${columnAttrNumber})`;
 
-  const attrSelection = fields.map(attrMatcher).join(' or ');
+  const attrSelection = fields.length > 0
+    ? fields.map(attrMatcher).join(' or ')
+    : false;
 
   const attributeRows = await runQuery(
     `select
@@ -145,10 +155,12 @@ export async function getTypes(query: string, queue: AsyncQueue): Promise<TQuery
      from pg_attribute where ${attrSelection};`,
     queue,
   );
-  const attrMap: { [attid: string]: {
-    columnName: string,
-    nullable: boolean,
-  } } = attributeRows.reduce(
+  const attrMap: {
+    [attid: string]: {
+      columnName: string,
+      nullable: boolean,
+    }
+  } = attributeRows.reduce(
     (
       acc,
       [attid, attname, attnotnull]

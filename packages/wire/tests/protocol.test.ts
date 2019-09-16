@@ -204,6 +204,18 @@ test('parseMessage for ParameterStatus works', () => {
   expect(data).toEqual(expected);
 })
 
+test('parseMessage for NoData works', () => {
+  const buf = Buffer.from([
+    0x6e, 0x00, 0x00, 0x00, 0x04,
+  ]);
+
+  const result = parseMessage(messages.noData, buf);
+
+  const { bufferOffset } = result;
+
+  expect(bufferOffset).toBe(buf.length);
+});
+
 test('parseMessage for Query works', () => {
   const buf = Buffer.from([
     0x51, 0x00, 0x00, 0x00, 0x16, 0x73, 0x65, 0x6c, 0x65,

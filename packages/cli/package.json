@@ -21,11 +21,14 @@
   },
   "dependencies": {
     "@pg-typed/query": "^0.0.1",
+    "@types/camel-case": "^1.2.1",
+    "camel-case": "^3.0.0",
     "debug": "^4.1.1",
     "fp-ts": "^2.0.5",
     "glob": "^7.1.4",
     "io-ts": "^2.0.1",
-    "minimist": "^1.2.0"
+    "minimist": "^1.2.0",
+    "pascal-case": "^2.0.1"
   },
   "devDependencies": {
     "@types/debug": "^4.1.5",

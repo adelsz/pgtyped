@@ -3,6 +3,7 @@ import {
   startup,
   getTypes,
 } from '@pg-typed/query';
+import pascalCase from 'pascal-case';
 
 import { debug } from './index';
 
@@ -54,7 +55,7 @@ export async function queryToInterface(
   const {
     returnTypes,
     paramTypes,
-  } = await getTypes(query.name, connection);
+  } = await getTypes(query.body, query.name, connection);
 
   const returnFieldTypes: Array<IField> = [];
   const paramFieldTypes: Array<IField> = [];
@@ -87,17 +88,18 @@ export async function queryToInterface(
 
   let returnTypesInterface = '';
   let paramTypesInterface = '';
+  const interfaceName = pascalCase(query.name);
 
   if (returnFieldTypes.length > 0) {
     returnTypesInterface = generateInterface(
-      `I${query.name}Return`,
+      `I${interfaceName}Result`,
       returnFieldTypes
     );
   }
 
   if (paramFieldTypes.length > 0) {
     paramTypesInterface = generateInterface(
-      `I${query.name}Params`,
+      `I${interfaceName}Params`,
       paramFieldTypes
     );
   }

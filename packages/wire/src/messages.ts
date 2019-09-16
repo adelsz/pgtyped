@@ -208,6 +208,16 @@ export const messages = {
     }>
   }>,
   /** 
+   * No data message is returned when the server has no data to return for the previous client request.
+   */
+  noData: {
+    name: 'NoData',
+    type: 'SERVER',
+    size: 5,
+    indicator: 'n',
+    pattern: {},
+  } as TServerMessage<{}>,
+  /** 
    * ParameterDescription message describes the parameters needed by the statement.
    * It is followed by a RowDescription message describing the rows that will be returned (or a NoData message if the statement will not return rows)
    */
