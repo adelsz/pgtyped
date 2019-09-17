@@ -1,6 +1,7 @@
 export {
   getTypes,
   startup,
+  ParseError,
 } from './actions';
 
 export {

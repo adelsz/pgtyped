@@ -1,6 +1,6 @@
 import * as queryModule from '@pg-typed/query';
 import {
-  reindent, generateInterface, FieldType, queryToInterface,
+  reindent, generateInterface, FieldType, queryToTypeDeclarations,
 } from './generator';
 
 const getTypesMocked = jest
@@ -39,7 +39,7 @@ test('test query to interface', async () => {
     },
   };
   getTypesMocked.mockResolvedValue(mockTypes)
-  const result = await queryToInterface({
+  const result = await queryToTypeDeclarations({
     name: 'DeleteUsers',
     body: query,
   }, null);

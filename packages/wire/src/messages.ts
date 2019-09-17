@@ -306,7 +306,16 @@ export const messages = {
     },
   } as TServerMessage<{
     /** Fields describing the error, they can appear in any order.*/
-    fields: Object,
+    fields: {
+      /** PG routine reporting the error */
+      R: string,
+      /** Error message */
+      M: string,
+      /** Error hint */
+      H?: string,
+      /** Error position */
+      P?: string,
+    },
   }>,
   /**
    * The Close message closes an existing prepared statement or portal and releases resources.

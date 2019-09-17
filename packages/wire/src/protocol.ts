@@ -83,7 +83,7 @@ export const parseMessage = <Params extends Object>(
   let bufferOffset = messageOffset;
   const indicator = buf.readInt8(bufferOffset);
   const expectedIndicator = message.indicator.charCodeAt(0);
-  const isErrorMessage = (
+  const isUnexpectedErrorMessage = (
     indicator === errorResponseMessageIndicator
     && expectedIndicator !== errorResponseMessageIndicator
   );
@@ -95,7 +95,7 @@ export const parseMessage = <Params extends Object>(
   // Add extra one because message id isnt counted into size
   const messageEnd = messageSize + messageOffset + 1;
 
-  if (indicator !== expectedIndicator && !isErrorMessage) {
+  if (indicator !== expectedIndicator && !isUnexpectedErrorMessage) {
     return {
       type: 'MessageMismatchError',
       messageName: message.name,
@@ -105,7 +105,7 @@ export const parseMessage = <Params extends Object>(
 
   bufferOffset += 4;
 
-  const pattern = isErrorMessage
+  const pattern = isUnexpectedErrorMessage
     ? messages.errorResponse.pattern
     : message.pattern;
 
@@ -158,7 +158,7 @@ export const parseMessage = <Params extends Object>(
     pairIndex++;
   }
 
-  if (isErrorMessage) {
+  if (isUnexpectedErrorMessage) {
     return {
       type: 'ServerError',
       bufferOffset,

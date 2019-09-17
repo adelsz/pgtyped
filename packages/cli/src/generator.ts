@@ -14,6 +14,7 @@ export enum FieldType {
 
 const typeMap = {
   uuid: FieldType.String,
+  int4: FieldType.Number,
   text: FieldType.String,
 };
 
@@ -48,14 +49,19 @@ export const generateInterface = (
   return interfaceGen(interfaceName, contents);
 };
 
-export async function queryToInterface(
+export async function queryToTypeDeclarations(
   query: { name: string, body: string },
   connection: any,
 ) {
+  const typeData = await getTypes(query.body, query.name, connection);
+  if ('errorCode' in typeData) {
+    return typeData;
+  }
+
   const {
     returnTypes,
     paramTypes,
-  } = await getTypes(query.body, query.name, connection);
+  } = typeData;
 
   const returnFieldTypes: Array<IField> = [];
   const paramFieldTypes: Array<IField> = [];

@@ -73,6 +73,26 @@ export function desugarQuery(query: string) {
   };
 }
 
+export interface ParseError {
+  errorCode: string,
+  hint?: string,
+  message: string,
+  position?: string,
+}
+
+type TypeData = {
+  fields: {
+    name: string;
+    tableOID: number;
+    columnAttrNumber: number;
+    typeOID: number;
+    typeSize: number;
+    typeModifier: number;
+    formatCode: number;
+  }[],
+  params: { oid: number; }[],
+} | ParseError;
+
 /**
  * Returns the raw query type data as returned by the Describe message
  * @param query query string, can only contain proper Postgres numeric placeholders
@@ -83,7 +103,7 @@ export async function getTypeData(
   query: string,
   name: string,
   queue: AsyncQueue,
-) {
+): Promise<TypeData> {
   // Send all the messages needed and then flush
   await queue.send(messages.parse, {
     name,
@@ -100,7 +120,18 @@ export async function getTypeData(
   });
   await queue.send(messages.flush, {});
 
-  await queue.reply(messages.parseComplete);
+  const parseResult = await queue.reply(messages.errorResponse, messages.parseComplete);
+  console.log(parseResult)
+  if ('fields' in parseResult) {
+    // Error case
+    const { fields: errorFields } = parseResult;
+    return {
+      errorCode: errorFields.R,
+      hint: errorFields.H,
+      message: errorFields.M,
+      position: errorFields.P,
+    };
+  }
   const paramsResult = await queue.reply(messages.parameterDescription, messages.noData);
   const params = 'params' in paramsResult ? paramsResult.params : [];
   const fieldsResult = await queue.reply(messages.rowDescription, messages.noData);
@@ -113,16 +144,21 @@ export async function getTypes(
   query: string,
   name: string,
   queue: AsyncQueue,
-): Promise<TQueryTypes> {
+): Promise<TQueryTypes | ParseError> {
   const {
     desugaredQuery,
     paramNames,
   } = desugarQuery(query);
 
+  const typeData = await getTypeData(desugaredQuery, name, queue);
+  if ('errorCode' in typeData) {
+    return typeData;
+  }
+
   const {
     params,
     fields,
-  } = await getTypeData(desugaredQuery, name, queue);
+  } = typeData;
 
   const paramTypeOIDs = params.map(p => p.oid);
   const returnTypesOIDs = fields.map(f => f.typeOID);

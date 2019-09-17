@@ -7,13 +7,14 @@ import minimist from 'minimist';
 import {
   AsyncQueue,
   startup,
+  ParseError,
 } from '@pg-typed/query';
 import {
   parseConfig, IConfig,
 } from './config';
 import * as Option from 'fp-ts/lib/Option';
 import { parseCode } from './parser';
-import { queryToInterface } from './generator';
+import { queryToTypeDeclarations } from './generator';
 
 const args = minimist(process.argv.slice(2));
 
@@ -43,6 +44,14 @@ interface TypedQuery {
   typeDeclaration: string;
 };
 
+type RunResults = Array<
+  TypedQuery | {
+    fileName: string;
+    queryName: string;
+    error: ParseError;
+  }
+>;
+
 async function main(config: IConfig) {
   const { emit: emitMode } = config;
   if (emitMode.mode !== 'query-file') {
@@ -61,20 +70,30 @@ async function main(config: IConfig) {
   const fileList = glob.sync(`${config.srcDir}/**/${emitMode.queryFileName}`);
   debug('found query files %o', fileList)
 
-  const results: TypedQuery[] = [];
+  const results: RunResults = [];
   for (const fileName of fileList) {
     const contents = fs.readFileSync(fileName).toString();
     const queries = parseCode(contents, fileName);
     for (const query of queries) {
-      const typedQuery = ({
-        fileName,
-        queryName: query.queryName,
-        typeDeclaration: await queryToInterface(
-          { body: query.tagContent, name: query.queryName },
-          connection,
-        )
-      });
-      results.push(typedQuery);
+      const result = await queryToTypeDeclarations(
+        { body: query.tagContent, name: query.queryName },
+        connection,
+      );
+      if (typeof result === 'string') {
+        const typedQuery = ({
+          fileName,
+          queryName: query.queryName,
+          typeDeclaration: result,
+        });
+        results.push(typedQuery);
+      } else {
+        const queryError = {
+          fileName,
+          queryName: query.queryName,
+          error: result,
+        };
+        results.push(queryError);
+      }
     }
     console.log(results)
   }
