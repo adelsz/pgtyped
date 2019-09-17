@@ -121,7 +121,6 @@ export async function getTypeData(
   await queue.send(messages.flush, {});
 
   const parseResult = await queue.reply(messages.errorResponse, messages.parseComplete);
-  console.log(parseResult)
   if ('fields' in parseResult) {
     // Error case
     const { fields: errorFields } = parseResult;

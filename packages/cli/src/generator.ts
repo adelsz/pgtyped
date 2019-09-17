@@ -35,7 +35,7 @@ export const reindent = (
 const interfaceGen = (interfaceName: string, contents: string) =>
   `export interface ${interfaceName} {
 ${reindent(contents, 1)}
-}`;
+}\n\n`;
 
 export const generateInterface = (
   interfaceName: string,
@@ -49,13 +49,24 @@ export const generateInterface = (
   return interfaceGen(interfaceName, contents);
 };
 
+export const generateTypeAlias = (
+  typeName: string,
+  alias: string,
+) => `export type ${typeName} = ${alias};\n\n`;
+
 export async function queryToTypeDeclarations(
   query: { name: string, body: string },
   connection: any,
 ) {
   const typeData = await getTypes(query.body, query.name, connection);
+  const interfaceName = pascalCase(query.name);
+
   if ('errorCode' in typeData) {
-    return typeData;
+    const returnInterface = generateTypeAlias(`I${interfaceName}Result`, 'never');
+    const paramInterface = generateTypeAlias(`I${interfaceName}Params`, 'never');
+    const resultErrorComment = `/** Query '${query.name}' is invalid, so its result is assigned type 'never' */\n`;
+    const paramErrorComment = `/** Query '${query.name}' is invalid, so its parameters are assigned type 'never' */\n`;
+    return `${resultErrorComment}${returnInterface}${paramErrorComment}${paramInterface}`;
   }
 
   const {
@@ -92,25 +103,27 @@ export async function queryToTypeDeclarations(
       });
     })
 
-  let returnTypesInterface = '';
-  let paramTypesInterface = '';
-  const interfaceName = pascalCase(query.name);
-
-  if (returnFieldTypes.length > 0) {
-    returnTypesInterface = generateInterface(
-      `I${interfaceName}Result`,
-      returnFieldTypes
+  const returnTypesInterface =
+    `/** '${query.name}' return type */\n` + (
+      returnFieldTypes.length > 0
+        ? generateInterface(
+          `I${interfaceName}Result`,
+          returnFieldTypes,
+        )
+        : generateTypeAlias(`I${interfaceName}Result`, 'void')
     );
-  }
 
-  if (paramFieldTypes.length > 0) {
-    paramTypesInterface = generateInterface(
-      `I${interfaceName}Params`,
-      paramFieldTypes
+  const paramTypesInterface =
+    `/** '${query.name}' parameters type */\n` + (
+      paramFieldTypes.length > 0
+        ? generateInterface(
+          `I${interfaceName}Params`,
+          paramFieldTypes,
+        )
+        : generateTypeAlias(`I${interfaceName}Params`, 'void')
     );
-  }
 
-  const interfaces = `${paramTypesInterface}\n\n${returnTypesInterface}`;
+  const interfaces = `${paramTypesInterface}${returnTypesInterface}`;
 
   return interfaces;
 }

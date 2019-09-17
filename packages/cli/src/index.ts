@@ -15,6 +15,10 @@ import {
 import * as Option from 'fp-ts/lib/Option';
 import { parseCode } from './parser';
 import { queryToTypeDeclarations } from './generator';
+import path from 'path';
+import { promisify } from 'util';
+
+const writeFile = promisify(fs.writeFile);
 
 const args = minimist(process.argv.slice(2));
 
@@ -44,13 +48,25 @@ interface TypedQuery {
   typeDeclaration: string;
 };
 
-type RunResults = Array<
-  TypedQuery | {
-    fileName: string;
-    queryName: string;
-    error: ParseError;
+
+async function processFile(fileName: string, connection: any) {
+  const results: TypedQuery[] = [];
+  const contents = fs.readFileSync(fileName).toString();
+  const queries = parseCode(contents, fileName);
+  for (const query of queries) {
+    const result = await queryToTypeDeclarations(
+      { body: query.tagContent, name: query.queryName },
+      connection,
+    );
+    const typedQuery = ({
+      fileName,
+      queryName: query.queryName,
+      typeDeclaration: result,
+    });
+    results.push(typedQuery);
   }
->;
+  return results;
+}
 
 async function main(config: IConfig) {
   const { emit: emitMode } = config;
@@ -70,33 +86,20 @@ async function main(config: IConfig) {
   const fileList = glob.sync(`${config.srcDir}/**/${emitMode.queryFileName}`);
   debug('found query files %o', fileList)
 
-  const results: RunResults = [];
   for (const fileName of fileList) {
-    const contents = fs.readFileSync(fileName).toString();
-    const queries = parseCode(contents, fileName);
-    for (const query of queries) {
-      const result = await queryToTypeDeclarations(
-        { body: query.tagContent, name: query.queryName },
-        connection,
-      );
-      if (typeof result === 'string') {
-        const typedQuery = ({
-          fileName,
-          queryName: query.queryName,
-          typeDeclaration: result,
-        });
-        results.push(typedQuery);
-      } else {
-        const queryError = {
-          fileName,
-          queryName: query.queryName,
-          error: result,
-        };
-        results.push(queryError);
-      }
+    const decsFileName = path.resolve(
+      path.dirname(fileName),
+      path.basename(fileName, 'ts') + 'types.d.ts',
+    );
+    const typeDecs = await processFile(fileName, connection);
+    let declarationFileContents = `/** Types generated for queries found in "${fileName}" */\n\n`;
+    for (const typeDec of typeDecs) {
+      declarationFileContents += typeDec.typeDeclaration + '\n';
     }
-    console.log(results)
+    await writeFile(decsFileName, declarationFileContents);
+    console.log(`Saved ${typeDecs.length} query types to ${path.relative(process.cwd(), decsFileName)}`);
   }
+  process.exit();
 }
 
 const configResult = parseConfig(configPath);
