@@ -6,7 +6,11 @@ const query = async <TParams, TResult>(
   params: TParams,
 ): Promise<TResult> => (null as any);
 
-const result = query<ISelectAllUsersParams, ISelectAllUsersResult>(
-  SELECT_ALL_USERS,
-  undefined,
-);
+async function main() {
+  const users = await query<ISelectAllUsersParams, ISelectAllUsersResult>(
+    SELECT_ALL_USERS,
+    undefined,
+  );
+}
+
+main()

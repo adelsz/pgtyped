@@ -288,6 +288,14 @@ export const messages = {
     size: 4,
     pattern: {},
   } as TServerMessage<{}>,
+  /** Sync message asks the server to return to normal mode after an error */
+  sync: {
+    name: 'Sync',
+    type: 'CLIENT',
+    indicator: 'S',
+    size: int32(4),
+    pattern: () => [],
+  } as TClientMessage<{}>,
   /** Flush message asks the server to send all queued messages */
   flush: {
     name: 'Flush',
@@ -364,9 +372,9 @@ export const messages = {
 };
 
 export type TMessage = TServerMessage<{ commandTag: string }> | TServerMessage<{
-    /** Row columns array */
-    columns: Array<{
-      /** The value of the column, in the format indicated by the associated format code. n is the above length. */
-      value: Buffer,
-    }>
-  }>;
+  /** Row columns array */
+  columns: Array<{
+    /** The value of the column, in the format indicated by the associated format code. n is the above length. */
+    value: Buffer,
+  }>
+}>;

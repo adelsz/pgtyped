@@ -17,12 +17,14 @@ import { parseCode } from './parser';
 import { queryToTypeDeclarations } from './generator';
 import path from 'path';
 import { promisify } from 'util';
+import chokidar from 'chokidar';
 
 const writeFile = promisify(fs.writeFile);
 
 const args = minimist(process.argv.slice(2));
 
 const helpMessage = `PostgreSQL type generator flags:
+  -w --watch     Watch mode
   -h --help      Display this message
   -c             Config file (required)`;
 
@@ -31,11 +33,12 @@ if (args.h || args.help) {
   process.exit()
 }
 
-const { c: configPath } = args;
+const {
+  c: configPath,
+  w: isWatchMode,
+} = args;
 
-if (
-  typeof configPath !== 'string'
-) {
+if (typeof configPath !== 'string') {
   console.log('Config file required. See help -h for details.\nExiting.')
   process.exit()
 }
@@ -48,12 +51,12 @@ interface TypedQuery {
   typeDeclaration: string;
 };
 
-
-async function processFile(fileName: string, connection: any) {
+async function generateTypedecsFromFile(fileName: string, connection: any) {
   const results: TypedQuery[] = [];
   const contents = fs.readFileSync(fileName).toString();
   const queries = parseCode(contents, fileName);
   for (const query of queries) {
+    console.log(query.queryName)
     const result = await queryToTypeDeclarations(
       { body: query.tagContent, name: query.queryName },
       connection,
@@ -66,6 +69,63 @@ async function processFile(fileName: string, connection: any) {
     results.push(typedQuery);
   }
   return results;
+}
+
+const processFile = async (connection: any, fileName: string) => {
+  console.log(`Processing ${fileName}`)
+  const decsFileName = path.resolve(
+    path.dirname(fileName),
+    path.basename(fileName, 'ts') + 'types.ts',
+  );
+  const typeDecs = await generateTypedecsFromFile(fileName, connection);
+  let declarationFileContents = `/** Types generated for queries found in "${fileName}" */\n\n`;
+  for (const typeDec of typeDecs) {
+    declarationFileContents += typeDec.typeDeclaration + '\n';
+  }
+  await writeFile(decsFileName, declarationFileContents);
+  console.log(`Saved ${typeDecs.length} query types to ${path.relative(process.cwd(), decsFileName)}`);
+}
+
+class FileProcessor {
+  private fileQueue: string[] = [];
+  private activePromise: Promise<void> | null = null;
+  private connection: any;
+  private resolveDone: () => void = () => { };
+  public emptyQueue: Promise<void>;
+
+  constructor(connection: any) {
+    this.connection = connection;
+    this.emptyQueue = new Promise((resolve, reject) => {
+      this.resolveDone = resolve;
+    });
+  }
+
+  private onFileProcessed = () => {
+    this.activePromise = null;
+    this.processQueue();
+  }
+
+  private processQueue = () => {
+    if (this.activePromise) {
+      this.activePromise.then(this.onFileProcessed);
+      return;
+    }
+    const nextFile = this.fileQueue.pop();
+    if (nextFile) {
+      this.activePromise = processFile(this.connection, nextFile)
+        .then(this.onFileProcessed);
+    } else {
+      this.resolveDone();
+    }
+  }
+
+  push(...fileNames: string[]) {
+    this.fileQueue.push(...fileNames);
+    this.processQueue();
+    this.emptyQueue = new Promise((resolve, reject) => {
+      this.resolveDone = resolve;
+    });
+  }
 }
 
 async function main(config: IConfig) {
@@ -83,22 +143,22 @@ async function main(config: IConfig) {
   }, connection);
 
   debug('connected to database %o', config.db.dbName)
-  const fileList = glob.sync(`${config.srcDir}/**/${emitMode.queryFileName}`);
-  debug('found query files %o', fileList)
 
-  for (const fileName of fileList) {
-    const decsFileName = path.resolve(
-      path.dirname(fileName),
-      path.basename(fileName, 'ts') + 'types.d.ts',
-    );
-    const typeDecs = await processFile(fileName, connection);
-    let declarationFileContents = `/** Types generated for queries found in "${fileName}" */\n\n`;
-    for (const typeDec of typeDecs) {
-      declarationFileContents += typeDec.typeDeclaration + '\n';
-    }
-    await writeFile(decsFileName, declarationFileContents);
-    console.log(`Saved ${typeDecs.length} query types to ${path.relative(process.cwd(), decsFileName)}`);
+  const querySourcesPattern = `${config.srcDir}/**/${emitMode.queryFileName}`;
+  const fileProcessor = new FileProcessor(connection);
+
+  if (isWatchMode) {
+    chokidar.watch(querySourcesPattern, { persistent: true })
+      .on('add', path => fileProcessor.push(path))
+      .on('change', path => fileProcessor.push(path))
+    return;
   }
+
+  const fileList = glob.sync(querySourcesPattern);
+  debug('found query files %o', fileList)
+  fileProcessor.push(...fileList);
+  await fileProcessor.emptyQueue;
+
   process.exit();
 }
 

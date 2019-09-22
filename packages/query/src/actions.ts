@@ -121,6 +121,10 @@ export async function getTypeData(
   await queue.send(messages.flush, {});
 
   const parseResult = await queue.reply(messages.errorResponse, messages.parseComplete);
+
+  // Recover server state from any errors
+  await queue.send(messages.sync, {});
+
   if ('fields' in parseResult) {
     // Error case
     const { fields: errorFields } = parseResult;
