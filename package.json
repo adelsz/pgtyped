@@ -18,9 +18,6 @@
     "typescript": "^3.4.5"
   },
   "dependencies": {
-    "cli": "file:packages/cli",
-    "query": "file:packages/query",
-    "wire": "file:packages/wire",
     "io-ts": "1.8.6"
   },
   "jest": {
