@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import fs from 'fs';
-import debugBase from 'debug';
 import glob from 'glob';
 import minimist from 'minimist';
 import {
@@ -12,6 +11,7 @@ import {
 import {
   parseConfig, IConfig,
 } from './config';
+import { debug } from './util';
 import * as Option from 'fp-ts/lib/Option';
 import { parseCode } from './parser';
 import { queryToTypeDeclarations } from './generator';
@@ -30,7 +30,7 @@ const helpMessage = `PostgreSQL type generator flags:
 
 if (args.h || args.help) {
   console.log(helpMessage)
-  process.exit()
+  process.exit(0)
 }
 
 const {
@@ -40,10 +40,8 @@ const {
 
 if (typeof configPath !== 'string') {
   console.log('Config file required. See help -h for details.\nExiting.')
-  process.exit()
+  process.exit(0)
 }
-
-export const debug = debugBase('pg-typegen');
 
 interface TypedQuery {
   fileName: string;
@@ -56,7 +54,6 @@ async function generateTypedecsFromFile(fileName: string, connection: any) {
   const contents = fs.readFileSync(fileName).toString();
   const queries = parseCode(contents, fileName);
   for (const query of queries) {
-    console.log(query.queryName)
     const result = await queryToTypeDeclarations(
       { body: query.tagContent, name: query.queryName },
       connection,
@@ -159,7 +156,7 @@ async function main(config: IConfig) {
   fileProcessor.push(...fileList);
   await fileProcessor.emptyQueue;
 
-  process.exit();
+  process.exit(0);
 }
 
 const configResult = parseConfig(configPath);

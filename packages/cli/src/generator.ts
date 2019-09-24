@@ -5,7 +5,7 @@ import {
 } from '@pg-typed/query';
 import pascalCase from 'pascal-case';
 
-import { debug } from './index';
+import { debug } from './util';
 
 export enum FieldType {
   String = 'string',
@@ -62,6 +62,7 @@ export async function queryToTypeDeclarations(
   const interfaceName = pascalCase(query.name);
 
   if ('errorCode' in typeData) {
+    debug('Error in query. Details: %o', typeData);
     const returnInterface = generateTypeAlias(`I${interfaceName}Result`, 'never');
     const paramInterface = generateTypeAlias(`I${interfaceName}Params`, 'never');
     const resultErrorComment = `/** Query '${query.name}' is invalid, so its result is assigned type 'never' */\n`;

@@ -13,6 +13,7 @@ test('parser finds string template in correct file', () => {
 
   const result = parseCode(fileContent);
   const expectedResult = [{
+    queryName: 'query',
     tagName: 'sql',
     tagContent: 'select id, name, age from users;',
   }];
@@ -30,6 +31,7 @@ test('parser finds string template in incorrect file', () => {
 
   const result = parseCode(fileContent);
   const expectedResult = [{
+    queryName: 'query',
     tagName: 'sql',
     tagContent: 'select id, name, age from users;',
   }];

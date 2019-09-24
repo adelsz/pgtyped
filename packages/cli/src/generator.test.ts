@@ -43,16 +43,20 @@ test('test query to interface', async () => {
     name: 'DeleteUsers',
     body: query,
   }, null);
-  const expected = `export interface IDeleteUsersParams {
+  const expected = `/** 'DeleteUsers' parameters type */
+export interface IDeleteUsersParams {
   userName: string | null;
   id: string | null;
 }
 
-export interface IDeleteUsersReturn {
+/** 'DeleteUsers' return type */
+export interface IDeleteUsersResult {
   id: string;
   name: string;
   bote: string | null;
-}`;
+}
+
+`;
   expect(result).toEqual(expected)
 })
 
@@ -72,7 +76,9 @@ test('interface generation', () => {
     `export interface User {
   name: string;
   age: number | null;
-}`;
+}
+
+`;
   const fields = [{
     fieldName: 'name',
     fieldType: FieldType.String,
