@@ -6,6 +6,8 @@ import {
   PreparedObjectType,
 } from '@pg-typed/wire';
 
+import processQuery, { QueryParam } from './preprocessor';
+
 const debugQuery = debugBase('client:query');
 
 export async function startup(options: {
@@ -44,7 +46,10 @@ export async function runQuery(query: string, queue: AsyncQueue) {
 }
 
 interface TQueryTypes {
-  paramTypes: { [paramName: string]: string },
+  paramMetadata: {
+    mapping: Array<QueryParam>,
+    params: Array<string>
+  },
   returnTypes: Array<{
     returnName: string,
     columnName: string,
@@ -52,26 +57,6 @@ interface TQueryTypes {
     nullable: boolean,
   }>,
 };
-
-/**
- * Replaces all named parameters with numbered ones.
- * E.g. all parameters of the form `:paramName` are transformed into form `$k`, where k > 0
- * @param query query string
- * @returns returns desugared query string and an array of all parameter names found
- */
-export function desugarQuery(query: string) {
-  const placeholderRegex = /:(\w*)/g;
-  const paramNames: Array<any> = [];
-  const desugaredQuery = query.replace(placeholderRegex, (_, paramName) => {
-    paramNames.push(paramName);
-    const replacement = `$${paramNames.length}`;
-    return replacement;
-  })
-  return {
-    desugaredQuery,
-    paramNames,
-  };
-}
 
 export interface ParseError {
   errorCode: string,
@@ -148,12 +133,9 @@ export async function getTypes(
   name: string,
   queue: AsyncQueue,
 ): Promise<TQueryTypes | ParseError> {
-  const {
-    desugaredQuery,
-    paramNames,
-  } = desugarQuery(query);
+  const queryData = processQuery(query);
 
-  const typeData = await getTypeData(desugaredQuery, name, queue);
+  const typeData = await getTypeData(queryData.query, name, queue);
   if ('errorCode' in typeData) {
     return typeData;
   }
@@ -219,11 +201,10 @@ export async function getTypes(
     typeName: typeMap[f.typeOID],
   }));
 
-  const paramTypes: { [paramName: string]: string } = {};
-  params.forEach((param, index) => {
-    const paramName = paramNames[index];
-    const paramType = typeMap[param.oid];
-    paramTypes[paramName] = paramType;
-  });
-  return { paramTypes, returnTypes };
+  const paramMetadata = {
+    params: params.map(({ oid }) => typeMap[oid]),
+    mapping: queryData.mapping,
+  };
+
+  return { paramMetadata, returnTypes };
 }

@@ -1,7 +1,9 @@
 /** Types generated for queries found in "./src/users/queries.ts" */
 
 /** 'SELECT_ALL_USERS' parameters type */
-export type ISelectAllUsersParams = void;
+export interface ISelectAllUsersParams {
+  ages: Array<number | null>;
+}
 
 /** 'SELECT_ALL_USERS' return type */
 export interface ISelectAllUsersResult {
@@ -10,10 +12,29 @@ export interface ISelectAllUsersResult {
 }
 
 
-/** Query 'SELECT_USER_IDS' is invalid, so its result is assigned type 'never' */
-export type ISelectUserIdsResult = never;
+/** 'INSERT_USERS' parameters type */
+export interface IInsertUsersParams {
+  users: {
+    name: string,
+    age: number
+  };
+}
 
-/** Query 'SELECT_USER_IDS' is invalid, so its parameters are assigned type 'never' */
-export type ISelectUserIdsParams = never;
+/** 'INSERT_USERS' return type */
+export type IInsertUsersResult = void;
+
+
+/** 'SELECT_USER_IDS' parameters type */
+export interface ISelectUserIdsParams {
+  id: string | null;
+  age: number | null;
+}
+
+/** 'SELECT_USER_IDS' return type */
+export interface ISelectUserIdsResult {
+  id: string;
+  note: string | null;
+  age: number;
+}
 
 

@@ -2,8 +2,11 @@ export {
   getTypes,
   startup,
   ParseError,
-  desugarQuery,
 } from './actions';
+
+export {
+  ParamType,
+} from './preprocessor';
 
 export {
   AsyncQueue,

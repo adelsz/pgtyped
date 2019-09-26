@@ -1,6 +1,6 @@
 import * as queryModule from '@pg-typed/query';
 import {
-  reindent, generateInterface, FieldType, queryToTypeDeclarations,
+  generateInterface, FieldType, queryToTypeDeclarations,
 } from './generator';
 
 const getTypesMocked = jest
@@ -33,20 +33,23 @@ test('test query to interface', async () => {
         nullable: true,
       },
     ],
-    paramTypes: {
-      userName: 'text',
-      id: 'uuid',
+    paramMetadata: {
+      params: ['uuid', 'text'],
+      mapping: [
+        { name: 'id', type: queryModule.ParamType.Scalar, assignedIndex: 1, },
+        { name: 'userName', type: queryModule.ParamType.Scalar, assignedIndex: 2, }
+      ]
     },
   };
-  getTypesMocked.mockResolvedValue(mockTypes)
+  getTypesMocked.mockResolvedValue(mockTypes as any)
   const result = await queryToTypeDeclarations({
     name: 'DeleteUsers',
     body: query,
   }, null);
   const expected = `/** 'DeleteUsers' parameters type */
 export interface IDeleteUsersParams {
-  userName: string | null;
   id: string | null;
+  userName: string | null;
 }
 
 /** 'DeleteUsers' return type */
@@ -60,33 +63,20 @@ export interface IDeleteUsersResult {
   expect(result).toEqual(expected)
 })
 
-test('reindent works', () => {
-  const base =
-    `let x = 12;
-let y = 13;`;
-  const expected =
-    `    let x = 12;
-    let y = 13;`;
-  const result = reindent(base, 2);
-  expect(result).toEqual(expected);
-});
-
 test('interface generation', () => {
   const expected =
     `export interface User {
   name: string;
-  age: number | null;
+  age: number;
 }
 
 `;
   const fields = [{
     fieldName: 'name',
-    fieldType: FieldType.String,
-    nullable: false,
+    fieldType: 'string',
   }, {
     fieldName: 'age',
-    fieldType: FieldType.Number,
-    nullable: true,
+    fieldType: 'number',
   }];
   const result = generateInterface('User', fields);
   expect(result).toEqual(expected);

@@ -1,14 +1,21 @@
 type ScalarType = string | number;
 
+export enum ParamType {
+  Scalar,
+  Dict,
+  ScalarArray,
+  DictArray,
+}
+
 interface ScalarParam {
   name: string;
-  type: 'scalar';
+  type: ParamType.Scalar;
   assignedIndex: number;
 }
 
 interface DictParam {
   name: string;
-  type: 'dict';
+  type: ParamType.Dict;
   dict: {
     [key: string]: ScalarParam;
   };
@@ -16,23 +23,23 @@ interface DictParam {
 
 interface ScalarArrayParam {
   name: string;
-  type: 'scalar[]';
+  type: ParamType.ScalarArray;
   assignedIndex: number;
 }
 
 interface DictArrayParam {
   name: string;
-  type: 'dict[]';
+  type: ParamType.DictArray;
   dict: {
-    [key: string]: number;
+    [key: string]: ScalarParam;
   };
 }
 
-type ParamType = ScalarParam | ScalarArrayParam | DictParam | DictArrayParam;
+export type QueryParam = ScalarParam | ScalarArrayParam | DictParam | DictArrayParam;
 
 interface IInterpolatedQuery {
   query: string;
-  mapping: Array<ParamType>;
+  mapping: Array<QueryParam>;
   bindings: Array<ScalarType>;
 };
 
@@ -57,17 +64,17 @@ function assertDictArray(obj: any): obj is Array<INestedParameters> {
 const rootRegex = /(\:\:?)([a-zA-Z0-9]+)(?:\((.+?)\))?/gm;
 const leafRegex = /\:([a-zA-Z0-9]+)/gm;
 
-const interpolate = (
+const processQuery = (
   query: string,
   parameters?: IQueryParameters,
 ): IInterpolatedQuery => {
   const bindings: Array<ScalarType> = [];
-  const params: Array<ParamType> = [];
+  const params: Array<QueryParam> = [];
   let index = 0;
   const flatQuery = query.replace(
     rootRegex,
     (_, modifier, paramName: string, nestedExp: string): string => {
-      let param: ParamType | undefined;
+      let param: QueryParam | undefined;
       let replacement = '$bad';
       if (modifier === ':') {
         if (nestedExp) {
@@ -76,7 +83,7 @@ const interpolate = (
             leafRegex,
             (_, leafParamName: string): string => {
               dict[leafParamName] = {
-                type: 'scalar',
+                type: ParamType.Scalar,
                 name: leafParamName,
                 assignedIndex: ++index,
               };
@@ -85,7 +92,7 @@ const interpolate = (
           );
           replacement = `(${replacementContents})`;
           param = {
-            type: 'dict',
+            type: ParamType.Dict,
             name: paramName,
             dict,
           };
@@ -100,7 +107,7 @@ const interpolate = (
             }
           } else {
             param = {
-              type: 'scalar',
+              type: ParamType.Scalar,
               name: paramName,
               assignedIndex: ++index,
             };
@@ -133,11 +140,15 @@ const interpolate = (
           } else {
             const repl = keys.map((key) => {
               const i = ++index;
-              dict[key] = i;
+              dict[key] = {
+                name: key,
+                assignedIndex: i,
+                type: ParamType.Scalar,
+              };
               return `$${i}`;
             }).join(', ');
             param = {
-              type: 'dict[]',
+              type: ParamType.DictArray,
               name: paramName,
               dict,
             };
@@ -159,7 +170,7 @@ const interpolate = (
             }
           } else {
             param = {
-              type: 'scalar[]',
+              type: ParamType.ScalarArray,
               name: paramName,
               assignedIndex: ++index,
             };
@@ -180,4 +191,4 @@ const interpolate = (
   };
 };
 
-export default interpolate;
+export default processQuery;

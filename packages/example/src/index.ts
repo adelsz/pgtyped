@@ -9,7 +9,9 @@ const query = async <TParams, TResult>(
 async function main() {
   const users = await query<ISelectAllUsersParams, ISelectAllUsersResult>(
     SELECT_ALL_USERS,
-    undefined,
+    {
+      ages: [34, 45],
+    }
   );
 }
 

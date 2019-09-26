@@ -1,4 +1,4 @@
-import interpolate from './preprocessor';
+import interpolate, { ParamType } from './preprocessor';
 
 test('name parameter interpolation', () => {
   const query = 'SELECT id, name from users where id = :id and age > :age';
@@ -27,12 +27,12 @@ test('name parameter mapping', () => {
       {
         assignedIndex: 1,
         name: 'id',
-        type: 'scalar',
+        type: ParamType.Scalar,
       },
       {
         assignedIndex: 2,
         name: 'age',
-        type: 'scalar',
+        type: ParamType.Scalar,
       },
     ],
     bindings: [],
@@ -58,17 +58,17 @@ test('single value list parameter interpolation', () => {
     mapping: [
       {
         name: 'user',
-        type: 'dict',
+        type: ParamType.Dict,
         dict: {
           name: {
             assignedIndex: 1,
             name: 'name',
-            type: 'scalar',
+            type: ParamType.Scalar,
           },
           age: {
             assignedIndex: 2,
             name: 'age',
-            type: 'scalar',
+            type: ParamType.Scalar,
           }
         },
       },
@@ -89,12 +89,12 @@ test('multiple value list (array) parameter mapping', () => {
     mapping: [
       {
         name: 'ages',
-        type: 'scalar[]',
+        type: ParamType.ScalarArray,
         assignedIndex: 1,
       },
       {
         name: 'otherAges',
-        type: 'scalar[]',
+        type: ParamType.ScalarArray,
         assignedIndex: 2,
       },
     ],
@@ -133,10 +133,10 @@ test('multiple value list parameter mapping', () => {
     mapping: [
       {
         name: 'users',
-        type: 'dict[]',
+        type: ParamType.DictArray,
         dict: {
-          name: 1,
-          age: 2,
+          name: { name: 'name', type: ParamType.Scalar, assignedIndex: 1 },
+          age: { name: 'age', type: ParamType.Scalar, assignedIndex: 2 },
         }
       },
     ],
