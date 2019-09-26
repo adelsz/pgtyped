@@ -2,6 +2,7 @@ export {
   getTypes,
   startup,
   ParseError,
+  desugarQuery,
 } from './actions';
 
 export {

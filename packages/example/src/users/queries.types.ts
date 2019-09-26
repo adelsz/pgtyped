@@ -1,7 +1,10 @@
 /** Types generated for queries found in "./src/users/queries.ts" */
 
 /** 'SELECT_ALL_USERS' parameters type */
-export type ISelectAllUsersParams = void;
+export interface ISelectAllUsersParams {
+  agx: string | null;
+  agy: string | null;
+}
 
 /** 'SELECT_ALL_USERS' return type */
 export interface ISelectAllUsersResult {
