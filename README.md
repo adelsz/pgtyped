@@ -1,5 +1,7 @@
 ## PgTyped
 
+[![Actions Status](https://github.com/adelsz/pgtyped/workflows/CI/badge.svg)](https://github.com/adelsz/pgtyped/actions)
+
 Raw SQL query type generator.
 Finally you can use raw SQL with guaranteed type-safety.
 Works with PostgresSQL.
