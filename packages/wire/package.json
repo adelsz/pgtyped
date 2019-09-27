@@ -8,7 +8,7 @@
     "test": "jest",
     "build": "tsc --declaration",
     "check": "tsc --noEmit",
-    "watch": "yarn build --watch --preserveWatchOutput"
+    "watch": "tsc --declaration --watch --preserveWatchOutput"
   },
   "jest": {
     "testRegex": "(/tests/.*|(\\.|/)test)\\.tsx?$",

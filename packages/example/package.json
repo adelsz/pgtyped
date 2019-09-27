@@ -1,5 +1,5 @@
 {
-  "name": "example",
+  "name": "@pg-typed/example",
   "version": "1.0.0",
   "description": "A private package demonstrating how pg-typed works.",
   "author": "Adel Salakh <***REMOVED***>",
@@ -7,19 +7,16 @@
   "license": "MIT",
   "main": "lib/index.js",
   "directories": {
-    "lib": "lib",
-    "test": "__tests__"
+    "lib": "lib"
   },
   "files": [
     "lib"
   ],
-  "publishConfig": {
-    "registry": "https://registry.yarnpkg.com"
-  },
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1",
     "typegen": "pg-typegen -c config.json",
     "build": "tsc --declaration",
+    "watch": "tsc --declaration --watch --preserveWatchOutput",
     "check": "tsc --noEmit"
   },
   "dependencies": {
