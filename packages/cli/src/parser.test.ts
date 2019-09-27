@@ -1,8 +1,8 @@
 import {
   parseCode,
-} from './parser';
+} from "./parser";
 
-test('parser finds string template in correct file', () => {
+test("parser finds string template in correct file", () => {
   const fileContent = `
     const sql : any = null;
 
@@ -13,14 +13,14 @@ test('parser finds string template in correct file', () => {
 
   const result = parseCode(fileContent);
   const expectedResult = [{
-    queryName: 'query',
-    tagName: 'sql',
-    tagContent: 'select id, name, age from users;',
+    queryName: "query",
+    tagName: "sql",
+    tagContent: "select id, name, age from users;",
   }];
   expect(result).toEqual(expectedResult);
 });
 
-test('parser finds string template in incorrect file', () => {
+test("parser finds string template in incorrect file", () => {
   const fileContent = `
     const sql  ny =/ null;
 
@@ -31,9 +31,9 @@ test('parser finds string template in incorrect file', () => {
 
   const result = parseCode(fileContent);
   const expectedResult = [{
-    queryName: 'query',
-    tagName: 'sql',
-    tagContent: 'select id, name, age from users;',
+    queryName: "query",
+    tagName: "sql",
+    tagContent: "select id, name, age from users;",
   }];
   expect(result).toEqual(expectedResult);
 });

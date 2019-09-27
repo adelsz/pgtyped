@@ -1,23 +1,23 @@
-import debugBase from 'debug';
+import debugBase from "debug";
 
 import {
   AsyncQueue,
   messages,
   PreparedObjectType,
-} from '@pg-typed/wire';
+} from "@pg-typed/wire";
 
-import processQuery, { QueryParam } from './preprocessor';
+import processQuery, { QueryParam } from "./preprocessor";
 
-const debugQuery = debugBase('client:query');
+const debugQuery = debugBase("client:query");
 
 export async function startup(options: {
   user: string,
   database: string,
-}, queue: AsyncQueue) {
+},                            queue: AsyncQueue) {
   await queue.connect();
   const startupParams = {
     ...options,
-    client_encoding: '\'utf-8\'',
+    client_encoding: "'utf-8'",
   };
   await queue.send(messages.startupMessage, { params: startupParams });
   await queue.reply(messages.readyForQuery);
@@ -26,47 +26,47 @@ export async function startup(options: {
 export async function runQuery(query: string, queue: AsyncQueue) {
   const resultRows = [];
   await queue.send(messages.query, { query });
-  debugQuery('sent query %o', query);
+  debugQuery("sent query %o", query);
   {
     const result = await queue.reply(messages.rowDescription);
-    debugQuery('received row description: %o', result.fields.map(c => c.name.toString()));
+    debugQuery("received row description: %o", result.fields.map((c) => c.name.toString()));
   }
   {
     while (true) {
       const result = await queue.reply(messages.dataRow, messages.commandComplete);
-      if ('commandTag' in result) {
+      if ("commandTag" in result) {
         break;
       }
-      const row = result.columns.map(c => c.value.toString());
+      const row = result.columns.map((c) => c.value.toString());
       resultRows.push(row);
-      debugQuery('received row data: %o', row);
+      debugQuery("received row data: %o", row);
     }
   }
   return resultRows;
 }
 
-interface TQueryTypes {
+interface IQueryTypes {
   paramMetadata: {
-    mapping: Array<QueryParam>,
-    params: Array<string>
-  },
+    mapping: QueryParam[],
+    params: string[],
+  };
   returnTypes: Array<{
     returnName: string,
     columnName: string,
     typeName: string,
     nullable: boolean,
-  }>,
-};
+  }>;
+}
 
-export interface ParseError {
-  errorCode: string,
-  hint?: string,
-  message: string,
-  position?: string,
+export interface IParseError {
+  errorCode: string;
+  hint?: string;
+  message: string;
+  position?: string;
 }
 
 type TypeData = {
-  fields: {
+  fields: Array<{
     name: string;
     tableOID: number;
     columnAttrNumber: number;
@@ -74,15 +74,15 @@ type TypeData = {
     typeSize: number;
     typeModifier: number;
     formatCode: number;
-  }[],
-  params: { oid: number; }[],
-} | ParseError;
+  }>,
+  params: Array<{ oid: number; }>,
+} | IParseError;
 
 /**
  * Returns the raw query type data as returned by the Describe message
  * @param query query string, can only contain proper Postgres numeric placeholders
  * @param query name, should be unique per query body
- * @param queue 
+ * @param queue
  */
 export async function getTypeData(
   query: string,
@@ -110,7 +110,7 @@ export async function getTypeData(
   // Recover server state from any errors
   await queue.send(messages.sync, {});
 
-  if ('fields' in parseResult) {
+  if ("fields" in parseResult) {
     // Error case
     const { fields: errorFields } = parseResult;
     return {
@@ -121,9 +121,9 @@ export async function getTypeData(
     };
   }
   const paramsResult = await queue.reply(messages.parameterDescription, messages.noData);
-  const params = 'params' in paramsResult ? paramsResult.params : [];
+  const params = "params" in paramsResult ? paramsResult.params : [];
   const fieldsResult = await queue.reply(messages.rowDescription, messages.noData);
-  const fields = 'fields' in fieldsResult ? fieldsResult.fields : [];
+  const fields = "fields" in fieldsResult ? fieldsResult.fields : [];
   await queue.reply(messages.closeComplete);
   return { params, fields };
 }
@@ -132,11 +132,11 @@ export async function getTypes(
   query: string,
   name: string,
   queue: AsyncQueue,
-): Promise<TQueryTypes | ParseError> {
+): Promise<IQueryTypes | IParseError> {
   const queryData = processQuery(query);
 
   const typeData = await getTypeData(queryData.query, name, queue);
-  if ('errorCode' in typeData) {
+  if ("errorCode" in typeData) {
     return typeData;
   }
 
@@ -145,12 +145,12 @@ export async function getTypes(
     fields,
   } = typeData;
 
-  const paramTypeOIDs = params.map(p => p.oid);
-  const returnTypesOIDs = fields.map(f => f.typeOID);
+  const paramTypeOIDs = params.map((p) => p.oid);
+  const returnTypesOIDs = fields.map((f) => f.typeOID);
   const usedTypesOIDs = paramTypeOIDs.concat(returnTypesOIDs);
 
   const typeRows = await runQuery(
-    `select oid, typname from pg_type where oid in (${usedTypesOIDs.join(',')})`,
+    `select oid, typname from pg_type where oid in (${usedTypesOIDs.join(",")})`,
     queue,
   );
   const typeMap: { [oid: number]: string } = typeRows.reduce(
@@ -167,7 +167,7 @@ export async function getTypes(
   }) => `(attrelid = ${tableOID} and attnum = ${columnAttrNumber})`;
 
   const attrSelection = fields.length > 0
-    ? fields.map(attrMatcher).join(' or ')
+    ? fields.map(attrMatcher).join(" or ")
     : false;
 
   const attributeRows = await runQuery(
@@ -180,22 +180,22 @@ export async function getTypes(
     [attid: string]: {
       columnName: string,
       nullable: boolean,
-    }
+    },
   } = attributeRows.reduce(
     (
       acc,
-      [attid, attname, attnotnull]
+      [attid, attname, attnotnull],
     ) => ({
       ...acc,
       [attid]: {
         columnName: attname,
-        nullable: attnotnull !== 't'
+        nullable: attnotnull !== "t",
       },
     }),
     {},
   );
 
-  const returnTypes = fields.map(f => ({
+  const returnTypes = fields.map((f) => ({
     ...attrMap[`${f.tableOID}:${f.columnAttrNumber}`],
     returnName: f.name,
     typeName: typeMap[f.typeOID],

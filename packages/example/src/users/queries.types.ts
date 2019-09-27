@@ -11,18 +11,16 @@ export interface ISelectAllUsersResult {
   name: string;
 }
 
-
 /** 'INSERT_USERS' parameters type */
 export interface IInsertUsersParams {
   users: {
     name: string,
-    age: number
+    age: number,
   };
 }
 
 /** 'INSERT_USERS' return type */
 export type IInsertUsersResult = void;
-
 
 /** 'SELECT_USER_IDS' parameters type */
 export interface ISelectUserIdsParams {
@@ -36,5 +34,3 @@ export interface ISelectUserIdsResult {
   note: string | null;
   age: number;
 }
-
-

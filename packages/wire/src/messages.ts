@@ -1,20 +1,20 @@
 import {
-  cStringDict,
-  int32,
-  int16,
   byte1,
-  cString,
   byteN,
-  fixedArray,
   cByteDict,
-} from './helpers';
+  cString,
+  cStringDict,
+  fixedArray,
+  int16,
+  int32,
+} from "./helpers";
 
-export interface TClientMessage<Params extends Object | void> {
-  name: string,
-  type: 'CLIENT',
-  indicator: string | null,
-  pattern: (params: Params) => Array<Buffer>,
-};
+export interface IClientMessage<Params extends object | void> {
+  name: string;
+  type: "CLIENT";
+  indicator: string | null;
+  pattern: (params: Params) => Buffer[];
+}
 
 type MapFields<Params> = {
   [P in keyof Params]: (
@@ -23,79 +23,79 @@ type MapFields<Params> = {
   )
 };
 
-export interface TServerMessage<Params extends Object> {
-  name: string,
-  type: 'SERVER',
-  size?: number,
-  indicator: string,
-  pattern: MapFields<Params>,
-};
+export interface IServerMessage<Params extends object> {
+  name: string;
+  type: "SERVER";
+  size?: number;
+  indicator: string;
+  pattern: MapFields<Params>;
+}
 
 /** The status of the the server query executor */
 export const enum TransactionStatus {
   /** Transaction idle (not in a transaction block) */
-  Idle = 'I',
+  Idle = "I",
 
   /** In a transaction block */
-  Transaction = 'T',
+  Transaction = "T",
 
   /** Failed transaction block (queries will be rejected until block is ended) */
-  Error = 'E'
+  Error = "E",
 }
 
 /** Prepared object type */
 export const enum PreparedObjectType {
-  Portal = 'P',
-  Statement = 'S'
+  Portal = "P",
+  Statement = "S",
 }
 
 export const messages = {
   /** ReadyForQuery message informs the frontend that it can safely send a new command. */
   readyForQuery: {
-    name: 'ReadyForQuery',
-    type: 'SERVER',
-    indicator: 'Z',
+    name: "ReadyForQuery",
+    type: "SERVER",
+    indicator: "Z",
     size: 5,
     pattern: {
       trxStatus: byte1,
     },
-  } as TServerMessage<{ trxStatus: TransactionStatus }>,
+  } as IServerMessage<{ trxStatus: TransactionStatus }>,
   /** AuthenticationOk message informs the frontend that the authentication exchange is successfully completed. */
   authenticationOk: {
-    name: 'AuthenticationOk',
-    type: 'SERVER',
-    indicator: 'R',
+    name: "AuthenticationOk",
+    type: "SERVER",
+    indicator: "R",
     size: 8,
     pattern: {
       status: int32(0),
     },
-  } as TServerMessage<{}>,
-  /** 
+  } as IServerMessage<{}>,
+  /**
    * BackendKeyData message provides secret-key data that the frontend must save to be able to issue cancel requests later.
    * The frontend should not respond to this message, but should continue listening for a ReadyForQuery message.
    */
   backendKeyData: {
-    name: 'BackendKeyData',
-    type: 'SERVER',
-    indicator: 'K',
+    name: "BackendKeyData",
+    type: "SERVER",
+    indicator: "K",
     size: 12,
     pattern: {
       processId: int32,
       secretKey: int32,
     },
-  } as TServerMessage<{
+  } as IServerMessage<{
     /** The process ID of the backend. */
     processId: number,
     /** The secret key of the backend. */
-    secretKey: number
+    secretKey: number,
   }>,
-  /** 
+  /**
    * StartupMessage should be the first message sent by the frontend to initiate an unencrypted connection.
    * To initiate an SSL-encrypted connection first message should be a SSLRequest message
    */
   startupMessage: {
-    name: 'StartupMessage',
-    type: 'CLIENT',
+    name: "StartupMessage",
+    type: "CLIENT",
     indicator: null,
     pattern: (data) => [
       // The protocol version number.
@@ -105,7 +105,7 @@ export const messages = {
       // An array of String parameter-value pairs
       cStringDict(data.params),
     ],
-  } as TClientMessage<{
+  } as IClientMessage<{
     /**
      * A key-value map of startup parameters.
      * Currently recognized parameters are:
@@ -125,14 +125,14 @@ export const messages = {
   }>,
   /** ParameterStatus message informs the frontend about the current (initial) setting of backend parameters. */
   parameterStatus: {
-    name: 'ParameterStatus',
-    type: 'SERVER',
-    indicator: 'S',
+    name: "ParameterStatus",
+    type: "SERVER",
+    indicator: "S",
     pattern: {
       name: cString,
       value: cString,
     },
-  } as TServerMessage<{
+  } as IServerMessage<{
     /** The name of the run-time parameter being reported */
     name: string,
     /** The current value of the parameter */
@@ -140,13 +140,13 @@ export const messages = {
   }>,
   /** Query message initiates a simple query cycle. */
   query: {
-    name: 'Query',
-    type: 'CLIENT',
-    indicator: 'Q',
+    name: "Query",
+    type: "CLIENT",
+    indicator: "Q",
     pattern: (data) => [
       cString(data.query),
     ],
-  } as TClientMessage<{
+  } as IClientMessage<{
     /** SQL command (or commands) expressed as a text string */
     query: string,
   }>,
@@ -156,9 +156,9 @@ export const messages = {
    * This will be followed by a DataRow message for each row being returned to the frontend.
    */
   rowDescription: {
-    name: 'RowDescription',
-    type: 'SERVER',
-    indicator: 'T',
+    name: "RowDescription",
+    type: "SERVER",
+    indicator: "T",
     pattern: {
       fields: [
         {
@@ -172,7 +172,7 @@ export const messages = {
         },
       ],
     },
-  } as TServerMessage<{
+  } as IServerMessage<{
     fields: Array<{
       /** The field name. */
       name: string,
@@ -188,62 +188,62 @@ export const messages = {
       typeModifier: number,
       /** The format code being used for the field. Currently will be zero (text) or one (binary). In a RowDescription returned from the statement variant of Describe, the format code is not yet known and will always be zero. */
       formatCode: number,
-    }>
+    }>,
   }>,
   /** DataRow message returns one of the set of rows returned by the query */
   dataRow: {
-    name: 'DataRow',
-    type: 'SERVER',
-    indicator: 'D',
+    name: "DataRow",
+    type: "SERVER",
+    indicator: "D",
     pattern: {
       columns: [{
         value: byteN,
       }],
     },
-  } as TServerMessage<{
+  } as IServerMessage<{
     /** Row columns array */
     columns: Array<{
       /** The value of the column, in the format indicated by the associated format code. n is the above length. */
       value: Buffer,
-    }>
+    }>,
   }>,
-  /** 
+  /**
    * No data message is returned when the server has no data to return for the previous client request.
    */
   noData: {
-    name: 'NoData',
-    type: 'SERVER',
+    name: "NoData",
+    type: "SERVER",
     size: 5,
-    indicator: 'n',
+    indicator: "n",
     pattern: {},
-  } as TServerMessage<{}>,
-  /** 
+  } as IServerMessage<{}>,
+  /**
    * ParameterDescription message describes the parameters needed by the statement.
    * It is followed by a RowDescription message describing the rows that will be returned (or a NoData message if the statement will not return rows)
    */
   parameterDescription: {
-    name: 'ParameterDescription',
-    type: 'SERVER',
-    indicator: 't',
+    name: "ParameterDescription",
+    type: "SERVER",
+    indicator: "t",
     pattern: {
       params: [{
         oid: int32,
       }],
     },
-  } as TServerMessage<{
+  } as IServerMessage<{
     /** Array of parameter type OIDS */
     params: Array<{
       /** Specifies the object ID of the parameter data type. */
       oid: number,
-    }>
+    }>,
   }>,
   /**
    * Parse message contains a textual query string, optionally some information about data types of parameter placeholders, and the name of a destination prepared-statement object.
    */
   parse: {
-    name: 'Parse',
-    type: 'CLIENT',
-    indicator: 'P',
+    name: "Parse",
+    type: "CLIENT",
+    indicator: "P",
     pattern: (params) => [
       cString(params.name),
       cString(params.query),
@@ -254,7 +254,7 @@ export const messages = {
         params.dataTypes,
       ),
     ],
-  } as TClientMessage<{
+  } as IClientMessage<{
     /** The name of the destination prepared statement (an empty string selects the unnamed prepared statement). */
     name: string,
     /** The query string to be parsed. */
@@ -262,19 +262,19 @@ export const messages = {
     /** Parameter data types specified (can be empty). Note that this is not an indication of the number of parameters that might appear in the query string, only the number that the frontend wants to prespecify types for. */
     dataTypes: Array<{
       /** Specifies the object ID of the parameter data type. Placing a zero here is equivalent to leaving the type unspecified. */
-      oid: number
-    }>
+      oid: number,
+    }>,
   }>,
   /** Descibe message asks the server to describe prepared object (by replying with RowDescription and ParameterDescription messages) */
   describe: {
-    name: 'Describe',
-    type: 'CLIENT',
-    indicator: 'D',
+    name: "Describe",
+    type: "CLIENT",
+    indicator: "D",
     pattern: ({ name, type }) => [
       byte1(type),
       cString(name),
     ],
-  } as TClientMessage<{
+  } as IClientMessage<{
     /** The name of the prepared statement or portal to describe (an empty string selects the unnamed prepared statement or portal). */
     name: string,
     /** 'S' to describe a prepared statement; or 'P' to describe a portal. */
@@ -282,38 +282,38 @@ export const messages = {
   }>,
   /** ParseComplete informs the client that prepared object parsing was successful */
   parseComplete: {
-    name: 'ParseComplete',
-    type: 'SERVER',
-    indicator: '1',
+    name: "ParseComplete",
+    type: "SERVER",
+    indicator: "1",
     size: 4,
     pattern: {},
-  } as TServerMessage<{}>,
+  } as IServerMessage<{}>,
   /** Sync message asks the server to return to normal mode after an error */
   sync: {
-    name: 'Sync',
-    type: 'CLIENT',
-    indicator: 'S',
+    name: "Sync",
+    type: "CLIENT",
+    indicator: "S",
     size: int32(4),
     pattern: () => [],
-  } as TClientMessage<{}>,
+  } as IClientMessage<{}>,
   /** Flush message asks the server to send all queued messages */
   flush: {
-    name: 'Flush',
-    type: 'CLIENT',
-    indicator: 'H',
+    name: "Flush",
+    type: "CLIENT",
+    indicator: "H",
     size: int32(4),
     pattern: () => [],
-  } as TClientMessage<{}>,
+  } as IClientMessage<{}>,
   /** ErrorResponse message is sent by the server when an error has occurred. */
   errorResponse: {
-    name: 'ErrorResponse',
-    type: 'SERVER',
-    indicator: 'E',
+    name: "ErrorResponse",
+    type: "SERVER",
+    indicator: "E",
     pattern: {
       fields: cByteDict,
     },
-  } as TServerMessage<{
-    /** Fields describing the error, they can appear in any order.*/
+  } as IServerMessage<{
+    /** Fields describing the error, they can appear in any order. */
     fields: {
       /** PG routine reporting the error */
       R: string,
@@ -330,14 +330,14 @@ export const messages = {
    * The response is normally CloseComplete, but could be ErrorResponse if some difficulty is encountered while releasing resources.
    */
   close: {
-    name: 'Close',
-    type: 'CLIENT',
-    indicator: 'C',
+    name: "Close",
+    type: "CLIENT",
+    indicator: "C",
     pattern: (params) => [
       byte1(params.target),
       cString(params.targetName),
     ],
-  } as TClientMessage<{
+  } as IClientMessage<{
     /** 'S' to close a prepared statement; or 'P' to close a portal. */
     target: PreparedObjectType,
     /** The name of the prepared statement or portal to close (an empty string selects the unnamed prepared statement or portal). */
@@ -345,16 +345,16 @@ export const messages = {
   }>,
   /** CloseComplete is sent by the server to signify that the prepared object was successfully close */
   closeComplete: {
-    name: 'CloseComplete',
-    type: 'SERVER',
-    indicator: '3',
+    name: "CloseComplete",
+    type: "SERVER",
+    indicator: "3",
     size: 4,
     pattern: {},
-  } as TServerMessage<{}>,
+  } as IServerMessage<{}>,
   commandComplete: {
-    name: 'CommandComplete',
-    type: 'SERVER',
-    indicator: 'C',
+    name: "CommandComplete",
+    type: "SERVER",
+    indicator: "C",
     pattern: {
       /**
        * The command tag. This is usually a single word that identifies which SQL command was completed.
@@ -368,13 +368,13 @@ export const messages = {
        */
       commandTag: cString,
     },
-  } as TServerMessage<{ commandTag: string }>,
+  } as IServerMessage<{ commandTag: string }>,
 };
 
-export type TMessage = TServerMessage<{ commandTag: string }> | TServerMessage<{
+export type TMessage = IServerMessage<{ commandTag: string }> | IServerMessage<{
   /** Row columns array */
   columns: Array<{
     /** The value of the column, in the format indicated by the associated format code. n is the above length. */
     value: Buffer,
-  }>
+  }>,
 }>;

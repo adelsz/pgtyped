@@ -1,17 +1,17 @@
 import { SSL_OP_TLS_D5_BUG } from "constants";
 
-interface Sized {
+interface ISized {
   length: number;
 }
-export const sumSize = (array: Array<Sized>): number => array
+export const sumSize = (array: ISized[]): number => array
   .reduce((acc, e) => (acc + e.length), 0);
 
 export const dictToArray = (
   dict: { [key: string]: string },
-): Array<string> => (
+): string[] => (
     Object
       .entries(dict)
-      .reduce((acc, [key, val]) => [...acc, key, val], [] as Array<string>)
+      .reduce((acc, [key, val]) => [...acc, key, val], [] as string[])
   );
 
 export const int16 = (val: number): Buffer => {
@@ -32,17 +32,17 @@ export const cStringDict = (dict: { [key: string]: string }): Buffer => {
   const dictArray = dictToArray(dict);
   const count: number = sumSize(dictArray) + dictArray.length;
 
-  // extra byte for dict terminator 
+  // extra byte for dict terminator
   const buf = Buffer.alloc(count + 1, 0);
 
   let offset = 0;
-  dictArray.forEach(str => {
+  dictArray.forEach((str) => {
     offset = offset + buf.write(str, offset) + 1;
   });
   return buf;
 };
 
-export const byte1 = (number: string): Buffer => Buffer.from(number);
+export const byte1 = (num: string): Buffer => Buffer.from(num);
 
 export const byteN = (buf: Buffer): Buffer => (null as any);
 
@@ -53,8 +53,8 @@ export const cString = (str: string): Buffer => {
 };
 
 export const fixedArray = <Item>(
-  builder: (item: Item) => Array<Buffer>,
-  items: Array<Item>,
+  builder: (item: Item) => Buffer[],
+  items: Item[],
 ): Buffer => {
   const builtItems = items.map(builder);
   const size = builtItems.reduce(
@@ -65,11 +65,11 @@ export const fixedArray = <Item>(
   result.writeUInt16BE(items.length, 0);
   let offset = 2;
   builtItems.forEach(
-    bufferArray => bufferArray.forEach(
-      buffer => {
+    (bufferArray) => bufferArray.forEach(
+      (buffer) => {
         buffer.copy(result, offset);
         offset = offset + buffer.length;
-      })
+      }),
   );
   return result;
 };

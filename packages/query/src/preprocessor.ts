@@ -7,57 +7,57 @@ export enum ParamType {
   DictArray,
 }
 
-interface ScalarParam {
+interface IScalarParam {
   name: string;
   type: ParamType.Scalar;
   assignedIndex: number;
 }
 
-interface DictParam {
+interface IDictParam {
   name: string;
   type: ParamType.Dict;
   dict: {
-    [key: string]: ScalarParam;
+    [key: string]: IScalarParam;
   };
 }
 
-interface ScalarArrayParam {
+interface IScalarArrayParam {
   name: string;
   type: ParamType.ScalarArray;
   assignedIndex: number;
 }
 
-interface DictArrayParam {
+interface IDictArrayParam {
   name: string;
   type: ParamType.DictArray;
   dict: {
-    [key: string]: ScalarParam;
+    [key: string]: IScalarParam;
   };
 }
 
-export type QueryParam = ScalarParam | ScalarArrayParam | DictParam | DictArrayParam;
+export type QueryParam = IScalarParam | IScalarArrayParam | IDictParam | IDictArrayParam;
 
 interface IInterpolatedQuery {
   query: string;
-  mapping: Array<QueryParam>;
-  bindings: Array<ScalarType>;
-};
+  mapping: QueryParam[];
+  bindings: ScalarType[];
+}
 
-interface INestedParameters { [subParamName: string]: ScalarType };
+interface INestedParameters { [subParamName: string]: ScalarType; }
 
 interface IQueryParameters {
-  [paramName: string]: ScalarType | INestedParameters | Array<ScalarType> | Array<INestedParameters>
+  [paramName: string]: ScalarType | INestedParameters | ScalarType[] | INestedParameters[];
 }
 
 function assertScalar(obj: any): obj is ScalarType {
   return true;
 }
 
-function assertScalarArray(obj: any): obj is Array<ScalarType> {
+function assertScalarArray(obj: any): obj is ScalarType[] {
   return true;
 }
 
-function assertDictArray(obj: any): obj is Array<INestedParameters> {
+function assertDictArray(obj: any): obj is INestedParameters[] {
   return true;
 }
 
@@ -68,27 +68,27 @@ const processQuery = (
   query: string,
   parameters?: IQueryParameters,
 ): IInterpolatedQuery => {
-  const bindings: Array<ScalarType> = [];
-  const params: Array<QueryParam> = [];
+  const bindings: ScalarType[] = [];
+  const params: QueryParam[] = [];
   let index = 0;
   const flatQuery = query.replace(
     rootRegex,
-    (_, modifier, paramName: string, nestedExp: string): string => {
+    (_1, modifier, paramName: string, nestedExp: string): string => {
       let param: QueryParam | undefined;
-      let replacement = '$bad';
-      if (modifier === ':') {
+      let replacement = "$bad";
+      if (modifier === ":") {
         if (nestedExp) {
-          const dict: { [key: string]: ScalarParam } = {};
+          const dict: { [key: string]: IScalarParam } = {};
           const replacementContents = nestedExp.replace(
             leafRegex,
-            (_, leafParamName: string): string => {
+            (_2, leafParamName: string): string => {
               dict[leafParamName] = {
                 type: ParamType.Scalar,
                 name: leafParamName,
                 assignedIndex: ++index,
               };
               return `$${index}`;
-            }
+            },
           );
           replacement = `(${replacementContents})`;
           param = {
@@ -114,7 +114,7 @@ const processQuery = (
           }
           replacement = `$${index}`;
         }
-      } else if (modifier === '::') {
+      } else if (modifier === "::") {
         if (nestedExp) {
           const dict: any = {};
           const keys: string[] = [];
@@ -122,20 +122,19 @@ const processQuery = (
             leafRegex,
             (_, key) => {
               keys.push(key);
-              return '';
-            }
+              return "";
+            },
           );
           if (parameters) {
             const dictArray = parameters[paramName];
-
             if (assertDictArray(dictArray)) {
-              replacement = dictArray.map(dict => {
-                const tupleStr = Object.values(dict).map(value => {
+              replacement = dictArray.map(d => {
+                const tupleStr = Object.values(d).map((value) => {
                   bindings.push(value);
                   return `$${++index}`;
-                }).join(', ');
+                }).join(", ");
                 return `(${tupleStr})`;
-              }).join(', ');
+              }).join(", ");
             }
           } else {
             const repl = keys.map((key) => {
@@ -146,7 +145,7 @@ const processQuery = (
                 type: ParamType.Scalar,
               };
               return `$${i}`;
-            }).join(', ');
+            }).join(", ");
             param = {
               type: ParamType.DictArray,
               name: paramName,
@@ -159,12 +158,12 @@ const processQuery = (
             const scalars = parameters[paramName];
             if (assertScalarArray(scalars)) {
               replacement = scalars
-                .map(value => {
+                .map((value) => {
                   // TODO: bindings push
                   bindings.push(value);
                   return `$${++index}`;
                 })
-                .join(', ');
+                .join(", ");
             } else {
               throw new Error(`Bad parameter ${paramName} expected array of scalars`);
             }
@@ -179,8 +178,9 @@ const processQuery = (
           replacement = `(${replacement})`;
         }
       }
-      if (param)
+      if (param) {
         params.push(param);
+      }
       return replacement;
     });
 

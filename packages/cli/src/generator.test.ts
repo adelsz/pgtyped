@@ -1,13 +1,13 @@
-import * as queryModule from '@pg-typed/query';
+import * as queryModule from "@pg-typed/query";
 import {
-  generateInterface, FieldType, queryToTypeDeclarations,
-} from './generator';
+  FieldType, generateInterface, queryToTypeDeclarations,
+} from "./generator";
 
 const getTypesMocked = jest
-  .spyOn(queryModule, 'getTypes')
-  .mockName('getTypes');
+  .spyOn(queryModule, "getTypes")
+  .mockName("getTypes");
 
-test('test query to interface', async () => {
+test("test query to interface", async () => {
   const query = `
       delete from users *
       where name = :userName and id = :userId and note = :userNote returning id, id, name, note as bote;
@@ -15,35 +15,35 @@ test('test query to interface', async () => {
   const mockTypes = {
     returnTypes: [
       {
-        returnName: 'id',
-        columnName: 'id',
-        typeName: 'uuid',
+        returnName: "id",
+        columnName: "id",
+        typeName: "uuid",
         nullable: false,
       },
       {
-        returnName: 'name',
-        columnName: 'name',
-        typeName: 'text',
+        returnName: "name",
+        columnName: "name",
+        typeName: "text",
         nullable: false,
       },
       {
-        returnName: 'bote',
-        columnName: 'note',
-        typeName: 'text',
+        returnName: "bote",
+        columnName: "note",
+        typeName: "text",
         nullable: true,
       },
     ],
     paramMetadata: {
-      params: ['uuid', 'text'],
+      params: ["uuid", "text"],
       mapping: [
-        { name: 'id', type: queryModule.ParamType.Scalar, assignedIndex: 1, },
-        { name: 'userName', type: queryModule.ParamType.Scalar, assignedIndex: 2, }
-      ]
+        { name: "id", type: queryModule.ParamType.Scalar, assignedIndex: 1 },
+        { name: "userName", type: queryModule.ParamType.Scalar, assignedIndex: 2 },
+      ],
     },
   };
-  getTypesMocked.mockResolvedValue(mockTypes as any)
+  getTypesMocked.mockResolvedValue(mockTypes as any);
   const result = await queryToTypeDeclarations({
-    name: 'DeleteUsers',
+    name: "DeleteUsers",
     body: query,
   }, null);
   const expected = `/** 'DeleteUsers' parameters type */
@@ -60,10 +60,10 @@ export interface IDeleteUsersResult {
 }
 
 `;
-  expect(result).toEqual(expected)
-})
+  expect(result).toEqual(expected);
+});
 
-test('interface generation', () => {
+test("interface generation", () => {
   const expected =
     `export interface User {
   name: string;
@@ -72,12 +72,12 @@ test('interface generation', () => {
 
 `;
   const fields = [{
-    fieldName: 'name',
-    fieldType: 'string',
+    fieldName: "name",
+    fieldType: "string",
   }, {
-    fieldName: 'age',
-    fieldType: 'number',
+    fieldName: "age",
+    fieldType: "number",
   }];
-  const result = generateInterface('User', fields);
+  const result = generateInterface("User", fields);
   expect(result).toEqual(expected);
-})
+});

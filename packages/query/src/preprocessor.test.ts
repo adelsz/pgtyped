@@ -1,16 +1,16 @@
-import interpolate, { ParamType } from './preprocessor';
+import interpolate, { ParamType } from "./preprocessor";
 
-test('name parameter interpolation', () => {
-  const query = 'SELECT id, name from users where id = :id and age > :age';
+test("name parameter interpolation", () => {
+  const query = "SELECT id, name from users where id = :id and age > :age";
   const parameters = {
-    id: '123',
+    id: "123",
     age: 12,
   };
 
   const expectedResult = {
-    query: 'SELECT id, name from users where id = $1 and age > $2',
+    query: "SELECT id, name from users where id = $1 and age > $2",
     mapping: [],
-    bindings: ['123', 12],
+    bindings: ["123", 12],
   };
 
   const result = interpolate(query, parameters);
@@ -18,20 +18,20 @@ test('name parameter interpolation', () => {
   expect(result).toEqual(expectedResult);
 });
 
-test('name parameter mapping', () => {
-  const query = 'SELECT id, name from users where id = :id and age > :age';
+test("name parameter mapping", () => {
+  const query = "SELECT id, name from users where id = :id and age > :age";
 
   const expectedResult = {
-    query: 'SELECT id, name from users where id = $1 and age > $2',
+    query: "SELECT id, name from users where id = $1 and age > $2",
     mapping: [
       {
         assignedIndex: 1,
-        name: 'id',
+        name: "id",
         type: ParamType.Scalar,
       },
       {
         assignedIndex: 2,
-        name: 'age',
+        name: "age",
         type: ParamType.Scalar,
       },
     ],
@@ -43,33 +43,33 @@ test('name parameter mapping', () => {
   expect(result).toEqual(expectedResult);
 });
 
-test('single value list parameter interpolation', () => {
-  const query = 'INSERT INTO users (name, age) VALUES :user(:name, :age) RETURNING id';
+test("single value list parameter interpolation", () => {
+  const query = "INSERT INTO users (name, age) VALUES :user(:name, :age) RETURNING id";
 
   const parameters = {
     user: {
-      name: 'Bob',
+      name: "Bob",
       age: 12,
     },
   };
 
   const expectedResult = {
-    query: 'INSERT INTO users (name, age) VALUES ($1, $2) RETURNING id',
+    query: "INSERT INTO users (name, age) VALUES ($1, $2) RETURNING id",
     mapping: [
       {
-        name: 'user',
+        name: "user",
         type: ParamType.Dict,
         dict: {
           name: {
             assignedIndex: 1,
-            name: 'name',
+            name: "name",
             type: ParamType.Scalar,
           },
           age: {
             assignedIndex: 2,
-            name: 'age',
+            name: "age",
             type: ParamType.Scalar,
-          }
+          },
         },
       },
     ],
@@ -79,21 +79,21 @@ test('single value list parameter interpolation', () => {
   const result = interpolate(query, parameters);
 
   expect(result).toEqual(expectedResult);
-})
+});
 
-test('multiple value list (array) parameter mapping', () => {
-  const query = 'SELECT FROM users where (age in ::ages) or (age in ::otherAges)';
+test("multiple value list (array) parameter mapping", () => {
+  const query = "SELECT FROM users where (age in ::ages) or (age in ::otherAges)";
 
   const expectedResult = {
-    query: 'SELECT FROM users where (age in ($1)) or (age in ($2))',
+    query: "SELECT FROM users where (age in ($1)) or (age in ($2))",
     mapping: [
       {
-        name: 'ages',
+        name: "ages",
         type: ParamType.ScalarArray,
         assignedIndex: 1,
       },
       {
-        name: 'otherAges',
+        name: "otherAges",
         type: ParamType.ScalarArray,
         assignedIndex: 2,
       },
@@ -104,17 +104,17 @@ test('multiple value list (array) parameter mapping', () => {
   const result = interpolate(query);
 
   expect(result).toEqual(expectedResult);
-})
+});
 
-test('multiple value list (array) parameter interpolation', () => {
-  const query = 'SELECT FROM users where age in ::ages';
+test("multiple value list (array) parameter interpolation", () => {
+  const query = "SELECT FROM users where age in ::ages";
 
   const parameters = {
     ages: [23, 27, 50],
   };
 
   const expectedResult = {
-    query: 'SELECT FROM users where age in ($1, $2, $3)',
+    query: "SELECT FROM users where age in ($1, $2, $3)",
     bindings: [23, 27, 50],
     mapping: [],
   };
@@ -122,22 +122,22 @@ test('multiple value list (array) parameter interpolation', () => {
   const result = interpolate(query, parameters);
 
   expect(result).toEqual(expectedResult);
-})
+});
 
-test('multiple value list parameter mapping', () => {
-  const query = 'INSERT INTO users (name, age) VALUES ::users(:name, :age) RETURNING id';
+test("multiple value list parameter mapping", () => {
+  const query = "INSERT INTO users (name, age) VALUES ::users(:name, :age) RETURNING id";
 
   const expectedResult = {
-    query: 'INSERT INTO users (name, age) VALUES ($1, $2) RETURNING id',
+    query: "INSERT INTO users (name, age) VALUES ($1, $2) RETURNING id",
     bindings: [],
     mapping: [
       {
-        name: 'users',
+        name: "users",
         type: ParamType.DictArray,
         dict: {
-          name: { name: 'name', type: ParamType.Scalar, assignedIndex: 1 },
-          age: { name: 'age', type: ParamType.Scalar, assignedIndex: 2 },
-        }
+          name: { name: "name", type: ParamType.Scalar, assignedIndex: 1 },
+          age: { name: "age", type: ParamType.Scalar, assignedIndex: 2 },
+        },
       },
     ],
   };
@@ -145,25 +145,25 @@ test('multiple value list parameter mapping', () => {
   const result = interpolate(query);
 
   expect(result).toEqual(expectedResult);
-})
+});
 
-test('multiple value list parameter interpolation', () => {
-  const query = 'INSERT INTO users (name, age) VALUES ::users(:name, :age) RETURNING id';
+test("multiple value list parameter interpolation", () => {
+  const query = "INSERT INTO users (name, age) VALUES ::users(:name, :age) RETURNING id";
 
   const parameters = {
     users: [
-      { name: 'Bob', age: 12 },
-      { name: 'Tom', age: 22 },
+      { name: "Bob", age: 12 },
+      { name: "Tom", age: 22 },
     ],
   };
 
   const expectedResult = {
-    query: 'INSERT INTO users (name, age) VALUES ($1, $2), ($3, $4) RETURNING id',
-    bindings: ['Bob', 12, 'Tom', 22],
+    query: "INSERT INTO users (name, age) VALUES ($1, $2), ($3, $4) RETURNING id",
+    bindings: ["Bob", 12, "Tom", 22],
     mapping: [],
   };
 
   const result = interpolate(query, parameters);
 
   expect(result).toEqual(expectedResult);
-})
+});

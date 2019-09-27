@@ -6,8 +6,8 @@ interface INode {
   tagContent: string;
 }
 
-export function parseFile(sourceFile: ts.SourceFile): Array<INode> {
-  const foundNodes: Array<INode> = [];
+export function parseFile(sourceFile: ts.SourceFile): INode[] {
+  const foundNodes: INode[] = [];
   parseNode(sourceFile);
 
   function parseNode(node: ts.Node) {
@@ -17,8 +17,8 @@ export function parseFile(sourceFile: ts.SourceFile): Array<INode> {
       const tagName = taggedTemplateNode.tag.getText();
       const tagContent = taggedTemplateNode.template
         .getText()
-        .replace('\n', '')
-        .slice(1,-1)
+        .replace("\n", "")
+        .slice(1, -1)
         .trim();
       foundNodes.push({
         queryName,
@@ -35,13 +35,13 @@ export function parseFile(sourceFile: ts.SourceFile): Array<INode> {
 
 export const parseCode = (
   fileContent: string,
-  fileName = 'unnamed.ts',
+  fileName = "unnamed.ts",
 ) => {
   const sourceFile = ts.createSourceFile(
     fileName,
     fileContent,
     ts.ScriptTarget.ES2015,
-    true
+    true,
   );
   return parseFile(sourceFile);
 };

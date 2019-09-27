@@ -7,6 +7,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc --declaration",
+    "check": "tsc --noEmit",
     "watch": "yarn build --watch --preserveWatchOutput"
   },
   "jest": {

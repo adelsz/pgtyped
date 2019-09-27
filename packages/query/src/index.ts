@@ -1,13 +1,13 @@
 export {
   getTypes,
   startup,
-  ParseError,
-} from './actions';
+  IParseError,
+} from "./actions";
 
 export {
   ParamType,
-} from './preprocessor';
+} from "./preprocessor";
 
 export {
   AsyncQueue,
-} from '@pg-typed/wire';
+} from "@pg-typed/wire";

@@ -1,8 +1,8 @@
-import { ISelectAllUsersParams, ISelectAllUsersResult } from './users/queries.types';
-import { SELECT_ALL_USERS, SELECT_USER_IDS } from './users/queries';
+import { SELECT_ALL_USERS, SELECT_USER_IDS } from "./users/queries";
+import { ISelectAllUsersParams, ISelectAllUsersResult } from "./users/queries.types";
 
 const query = async <TParams, TResult>(
-  query: string,
+  queryBody: string,
   params: TParams,
 ): Promise<TResult> => (null as any);
 
@@ -11,8 +11,8 @@ async function main() {
     SELECT_ALL_USERS,
     {
       ages: [34, 45],
-    }
+    },
   );
 }
 
-main()
+main();

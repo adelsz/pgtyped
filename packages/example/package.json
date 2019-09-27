@@ -19,7 +19,8 @@
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1",
     "typegen": "pg-typegen -c config.json",
-    "build": "tsc --declaration"
+    "build": "tsc --declaration",
+    "check": "tsc --noEmit"
   },
   "dependencies": {
     "@pg-typed/cli": "^0.0.1"
