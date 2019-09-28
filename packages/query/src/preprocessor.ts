@@ -61,8 +61,13 @@ function assertDictArray(obj: any): obj is INestedParameters[] {
   return true;
 }
 
-const rootRegex = /(\:\:?)([a-zA-Z0-9]+)(?:\((.+?)\))?/gm;
-const leafRegex = /\:([a-zA-Z0-9]+)/gm;
+const rootRegex = /(\$\$?)(\w+)(?:\((.+?)\))?/gm;
+const leafRegex = /(\w+)/gm;
+
+enum Prefix {
+  Singular = "$",
+  Plural = "$$",
+}
 
 const processQuery = (
   query: string,
@@ -73,10 +78,10 @@ const processQuery = (
   let index = 0;
   const flatQuery = query.replace(
     rootRegex,
-    (_1, modifier, paramName: string, nestedExp: string): string => {
+    (_1, prefix, paramName: string, nestedExp: string): string => {
       let param: QueryParam | undefined;
       let replacement = "$bad";
-      if (modifier === ":") {
+      if (prefix === Prefix.Singular) {
         if (nestedExp) {
           const dict: { [key: string]: IScalarParam } = {};
           const replacementContents = nestedExp.replace(
@@ -114,7 +119,7 @@ const processQuery = (
           }
           replacement = `$${index}`;
         }
-      } else if (modifier === "::") {
+      } else if (prefix === Prefix.Plural) {
         if (nestedExp) {
           const dict: any = {};
           const keys: string[] = [];

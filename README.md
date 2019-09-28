@@ -40,17 +40,17 @@ export interface ISelectAllUsersResult {
 
 ### Interpolations:
 
-| Interpolation       | Syntax                        | Parameter Type                                             |
-|---------------------|-------------------------------|------------------------------------------------------------|
-| Named parameters    | `:paramName`                  | `paramName: ParamType`                                     |
-| Single value list   | `:paramName(:name, :author)`  | `paramName: { name: NameType, author: AuthorType }`        |
-| Multiple value list | `::paramName`                 | `paramName: Array<ParamType>`                              |
-| Multiple value list | `::paramName(:name, :author)` | `paramName: Array<{ name: NameType, author: AuthorType }>` |
+| Interpolation       | Syntax                      | Parameter Type                                             |
+|---------------------|-----------------------------|------------------------------------------------------------|
+| Named parameters    | `$paramName`                | `paramName: ParamType`                                     |
+| Single value list   | `$paramName(name, author)`  | `paramName: { name: NameType, author: AuthorType }`        |
+| Multiple value list | `$$paramName`               | `paramName: Array<ParamType>`                              |
+| Multiple value list | `$$paramName(name, author)` | `paramName: Array<{ name: NameType, author: AuthorType }>` |
 
 Example `INSERT_USERS`:
 ```sql
 INSERT INTO users (name, age)
-VALUES ::users(:userName, :userAge) RETURNING id
+VALUES $$users(name, age) RETURNING id
 ```
 can be executed as follows:
 ```ts

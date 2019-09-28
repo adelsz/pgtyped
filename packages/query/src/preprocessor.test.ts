@@ -1,7 +1,7 @@
 import interpolate, { ParamType } from "./preprocessor";
 
 test("name parameter interpolation", () => {
-  const query = "SELECT id, name from users where id = :id and age > :age";
+  const query = "SELECT id, name from users where id = $id and age > $age";
   const parameters = {
     id: "123",
     age: 12,
@@ -19,7 +19,7 @@ test("name parameter interpolation", () => {
 });
 
 test("name parameter mapping", () => {
-  const query = "SELECT id, name from users where id = :id and age > :age";
+  const query = "SELECT id, name from users where id = $id and age > $age";
 
   const expectedResult = {
     query: "SELECT id, name from users where id = $1 and age > $2",
@@ -44,7 +44,7 @@ test("name parameter mapping", () => {
 });
 
 test("single value list parameter interpolation", () => {
-  const query = "INSERT INTO users (name, age) VALUES :user(:name, :age) RETURNING id";
+  const query = "INSERT INTO users (name, age) VALUES $user(name, age) RETURNING id";
 
   const parameters = {
     user: {
@@ -82,7 +82,7 @@ test("single value list parameter interpolation", () => {
 });
 
 test("multiple value list (array) parameter mapping", () => {
-  const query = "SELECT FROM users where (age in ::ages) or (age in ::otherAges)";
+  const query = "SELECT FROM users where (age in $$ages) or (age in $$otherAges)";
 
   const expectedResult = {
     query: "SELECT FROM users where (age in ($1)) or (age in ($2))",
@@ -107,7 +107,7 @@ test("multiple value list (array) parameter mapping", () => {
 });
 
 test("multiple value list (array) parameter interpolation", () => {
-  const query = "SELECT FROM users where age in ::ages";
+  const query = "SELECT FROM users where age in $$ages";
 
   const parameters = {
     ages: [23, 27, 50],
@@ -125,7 +125,7 @@ test("multiple value list (array) parameter interpolation", () => {
 });
 
 test("multiple value list parameter mapping", () => {
-  const query = "INSERT INTO users (name, age) VALUES ::users(:name, :age) RETURNING id";
+  const query = "INSERT INTO users (name, age) VALUES $$users(name, age) RETURNING id";
 
   const expectedResult = {
     query: "INSERT INTO users (name, age) VALUES ($1, $2) RETURNING id",
@@ -148,7 +148,7 @@ test("multiple value list parameter mapping", () => {
 });
 
 test("multiple value list parameter interpolation", () => {
-  const query = "INSERT INTO users (name, age) VALUES ::users(:name, :age) RETURNING id";
+  const query = "INSERT INTO users (name, age) VALUES $$users(name, age) RETURNING id";
 
   const parameters = {
     users: [
