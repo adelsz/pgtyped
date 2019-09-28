@@ -1,7 +1,7 @@
 import {
   getTypes,
   ParamType,
-} from "@pg-typed/query";
+} from "@pgtyped/query";
 import pascalCase from "pascal-case";
 
 import { debug } from "./util";

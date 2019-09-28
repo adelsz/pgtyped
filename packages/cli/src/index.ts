@@ -3,7 +3,7 @@
 import {
   AsyncQueue,
   startup,
-} from "@pg-typed/query";
+} from "@pgtyped/query";
 import chokidar from "chokidar";
 import * as Option from "fp-ts/lib/Option";
 import fs from "fs";

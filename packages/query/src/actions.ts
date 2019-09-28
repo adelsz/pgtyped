@@ -4,7 +4,7 @@ import {
   AsyncQueue,
   messages,
   PreparedObjectType,
-} from "@pg-typed/wire";
+} from "@pgtyped/wire";
 
 import processQuery, { QueryParam } from "./preprocessor";
 

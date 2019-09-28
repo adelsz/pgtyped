@@ -1,4 +1,5 @@
-import sql from "@pg-typed/query";
+import sql from "@pgtyped/query";
+
 import {
   ISelectAllUsersParams, ISelectAllUsersResult,
   IInsertUsersParams, IInsertUsersResult,

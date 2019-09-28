@@ -1,4 +1,4 @@
-/** Types generated for queries found in "src/books/queries.ts" */
+/** Types generated for queries found in "./src/books/queries.ts" */
 
 /** 'selectAllBooks' parameters type */
 export type ISelectAllBooksParams = void;

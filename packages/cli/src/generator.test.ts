@@ -1,4 +1,4 @@
-import * as queryModule from "@pg-typed/query";
+import * as queryModule from "@pgtyped/query";
 import {
   FieldType, generateInterface, queryToTypeDeclarations,
 } from "./generator";

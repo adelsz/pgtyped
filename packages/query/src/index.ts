@@ -12,7 +12,7 @@ export {
 
 export {
   AsyncQueue,
-} from "@pg-typed/wire";
+} from "@pgtyped/wire";
 
 export {
   default,

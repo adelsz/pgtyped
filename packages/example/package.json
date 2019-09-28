@@ -1,7 +1,7 @@
 {
-  "name": "@pg-typed/example",
+  "name": "@pgtyped/example",
   "version": "0.0.1",
-  "description": "A private package demonstrating how pg-typed works.",
+  "description": "A package demonstrating how pgtyped works.",
   "author": "Adel Salakh <***REMOVED***>",
   "homepage": "",
   "license": "MIT",
@@ -14,14 +14,14 @@
   ],
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1",
-    "typegen": "pg-typegen -c config.json",
+    "typegen": "pgtyped -c config.json",
     "build": "tsc --declaration",
     "watch": "tsc --declaration --watch --preserveWatchOutput",
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@pg-typed/query": "^0.0.1",
-    "@pg-typed/cli": "^0.0.1",
+    "@pgtyped/query": "^0.0.1",
+    "@pgtyped/cli": "^0.0.1",
     "@types/pg": "^7.11.2",
     "pg": "^7.12.1"
   }

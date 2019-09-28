@@ -1,4 +1,4 @@
-/** Types generated for queries found in "src/users/queries.ts" */
+/** Types generated for queries found in "./src/users/queries.ts" */
 
 /** 'selectAllUsers' parameters type */
 export interface ISelectAllUsersParams {

@@ -1,5 +1,5 @@
 {
-  "name": "@pg-typed/wire",
+  "name": "@pgtyped/wire",
   "version": "0.0.1",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
