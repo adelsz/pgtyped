@@ -1,4 +1,4 @@
-type ScalarType = string | number;
+type ScalarType = string | number | null;
 
 export enum ParamType {
   Scalar,
@@ -45,7 +45,7 @@ interface IInterpolatedQuery {
 
 interface INestedParameters { [subParamName: string]: ScalarType; }
 
-interface IQueryParameters {
+export interface IQueryParameters {
   [paramName: string]: ScalarType | INestedParameters | ScalarType[] | INestedParameters[];
 }
 

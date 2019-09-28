@@ -1,18 +1,21 @@
-import { SELECT_ALL_USERS, SELECT_USER_IDS } from "./users/queries";
-import { ISelectAllUsersParams, ISelectAllUsersResult } from "./users/queries.types";
+import { Client, QueryResult } from "pg";
+import { selectAllUsers } from "./users/queries";
 
-const query = async <TParams, TResult>(
-  queryBody: string,
-  params: TParams,
-): Promise<TResult> => (null as any);
+const client = new Client({
+  user: "adel",
+  password: "",
+  database: "testdb",
+});
 
 async function main() {
-  const users = await query<ISelectAllUsersParams, ISelectAllUsersResult>(
-    SELECT_ALL_USERS,
-    {
-      ages: [34, 45],
-    },
-  );
+  await client.connect();
+  const x = await client.query("select id, name from users where age in ($1, $2)", [34, 45]);
+  const users = await selectAllUsers.run({
+    ages: [34, 45],
+  }, client);
+
+  // tslint:disable:no-console
+  console.log(users);
 }
 
 main();

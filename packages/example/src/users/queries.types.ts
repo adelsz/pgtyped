@@ -1,40 +1,36 @@
 /** Types generated for queries found in "./src/users/queries.ts" */
 
-/** 'SELECT_ALL_USERS' parameters type */
+/** 'selectAllUsers' parameters type */
 export interface ISelectAllUsersParams {
   ages: Array<number | null>;
 }
 
-/** 'SELECT_ALL_USERS' return type */
+/** 'selectAllUsers' return type */
 export interface ISelectAllUsersResult {
   id: string;
   name: string;
 }
 
-
-/** 'INSERT_USERS' parameters type */
+/** 'insertUsers' parameters type */
 export interface IInsertUsersParams {
   users: {
     name: string,
-    age: number
+    age: number,
   };
 }
 
-/** 'INSERT_USERS' return type */
+/** 'insertUsers' return type */
 export type IInsertUsersResult = void;
 
-
-/** 'SELECT_USER_IDS' parameters type */
+/** 'selectUserIds' parameters type */
 export interface ISelectUserIdsParams {
   id: string | null;
   age: number | null;
 }
 
-/** 'SELECT_USER_IDS' return type */
+/** 'selectUserIds' return type */
 export interface ISelectUserIdsResult {
   id: string;
   note: string | null;
   age: number;
 }
-
-

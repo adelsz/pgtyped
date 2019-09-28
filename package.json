@@ -5,11 +5,11 @@
   "author": "Adel Salakh <***REMOVED***>",
   "license": "MIT",
   "scripts": {
-    "test": "jest",
     "build": "lerna run build",
     "watch": "lerna run --parallel watch",
     "lint": "tslint --project tsconfig.json -t verbose",
-    "lint!": "npm run lint -- --fix"
+    "lint!": "npm run lint -- --fix",
+    "test": "npm run lint && jest"
   },
   "devDependencies": {
     "@types/jest": "^24.0.12",

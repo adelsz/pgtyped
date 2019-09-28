@@ -10,7 +10,6 @@ export interface ISelectAllBooksResult {
   uid: string | null;
 }
 
-
 /** 'DELETE_BOOKS' parameters type */
 export interface IDeleteBooksParams {
   id: string | null;
@@ -18,5 +17,3 @@ export interface IDeleteBooksParams {
 
 /** 'DELETE_BOOKS' return type */
 export type IDeleteBooksResult = void;
-
-

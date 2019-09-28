@@ -1,7 +1,8 @@
-const sql = (_: TemplateStringsArray): any => null;
+import sql from "@pg-typed/query";
+import { ISelectAllUsersParams, ISelectAllUsersResult } from "./queries.types";
 
-export const SELECT_ALL_USERS = sql`select id, name from users where age in $$ages`;
+export const selectAllUsers = sql<ISelectAllUsersResult, ISelectAllUsersParams>`select id, name from users where age in $$ages`;
 
-export const INSERT_USERS = sql`insert into users (name, age) values $users(name, age)`;
+export const insertUsers = sql`insert into users (name, age) values $users(name, age)`;
 
-export const SELECT_USER_IDS = sql`select id, note, age from users where id = $id and age = $age`;
+export const selectUserIds = sql`select id, note, age from users where id = $id and age = $age`;

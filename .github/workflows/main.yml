@@ -12,6 +12,6 @@ jobs:
     - name: npm install
       run: npm install
     - name: Bootstrap packages
-      run: npx lerna bootstrap && npm run build && npm run lint
+      run: npx lerna bootstrap && npm run build
     - name: Run tests
       run: npm test
