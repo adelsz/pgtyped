@@ -1,6 +1,6 @@
 {
   "name": "@pg-typed/example",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A private package demonstrating how pg-typed works.",
   "author": "Adel Salakh <***REMOVED***>",
   "homepage": "",
@@ -20,8 +20,8 @@
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@pg-typed/cli": "^0.0.1",
     "@pg-typed/query": "^0.0.1",
+    "@pg-typed/cli": "^0.0.1",
     "@types/pg": "^7.11.2",
     "pg": "^7.12.1"
   }
