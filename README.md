@@ -4,19 +4,18 @@
 
 Raw SQL query type generator.
 Finally you can use raw SQL with guaranteed type-safety.
-Works with PostgresSQL.
+Works with PostgreSQL.
 
 ### Features:
 1. Automatically generates types for parameters/results of SQL queries of any complexity
 2. Generate query types as you type them using the `--watch` mode.
-3. Extensive parameter interpolation helpers.
-4. Allows you to use non-standard query executors. 
+3. Useful parameter interpolation helpers for arrays and objects.
 
-### Example:
+### Type generation example:
 
 Query code:
 ```js
-export const SELECT_ALL_USERS = sql`
+export const selectAllUsers = sql`
 SELECT u.id,
        u.name AS username,
        b.name AS bookname
@@ -38,16 +37,16 @@ export interface ISelectAllUsersResult {
 }
 ```
 
-### Interpolations:
+### Interpolation helpers:
 
-| Interpolation       | Syntax                      | Parameter Type                                             |
+| Helper       | Syntax                      | Parameter Type                                             |
 |---------------------|-----------------------------|------------------------------------------------------------|
 | Named parameters    | `$paramName`                | `paramName: ParamType`                                     |
 | Single value list   | `$paramName(name, author)`  | `paramName: { name: NameType, author: AuthorType }`        |
 | Multiple value list | `$$paramName`               | `paramName: Array<ParamType>`                              |
 | Multiple value list | `$$paramName(name, author)` | `paramName: Array<{ name: NameType, author: AuthorType }>` |
 
-Example `INSERT_USERS`:
+Example `insertUsers`:
 ```sql
 INSERT INTO users (name, age)
 VALUES $$users(name, age) RETURNING id
@@ -58,5 +57,23 @@ const usersToInsert = [
   { name: 'Bob', age: 12 },
   { name: 'Tom', age: 16 },
 ];
-const result = await query<IInsertUsersQuery>(INSERT_USERS, usersToInsert);
+const result = await insertUsers(usersToInsert, connection);
 ```
+
+### Getting started:
+
+1. `npm install @pgtyped/cli @pgtyped/query`
+2. Create a config file for the type generator
+3. `npx pgtyped`
+
+You can also refer to the [example](https://github.com/adelsz/pgtyped/tree/master/packages/example) app, to see pgtyped in action.
+
+### Project state:
+
+This project is still in an experimental stage so its APIs are expected to change a lot in the short term.
+Any help in the form of issue reports, feature requests or PRs is very appreciated.
+
+### License
+
+[MIT](https://github.com/adelsz/pgtyped/LICENSE)
+Copyright (c) 2019-present, Adel Salakh
