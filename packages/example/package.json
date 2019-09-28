@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "A package demonstrating how pgtyped works.",
   "author": "Adel Salakh",
+  "private": true,
   "homepage": "",
   "license": "MIT",
   "main": "lib/index.js",
