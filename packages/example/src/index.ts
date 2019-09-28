@@ -9,7 +9,6 @@ const client = new Client({
 
 async function main() {
   await client.connect();
-  const x = await client.query("select id, name from users where age in ($1, $2)", [34, 45]);
   const users = await selectAllUsers.run({
     ages: [34, 45],
   }, client);

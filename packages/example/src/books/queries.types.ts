@@ -1,19 +1,19 @@
-/** Types generated for queries found in "./src/books/queries.ts" */
+/** Types generated for queries found in "src/books/queries.ts" */
 
-/** 'SELECT_ALL_BOOKS' parameters type */
+/** 'selectAllBooks' parameters type */
 export type ISelectAllBooksParams = void;
 
-/** 'SELECT_ALL_BOOKS' return type */
+/** 'selectAllBooks' return type */
 export interface ISelectAllBooksResult {
   id: string;
   name: string | null;
   uid: string | null;
 }
 
-/** 'DELETE_BOOKS' parameters type */
+/** 'deleteBooks' parameters type */
 export interface IDeleteBooksParams {
   id: string | null;
 }
 
-/** 'DELETE_BOOKS' return type */
+/** 'deleteBooks' return type */
 export type IDeleteBooksResult = void;

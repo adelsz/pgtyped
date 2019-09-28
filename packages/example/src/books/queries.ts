@@ -1,5 +1,13 @@
-const sql = (_: TemplateStringsArray) => null;
+import sql from "@pg-typed/query";
+import {
+  ISelectAllBooksParams, ISelectAllBooksResult,
+  IDeleteBooksResult, IDeleteBooksParams,
+} from "./queries.types";
 
-export const SELECT_ALL_BOOKS = sql`select * from books`;
+export const selectAllBooks = sql<
+  ISelectAllBooksResult, ISelectAllBooksParams
+  >`select * from books`;
 
-export const DELETE_BOOKS = sql`delete from books * where id = $id`;
+export const deleteBooks = sql<
+  IDeleteBooksResult, IDeleteBooksParams
+  >`delete from books * where id = $id`;
