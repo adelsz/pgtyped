@@ -2,7 +2,7 @@
   "name": "pgtyped",
   "version": "0.0.1",
   "main": "index.js",
-  "author": "Adel Salakh <***REMOVED***>",
+  "author": "Adel Salakh",
   "license": "MIT",
   "scripts": {
     "build": "lerna run build",

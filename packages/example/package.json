@@ -2,7 +2,7 @@
   "name": "@pgtyped/example",
   "version": "0.0.1",
   "description": "A package demonstrating how pgtyped works.",
-  "author": "Adel Salakh <***REMOVED***>",
+  "author": "Adel Salakh",
   "homepage": "",
   "license": "MIT",
   "main": "lib/index.js",
