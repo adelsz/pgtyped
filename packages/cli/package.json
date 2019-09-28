@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "main": "lib/index.js",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "test": "jest",
     "build": "tsc --declaration",
