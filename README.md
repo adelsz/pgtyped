@@ -75,5 +75,6 @@ Any help in the form of issue reports, feature requests or PRs is very appreciat
 
 ### License
 
-[MIT](https://github.com/adelsz/pgtyped/LICENSE)
+[MIT](https://github.com/adelsz/pgtyped/tree/master/LICENSE)
+
 Copyright (c) 2019-present, Adel Salakh
