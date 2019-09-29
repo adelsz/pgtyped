@@ -62,7 +62,7 @@ const result = await insertUsers(usersToInsert, connection);
 
 ### Getting started:
 
-1. `npm install @pgtyped/cli @pgtyped/query`
+1. `npm install @pgtyped/cli @pgtyped/query typescript`
 2. Create a config file for the type generator
 3. `npx pgtyped`
 
