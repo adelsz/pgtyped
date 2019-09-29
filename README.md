@@ -7,9 +7,10 @@ Finally you can use raw SQL with guaranteed type-safety.
 Works with PostgreSQL and TypeScript.
 
 ### Features:
-1. Automatically generates types for parameters/results of SQL queries of any complexity
+1. Automatically generates types for parameters/results of SQL queries of any complexity.
 2. Generate query types as you write them using watch mode.
 3. Useful parameter interpolation helpers for arrays and objects.
+4. No need to define your DB schema in TypeScript, your running DB is the live source of type data.
 
 ### Example:
 
