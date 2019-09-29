@@ -8,7 +8,7 @@ interface IDatabaseConnection {
 }
 
 export class TaggedQuery<TResult, TParams> {
-  public run: <X>(
+  public run: (
     params: TParams,
     dbConnection: IDatabaseConnection,
   ) => Promise<TResult[]>;
