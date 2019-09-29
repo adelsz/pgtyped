@@ -11,6 +11,7 @@ Works with PostgreSQL and TypeScript.
 2. Generate query types as you write them using watch mode.
 3. Useful parameter interpolation helpers for arrays and objects.
 4. No need to define your DB schema in TypeScript, your running DB is the live source of type data.
+5. Prevents SQL injections by not doing explicit parameter substitution. Instead it passes each query together with its parameter bindings to the DB driver, allowing parameter substitution to be done by the PostgreSQL server.
 
 ### Example:
 
