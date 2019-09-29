@@ -37,6 +37,10 @@ export interface ISelectAllUsersResult {
 }
 ```
 
+### Demo:
+
+![](https://raw.githubusercontent.com/adelsz/pgtyped/master/demo.gif)
+
 ### Interpolation helpers:
 
 | Helper       | Syntax                      | Parameter Type                                             |
