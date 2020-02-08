@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped/query",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "main": "lib/index.js",
   "license": "MIT",
   "publishConfig": {
@@ -21,7 +21,7 @@
     }
   },
   "dependencies": {
-    "@pgtyped/wire": "^0.1.1",
+    "@pgtyped/wire": "^0.2.0",
     "@types/debug": "^4.1.4",
     "debug": "^4.1.1"
   }
