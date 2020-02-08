@@ -136,8 +136,10 @@ async function main(config: IConfig) {
   const connection = new AsyncQueue();
   debug("starting codegenerator");
   await startup({
+    host: config.db.host,
     user: config.db.user,
     database: config.db.dbName,
+    password: config.db.password,
   }, connection);
 
   debug("connected to database %o", config.db.dbName);

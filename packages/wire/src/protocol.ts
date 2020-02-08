@@ -1,5 +1,5 @@
 import {
-  byte1,
+  byte1, byte4,
   byteN,
   cByteDict,
   cString,
@@ -29,6 +29,9 @@ export const parseSimpleType = (type: any, buf: Buffer, offset: number): {
     const val = buf.readInt8(offset);
     result = String.fromCharCode(val);
     offset++;
+  } else if (type === byte4) {
+    result = buf.slice(offset, offset + 4);
+    offset += 4;
   } else if (type === cString) {
     const stringStart = offset;
     while (buf.readInt8(offset) !== 0) {
@@ -48,7 +51,7 @@ export const parseSimpleType = (type: any, buf: Buffer, offset: number): {
     result = buf.readInt16BE(offset);
     offset += 2;
   }
-  return { result, offset };
+  return {result, offset};
 };
 
 export interface IMessagePayload<Params> {
@@ -112,50 +115,58 @@ export const parseMessage = <Params extends object>(
   const result: { [key: string]: any } = {};
   const patternPairs = Object.entries(pattern);
   let pairIndex = 0;
-  while (bufferOffset !== messageEnd) {
-    const [key, type] = patternPairs[pairIndex];
-    if (type === cByteDict) {
-      const dict: { [key: string]: string } = {};
-      let fieldKey;
-      while (({
-        result: fieldKey,
-        offset: bufferOffset,
-      } = parseSimpleType(byte1, buf, bufferOffset)).result !== "\u0000") {
-        const {
-          result: fieldValue,
-          offset: valueOffset,
-        } = parseSimpleType(cString, buf, bufferOffset);
-        bufferOffset = valueOffset;
-        dict[fieldKey] = fieldValue;
-      }
-      result[key] = dict;
-    } else if (type instanceof Array) {
-      const arraySize = buf.readInt16BE(bufferOffset);
-      bufferOffset += 2;
-      const array = [];
-      for (let i = 0; i < arraySize; i++) {
-        const subPattern = Object.entries(type[0] as object);
-        const subResult: { [key: string]: any } = {};
-        for (const [subKey, subType] of subPattern) {
+  try {
+    while (bufferOffset !== messageEnd) {
+      const [key, type] = patternPairs[pairIndex];
+      if (type === cByteDict) {
+        const dict: { [key: string]: string } = {};
+        let fieldKey;
+        while (({
+          result: fieldKey,
+          offset: bufferOffset,
+        } = parseSimpleType(byte1, buf, bufferOffset)).result !== "\u0000") {
           const {
-            result: fieldResult,
-            offset: fieldOffset,
-          } = parseSimpleType(subType, buf, bufferOffset);
-          subResult[subKey] = fieldResult;
-          bufferOffset = fieldOffset;
+            result: fieldValue,
+            offset: valueOffset,
+          } = parseSimpleType(cString, buf, bufferOffset);
+          bufferOffset = valueOffset;
+          dict[fieldKey] = fieldValue;
         }
-        array.push(subResult);
+        result[key] = dict;
+      } else if (type instanceof Array) {
+        const arraySize = buf.readInt16BE(bufferOffset);
+        bufferOffset += 2;
+        const array = [];
+        for (let i = 0; i < arraySize; i++) {
+          const subPattern = Object.entries(type[0] as object);
+          const subResult: { [key: string]: any } = {};
+          for (const [subKey, subType] of subPattern) {
+            const {
+              result: fieldResult,
+              offset: fieldOffset,
+            } = parseSimpleType(subType, buf, bufferOffset);
+            subResult[subKey] = fieldResult;
+            bufferOffset = fieldOffset;
+          }
+          array.push(subResult);
+        }
+        result[key] = array;
+      } else {
+        const {
+          result: fieldResult,
+          offset: fieldOffset,
+        } = parseSimpleType(type, buf, bufferOffset);
+        result[key] = fieldResult;
+        bufferOffset = fieldOffset;
       }
-      result[key] = array;
-    } else {
-      const {
-        result: fieldResult,
-        offset: fieldOffset,
-      } = parseSimpleType(type, buf, bufferOffset);
-      result[key] = fieldResult;
-      bufferOffset = fieldOffset;
+      pairIndex++;
     }
-    pairIndex++;
+  } catch (e) {
+    return {
+      type: "MessageMismatchError",
+      messageName: message.name,
+      bufferOffset: messageEnd,
+    };
   }
 
   if (isUnexpectedErrorMessage) {
@@ -180,7 +191,7 @@ export const buildMessage = <Params extends object>(
 ): Buffer => {
   const bufArray = message.pattern(parameters);
   const bufferSize =
-    + (message.indicator ? 1 : 0) // indicator byte if present
+    +(message.indicator ? 1 : 0) // indicator byte if present
     + 4 // message size
     + sumSize(bufArray); // payload
   const buf = Buffer.alloc(bufferSize);

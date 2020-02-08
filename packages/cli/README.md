@@ -24,8 +24,10 @@ Config file format (`config.json`):
   },
   "srcDir": "./src/", // Directory to scan or watch for query files
   "db": {
-    "user": "adel", // Database username
-    "dbName": "testdb" // Database name
+    "dbName": "testdb", // DB name
+    "user": "user", // DB username
+    "password": "password", // DB password (optional)
+    "host": "127.0.0.1" // DB host (optional)
   }
 }
 ```
