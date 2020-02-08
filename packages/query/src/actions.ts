@@ -12,12 +12,12 @@ import processQuery, { QueryParam } from "./preprocessor";
 const debugQuery = debugBase("client:query");
 
 export const generateHash = (username: string, password: string, salt: Buffer) => {
-  const hash = (str: string) => crypto.createHash('md5').update(str).digest('hex');
+  const hash = (str: string) => crypto.createHash("md5").update(str).digest("hex");
   const shadow = hash(password + username);
-  const result = crypto.createHash('md5');
+  const result = crypto.createHash("md5");
   result.update(shadow);
   result.update(salt);
-  return 'md5' + result.digest('hex');
+  return "md5" + result.digest("hex");
 };
 
 export async function startup(options: {
@@ -39,12 +39,12 @@ export async function startup(options: {
     return;
   }
   if (!options.password) {
-    throw new Error('Password required for MD5 hash auth');
+    throw new Error("Password required for MD5 hash auth");
   }
   let password = options.password;
   if ("salt" in result) {
     // if MD5 auth scheme
-    password = generateHash(options.user,password,result.salt);
+    password = generateHash(options.user, password, result.salt);
   }
   await queue.send(messages.passwordMessage, { password });
   await queue.reply(messages.authenticationOk);
