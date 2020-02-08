@@ -1,19 +1,16 @@
-/** Types generated for queries found in "./src/books/queries.ts" */
+/** Types generated for queries found in "src/books/queries.ts" */
 
-/** 'selectAllBooks' parameters type */
-export type ISelectAllBooksParams = void;
+/** Query 'selectAllBooks' is invalid, so its result is assigned type 'never' */
+export type ISelectAllBooksResult = never;
 
-/** 'selectAllBooks' return type */
-export interface ISelectAllBooksResult {
-  id: string;
-  name: string | null;
-  uid: string | null;
-}
+/** Query 'selectAllBooks' is invalid, so its parameters are assigned type 'never' */
+export type ISelectAllBooksParams = never;
 
-/** 'deleteBooks' parameters type */
-export interface IDeleteBooksParams {
-  id: string | null;
-}
 
-/** 'deleteBooks' return type */
-export type IDeleteBooksResult = void;
+/** Query 'deleteBooks' is invalid, so its result is assigned type 'never' */
+export type IDeleteBooksResult = never;
+
+/** Query 'deleteBooks' is invalid, so its parameters are assigned type 'never' */
+export type IDeleteBooksParams = never;
+
+

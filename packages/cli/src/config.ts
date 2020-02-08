@@ -18,6 +18,8 @@ const configParser = t.type({
   ]),
   srcDir: t.string,
   db: t.type({
+    host: t.string,
+    password: t.string,
     user: t.string,
     dbName: t.string,
   }),

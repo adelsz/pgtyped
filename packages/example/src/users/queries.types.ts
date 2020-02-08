@@ -1,37 +1,23 @@
-/** Types generated for queries found in "./src/users/queries.ts" */
+/** Types generated for queries found in "src/users/queries.ts" */
 
-/** 'selectAllUsers' parameters type */
-export interface ISelectAllUsersParams {
-  ages: Array<number | null>;
-}
+/** Query 'selectAllUsers' is invalid, so its result is assigned type 'never' */
+export type ISelectAllUsersResult = never;
 
-/** 'selectAllUsers' return type */
-export interface ISelectAllUsersResult {
-  id: string;
-  name: string;
-}
+/** Query 'selectAllUsers' is invalid, so its parameters are assigned type 'never' */
+export type ISelectAllUsersParams = never;
 
-/** 'insertUsers' parameters type */
-export interface IInsertUsersParams {
-  users: {
-    name: string,
-    age: number,
-  };
-}
 
-/** 'insertUsers' return type */
-export interface IInsertUsersResult {
-  id: string;
-  name: string;
-}
+/** Query 'insertUsers' is invalid, so its result is assigned type 'never' */
+export type IInsertUsersResult = never;
 
-/** 'selectUserIds' parameters type */
-export interface ISelectUserIdsParams {
-  id: string | null;
-  age: number | null;
-}
+/** Query 'insertUsers' is invalid, so its parameters are assigned type 'never' */
+export type IInsertUsersParams = never;
 
-/** 'selectUserIds' return type */
-export interface ISelectUserIdsResult {
-  id: string;
-}
+
+/** Query 'selectUserIds' is invalid, so its result is assigned type 'never' */
+export type ISelectUserIdsResult = never;
+
+/** Query 'selectUserIds' is invalid, so its parameters are assigned type 'never' */
+export type ISelectUserIdsParams = never;
+
+

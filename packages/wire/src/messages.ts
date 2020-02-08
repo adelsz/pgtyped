@@ -1,5 +1,6 @@
 import {
   byte1,
+  byte4,
   byteN,
   cByteDict,
   cString,
@@ -70,6 +71,30 @@ export const messages = {
       status: int32(0),
     },
   } as IServerMessage<{}>,
+  /** AuthenticationCleartextPassword message informs the frontend that it must now send a PasswordMessage containing the password in clear-text form */
+  authenticationCleartextPassword: {
+    name: "AuthenticationCleartextPassword",
+    type: "SERVER",
+    indicator: "R",
+    size: 8,
+    pattern: {
+      status: int32(3),
+    },
+  } as IServerMessage<{}>,
+  /** AuthenticationMD5Password message informs the frontend that it must now send a PasswordMessage containing the password in MD5 form */
+  authenticationMD5Password: {
+    name: "AuthenticationMD5Password",
+    type: "SERVER",
+    indicator: "R",
+    size: 12,
+    pattern: {
+      status: int32(5),
+      salt: byte4,
+    },
+  } as IServerMessage<{
+    /** md5 salt to use */
+    salt: Buffer,
+  }>,
   /**
    * BackendKeyData message provides secret-key data that the frontend must save to be able to issue cancel requests later.
    * The frontend should not respond to this message, but should continue listening for a ReadyForQuery message.
@@ -137,6 +162,18 @@ export const messages = {
     name: string,
     /** The current value of the parameter */
     value: string,
+  }>,
+  /** PasswordMessage sends a password response on initial auth. */
+  passwordMessage: {
+    name: "PasswordMessage",
+    type: "CLIENT",
+    indicator: "p",
+    pattern: (data) => [
+      cString(data.password),
+    ],
+  } as IClientMessage<{
+    /** Password string either plain text or MD5 encrypted */
+    password: string,
   }>,
   /** Query message initiates a simple query cycle. */
   query: {

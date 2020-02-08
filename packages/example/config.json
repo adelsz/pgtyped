@@ -6,7 +6,9 @@
   },
   "srcDir": "./src/",
   "db": {
-    "user": "adel",
-    "dbName": "testdb"
+    "host": "db",
+    "user": "test",
+    "dbName": "testdb",
+    "password": "example"
   }
 }

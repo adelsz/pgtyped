@@ -1,0 +1,19 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres:12-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: example
+    ports:
+      - "5433:5432"
+
+  app:
+    build: .
+    volumes:
+      - ../../:/app
+    links:
+      - db

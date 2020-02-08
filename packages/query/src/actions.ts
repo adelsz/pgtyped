@@ -1,4 +1,5 @@
 import debugBase from "debug";
+import crypto from "crypto";
 
 import {
   AsyncQueue,
@@ -10,17 +11,38 @@ import processQuery, { QueryParam } from "./preprocessor";
 
 const debugQuery = debugBase("client:query");
 
+export const generateHash = (username: string, password: string, salt: Buffer) => {
+  const hash = (str: string) => crypto.createHash('md5').update(str).digest('hex');
+  const shadow = hash(password + username);
+  const result = crypto.createHash('md5');
+  result.update(shadow);
+  result.update(salt);
+  return 'md5' + result.digest('hex');
+};
+
 export async function startup(options: {
+  host?: string,
+  password?: string,
   user: string,
   database: string,
 },                            queue: AsyncQueue) {
-  await queue.connect();
+  await queue.connect(options);
   const startupParams = {
-    ...options,
+    user: options.user,
+    database: options.database,
     client_encoding: "'utf-8'",
   };
   await queue.send(messages.startupMessage, { params: startupParams });
-  await queue.reply(messages.readyForQuery);
+  const result = await queue.reply(messages.readyForQuery, messages.authenticationCleartextPassword, messages.authenticationMD5Password);
+  if ("salt" in result) {
+    if (!options.password) {
+      throw new Error('Password required');
+    }
+    const password = generateHash(options.user,options.password,result.salt);
+    await queue.send(messages.passwordMessage, { password });
+    await queue.reply(messages.authenticationOk);
+    await queue.reply(messages.readyForQuery);
+  }
 }
 
 export async function runQuery(query: string, queue: AsyncQueue) {
