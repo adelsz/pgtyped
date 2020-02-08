@@ -34,15 +34,21 @@ export async function startup(options: {
   };
   await queue.send(messages.startupMessage, { params: startupParams });
   const result = await queue.reply(messages.readyForQuery, messages.authenticationCleartextPassword, messages.authenticationMD5Password);
-  if ("salt" in result) {
-    if (!options.password) {
-      throw new Error('Password required');
-    }
-    const password = generateHash(options.user,options.password,result.salt);
-    await queue.send(messages.passwordMessage, { password });
-    await queue.reply(messages.authenticationOk);
-    await queue.reply(messages.readyForQuery);
+  if ("trxStatus" in result) {
+    // No auth required
+    return;
   }
+  if (!options.password) {
+    throw new Error('Password required for MD5 hash auth');
+  }
+  let password = options.password;
+  if ("salt" in result) {
+    // if MD5 auth scheme
+    password = generateHash(options.user,password,result.salt);
+  }
+  await queue.send(messages.passwordMessage, { password });
+  await queue.reply(messages.authenticationOk);
+  await queue.reply(messages.readyForQuery);
 }
 
 export async function runQuery(query: string, queue: AsyncQueue) {
