@@ -8,7 +8,7 @@
   "db": {
     "host": "db",
     "user": "test",
-    "dbName": "testdb",
+    "dbName": "test",
     "password": "example"
   }
 }
