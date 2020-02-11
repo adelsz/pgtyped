@@ -33,7 +33,7 @@ export interface IServerMessage<Params extends object> {
 }
 
 /** The status of the the server query executor */
-export const enum TransactionStatus {
+export enum TransactionStatus {
   /** Transaction idle (not in a transaction block) */
   Idle = "I",
 
@@ -45,7 +45,7 @@ export const enum TransactionStatus {
 }
 
 /** Prepared object type */
-export const enum PreparedObjectType {
+export enum PreparedObjectType {
   Portal = "P",
   Statement = "S",
 }
