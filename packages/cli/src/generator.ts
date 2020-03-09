@@ -9,14 +9,48 @@ import { debug } from "./util";
 export enum FieldType {
   String = "string",
   Number = "number",
+  Bool = "boolean",
+  Date = "Date",
 }
 
 const typeMap: {
   [pgTypeName: string]: string;
 } = {
-  uuid: FieldType.String,
+  // Integer types
+  int2: FieldType.Number,
   int4: FieldType.Number,
+  int8: FieldType.Number,
+  smallint: FieldType.Number,
+  int: FieldType.Number,
+  bigint: FieldType.Number,
+
+  // Precision types
+  real: FieldType.Number,
+  float4: FieldType.Number,
+  float: FieldType.Number,
+  float8: FieldType.Number,
+  numeric: FieldType.Number,
+  decimal: FieldType.Number,
+
+  // Serial types
+  smallserial: FieldType.Number,
+  serial: FieldType.Number,
+  bigserial: FieldType.Number,
+
+  // Common string types
+  uuid: FieldType.String,
   text: FieldType.String,
+  varchar: FieldType.String,
+  char: FieldType.String,
+
+  // Bool types
+  bit: FieldType.Bool, // TODO: better bit array support
+  bool: FieldType.Bool,
+  boolean: FieldType.Bool,
+
+  // Extra types
+  date: FieldType.Date,
+  money: FieldType.Number,
 };
 
 export interface IField {
