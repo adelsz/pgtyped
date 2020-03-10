@@ -15,6 +15,6 @@ export {
 } from "@pgtyped/wire";
 
 export {
-  default,
+  default as sql,
   TaggedQuery,
 } from "./tag";

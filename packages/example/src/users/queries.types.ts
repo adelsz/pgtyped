@@ -11,11 +11,12 @@ export interface ISelectAllUsersResult {
   name: string | null;
 }
 
+
 /** 'insertUsers' parameters type */
 export interface IInsertUsersParams {
   users: {
     name: string,
-    age: number,
+    age: number
   };
 }
 
@@ -24,6 +25,7 @@ export interface IInsertUsersResult {
   id: number;
   name: string | null;
 }
+
 
 /** 'selectUserIds' parameters type */
 export interface ISelectUserIdsParams {
@@ -35,3 +37,5 @@ export interface ISelectUserIdsParams {
 export interface ISelectUserIdsResult {
   id: number;
 }
+
+

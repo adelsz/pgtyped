@@ -1,4 +1,4 @@
-import sql from "@pgtyped/query";
+import { sql } from "@pgtyped/query";
 
 import {
   ISelectAllUsersParams, ISelectAllUsersResult,
