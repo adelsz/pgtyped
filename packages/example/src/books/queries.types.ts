@@ -10,7 +10,6 @@ export interface ISelectAllBooksResult {
   author_name: string | null;
 }
 
-
 /** 'deleteBooks' parameters type */
 export interface IDeleteBooksParams {
   id: number | null;
@@ -18,5 +17,3 @@ export interface IDeleteBooksParams {
 
 /** 'deleteBooks' return type */
 export type IDeleteBooksResult = void;
-
-

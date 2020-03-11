@@ -1,4 +1,5 @@
-import { sql } from "@pgtyped/query";
+import query from "@pgtyped/query";
+const { sql } = query;
 
 import {
   ISelectAllBooksParams, ISelectAllBooksResult,
