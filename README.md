@@ -17,7 +17,7 @@ Works with PostgreSQL and TypeScript.
 
 Query code:
 ```js
-import {sql} from "@pgtyped/query";
+import { sql } from "@pgtyped/query";
 
 export const selectUserIds = sql<
   ISelectUserIdsResult, ISelectUserIdsParams
