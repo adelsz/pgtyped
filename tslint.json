@@ -10,5 +10,10 @@
     "arrow-parens": false,
     "max-line-length": false
   },
-  "rulesDirectory": []
+  "rulesDirectory": [],
+  "linterOptions": {
+    "exclude": [
+      "**/*types.ts"
+    ]
+  }
 }
