@@ -59,6 +59,12 @@ export interface IDeleteUsersResult {
   bote: string | null;
 }
 
+/** 'DeleteUsers' query type */
+export interface IDeleteUsersQuery {
+  params: IDeleteUsersParams;
+  result: IDeleteUsersResult;
+}
+
 `;
   expect(result).toEqual(expected);
 });

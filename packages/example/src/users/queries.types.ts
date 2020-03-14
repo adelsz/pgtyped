@@ -11,6 +11,12 @@ export interface ISelectAllUsersResult {
   name: string | null;
 }
 
+/** 'selectAllUsers' query type */
+export interface ISelectAllUsersQuery {
+  params: ISelectAllUsersParams;
+  result: ISelectAllUsersResult;
+}
+
 /** 'insertUsers' parameters type */
 export interface IInsertUsersParams {
   users: {
@@ -25,6 +31,12 @@ export interface IInsertUsersResult {
   name: string | null;
 }
 
+/** 'insertUsers' query type */
+export interface IInsertUsersQuery {
+  params: IInsertUsersParams;
+  result: IInsertUsersResult;
+}
+
 /** 'selectUserIds' parameters type */
 export interface ISelectUserIdsParams {
   id: number | null;
@@ -34,4 +46,10 @@ export interface ISelectUserIdsParams {
 /** 'selectUserIds' return type */
 export interface ISelectUserIdsResult {
   id: number;
+}
+
+/** 'selectUserIds' query type */
+export interface ISelectUserIdsQuery {
+  params: ISelectUserIdsParams;
+  result: ISelectUserIdsResult;
 }

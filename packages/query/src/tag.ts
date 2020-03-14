@@ -7,11 +7,11 @@ interface IDatabaseConnection {
   query: (query: string, bindings: any[]) => Promise<{ rows: any[] }>;
 }
 
-export class TaggedQuery<TResult, TParams> {
+export class TaggedQuery<TTypePair extends {params: any, result: any}> {
   public run: (
-    params: TParams,
+    params: TTypePair["params"],
     dbConnection: IDatabaseConnection,
-  ) => Promise<TResult[]>;
+  ) => Promise<TTypePair["result"]>;
 
   private query: string;
 
@@ -28,8 +28,13 @@ export class TaggedQuery<TResult, TParams> {
   }
 }
 
-const sql = <TResult, TParams>(stringsArray: TemplateStringsArray) => (
-  new TaggedQuery<TResult, TParams>(stringsArray[0])
+interface ITypePair {
+  params: any;
+  result: any;
+}
+
+const sql = <TTypePair extends ITypePair>(stringsArray: TemplateStringsArray) => (
+  new TaggedQuery<TTypePair>(stringsArray[0])
 );
 
 export default sql;

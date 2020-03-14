@@ -88,7 +88,8 @@ export async function queryToTypeDeclarations(
   const interfaceName = pascalCase(query.name);
 
   if ("errorCode" in typeData) {
-    debug("Error in query. Details: %o", typeData);
+    // tslint:disable-next-line:no-console
+    console.error("Error in query. Details: %o", typeData);
     const returnInterface = generateTypeAlias(`I${interfaceName}Result`, "never");
     const paramInterface = generateTypeAlias(`I${interfaceName}Params`, "never");
     const resultErrorComment = `/** Query '${query.name}' is invalid, so its result is assigned type 'never' */\n`;
@@ -153,6 +154,7 @@ export async function queryToTypeDeclarations(
     }
   }
 
+  const resultInterfaceName = `I${interfaceName}Result`;
   const returnTypesInterface =
     `/** '${query.name}' return type */\n` + (
       returnFieldTypes.length > 0
@@ -160,9 +162,10 @@ export async function queryToTypeDeclarations(
           `I${interfaceName}Result`,
           returnFieldTypes,
         )
-        : generateTypeAlias(`I${interfaceName}Result`, "void")
+        : generateTypeAlias(resultInterfaceName, "void")
     );
 
+  const paramInterfaceName = `I${interfaceName}Params`;
   const paramTypesInterface =
     `/** '${query.name}' parameters type */\n` + (
       paramFieldTypes.length > 0
@@ -170,10 +173,18 @@ export async function queryToTypeDeclarations(
           `I${interfaceName}Params`,
           paramFieldTypes,
         )
-        : generateTypeAlias(`I${interfaceName}Params`, "void")
+        : generateTypeAlias(paramInterfaceName, "void")
     );
 
-  const interfaces = `${paramTypesInterface}${returnTypesInterface}`;
+  const typePairInterface =
+    `/** '${query.name}' query type */\n` + generateInterface(
+    `I${interfaceName}Query`,
+    [
+      {fieldName: "params", fieldType: paramInterfaceName},
+      {fieldName: "result", fieldType: resultInterfaceName},
+    ]);
+
+  const interfaces = `${paramTypesInterface}${returnTypesInterface}${typePairInterface}`;
 
   return interfaces;
 }
