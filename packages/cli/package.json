@@ -32,7 +32,7 @@
     "fp-ts": "^2.0.5",
     "glob": "^7.1.4",
     "io-ts": "^2.0.1",
-    "minimist": "^1.2.0",
+    "minimist": "^1.2.2",
     "pascal-case": "^2.0.1"
   },
   "devDependencies": {
