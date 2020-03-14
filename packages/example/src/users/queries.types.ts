@@ -17,11 +17,12 @@ export interface ISelectAllUsersQuery {
   result: ISelectAllUsersResult;
 }
 
+
 /** 'insertUsers' parameters type */
 export interface IInsertUsersParams {
   users: {
     name: string,
-    age: number,
+    age: number
   };
 }
 
@@ -36,6 +37,7 @@ export interface IInsertUsersQuery {
   params: IInsertUsersParams;
   result: IInsertUsersResult;
 }
+
 
 /** 'selectUserIds' parameters type */
 export interface ISelectUserIdsParams {
@@ -53,3 +55,5 @@ export interface ISelectUserIdsQuery {
   params: ISelectUserIdsParams;
   result: ISelectUserIdsResult;
 }
+
+

@@ -16,6 +16,7 @@ export interface ISelectAllBooksQuery {
   result: ISelectAllBooksResult;
 }
 
+
 /** 'deleteBooks' parameters type */
 export interface IDeleteBooksParams {
   id: number | null;
@@ -29,3 +30,5 @@ export interface IDeleteBooksQuery {
   params: IDeleteBooksParams;
   result: IDeleteBooksResult;
 }
+
+
