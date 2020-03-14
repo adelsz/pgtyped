@@ -15,18 +15,24 @@ Works with PostgreSQL and TypeScript.
 
 ### Example:
 
-Query code:
-```js
+Query code in `users/queries.ts`:
+```ts
 import { sql } from "@pgtyped/query";
+import { ISelectUserIdsQuery } from "./queries.types.ts";
 
-export const selectUserIds = sql<
-  ISelectUserIdsResult, ISelectUserIdsParams
-  >`select id from users where id = $id and age = $age`;
-`;
+export const selectUserIds = sql<ISelectUserIdsQuery>`select id from users where id = $id and age = $age`;
 ```
 
-Generated TypeScript interfaces:
+PgTyped parses `sql` queries and generates corresponding TS interfaces in `users/queries.types.ts`:
 ```ts
+/** Types generated for queries found in "users/queries.ts" */
+
+/** 'selectUserIds' query type */
+export interface ISelectUserIdsQuery {
+  params: ISelectUserIdsParams;
+  result: ISelectUserIdsResult;
+}
+
 /** 'selectUserIds' parameters type */
 export interface ISelectUserIdsParams {
   id: string | null;
