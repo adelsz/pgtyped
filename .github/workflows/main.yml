@@ -9,8 +9,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name: npm install
-      run: npm install
+    - name: npm ci
+      run: npm ci
     - name: Bootstrap packages
       run: npx lerna bootstrap && npm run build
     - name: Run tests
