@@ -1,17 +1,20 @@
-## PgTyped
+<img width="340" height="150" align="right" src="https://raw.githubusercontent.com/adelsz/pgtyped/master/header.png">
 
+# PgTyped
+
+![npm](https://img.shields.io/npm/v/@pgtyped/cli)
 [![Actions Status](https://github.com/adelsz/pgtyped/workflows/CI/badge.svg)](https://github.com/adelsz/pgtyped/actions)
 
-SQL query type generator.  
-Finally you can use raw SQL with guaranteed type-safety.  
-Works with PostgreSQL and TypeScript.
+An SQL type generator that makes it possible to use raw SQL with guaranteed type-safety. Works with PostgreSQL and TypeScript.  
+
+---
 
 ### Features:
 1. Automatically generates types for parameters/results of SQL queries of any complexity.
 2. Generate query types as you write them using watch mode.
 3. Useful parameter interpolation helpers for arrays and objects.
 4. No need to define your DB schema in TypeScript, your running DB is the live source of type data.
-5. Prevents SQL injections by not doing explicit parameter substitution. Instead it passes each query together with its parameter bindings to the DB driver, allowing parameter substitution to be done by the PostgreSQL server.
+5. Prevents SQL injections by not doing explicit parameter substitution. Instead, queries and parameters are sent separately to the DB driver, allowing parameter substitution to be safely done by the PostgreSQL server.
 
 ### Example:
 
@@ -98,7 +101,7 @@ const result = await insertUsers(usersToInsert, connection);
 
 ### Project state:
 
-This project is still in an experimental stage so its APIs are expected to change a lot in the short term.
+This project is still in an experimental stage so its APIs are expected to change frequently.
 Any help in the form of issue reports, feature requests or PRs is very appreciated.
 
 ### License
