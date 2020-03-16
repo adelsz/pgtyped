@@ -11,7 +11,7 @@ export class TaggedQuery<TTypePair extends {params: any, result: any}> {
   public run: (
     params: TTypePair["params"],
     dbConnection: IDatabaseConnection,
-  ) => Promise<TTypePair["result"]>;
+  ) => Promise<Array<TTypePair["result"]>>;
 
   private query: string;
 

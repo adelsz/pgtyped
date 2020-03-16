@@ -13,8 +13,10 @@ async function main() {
     ages: [34, 45],
   }, client);
 
-  // tslint:disable:no-console
-  console.log(users);
+  if (users.length > 0) {
+    // tslint:disable:no-console
+    console.log(users[0].name);
+  }
 }
 
 main();
