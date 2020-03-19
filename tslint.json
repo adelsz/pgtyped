@@ -8,6 +8,7 @@
     "object-literal-sort-keys": false,
     "ordered-imports": false,
     "arrow-parens": false,
+    "array-type": false,
     "max-line-length": false
   },
   "rulesDirectory": [],
