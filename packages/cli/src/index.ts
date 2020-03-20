@@ -76,6 +76,9 @@ const processFile = async (connection: any, fileName: string) => {
     path.basename(fileName, "ts") + "types.ts",
   );
   const typeDecs = await generateTypedecsFromFile(fileName, connection);
+  if (typeDecs.length === 0) {
+    return;
+  }
   let declarationFileContents = `/** Types generated for queries found in "${fileName}" */\n\n`;
   for (const typeDec of typeDecs) {
     declarationFileContents += typeDec.typeDeclaration + "\n";
