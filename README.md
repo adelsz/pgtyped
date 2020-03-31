@@ -59,7 +59,6 @@ To run the `selectUserIds` query:
 
 ### Demo:
 
-![](https://raw.githubusercontent.com/adelsz/pgtyped/master/demo.gif)
 
 ### Getting started:
 
@@ -78,12 +77,21 @@ Additional details are available in READMEs for the [@pgtyped/cli](https://githu
 
 ### Interpolation helpers:
 
-| Helper       | Syntax                      | Parameter Type                                             |
+| Helper       | Syntax                      | Parameter Type                                                    |
 |---------------------|-----------------------------|------------------------------------------------------------|
 | Named parameters    | `$paramName`                | `paramName: ParamType`                                     |
 | Single value list   | `$paramName(name, author)`  | `paramName: { name: NameType, author: AuthorType }`        |
 | Multiple value list | `$$paramName`               | `paramName: Array<ParamType>`                              |
 | Multiple value list | `$$paramName(name, author)` | `paramName: Array<{ name: NameType, author: AuthorType }>` |
+
+Examples:
+
+| Query                                                                 | Parameters                                                         | Resulting Query                                                         |
+|-----------------------------------------------------------------------|--------------------------------------------------------------------|-------------------------------------------------------------------------|
+| `SELECT * FROM users WHERE name = $name`                              | `{name:"John"}`                                                    | `SELECT * FROM users WHERE name = 'John'`                               |
+| `INSERT INTO users (name, age) VALUES $user(name, age) RETURNING id`  | `{user:{name:"John",age:34}}`                                      | `INSERT INTO users (name, age) VALUES ('John', 34) RETURNING id`        |
+| `SELECT * FROM users WHERE role in $$roles`                           | `{roles:["admin","superuser","moderator"]}`                        | `SELECT * FROM users where role in ('admin', 'superuser', 'moderator')` |
+| `INSERT INTO users (name, age) VALUES $$users(name, age)`             | `{users:[{name:"John",age:34},{name:"Jack",age:35}]}`              | `INSERT INTO users (name, age) VALUES ('John', 34), ('Jack', 35)`       |
 
 Example `insertUsers`:
 ```sql
