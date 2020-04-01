@@ -59,6 +59,7 @@ To run the `selectUserIds` query:
 
 ### Demo:
 
+![](https://raw.githubusercontent.com/adelsz/pgtyped/master/demo.gif)
 
 ### Getting started:
 
