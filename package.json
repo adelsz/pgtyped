@@ -12,7 +12,7 @@
     "test": "npm run lint && jest"
   },
   "devDependencies": {
-    "@types/jest": "25.1.4",
+    "@types/jest": "25.2.1",
     "@types/node": "13.9.8",
     "jest": "25.1.0",
     "lerna": "3.20.2",
