@@ -14,7 +14,9 @@
   "rulesDirectory": [],
   "linterOptions": {
     "exclude": [
-      "**/*types.ts"
+      "**/*types.ts",
+      "**/*Lexer.ts",
+      "**/*Parser.ts"
     ]
   }
 }
