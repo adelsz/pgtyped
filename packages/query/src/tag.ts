@@ -1,5 +1,6 @@
-import processQuery, {
-  ParamType,
+import {
+  processQueryString,
+  ParamTransform,
   IQueryParameters,
 } from "./preprocessor";
 
@@ -21,7 +22,7 @@ export class TaggedQuery<TTypePair extends {params: any, result: any}> {
       const {
         query: processedQuery,
         bindings,
-      } = processQuery(this.query, params as any);
+      } = processQueryString(this.query, params as any);
       const result = await connection.query(processedQuery, bindings);
       return result.rows;
     };

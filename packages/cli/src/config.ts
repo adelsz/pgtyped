@@ -13,7 +13,8 @@ const configParser = t.type({
       emitFileName: t.string,
     }),
     t.type({
-      mode: t.literal("multiple-file"),
+      mode: t.literal("sql-file"),
+      pattern: t.string,
     }),
   ]),
   srcDir: t.string,

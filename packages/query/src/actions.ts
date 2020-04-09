@@ -7,7 +7,7 @@ import {
   PreparedObjectType,
 } from "@pgtyped/wire";
 
-import processQuery, { QueryParam } from "./preprocessor";
+import {IInterpolatedQuery, QueryParam} from "./preprocessor";
 
 const debugQuery = debugBase("client:query");
 
@@ -25,14 +25,14 @@ export async function startup(options: {
   password?: string,
   user: string,
   database: string,
-},                            queue: AsyncQueue) {
+}, queue: AsyncQueue) {
   await queue.connect(options);
   const startupParams = {
     user: options.user,
     database: options.database,
     client_encoding: "'utf-8'",
   };
-  await queue.send(messages.startupMessage, { params: startupParams });
+  await queue.send(messages.startupMessage, {params: startupParams});
   const result = await queue.reply(messages.readyForQuery, messages.authenticationCleartextPassword, messages.authenticationMD5Password);
   if ("trxStatus" in result) {
     // No auth required
@@ -46,14 +46,14 @@ export async function startup(options: {
     // if MD5 auth scheme
     password = generateHash(options.user, password, result.salt);
   }
-  await queue.send(messages.passwordMessage, { password });
+  await queue.send(messages.passwordMessage, {password});
   await queue.reply(messages.authenticationOk);
   await queue.reply(messages.readyForQuery);
 }
 
 export async function runQuery(query: string, queue: AsyncQueue) {
   const resultRows = [];
-  await queue.send(messages.query, { query });
+  await queue.send(messages.query, {query});
   debugQuery("sent query %o", query);
   {
     const result = await queue.reply(messages.rowDescription);
@@ -140,7 +140,7 @@ export async function getTypeData(
 
   if ("fields" in parseResult) {
     // Error case
-    const { fields: errorFields } = parseResult;
+    const {fields: errorFields} = parseResult;
     return {
       errorCode: errorFields.R,
       hint: errorFields.H,
@@ -153,16 +153,14 @@ export async function getTypeData(
   const fieldsResult = await queue.reply(messages.rowDescription, messages.noData);
   const fields = "fields" in fieldsResult ? fieldsResult.fields : [];
   await queue.reply(messages.closeComplete);
-  return { params, fields };
+  return {params, fields};
 }
 
 export async function getTypes(
-  query: string,
+  queryData: IInterpolatedQuery,
   name: string,
   queue: AsyncQueue,
 ): Promise<IQueryTypes | IParseError> {
-  const queryData = processQuery(query);
-
   const typeData = await getTypeData(queryData.query, name, queue);
   if ("errorCode" in typeData) {
     return typeData;
@@ -182,14 +180,14 @@ export async function getTypes(
     queue,
   );
   const typeMap: { [oid: number]: string } = typeRows.reduce(
-    (acc, [oid, typeName]) => ({ ...acc, [oid]: typeName }),
+    (acc, [oid, typeName]) => ({...acc, [oid]: typeName}),
     {},
   );
 
   const attrMatcher = ({
-    tableOID,
-    columnAttrNumber,
-  }: {
+                         tableOID,
+                         columnAttrNumber,
+                       }: {
     tableOID: number,
     columnAttrNumber: number,
   }) => `(attrelid = ${tableOID} and attnum = ${columnAttrNumber})`;
@@ -230,9 +228,9 @@ export async function getTypes(
   }));
 
   const paramMetadata = {
-    params: params.map(({ oid }) => typeMap[oid]),
+    params: params.map(({oid}) => typeMap[oid]),
     mapping: queryData.mapping,
   };
 
-  return { paramMetadata, returnTypes };
+  return {paramMetadata, returnTypes};
 }

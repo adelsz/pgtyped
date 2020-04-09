@@ -8,6 +8,14 @@ test("Named query", () => {
   expect(parseTree).toMatchSnapshot();
 });
 
+test("Named query selects some fields", () => {
+  const text = `
+  /* @name GetAllUsers */
+  SELECT id, name FROM users;`;
+  const parseTree = parse(text);
+  expect(parseTree).toMatchSnapshot();
+});
+
 test("Named query with an inferred param", () => {
   const text = `
   /* @name GetUserById */

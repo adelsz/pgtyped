@@ -1,6 +1,4 @@
-import {
-  parseCode,
-} from "./parser";
+import parseCode from "./index";
 
 test("parser finds string template in correct file", () => {
   const fileContent = `

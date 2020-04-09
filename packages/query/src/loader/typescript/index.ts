@@ -33,7 +33,7 @@ export function parseFile(sourceFile: ts.SourceFile): INode[] {
   return foundNodes;
 }
 
-export const parseCode = (
+const parseCode = (
   fileContent: string,
   fileName = "unnamed.ts",
 ) => {
@@ -45,3 +45,5 @@ export const parseCode = (
   );
   return parseFile(sourceFile);
 };
+
+export default parseCode;

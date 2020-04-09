@@ -8,7 +8,53 @@ Object {
       Object {
         "name": "GetAllUsers",
         "params": Array [],
-        "statement": "SELECT * FROM users",
+        "statement": Object {
+          "body": "SELECT * FROM users",
+          "loc": Object {
+            "a": 29,
+            "b": 47,
+            "col": 2,
+            "line": 3,
+          },
+        },
+        "usedParamSet": Set {},
+      },
+    ],
+  },
+}
+`;
+
+exports[`Named query selects some fields 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "location": Object {
+        "a": undefined,
+        "b": undefined,
+        "col": 11,
+        "line": 3,
+      },
+      "message": Object {
+        "text": "Parse error: token recognition error at: ','",
+        "type": 0,
+      },
+      "type": 2,
+    },
+  ],
+  "parseTree": Object {
+    "queries": Array [
+      Object {
+        "name": "GetAllUsers",
+        "params": Array [],
+        "statement": Object {
+          "body": "SELECT id, name FROM users",
+          "loc": Object {
+            "a": 29,
+            "b": 54,
+            "col": 2,
+            "line": 3,
+          },
+        },
         "usedParamSet": Set {},
       },
     ],
@@ -124,7 +170,16 @@ Object {
             },
           },
         ],
-        "statement": "INSERT INTO customers customer_name contact_name address VALUES :customers",
+        "statement": Object {
+          "body": "INSERT INTO customers (customer_name, contact_name, address)
+  VALUES :customers",
+          "loc": Object {
+            "a": 98,
+            "b": 177,
+            "col": 2,
+            "line": 6,
+          },
+        },
         "usedParamSet": Set {
           "customers",
         },
@@ -157,137 +212,17 @@ Object {
             },
           },
         ],
-        "statement": "SELECT * FROM users WHERE userId = :userId",
+        "statement": Object {
+          "body": "SELECT * FROM users WHERE userId = :userId",
+          "loc": Object {
+            "a": 29,
+            "b": 70,
+            "col": 2,
+            "line": 3,
+          },
+        },
         "usedParamSet": Set {
           "userId",
-        },
-      },
-    ],
-  },
-}
-`;
-
-exports[`Parse tree 1 1`] = `
-Object {
-  "events": Array [
-    Object {
-      "location": Object {
-        "a": undefined,
-        "b": undefined,
-        "col": 18,
-        "line": 4,
-      },
-      "message": Object {
-        "text": "Parse error: token recognition error at: '1'",
-        "type": 0,
-      },
-      "type": 2,
-    },
-    Object {
-      "location": Object {
-        "a": undefined,
-        "b": undefined,
-        "col": 19,
-        "line": 4,
-      },
-      "message": Object {
-        "text": "Parse error: token recognition error at: '2'",
-        "type": 0,
-      },
-      "type": 2,
-    },
-    Object {
-      "location": Object {
-        "a": 32,
-        "b": 40,
-        "col": 9,
-        "line": 3,
-      },
-      "message": Object {
-        "text": "Parameter \\"userNames\\" is defined but never used",
-        "type": 0,
-      },
-      "type": 1,
-    },
-    Object {
-      "location": Object {
-        "a": 91,
-        "b": 95,
-        "col": 9,
-        "line": 5,
-      },
-      "message": Object {
-        "text": "Parameter \\"users\\" is defined but never used",
-        "type": 0,
-      },
-      "type": 1,
-    },
-  ],
-  "parseTree": Object {
-    "queries": Array [
-      Object {
-        "name": "GetAllUsers",
-        "params": Array [
-          Object {
-            "codeRefs": Object {
-              "defined": Object {
-                "a": 32,
-                "b": 40,
-                "col": 9,
-                "line": 3,
-              },
-            },
-            "name": "userNames",
-            "transform": Object {
-              "type": "array_spread",
-            },
-          },
-          Object {
-            "codeRefs": Object {
-              "defined": Object {
-                "a": 60,
-                "b": 63,
-                "col": 9,
-                "line": 4,
-              },
-              "used": Object {
-                "a": 154,
-                "b": 157,
-                "col": 34,
-                "line": 7,
-              },
-            },
-            "name": "user",
-            "transform": Object {
-              "keys": Array [
-                "name",
-                "age",
-              ],
-              "type": "pick_tuple",
-            },
-          },
-          Object {
-            "codeRefs": Object {
-              "defined": Object {
-                "a": 91,
-                "b": 95,
-                "col": 9,
-                "line": 5,
-              },
-            },
-            "name": "users",
-            "transform": Object {
-              "keys": Array [
-                "name",
-                "time",
-              ],
-              "type": "pick_array_spread",
-            },
-          },
-        ],
-        "statement": "select * from users where user = :user",
-        "usedParamSet": Set {
-          "user",
         },
       },
     ],
@@ -363,7 +298,15 @@ Object {
             },
           },
         ],
-        "statement": "SELECT * FROM users",
+        "statement": Object {
+          "body": "SELECT * FROM users",
+          "loc": Object {
+            "a": 102,
+            "b": 120,
+            "col": 2,
+            "line": 7,
+          },
+        },
         "usedParamSet": Set {},
       },
     ],

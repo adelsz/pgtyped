@@ -11,28 +11,29 @@ import {
   StatementBodyContext
 } from "./parser/SQLParser";
 import {Logger, ParseEvent, ParseEventType, ParseWarningType} from "./logger";
+import {Interval} from "antlr4ts/misc";
 
-enum TransformType {
+export enum TransformType {
   Scalar = 'scalar',
   PickTuple = 'pick_tuple',
   ArraySpread = 'array_spread',
   PickArraySpread = 'pick_array_spread',
 }
 
-type ParamTransform = {
+export type ParamTransform = {
   type: TransformType.Scalar,
 } | {
   type: TransformType.PickTuple | TransformType.ArraySpread | TransformType.PickArraySpread,
   keys: string[];
 };
 
-interface Param {
+export interface Param {
   name: string;
   transform: ParamTransform;
   codeRefs: {
     defined?: CodeInterval;
     used?: CodeInterval;
-  },
+  };
 }
 
 interface CodeInterval {
@@ -42,10 +43,15 @@ interface CodeInterval {
   col: number;
 }
 
-interface Query {
+interface Statement {
+  loc: CodeInterval;
+  body: string;
+}
+
+export interface Query {
   name: string;
   params: Param[];
-  statement: string;
+  statement: Statement;
   usedParamSet: Set<string>;
 }
 
@@ -53,7 +59,7 @@ interface ParseTree {
   queries: Query[];
 }
 
-function assert(condition: any): asserts condition {
+export function assert(condition: any): asserts condition {
   if (!condition) {
     throw new Error("Assertion Failed");
   }
@@ -153,8 +159,22 @@ class ParseListener implements SQLParserListener {
   }
 
   enterStatementBody(ctx: StatementBodyContext) {
-    const statementBody = ctx.children?.map(n => n.text).join(' ');
-    this.currentQuery.statement = statementBody;
+    const { inputStream } = ctx.start;
+    assert(inputStream);
+    const a = ctx.start.startIndex;
+    const b = ctx.stop?.stopIndex;
+    assert(b);
+    const interval = new Interval(a,b);
+    const body = inputStream.getText(interval);
+    const loc = {
+      a, b,
+      line: ctx.start.line,
+      col: ctx.start.charPositionInLine,
+    };
+    this.currentQuery.statement = {
+      body,
+      loc,
+    };
   }
 
   enterParamId(ctx: ParamIdContext) {
@@ -184,7 +204,7 @@ class ParseListener implements SQLParserListener {
 }
 
 
-function parseText(text: string): { parseTree: ParseTree, events: ParseEvent[] } {
+function parseText(text: string, fileName: string = "undefined.sql"): { parseTree: ParseTree; events: ParseEvent[] } {
   const logger = new Logger(text);
   const inputStream = CharStreams.fromString(text);
   const lexer = new SQLLexer(inputStream);
