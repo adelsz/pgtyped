@@ -18,9 +18,10 @@ export {
 
 export { default as parseTypeScriptFile } from "./loader/typescript";
 
-export { default as parseSQLFile, Query as QueryAST } from "./loader/sql";
+export { default as parseSQLFile, Query as QueryAST, prettyPrintEvents } from "./loader/sql";
 
 export {
   default as sql,
   TaggedQuery,
+  PreparedQuery,
 } from "./tag";

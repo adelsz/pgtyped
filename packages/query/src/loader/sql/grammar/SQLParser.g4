@@ -17,7 +17,7 @@ select * from $books $filterById;
 
 parser grammar SQLParser;
 
-options {   tokenVocab = SQLLexer; }
+options { tokenVocab = SQLLexer; }
 
 input
     : query+ EOF

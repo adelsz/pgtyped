@@ -1,4 +1,4 @@
-// Generated from loader/sql/grammar/SQLParser.g4 by ANTLR 4.7.3-SNAPSHOT
+// Generated from src/loader/sql/grammar/SQLParser.g4 by ANTLR 4.7.3-SNAPSHOT
 
 
 import { ATN } from "antlr4ts/atn/ATN";
@@ -303,18 +303,18 @@ export class SQLParser extends Parser {
 				this.state = 71;
 				this._errHandler.sync(this);
 				switch (this._input.LA(1)) {
+				case SQLParser.PARAM_MARK:
+					{
+					this.state = 69;
+					this.param();
+					}
+					break;
 				case SQLParser.ID:
 				case SQLParser.WORD:
 				case SQLParser.STRING:
 					{
-					this.state = 69;
-					this.word();
-					}
-					break;
-				case SQLParser.PARAM_MARK:
-					{
 					this.state = 70;
-					this.param();
+					this.word();
 					}
 					break;
 				default:
@@ -785,7 +785,7 @@ export class SQLParser extends Parser {
 		"\x02:>\x05\x14\v\x02;=\x05\x16\f\x02<;\x03\x02\x02\x02=@\x03\x02\x02\x02" +
 		"><\x03\x02\x02\x02>?\x03\x02\x02\x02?A\x03\x02\x02\x02@>\x03\x02\x02\x02" +
 		"AB\x07\x12\x02\x02B\t\x03\x02\x02\x02CD\x05\f\x07\x02DE\x07\x06\x02\x02" +
-		"E\v\x03\x02\x02\x02FK\x05\x0E\b\x02GJ\x05\x0E\b\x02HJ\x05\x10\t\x02IG" +
+		"E\v\x03\x02\x02\x02FK\x05\x0E\b\x02GJ\x05\x10\t\x02HJ\x05\x0E\b\x02IG" +
 		"\x03\x02\x02\x02IH\x03\x02\x02\x02JM\x03\x02\x02\x02KI\x03\x02\x02\x02" +
 		"KL\x03\x02\x02\x02L\r\x03\x02\x02\x02MK\x03\x02\x02\x02NO\t\x02\x02\x02" +
 		"O\x0F\x03\x02\x02\x02PQ\x07\t\x02\x02QR\x05\x12\n\x02R\x11\x03\x02\x02" +

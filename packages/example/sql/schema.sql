@@ -9,3 +9,10 @@ CREATE TABLE books (
   name text,
   author_name text
 );
+
+CREATE TABLE comments (
+  id int not null,
+  position int,
+  author text,
+  body text
+);

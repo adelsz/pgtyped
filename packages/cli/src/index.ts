@@ -4,7 +4,7 @@ import {
   AsyncQueue,
   startup,
   parseSQLFile,
-  parseTypeScriptFile,
+  parseTypeScriptFile, prettyPrintEvents, sql, QueryAST,
 } from "@pgtyped/query";
 import chokidar from "chokidar";
 import * as Option from "fp-ts/lib/Option";
@@ -18,6 +18,8 @@ import {
 } from "./config";
 import {queryToTypeDeclarations} from "./generator";
 import {assert, debug} from "./util";
+import {camelCase} from "camel-case";
+import {pascalCase} from "pascal-case";
 
 const writeFile = promisify(fs.writeFile);
 
@@ -31,7 +33,12 @@ const helpMessage = `PostgreSQL type generator flags:
 
 interface ITypedQuery {
   fileName: string;
-  queryName: string;
+  query?: {
+    name: string;
+    ast: QueryAST;
+    paramTypeAlias: string;
+    returnTypeAlias: string;
+  },
   typeDeclaration: string;
 }
 
@@ -89,13 +96,25 @@ class FileProcessor {
         results.push(typedQuery);
       }
     } else {
-      const {parseTree: {queries}} = parseSQLFile(contents, fileName);
+      const {parseTree: {queries}, events} = parseSQLFile(contents, fileName);
+      if (events.length > 0) {
+        prettyPrintEvents(contents, events);
+        if (events.find(e => 'critical' in e)) {
+          return results;
+        }
+      }
       for (const query of queries) {
         const result = await queryToTypeDeclarations(
           {ast: query, mode: ProcessingMode.SQL},
           connection,
         );
         const typedQuery = ({
+          query: {
+            name: camelCase(query.name),
+            ast: query,
+            paramTypeAlias: `I${pascalCase(query.name)}Params`,
+            returnTypeAlias: `I${pascalCase(query.name)}Result`,
+          },
           fileName,
           queryName: query.name,
           typeDeclaration: result,
@@ -109,17 +128,36 @@ class FileProcessor {
   private async processFile(connection: any, fileName: string) {
     console.log(`Processing ${fileName}`);
     const ext = this.mode === ProcessingMode.TS ? "ts" : "sql";
+    const suffix = this.mode === ProcessingMode.TS ? "types.ts" : "ts";
     const decsFileName = path.resolve(
       path.dirname(fileName),
-      path.basename(fileName, ext) + "types.ts",
+      path.basename(fileName, ext) + suffix,
     );
     const typeDecs = await this.generateTypedecsFromFile(fileName, connection);
     if (typeDecs.length === 0) {
       return;
     }
-    let declarationFileContents = `/** Types generated for queries found in "${fileName}" */\n\n`;
+    let declarationFileContents = '';
+    declarationFileContents += `/** Types generated for queries found in "${fileName}" */\n`;
+    declarationFileContents += `import { PreparedQuery } from "@pgtyped/query";\n\n`;
     for (const typeDec of typeDecs) {
-      declarationFileContents += typeDec.typeDeclaration + "\n";
+      assert(typeDec.query);
+      const queryPP = typeDec.query.ast.statement.body
+        .split('\n')
+        .map(s => ' * ' + s)
+        .join('\n');
+      declarationFileContents += typeDec.typeDeclaration;
+      declarationFileContents += `const ${typeDec.query.name}IR: any = ${JSON.stringify(typeDec.query.ast)};\n\n`;
+      declarationFileContents +=
+        `/**\n`
+        + ` * Query generated from SQL:\n`
+        + ` * \`\`\`\n`
+        + `${queryPP}\n`
+        + ` * \`\`\`\n`
+        + ` */\n`;
+      declarationFileContents += `export const ${typeDec.query.name} = `
+        + `new PreparedQuery<${typeDec.query.paramTypeAlias},${typeDec.query.returnTypeAlias}>`
+        + `(${typeDec.query.name}IR);\n\n\n`;
     }
     await writeFile(decsFileName, declarationFileContents);
     console.log(`Saved ${typeDecs.length} query types to ${path.relative(process.cwd(), decsFileName)}`);
@@ -159,7 +197,7 @@ async function main(config: IConfig, isWatchMode: boolean) {
     pattern = `${config.srcDir}/**/${emitMode.queryFileName}`;
   }
   if (emitMode.mode === "sql-file") {
-    pattern = emitMode.pattern;
+    pattern = `${config.srcDir}/**/${emitMode.pattern}`;
   }
 
   assert(pattern);

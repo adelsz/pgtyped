@@ -7,7 +7,7 @@ const getTypesMocked = jest
   .spyOn(queryModule, "getTypes")
   .mockName("getTypes");
 
-test("test query to interface (SQL)", async () => {
+test("query-to-interface translation (SQL)", async () => {
   const queryString = `
     /* @name DeleteUsers */
       delete from users * where name = :userName and id = :userId and note = :userNote returning id, id, name, note as bote;
@@ -70,7 +70,7 @@ export interface IDeleteUsersQuery {
   expect(result).toEqual(expected);
 });
 
-test("test query to interface", async () => {
+test("query-to-interface translation (TS)", async () => {
   const query = `
       delete from users *
       where name = :userName and id = :userId and note = :userNote returning id, id, name, note as bote;

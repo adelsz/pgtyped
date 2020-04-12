@@ -32,6 +32,7 @@ export type ParseEvent = {
   location?: CodeInterval;
 } | {
   type: ParseEventType.Error;
+  critical: true,
   message: {
     text: string;
     type: ParseErrorType,
@@ -113,6 +114,7 @@ export class Logger implements ANTLRErrorListener<any> {
   syntaxError(recognizer: any, symbol: any, line: number, col: number, msg: string, e: RecognitionException | undefined) {
     this.logEvent({
       type: ParseEventType.Error,
+      critical: true,
       message: {
         type: ParseErrorType.ParseError,
         text: `Parse error: ${msg}`,

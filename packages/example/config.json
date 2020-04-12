@@ -1,8 +1,7 @@
 {
   "emit": {
-    "mode": "query-file",
-    "queryFileName": "queries.ts",
-    "emitFileName": "queries.types.ts"
+    "mode": "sql-file",
+    "pattern": "queries.sql"
   },
   "srcDir": "./src/",
   "db": {

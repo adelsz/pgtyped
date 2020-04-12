@@ -225,4 +225,5 @@ function parseText(text: string, fileName: string = "undefined.sql"): { parseTre
   };
 }
 
+export { prettyPrintEvents } from './logger';
 export default parseText;
