@@ -1,14 +1,20 @@
-import {getTypes, ParamTransform, processQueryAST, processQueryString, QueryAST} from "@pgtyped/query";
-import {pascalCase} from "pascal-case";
+import {
+  getTypes,
+  ParamTransform,
+  processQueryAST,
+  processQueryString,
+  QueryAST,
+} from '@pgtyped/query';
+import { pascalCase } from 'pascal-case';
 
-import {debug} from "./util";
-import {ProcessingMode} from "./index";
+import { debug } from './util';
+import { ProcessingMode } from './index';
 
 export enum FieldType {
-  String = "string",
-  Number = "number",
-  Bool = "boolean",
-  Date = "Date",
+  String = 'string',
+  Number = 'number',
+  Bool = 'boolean',
+  Date = 'Date',
 }
 
 const typeMap: {
@@ -61,31 +67,26 @@ const interfaceGen = (interfaceName: string, contents: string) =>
 ${contents}
 }\n\n`;
 
-export const generateInterface = (
-  interfaceName: string,
-  fields: IField[],
-) => {
+export const generateInterface = (interfaceName: string, fields: IField[]) => {
   const contents = fields
-    .map(({
-      fieldName, fieldType,
-    }) => `  ${fieldName}: ${fieldType};`)
-    .join("\n");
+    .map(({ fieldName, fieldType }) => `  ${fieldName}: ${fieldType};`)
+    .join('\n');
   return interfaceGen(interfaceName, contents);
 };
 
-export const generateTypeAlias = (
-  typeName: string,
-  alias: string,
-) => `export type ${typeName} = ${alias};\n\n`;
+export const generateTypeAlias = (typeName: string, alias: string) =>
+  `export type ${typeName} = ${alias};\n\n`;
 
-type ParsedQuery = {
-  name: string;
-  body: string;
-  mode: ProcessingMode.TS,
-} | {
-  ast: QueryAST,
-  mode: ProcessingMode.SQL,
-}
+type ParsedQuery =
+  | {
+      name: string;
+      body: string;
+      mode: ProcessingMode.TS;
+    }
+  | {
+      ast: QueryAST;
+      mode: ProcessingMode.SQL;
+    };
 
 export async function queryToTypeDeclarations(
   parsedQuery: ParsedQuery,
@@ -104,20 +105,23 @@ export async function queryToTypeDeclarations(
   const typeData = await getTypes(queryData, queryName, connection);
   const interfaceName = pascalCase(queryName);
 
-  if ("errorCode" in typeData) {
+  if ('errorCode' in typeData) {
     // tslint:disable-next-line:no-console
-    console.error("Error in query. Details: %o", typeData);
-    const returnInterface = generateTypeAlias(`I${interfaceName}Result`, "never");
-    const paramInterface = generateTypeAlias(`I${interfaceName}Params`, "never");
+    console.error('Error in query. Details: %o', typeData);
+    const returnInterface = generateTypeAlias(
+      `I${interfaceName}Result`,
+      'never',
+    );
+    const paramInterface = generateTypeAlias(
+      `I${interfaceName}Params`,
+      'never',
+    );
     const resultErrorComment = `/** Query '${queryName}' is invalid, so its result is assigned type 'never' */\n`;
     const paramErrorComment = `/** Query '${queryName}' is invalid, so its parameters are assigned type 'never' */\n`;
     return `${resultErrorComment}${returnInterface}${paramErrorComment}${paramInterface}`;
   }
 
-  const {
-    returnTypes,
-    paramMetadata,
-  } = typeData;
+  const { returnTypes, paramMetadata } = typeData;
 
   const returnFieldTypes: IField[] = [];
   const paramFieldTypes: IField[] = [];
@@ -129,7 +133,7 @@ export async function queryToTypeDeclarations(
     }
     let tsTypeName = typeMap[typeName];
     if (nullable) {
-      tsTypeName += " | null";
+      tsTypeName += ' | null';
     }
 
     returnFieldTypes.push({
@@ -141,7 +145,8 @@ export async function queryToTypeDeclarations(
   const { params } = paramMetadata;
   for (const param of paramMetadata.mapping) {
     if (
-      param.type === ParamTransform.Scalar || param.type === ParamTransform.Spread
+      param.type === ParamTransform.Scalar ||
+      param.type === ParamTransform.Spread
     ) {
       const isArray = param.type === ParamTransform.Spread;
       const pgTypeName = params[param.assignedIndex - 1];
@@ -149,7 +154,7 @@ export async function queryToTypeDeclarations(
         throw new Error(`field type ${pgTypeName} not found`);
       }
       let tsTypeName = typeMap[pgTypeName];
-      tsTypeName += " | null";
+      tsTypeName += ' | null';
 
       paramFieldTypes.push({
         fieldName: param.name,
@@ -158,8 +163,8 @@ export async function queryToTypeDeclarations(
     } else {
       const isArray = param.type === ParamTransform.PickSpread;
       let fieldType = Object.values(param.dict)
-        .map(p => `    ${p.name}: ${typeMap[params[p.assignedIndex - 1]]}`)
-        .join(",\n");
+        .map((p) => `    ${p.name}: ${typeMap[params[p.assignedIndex - 1]]}`)
+        .join(',\n');
       fieldType = `{\n${fieldType}\n  }`;
       if (isArray) {
         fieldType = `Array<${fieldType}>`;
@@ -173,32 +178,23 @@ export async function queryToTypeDeclarations(
 
   const resultInterfaceName = `I${interfaceName}Result`;
   const returnTypesInterface =
-    `/** '${queryName}' return type */\n` + (
-      returnFieldTypes.length > 0
-        ? generateInterface(
-          `I${interfaceName}Result`,
-          returnFieldTypes,
-        )
-        : generateTypeAlias(resultInterfaceName, "void")
-    );
+    `/** '${queryName}' return type */\n` +
+    (returnFieldTypes.length > 0
+      ? generateInterface(`I${interfaceName}Result`, returnFieldTypes)
+      : generateTypeAlias(resultInterfaceName, 'void'));
 
   const paramInterfaceName = `I${interfaceName}Params`;
   const paramTypesInterface =
-    `/** '${queryName}' parameters type */\n` + (
-      paramFieldTypes.length > 0
-        ? generateInterface(
-          `I${interfaceName}Params`,
-          paramFieldTypes,
-        )
-        : generateTypeAlias(paramInterfaceName, "void")
-    );
+    `/** '${queryName}' parameters type */\n` +
+    (paramFieldTypes.length > 0
+      ? generateInterface(`I${interfaceName}Params`, paramFieldTypes)
+      : generateTypeAlias(paramInterfaceName, 'void'));
 
   const typePairInterface =
-    `/** '${queryName}' query type */\n` + generateInterface(
-    `I${interfaceName}Query`,
-    [
-      {fieldName: "params", fieldType: paramInterfaceName},
-      {fieldName: "result", fieldType: resultInterfaceName},
+    `/** '${queryName}' query type */\n` +
+    generateInterface(`I${interfaceName}Query`, [
+      { fieldName: 'params', fieldType: paramInterfaceName },
+      { fieldName: 'result', fieldType: resultInterfaceName },
     ]);
 
   const interfaces = `${paramTypesInterface}${returnTypesInterface}${typePairInterface}`;

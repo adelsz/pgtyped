@@ -1,6 +1,6 @@
 import parse from './index';
 
-test("Named query", () => {
+test('Named query', () => {
   const text = `
   /* @name GetAllUsers */
   SELECT * FROM users;`;
@@ -8,7 +8,7 @@ test("Named query", () => {
   expect(parseTree).toMatchSnapshot();
 });
 
-test("Named query selects some fields", () => {
+test('Named query selects some fields', () => {
   const text = `
   /* @name GetAllUsers */
   SELECT id, name FROM users;`;
@@ -16,7 +16,7 @@ test("Named query selects some fields", () => {
   expect(parseTree).toMatchSnapshot();
 });
 
-test("Named query with an inferred param", () => {
+test('Named query with an inferred param', () => {
   const text = `
   /* @name GetUserById */
   SELECT * FROM users WHERE userId = :userId;`;
@@ -24,7 +24,7 @@ test("Named query with an inferred param", () => {
   expect(parseTree).toMatchSnapshot();
 });
 
-test("Named query with a valid param", () => {
+test('Named query with a valid param', () => {
   const text = `
   /*
     @name CreateCustomer
@@ -36,8 +36,7 @@ test("Named query with a valid param", () => {
   expect(parseTree).toMatchSnapshot();
 });
 
-
-test("Unused parameters produce warnings", () => {
+test('Unused parameters produce warnings', () => {
   const text = `
   /*
     @name GetAllUsers

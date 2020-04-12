@@ -1,17 +1,17 @@
-import {SQLParserListener} from "./parser/SQLParserListener";
-import {CharStreams, CommonTokenStream} from 'antlr4ts';
-import {ParseTreeWalker} from 'antlr4ts/tree/ParseTreeWalker';
-import {SQLLexer} from "./parser/SQLLexer";
+import { SQLParserListener } from './parser/SQLParserListener';
+import { CharStreams, CommonTokenStream } from 'antlr4ts';
+import { ParseTreeWalker } from 'antlr4ts/tree/ParseTreeWalker';
+import { SQLLexer } from './parser/SQLLexer';
 import {
   KeyContext,
   ParamIdContext,
   ParamNameContext,
   QueryNameContext,
   SQLParser,
-  StatementBodyContext
-} from "./parser/SQLParser";
-import {Logger, ParseEvent, ParseEventType, ParseWarningType} from "./logger";
-import {Interval} from "antlr4ts/misc";
+  StatementBodyContext,
+} from './parser/SQLParser';
+import { Logger, ParseEvent, ParseEventType, ParseWarningType } from './logger';
+import { Interval } from 'antlr4ts/misc';
 
 export enum TransformType {
   Scalar = 'scalar',
@@ -20,12 +20,17 @@ export enum TransformType {
   PickArraySpread = 'pick_array_spread',
 }
 
-export type ParamTransform = {
-  type: TransformType.Scalar,
-} | {
-  type: TransformType.PickTuple | TransformType.ArraySpread | TransformType.PickArraySpread,
-  keys: string[];
-};
+export type ParamTransform =
+  | {
+      type: TransformType.Scalar;
+    }
+  | {
+      type:
+        | TransformType.PickTuple
+        | TransformType.ArraySpread
+        | TransformType.PickArraySpread;
+      keys: string[];
+    };
 
 export interface Param {
   name: string;
@@ -61,13 +66,13 @@ interface ParseTree {
 
 export function assert(condition: any): asserts condition {
   if (!condition) {
-    throw new Error("Assertion Failed");
+    throw new Error('Assertion Failed');
   }
 }
 
 class ParseListener implements SQLParserListener {
   logger: Logger;
-  public parseTree: ParseTree = {queries: []};
+  public parseTree: ParseTree = { queries: [] };
   private currentQuery: Partial<Query> = {};
   private currentParam: Partial<Param> = {};
   private currentTransform: Partial<ParamTransform> = {};
@@ -78,7 +83,7 @@ class ParseListener implements SQLParserListener {
 
   exitQuery() {
     const currentQuery = this.currentQuery as Query;
-    currentQuery.params.forEach(p => {
+    currentQuery.params.forEach((p) => {
       const paramUsed = currentQuery.usedParamSet.has(p.name);
       if (!paramUsed) {
         this.logger.logEvent({
@@ -155,7 +160,7 @@ class ParseListener implements SQLParserListener {
 
   enterKey(ctx: KeyContext) {
     assert('keys' in this.currentTransform && this.currentTransform.keys);
-    this.currentTransform.keys.push(ctx.text)
+    this.currentTransform.keys.push(ctx.text);
   }
 
   enterStatementBody(ctx: StatementBodyContext) {
@@ -164,10 +169,11 @@ class ParseListener implements SQLParserListener {
     const a = ctx.start.startIndex;
     const b = ctx.stop?.stopIndex;
     assert(b);
-    const interval = new Interval(a,b);
+    const interval = new Interval(a, b);
     const body = inputStream.getText(interval);
     const loc = {
-      a, b,
+      a,
+      b,
       line: ctx.start.line,
       col: ctx.start.charPositionInLine,
     };
@@ -182,7 +188,9 @@ class ParseListener implements SQLParserListener {
     assert(this.currentQuery.params);
     assert(this.currentQuery.usedParamSet);
     this.currentQuery.usedParamSet.add(paramName);
-    const reference = this.currentQuery.params.find(p => p.name === paramName);
+    const reference = this.currentQuery.params.find(
+      (p) => p.name === paramName,
+    );
     const useLoc = {
       a: ctx.start.startIndex,
       b: ctx.start.stopIndex,
@@ -192,7 +200,7 @@ class ParseListener implements SQLParserListener {
     if (!reference) {
       this.currentQuery.params.push({
         name: paramName,
-        transform: {type: TransformType.Scalar},
+        transform: { type: TransformType.Scalar },
         codeRefs: {
           used: useLoc,
         },
@@ -203,8 +211,10 @@ class ParseListener implements SQLParserListener {
   }
 }
 
-
-function parseText(text: string, fileName: string = "undefined.sql"): { parseTree: ParseTree; events: ParseEvent[] } {
+function parseText(
+  text: string,
+  fileName: string = 'undefined.sql',
+): { parseTree: ParseTree; events: ParseEvent[] } {
   const logger = new Logger(text);
   const inputStream = CharStreams.fromString(text);
   const lexer = new SQLLexer(inputStream);

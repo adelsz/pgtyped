@@ -1,4 +1,4 @@
-import {assert, Query as QueryAST, TransformType} from "./loader/sql";
+import { assert, Query as QueryAST, TransformType } from './loader/sql';
 
 type Scalar = string | number | null;
 
@@ -37,7 +37,11 @@ interface IDictArrayParam {
   };
 }
 
-export type QueryParam = IScalarParam | IScalarArrayParam | IDictParam | IDictArrayParam;
+export type QueryParam =
+  | IScalarParam
+  | IScalarArrayParam
+  | IDictParam
+  | IDictArrayParam;
 
 export interface IInterpolatedQuery {
   query: string;
@@ -50,7 +54,11 @@ interface INestedParameters {
 }
 
 export interface IQueryParameters {
-  [paramName: string]: Scalar | INestedParameters | Scalar[] | INestedParameters[];
+  [paramName: string]:
+    | Scalar
+    | INestedParameters
+    | Scalar[]
+    | INestedParameters[];
 }
 
 function assertScalar(obj: any): obj is Scalar {
@@ -69,11 +77,14 @@ const rootRegex = /(\$\$?)(\w+)(?:\((.+?)\))?/gm;
 const leafRegex = /(\w+)/gm;
 
 enum Prefix {
-  Singular = "$",
-  Plural = "$$",
+  Singular = '$',
+  Plural = '$$',
 }
 
-function replaceIntervals(str: string, intervals: { a: number; b: number, sub: string }[]) {
+function replaceIntervals(
+  str: string,
+  intervals: { a: number; b: number; sub: string }[],
+) {
   if (intervals.length === 0) {
     return str;
   }
@@ -98,10 +109,10 @@ export const processQueryAST = (
 ): IInterpolatedQuery => {
   const bindings: Scalar[] = [];
   const paramMapping: QueryParam[] = [];
-  const usedParams = query.params.filter(p => query.usedParamSet.has(p.name));
-  const {a: statementStart} = query.statement.loc;
+  const usedParams = query.params.filter((p) => query.usedParamSet.has(p.name));
+  const { a: statementStart } = query.statement.loc;
   let i = 1;
-  const intervals = usedParams.map(p => {
+  const intervals = usedParams.map((p) => {
     assert(p.codeRefs.used);
     const paramLoc = {
       a: p.codeRefs.used.a - statementStart - 1,
@@ -114,10 +125,11 @@ export const processQueryAST = (
       if (passedParams) {
         const paramValue = passedParams[p.name];
         sub = (paramValue as Scalar[])
-          .map(val => {
+          .map((val) => {
             bindings.push(val);
             return `$${i++}`;
-          }).join(',');
+          })
+          .join(',');
       } else {
         const idx = i++;
         paramMapping.push({
@@ -127,10 +139,10 @@ export const processQueryAST = (
         } as IScalarArrayParam);
         sub = `$${idx}`;
       }
-      return ({
+      return {
         ...paramLoc,
-        sub: `(${sub})`
-      });
+        sub: `(${sub})`,
+      };
     }
 
     // Handle pick transform
@@ -139,7 +151,7 @@ export const processQueryAST = (
         [key: string]: IScalarParam;
       } = {};
       const sub = p.transform.keys
-        .map(pickKey => {
+        .map((pickKey) => {
           const idx = i++;
           dict[pickKey] = {
             name: pickKey,
@@ -152,7 +164,8 @@ export const processQueryAST = (
             bindings.push(val);
           }
           return `$${idx}`;
-        }).join(',');
+        })
+        .join(',');
       if (!passedParams) {
         paramMapping.push({
           name: p.name,
@@ -160,10 +173,10 @@ export const processQueryAST = (
           dict,
         });
       }
-      return ({
+      return {
         ...paramLoc,
-        sub: `(${sub})`
-      });
+        sub: `(${sub})`,
+      };
     }
 
     // Handle spreadPick transform
@@ -171,21 +184,25 @@ export const processQueryAST = (
       let sub;
       if (passedParams) {
         const passedParam = passedParams[p.name] as INestedParameters[];
-        sub = passedParam.map(entity => {
-          assert(p.transform.type === TransformType.PickArraySpread);
-          const ssub = p.transform.keys.map(pickKey => {
-            const val = entity[pickKey];
-            bindings.push(val);
-            return `$${i++}`;
-          }).join(',');
-          return ssub;
-        }).join('),(');
+        sub = passedParam
+          .map((entity) => {
+            assert(p.transform.type === TransformType.PickArraySpread);
+            const ssub = p.transform.keys
+              .map((pickKey) => {
+                const val = entity[pickKey];
+                bindings.push(val);
+                return `$${i++}`;
+              })
+              .join(',');
+            return ssub;
+          })
+          .join('),(');
       } else {
         const dict: {
           [key: string]: IScalarParam;
         } = {};
         sub = p.transform.keys
-          .map(pickKey => {
+          .map((pickKey) => {
             const idx = i++;
             dict[pickKey] = {
               name: pickKey,
@@ -193,17 +210,18 @@ export const processQueryAST = (
               assignedIndex: idx,
             } as IScalarParam;
             return `$${idx}`;
-          }).join(',');
+          })
+          .join(',');
         paramMapping.push({
           name: p.name,
           type: ParamTransform.PickSpread,
           dict,
         });
       }
-      return ({
+      return {
         ...paramLoc,
-        sub: `(${sub})`
-      });
+        sub: `(${sub})`,
+      };
     }
 
     // Handle scalar transform
@@ -218,10 +236,10 @@ export const processQueryAST = (
         assignedIndex,
       } as IScalarParam);
     }
-    return ({
+    return {
       ...paramLoc,
-      sub: `$${assignedIndex}`
-    });
+      sub: `$${assignedIndex}`,
+    };
   });
   const flatStr = replaceIntervals(query.statement.body, intervals);
   return {
@@ -243,7 +261,7 @@ export const processQueryString = (
     rootRegex,
     (_1, prefix, paramName: string, nestedExp: string): string => {
       let param: QueryParam | undefined;
-      let replacement = "$bad";
+      let replacement = '$bad';
       if (prefix === Prefix.Singular) {
         if (nestedExp) {
           const dict: { [key: string]: IScalarParam } = {};
@@ -286,34 +304,37 @@ export const processQueryString = (
         if (nestedExp) {
           const dict: any = {};
           const keys: string[] = [];
-          nestedExp.replace(
-            leafRegex,
-            (_, key) => {
-              keys.push(key);
-              return "";
-            },
-          );
+          nestedExp.replace(leafRegex, (_, key) => {
+            keys.push(key);
+            return '';
+          });
           if (parameters) {
             const dictArray = parameters[paramName];
             if (assertDictArray(dictArray)) {
-              replacement = dictArray.map(d => {
-                const tupleStr = Object.values(d).map((value) => {
-                  bindings.push(value);
-                  return `$${++index}`;
-                }).join(", ");
-                return `(${tupleStr})`;
-              }).join(", ");
+              replacement = dictArray
+                .map((d) => {
+                  const tupleStr = Object.values(d)
+                    .map((value) => {
+                      bindings.push(value);
+                      return `$${++index}`;
+                    })
+                    .join(', ');
+                  return `(${tupleStr})`;
+                })
+                .join(', ');
             }
           } else {
-            const repl = keys.map((key) => {
-              const i = ++index;
-              dict[key] = {
-                name: key,
-                assignedIndex: i,
-                type: ParamTransform.Scalar,
-              };
-              return `$${i}`;
-            }).join(", ");
+            const repl = keys
+              .map((key) => {
+                const i = ++index;
+                dict[key] = {
+                  name: key,
+                  assignedIndex: i,
+                  type: ParamTransform.Scalar,
+                };
+                return `$${i}`;
+              })
+              .join(', ');
             param = {
               type: ParamTransform.PickSpread,
               name: paramName,
@@ -331,9 +352,11 @@ export const processQueryString = (
                   bindings.push(value);
                   return `$${++index}`;
                 })
-                .join(", ");
+                .join(', ');
             } else {
-              throw new Error(`Bad parameter ${paramName} expected array of scalars`);
+              throw new Error(
+                `Bad parameter ${paramName} expected array of scalars`,
+              );
             }
           } else {
             param = {
@@ -350,7 +373,8 @@ export const processQueryString = (
         params.push(param);
       }
       return replacement;
-    });
+    },
+  );
 
   return {
     mapping: params,

@@ -1,4 +1,4 @@
-import ts from "typescript";
+import ts from 'typescript';
 
 interface INode {
   queryName: string;
@@ -17,7 +17,7 @@ export function parseFile(sourceFile: ts.SourceFile): INode[] {
       const tagName = taggedTemplateNode.tag.getText();
       const tagContent = taggedTemplateNode.template
         .getText()
-        .replace("\n", "")
+        .replace('\n', '')
         .slice(1, -1)
         .trim();
       foundNodes.push({
@@ -33,10 +33,7 @@ export function parseFile(sourceFile: ts.SourceFile): INode[] {
   return foundNodes;
 }
 
-const parseCode = (
-  fileContent: string,
-  fileName = "unnamed.ts",
-) => {
+const parseCode = (fileContent: string, fileName = 'unnamed.ts') => {
   const sourceFile = ts.createSourceFile(
     fileName,
     fileContent,

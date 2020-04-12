@@ -1,5 +1,5 @@
 /** Types generated for queries found in "src/comments/queries.sql" */
-import { PreparedQuery } from "@pgtyped/query";
+import { PreparedQuery } from '@pgtyped/query';
 
 /** 'GetAllComments' parameters type */
 export interface IGetAllCommentsParams {
@@ -20,7 +20,21 @@ export interface IGetAllCommentsQuery {
   result: IGetAllCommentsResult;
 }
 
-const getAllCommentsIR: any = {"name":"GetAllComments","params":[{"name":"commentId","transform":{"type":"scalar"},"codeRefs":{"used":{"a":64,"b":72,"line":4,"col":35}}}],"usedParamSet":{},"statement":{"body":"SELECT * FROM comments WHERE id = :commentId","loc":{"a":29,"b":72,"line":4,"col":0}}};
+const getAllCommentsIR: any = {
+  name: 'GetAllComments',
+  params: [
+    {
+      name: 'commentId',
+      transform: { type: 'scalar' },
+      codeRefs: { used: { a: 64, b: 72, line: 4, col: 35 } },
+    },
+  ],
+  usedParamSet: {},
+  statement: {
+    body: 'SELECT * FROM comments WHERE id = :commentId',
+    loc: { a: 29, b: 72, line: 4, col: 0 },
+  },
+};
 
 /**
  * Query generated from SQL:
@@ -28,14 +42,16 @@ const getAllCommentsIR: any = {"name":"GetAllComments","params":[{"name":"commen
  * SELECT * FROM comments WHERE id = :commentId
  * ```
  */
-export const getAllComments = new PreparedQuery<IGetAllCommentsParams,IGetAllCommentsResult>(getAllCommentsIR);
-
+export const getAllComments = new PreparedQuery<
+  IGetAllCommentsParams,
+  IGetAllCommentsResult
+>(getAllCommentsIR);
 
 /** 'InsertComment' parameters type */
 export interface IInsertCommentParams {
   comments: Array<{
-    author: string,
-    body: string
+    author: string;
+    body: string;
   }>;
 }
 
@@ -48,7 +64,24 @@ export interface IInsertCommentQuery {
   result: IInsertCommentResult;
 }
 
-const insertCommentIR: any = {"name":"InsertComment","params":[{"name":"comments","codeRefs":{"defined":{"a":110,"b":117,"line":8,"col":9},"used":{"a":190,"b":197,"line":12,"col":8}},"transform":{"type":"pick_array_spread","keys":["author","body"]}}],"usedParamSet":{},"statement":{"body":"INSERT INTO comments (author, body)\nVALUES :comments","loc":{"a":146,"b":197,"line":11,"col":0}}};
+const insertCommentIR: any = {
+  name: 'InsertComment',
+  params: [
+    {
+      name: 'comments',
+      codeRefs: {
+        defined: { a: 110, b: 117, line: 8, col: 9 },
+        used: { a: 190, b: 197, line: 12, col: 8 },
+      },
+      transform: { type: 'pick_array_spread', keys: ['author', 'body'] },
+    },
+  ],
+  usedParamSet: {},
+  statement: {
+    body: 'INSERT INTO comments (author, body)\nVALUES :comments',
+    loc: { a: 146, b: 197, line: 11, col: 0 },
+  },
+};
 
 /**
  * Query generated from SQL:
@@ -57,6 +90,7 @@ const insertCommentIR: any = {"name":"InsertComment","params":[{"name":"comments
  * VALUES :comments
  * ```
  */
-export const insertComment = new PreparedQuery<IInsertCommentParams,IInsertCommentResult>(insertCommentIR);
-
-
+export const insertComment = new PreparedQuery<
+  IInsertCommentParams,
+  IInsertCommentResult
+>(insertCommentIR);

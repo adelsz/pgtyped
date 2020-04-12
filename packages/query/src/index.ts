@@ -1,8 +1,4 @@
-export {
-  getTypes,
-  startup,
-  IParseError,
-} from "./actions";
+export { getTypes, startup, IParseError } from './actions';
 
 export {
   ParamTransform,
@@ -10,18 +6,16 @@ export {
   IInterpolatedQuery,
   processQueryAST,
   processQueryString,
-} from "./preprocessor";
+} from './preprocessor';
+
+export { AsyncQueue } from '@pgtyped/wire';
+
+export { default as parseTypeScriptFile } from './loader/typescript';
 
 export {
-  AsyncQueue,
-} from "@pgtyped/wire";
+  default as parseSQLFile,
+  Query as QueryAST,
+  prettyPrintEvents,
+} from './loader/sql';
 
-export { default as parseTypeScriptFile } from "./loader/typescript";
-
-export { default as parseSQLFile, Query as QueryAST, prettyPrintEvents } from "./loader/sql";
-
-export {
-  default as sql,
-  TaggedQuery,
-  PreparedQuery,
-} from "./tag";
+export { default as sql, TaggedQuery, PreparedQuery } from './tag';

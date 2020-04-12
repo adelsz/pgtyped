@@ -1,19 +1,19 @@
 /** @fileoverview Config file parser */
 
-import * as Either from "fp-ts/lib/Either";
-import * as Option from "fp-ts/lib/Option";
-import { readFileSync } from "fs";
-import * as t from "io-ts";
+import * as Either from 'fp-ts/lib/Either';
+import * as Option from 'fp-ts/lib/Option';
+import { readFileSync } from 'fs';
+import * as t from 'io-ts';
 
 const configParser = t.type({
   emit: t.union([
     t.type({
-      mode: t.literal("query-file"),
+      mode: t.literal('query-file'),
       queryFileName: t.string,
       emitFileName: t.string,
     }),
     t.type({
-      mode: t.literal("sql-file"),
+      mode: t.literal('sql-file'),
       pattern: t.string,
     }),
   ]),

@@ -1,6 +1,6 @@
-import chalk, {ChalkFunction} from "chalk";
-import {ANTLRErrorListener} from "antlr4ts";
-import {RecognitionException} from "antlr4ts/RecognitionException";
+import chalk, { ChalkFunction } from 'chalk';
+import { ANTLRErrorListener } from 'antlr4ts';
+import { RecognitionException } from 'antlr4ts/RecognitionException';
 
 interface CodeInterval {
   a: number;
@@ -10,7 +10,7 @@ interface CodeInterval {
 }
 
 export enum ParseWarningType {
-  ParamNeverUsed
+  ParamNeverUsed,
 }
 
 enum ParseErrorType {
@@ -20,27 +20,32 @@ enum ParseErrorType {
 export enum ParseEventType {
   Info,
   Warning,
-  Error
+  Error,
 }
 
-export type ParseEvent = {
-  type: ParseEventType.Warning;
-  message: {
-    text: string;
-    type: ParseWarningType,
-  };
-  location?: CodeInterval;
-} | {
-  type: ParseEventType.Error;
-  critical: true,
-  message: {
-    text: string;
-    type: ParseErrorType,
-  };
-  location?: CodeInterval;
-}
+export type ParseEvent =
+  | {
+      type: ParseEventType.Warning;
+      message: {
+        text: string;
+        type: ParseWarningType;
+      };
+      location?: CodeInterval;
+    }
+  | {
+      type: ParseEventType.Error;
+      critical: true;
+      message: {
+        text: string;
+        type: ParseErrorType;
+      };
+      location?: CodeInterval;
+    };
 
-function styleIntervals(str: string, intervals: { a: number; b: number, style: ChalkFunction }[]) {
+function styleIntervals(
+  str: string,
+  intervals: { a: number; b: number; style: ChalkFunction }[],
+) {
   if (intervals.length === 0) {
     return str;
   }
@@ -61,23 +66,24 @@ function styleIntervals(str: string, intervals: { a: number; b: number, style: C
 }
 
 export function prettyPrintEvents(text: string, parseEvents: ParseEvent[]) {
-  let msg = chalk.underline.magenta("Parsed file:\n");
-  const errors = parseEvents
-    .filter(e => e.type === ParseEventType.Error);
-  const warnings = parseEvents
-    .filter(e => e.type === ParseEventType.Warning);
+  let msg = chalk.underline.magenta('Parsed file:\n');
+  const errors = parseEvents.filter((e) => e.type === ParseEventType.Error);
+  const warnings = parseEvents.filter((e) => e.type === ParseEventType.Warning);
   const lineStyle = {} as any;
   const locsToColor = parseEvents
-    .filter(w => w.location)
-    .map(w => {
-      const style = w.type === ParseEventType.Error ? chalk.underline.red : chalk.underline.yellow;
+    .filter((w) => w.location)
+    .map((w) => {
+      const style =
+        w.type === ParseEventType.Error
+          ? chalk.underline.red
+          : chalk.underline.yellow;
       if (w.location?.line) {
         lineStyle[w.location.line] = style;
       }
-      return ({
+      return {
         ...w.location,
         style,
-      });
+      };
     });
   const styledText = styleIntervals(text, locsToColor as any);
   let i = 1;
@@ -87,15 +93,23 @@ export function prettyPrintEvents(text: string, parseEvents: ParseEvent[]) {
   });
   msg += numberedText;
   if (errors.length > 0) {
-    msg += chalk.underline.red("\nErrors:\n");
-    msg += errors.map(w => `- (${w.location?.line}:${w.location?.col}) ${w.message.text}`).join('\n');
+    msg += chalk.underline.red('\nErrors:\n');
+    msg += errors
+      .map(
+        (w) => `- (${w.location?.line}:${w.location?.col}) ${w.message.text}`,
+      )
+      .join('\n');
   }
   if (warnings.length > 0) {
-    msg += chalk.underline.yellow("\nWarnings:\n");
-    msg += warnings.map(w => `- (${w.location?.line}:${w.location?.col}) ${w.message.text}`).join('\n');
+    msg += chalk.underline.yellow('\nWarnings:\n');
+    msg += warnings
+      .map(
+        (w) => `- (${w.location?.line}:${w.location?.col}) ${w.message.text}`,
+      )
+      .join('\n');
   }
   // tslint:disable-next-line:no-console
-  console.log(msg)
+  console.log(msg);
 }
 
 export class Logger implements ANTLRErrorListener<any> {
@@ -110,8 +124,14 @@ export class Logger implements ANTLRErrorListener<any> {
     this.parseEvents.push(event);
   }
 
-
-  syntaxError(recognizer: any, symbol: any, line: number, col: number, msg: string, e: RecognitionException | undefined) {
+  syntaxError(
+    recognizer: any,
+    symbol: any,
+    line: number,
+    col: number,
+    msg: string,
+    e: RecognitionException | undefined,
+  ) {
     this.logEvent({
       type: ParseEventType.Error,
       critical: true,
