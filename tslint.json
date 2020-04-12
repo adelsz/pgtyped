@@ -1,22 +1,28 @@
 {
   "defaultSeverity": "error",
   "extends": [
-    "tslint:recommended"
+    "tslint:recommended",
+    "tslint-plugin-prettier",
+    "tslint-config-prettier"
   ],
   "jsRules": {},
   "rules": {
+    "prettier": true,
     "object-literal-sort-keys": false,
     "ordered-imports": false,
     "arrow-parens": false,
     "array-type": false,
-    "max-line-length": false
+    "max-line-length": false,
+    "max-classes-per-file": false
   },
   "rulesDirectory": [],
   "linterOptions": {
     "exclude": [
       "**/*types.ts",
       "**/*Lexer.ts",
-      "**/*Parser.ts"
+      "**/*Parser.ts",
+      "**/*ParserListener.ts",
+      "**/*ParserVisitor.ts"
     ]
   }
 }
