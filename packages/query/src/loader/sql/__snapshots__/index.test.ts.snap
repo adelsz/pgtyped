@@ -1,5 +1,48 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Another test 1`] = `
+Object {
+  "events": Array [],
+  "parseTree": Object {
+    "queries": Array [
+      Object {
+        "name": "GetBooksByAuthorName",
+        "params": Array [
+          Object {
+            "codeRefs": Object {
+              "used": Object {
+                "a": 161,
+                "b": 170,
+                "col": 48,
+                "line": 5,
+              },
+            },
+            "name": "authorName",
+            "transform": Object {
+              "type": "scalar",
+            },
+          },
+        ],
+        "statement": Object {
+          "body": "SELECT b.* FROM books b
+    INNER JOIN authors a ON a.id = b.author_id
+    WHERE a.first_name || ' ' || a.last_name = :authorName",
+          "loc": Object {
+            "a": 42,
+            "b": 170,
+            "col": 4,
+            "line": 3,
+          },
+        },
+        "usedParamSet": Object {
+          "authorName": true,
+        },
+      },
+    ],
+  },
+}
+`;
+
 exports[`Named query 1`] = `
 Object {
   "events": Array [],
@@ -17,7 +60,7 @@ Object {
             "line": 3,
           },
         },
-        "usedParamSet": Set {},
+        "usedParamSet": Object {},
       },
     ],
   },
@@ -26,21 +69,7 @@ Object {
 
 exports[`Named query selects some fields 1`] = `
 Object {
-  "events": Array [
-    Object {
-      "location": Object {
-        "a": undefined,
-        "b": undefined,
-        "col": 11,
-        "line": 3,
-      },
-      "message": Object {
-        "text": "Parse error: token recognition error at: ','",
-        "type": 0,
-      },
-      "type": 2,
-    },
-  ],
+  "events": Array [],
   "parseTree": Object {
     "queries": Array [
       Object {
@@ -55,7 +84,7 @@ Object {
             "line": 3,
           },
         },
-        "usedParamSet": Set {},
+        "usedParamSet": Object {},
       },
     ],
   },
@@ -65,58 +94,6 @@ Object {
 exports[`Named query with a valid param 1`] = `
 Object {
   "events": Array [
-    Object {
-      "location": Object {
-        "a": undefined,
-        "b": undefined,
-        "col": 24,
-        "line": 6,
-      },
-      "message": Object {
-        "text": "Parse error: token recognition error at: '('",
-        "type": 0,
-      },
-      "type": 2,
-    },
-    Object {
-      "location": Object {
-        "a": undefined,
-        "b": undefined,
-        "col": 38,
-        "line": 6,
-      },
-      "message": Object {
-        "text": "Parse error: token recognition error at: ','",
-        "type": 0,
-      },
-      "type": 2,
-    },
-    Object {
-      "location": Object {
-        "a": undefined,
-        "b": undefined,
-        "col": 52,
-        "line": 6,
-      },
-      "message": Object {
-        "text": "Parse error: token recognition error at: ','",
-        "type": 0,
-      },
-      "type": 2,
-    },
-    Object {
-      "location": Object {
-        "a": undefined,
-        "b": undefined,
-        "col": 61,
-        "line": 6,
-      },
-      "message": Object {
-        "text": "Parse error: token recognition error at: ')'",
-        "type": 0,
-      },
-      "type": 2,
-    },
     Object {
       "location": Object {
         "a": 42,
@@ -180,8 +157,8 @@ Object {
             "line": 6,
           },
         },
-        "usedParamSet": Set {
-          "customers",
+        "usedParamSet": Object {
+          "customers": true,
         },
       },
     ],
@@ -221,8 +198,8 @@ Object {
             "line": 3,
           },
         },
-        "usedParamSet": Set {
-          "userId",
+        "usedParamSet": Object {
+          "userId": true,
         },
       },
     ],
@@ -307,7 +284,7 @@ Object {
             "line": 7,
           },
         },
-        "usedParamSet": Set {},
+        "usedParamSet": Object {},
       },
     ],
   },

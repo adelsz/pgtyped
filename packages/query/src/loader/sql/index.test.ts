@@ -47,3 +47,13 @@ test('Unused parameters produce warnings', () => {
   const parseTree = parse(text);
   expect(parseTree).toMatchSnapshot();
 });
+
+test('Another test', () => {
+  const text = `
+    /* @name GetBooksByAuthorName */
+    SELECT b.* FROM books b
+    INNER JOIN authors a ON a.id = b.author_id
+    WHERE a.first_name || ' ' || a.last_name = :authorName;`;
+  const parseTree = parse(text);
+  expect(parseTree).toMatchSnapshot();
+});

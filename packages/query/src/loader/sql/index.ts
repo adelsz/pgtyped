@@ -57,7 +57,7 @@ export interface Query {
   name: string;
   params: Param[];
   statement: Statement;
-  usedParamSet: Set<string>;
+  usedParamSet: {[paramName: string]: true};
 }
 
 interface ParseTree {
@@ -84,7 +84,7 @@ class ParseListener implements SQLParserListener {
   exitQuery() {
     const currentQuery = this.currentQuery as Query;
     currentQuery.params.forEach((p) => {
-      const paramUsed = currentQuery.usedParamSet.has(p.name);
+      const paramUsed = p.name in currentQuery.usedParamSet;
       if (!paramUsed) {
         this.logger.logEvent({
           type: ParseEventType.Warning,
@@ -103,7 +103,7 @@ class ParseListener implements SQLParserListener {
     this.currentQuery = {
       name: ctx.text,
       params: [],
-      usedParamSet: new Set(),
+      usedParamSet: {},
     };
   }
 
@@ -187,7 +187,7 @@ class ParseListener implements SQLParserListener {
     const paramName = ctx.text;
     assert(this.currentQuery.params);
     assert(this.currentQuery.usedParamSet);
-    this.currentQuery.usedParamSet.add(paramName);
+    this.currentQuery.usedParamSet[paramName] = true;
     const reference = this.currentQuery.params.find(
       (p) => p.name === paramName,
     );

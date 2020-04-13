@@ -1,12 +1,11 @@
 /*
   @name GetAllComments
 */
-SELECT * FROM comments WHERE id = :commentId;
+SELECT * FROM book_comments WHERE id = :commentId;
 
 /*
   @name InsertComment
-  @param comments -> ((author, body)...)
-
+  @param comments -> ((userId, commentBody)...)
 */
-INSERT INTO comments (author, body)
+INSERT INTO book_comments (user_id, body)
 VALUES :comments;

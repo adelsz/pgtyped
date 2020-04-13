@@ -109,7 +109,7 @@ export const processQueryAST = (
 ): IInterpolatedQuery => {
   const bindings: Scalar[] = [];
   const paramMapping: QueryParam[] = [];
-  const usedParams = query.params.filter((p) => query.usedParamSet.has(p.name));
+  const usedParams = query.params.filter((p) => p.name in query.usedParamSet);
   const { a: statementStart } = query.statement.loc;
   let i = 1;
   const intervals = usedParams.map((p) => {
