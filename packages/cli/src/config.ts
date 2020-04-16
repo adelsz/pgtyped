@@ -4,19 +4,25 @@ import * as Either from 'fp-ts/lib/Either';
 import * as Option from 'fp-ts/lib/Option';
 import { readFileSync } from 'fs';
 import * as t from 'io-ts';
+import { reporter } from 'io-ts-reporters';
+
+const TSTransformCodec = t.type({
+  mode: t.literal('ts'),
+  include: t.string,
+  emitFileName: t.string,
+});
+
+const SQLTransformCodec = t.type({
+  mode: t.literal('sql'),
+  include: t.union([t.string, t.undefined]),
+});
+
+const TransformCodec = t.union([TSTransformCodec, SQLTransformCodec]);
+
+export type TransformConfig = t.TypeOf<typeof TransformCodec>;
 
 const configParser = t.type({
-  emit: t.union([
-    t.type({
-      mode: t.literal('query-file'),
-      queryFileName: t.string,
-      emitFileName: t.string,
-    }),
-    t.type({
-      mode: t.literal('sql-file'),
-      pattern: t.string,
-    }),
-  ]),
+  transforms: t.array(TransformCodec),
   srcDir: t.string,
   db: t.type({
     host: t.union([t.string, t.undefined]),
@@ -28,17 +34,14 @@ const configParser = t.type({
 
 export type IConfig = typeof configParser._O;
 
-export function parseConfig(path: string): Option.Option<IConfig> {
+export function parseConfig(path: string): IConfig {
   const configStr = readFileSync(path);
   let configObject;
-  try {
-    configObject = JSON.parse(configStr.toString());
-  } catch (e) {
-    return Option.none;
-  }
+  configObject = JSON.parse(configStr.toString());
   const result = configParser.decode(configObject);
   if (Either.isLeft(result)) {
-    return Option.none;
+    const message = reporter(result);
+    throw new Error(message[0]);
   }
-  return Option.some(configObject);
+  return configObject;
 }

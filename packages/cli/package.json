@@ -33,6 +33,7 @@
     "fp-ts": "^2.5.3",
     "glob": "^7.1.6",
     "io-ts": "^2.1.2",
+    "io-ts-reporters": "^1.0.0",
     "minimist": "^1.2.5",
     "pascal-case": "^3.1.1"
   },

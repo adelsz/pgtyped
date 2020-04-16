@@ -16,7 +16,7 @@ import glob from 'glob';
 import minimist from 'minimist';
 import path from 'path';
 import { promisify } from 'util';
-import { IConfig, parseConfig } from './config';
+import { IConfig, parseConfig, TransformConfig } from './config';
 import { queryToTypeDeclarations } from './generator';
 import { assert, debug } from './util';
 import { camelCase } from 'camel-case';
@@ -48,27 +48,29 @@ export enum ProcessingMode {
   TS = 'query-file',
 }
 
+interface TransformJob {
+  files: string[];
+  transform: TransformConfig;
+}
+
 class FileProcessor {
-  private mode: ProcessingMode;
   public emptyQueue: Promise<void>;
-  private fileQueue: string[] = [];
+  private jobQueue: TransformJob[] = [];
   private activePromise: Promise<void> | null = null;
   private connection: any;
 
-  constructor(connection: any, mode: ProcessingMode) {
-    this.mode = mode;
+  constructor(connection: any) {
     this.connection = connection;
     this.emptyQueue = new Promise((resolve, reject) => {
       this.resolveDone = resolve;
     });
   }
 
-  public push(...fileNames: string[]) {
-    this.fileQueue.push(...fileNames);
-    this.processQueue();
-    this.emptyQueue = new Promise((resolve, reject) => {
-      this.resolveDone = resolve;
-    });
+  public push(job: TransformJob) {
+    this.jobQueue.push(job);
+    if (!this.activePromise) {
+      this.processQueue();
+    }
   }
 
   private resolveDone: () => void = () => undefined;
@@ -81,10 +83,11 @@ class FileProcessor {
   private generateTypedecsFromFile = async (
     fileName: string,
     connection: any,
+    mode: 'ts' | 'sql',
   ) => {
     const results: ITypedQuery[] = [];
     const contents = fs.readFileSync(fileName).toString();
-    if (this.mode === ProcessingMode.TS) {
+    if (mode === 'ts') {
       const queries = parseTypeScriptFile(contents, fileName);
       for (const query of queries) {
         const result = await queryToTypeDeclarations(
@@ -135,50 +138,60 @@ class FileProcessor {
     return results;
   };
 
-  private async processFile(connection: any, fileName: string) {
-    console.log(`Processing ${fileName}`);
-    const ext = this.mode === ProcessingMode.TS ? 'ts' : 'sql';
-    const suffix = this.mode === ProcessingMode.TS ? 'types.ts' : 'ts';
-    const decsFileName = path.resolve(
-      path.dirname(fileName),
-      path.basename(fileName, ext) + suffix,
-    );
-    const typeDecs = await this.generateTypedecsFromFile(fileName, connection);
-    if (typeDecs.length === 0) {
-      return;
+  private async processJob(connection: any, job: TransformJob) {
+    for (const fileName of job.files) {
+      console.log(`Processing ${fileName}`);
+      const ext = job.transform.mode === 'ts' ? 'ts' : 'sql';
+      const suffix = job.transform.mode === 'ts' ? 'types.ts' : 'ts';
+      const decsFileName = path.resolve(
+        path.dirname(fileName),
+        path.basename(fileName, ext) + suffix,
+      );
+      const typeDecs = await this.generateTypedecsFromFile(
+        fileName,
+        connection,
+        job.transform.mode,
+      );
+      if (typeDecs.length === 0) {
+        return;
+      }
+      let declarationFileContents = '';
+      declarationFileContents += `/** Types generated for queries found in "${fileName}" */\n\n`;
+      if (job.transform.mode === 'sql') {
+        declarationFileContents += `import { PreparedQuery } from "@pgtyped/query";\n\n`;
+      }
+      for (const typeDec of typeDecs) {
+        declarationFileContents += typeDec.typeDeclaration;
+        if (!typeDec.query) {
+          continue;
+        }
+        const queryPP = typeDec.query.ast.statement.body
+          .split('\n')
+          .map((s: string) => ' * ' + s)
+          .join('\n');
+        declarationFileContents += `const ${
+          typeDec.query.name
+        }IR: any = ${JSON.stringify(typeDec.query.ast)};\n\n`;
+        declarationFileContents +=
+          `/**\n` +
+          ` * Query generated from SQL:\n` +
+          ` * \`\`\`\n` +
+          `${queryPP}\n` +
+          ` * \`\`\`\n` +
+          ` */\n`;
+        declarationFileContents +=
+          `export const ${typeDec.query.name} = ` +
+          `new PreparedQuery<${typeDec.query.paramTypeAlias},${typeDec.query.returnTypeAlias}>` +
+          `(${typeDec.query.name}IR);\n\n\n`;
+      }
+      await writeFile(decsFileName, declarationFileContents);
+      console.log(
+        `Saved ${typeDecs.length} query types to ${path.relative(
+          process.cwd(),
+          decsFileName,
+        )}`,
+      );
     }
-    let declarationFileContents = '';
-    declarationFileContents += `/** Types generated for queries found in "${fileName}" */\n`;
-    declarationFileContents += `import { PreparedQuery } from "@pgtyped/query";\n\n`;
-    for (const typeDec of typeDecs) {
-      assert(typeDec.query);
-      const queryPP = typeDec.query.ast.statement.body
-        .split('\n')
-        .map((s) => ' * ' + s)
-        .join('\n');
-      declarationFileContents += typeDec.typeDeclaration;
-      declarationFileContents += `const ${
-        typeDec.query.name
-      }IR: any = ${JSON.stringify(typeDec.query.ast)};\n\n`;
-      declarationFileContents +=
-        `/**\n` +
-        ` * Query generated from SQL:\n` +
-        ` * \`\`\`\n` +
-        `${queryPP}\n` +
-        ` * \`\`\`\n` +
-        ` */\n`;
-      declarationFileContents +=
-        `export const ${typeDec.query.name} = ` +
-        `new PreparedQuery<${typeDec.query.paramTypeAlias},${typeDec.query.returnTypeAlias}>` +
-        `(${typeDec.query.name}IR);\n\n\n`;
-    }
-    await writeFile(decsFileName, declarationFileContents);
-    console.log(
-      `Saved ${typeDecs.length} query types to ${path.relative(
-        process.cwd(),
-        decsFileName,
-      )}`,
-    );
   }
 
   private processQueue = () => {
@@ -186,9 +199,9 @@ class FileProcessor {
       this.activePromise.then(this.onFileProcessed);
       return;
     }
-    const nextFile = this.fileQueue.pop();
-    if (nextFile) {
-      this.activePromise = this.processFile(this.connection, nextFile).then(
+    const nextJob = this.jobQueue.pop();
+    if (nextJob) {
+      this.activePromise = this.processJob(this.connection, nextJob).then(
         this.onFileProcessed,
       );
     } else {
@@ -198,8 +211,6 @@ class FileProcessor {
 }
 
 async function main(config: IConfig, isWatchMode: boolean) {
-  const { emit: emitMode } = config;
-
   const connection = new AsyncQueue();
   debug('starting codegenerator');
   await startup(
@@ -214,34 +225,34 @@ async function main(config: IConfig, isWatchMode: boolean) {
 
   debug('connected to database %o', config.db.dbName);
 
-  let pattern;
-  if (emitMode.mode === 'query-file') {
-    pattern = `${config.srcDir}/**/${emitMode.queryFileName}`;
+  const fileProcessor = new FileProcessor(connection);
+  for (const transform of config.transforms) {
+    const pattern = `${config.srcDir}/**/${transform.include}`;
+    if (isWatchMode) {
+      const cb = (filePath: string) => {
+        fileProcessor.push({
+          files: [filePath],
+          transform,
+        });
+      };
+      chokidar
+        .watch(pattern, { persistent: true })
+        .on('add', cb)
+        .on('change', cb);
+    } else {
+      const fileList = glob.sync(pattern);
+      debug('found query files %o', fileList);
+      const transformJob = {
+        files: fileList,
+        transform,
+      };
+      fileProcessor.push(transformJob);
+    }
   }
-  if (emitMode.mode === 'sql-file') {
-    pattern = `${config.srcDir}/**/${emitMode.pattern}`;
+  if (!isWatchMode) {
+    await fileProcessor.emptyQueue;
+    process.exit(0);
   }
-
-  assert(pattern);
-  const fileProcessor = new FileProcessor(
-    connection,
-    emitMode.mode as ProcessingMode,
-  );
-
-  if (isWatchMode) {
-    chokidar
-      .watch(pattern, { persistent: true })
-      .on('add', (filePath) => fileProcessor.push(filePath))
-      .on('change', (filePath) => fileProcessor.push(filePath));
-    return;
-  }
-
-  const fileList = glob.sync(pattern);
-  debug('found query files %o', fileList);
-  fileProcessor.push(...fileList);
-  await fileProcessor.emptyQueue;
-
-  process.exit(0);
 }
 
 if (require.main === module) {
@@ -257,14 +268,14 @@ if (require.main === module) {
     process.exit(0);
   }
 
-  const configResult = parseConfig(configPath);
-
-  if (Option.isNone(configResult)) {
-    console.log('Config file parsing failed.');
-    process.exit();
-  } else {
-    main(configResult.value, isWatchMode).catch((e) =>
+  try {
+    const config = parseConfig(configPath);
+    main(config, isWatchMode).catch((e) =>
       debug('error in main: %o', e.message),
     );
+  } catch (e) {
+    console.error('Failed to parse config file:');
+    console.error(e.message);
+    process.exit();
   }
 }

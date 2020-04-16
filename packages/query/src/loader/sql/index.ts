@@ -57,7 +57,7 @@ export interface Query {
   name: string;
   params: Param[];
   statement: Statement;
-  usedParamSet: {[paramName: string]: true};
+  usedParamSet: { [paramName: string]: true };
 }
 
 interface ParseTree {

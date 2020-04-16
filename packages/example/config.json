@@ -1,8 +1,15 @@
 {
-  "emit": {
-    "mode": "sql-file",
-    "pattern": "queries.sql"
-  },
+  "transforms": [
+    {
+      "mode": "sql",
+      "include": "queries.sql"
+    },
+    {
+      "mode": "ts",
+      "include": "sample.ts",
+      "emitFileName": "sample.types.ts"
+    }
+  ],
   "srcDir": "./src/",
   "db": {
     "host": "db",
