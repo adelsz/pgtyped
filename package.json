@@ -12,12 +12,12 @@
     "test": "npm run lint && jest"
   },
   "devDependencies": {
-    "@types/jest": "25.1.4",
+    "@types/jest": "25.2.1",
     "@types/node": "13.9.8",
-    "jest": "25.1.0",
+    "jest": "25.2.7",
     "lerna": "3.20.2",
     "prettier": "2.0.4",
-    "ts-jest": "25.2.1",
+    "ts-jest": "25.3.1",
     "tslint": "6.1.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.3.0",
