@@ -18,8 +18,8 @@
     "lerna": "3.20.2",
     "prettier": "2.0.4",
     "ts-jest": "25.4.0",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-plugin-prettier": "^2.3.0",
+    "tslint-config-prettier": "1.18.0",
+    "tslint-plugin-prettier": "2.3.0",
     "tslint": "6.1.1",
     "typescript": "3.8.3"
   },
