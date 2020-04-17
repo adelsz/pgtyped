@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped/wire",
-  "version": "0.4.5",
+  "version": "0.5.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "license": "MIT",
