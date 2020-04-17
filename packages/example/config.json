@@ -1,9 +1,15 @@
 {
-  "emit": {
-    "mode": "query-file",
-    "queryFileName": "queries.ts",
-    "emitFileName": "queries.types.ts"
-  },
+  "transforms": [
+    {
+      "mode": "sql",
+      "include": "queries.sql"
+    },
+    {
+      "mode": "ts",
+      "include": "sample.ts",
+      "emitFileName": "sample.types.ts"
+    }
+  ],
   "srcDir": "./src/",
   "db": {
     "host": "db",

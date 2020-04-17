@@ -1,22 +1,27 @@
 import {
-  byte1, byte4,
+  byte1,
+  byte4,
   byteN,
   cByteDict,
   cString,
   int16,
   int32,
   sumSize,
-} from "./helpers";
+} from './helpers';
 
 import {
   messages as pgMessages,
   IClientMessage,
   IServerMessage,
-} from "./messages";
+} from './messages';
 
-export const parseSimpleType = (type: any, buf: Buffer, offset: number): {
-  result: any,
+export const parseSimpleType = (
+  type: any,
+  buf: Buffer,
   offset: number,
+): {
+  result: any;
+  offset: number;
 } => {
   let result = null;
   if (type instanceof Buffer) {
@@ -37,7 +42,7 @@ export const parseSimpleType = (type: any, buf: Buffer, offset: number): {
     while (buf.readInt8(offset) !== 0) {
       offset++;
     }
-    result = buf.toString("utf8", stringStart, offset);
+    result = buf.toString('utf8', stringStart, offset);
     offset++;
   } else if (type === byteN) {
     const chunkSize = buf.readInt32BE(offset);
@@ -51,32 +56,45 @@ export const parseSimpleType = (type: any, buf: Buffer, offset: number): {
     result = buf.readInt16BE(offset);
     offset += 2;
   }
-  return {result, offset};
+  return { result, offset };
 };
 
 export interface IMessagePayload<Params> {
-  type: "MessagePayload";
+  type: 'MessagePayload';
   data: Params;
   messageName: string;
   bufferOffset: number;
 }
 
 interface IMessageMismatchError {
-  type: "MessageMismatchError";
+  type: 'MessageMismatchError';
   messageName: string;
   bufferOffset: number;
 }
 
 interface IServerError {
-  type: "ServerError";
-  severity: "ERROR" | "FATAL" | "PANIC" | "WARNING" | "NOTICE" | "DEBUG" | "INFO" | "LOG";
+  type: 'ServerError';
+  severity:
+    | 'ERROR'
+    | 'FATAL'
+    | 'PANIC'
+    | 'WARNING'
+    | 'NOTICE'
+    | 'DEBUG'
+    | 'INFO'
+    | 'LOG';
   message: string;
   bufferOffset: number;
 }
 
-export type ParseResult<Params> = IMessagePayload<Params> | IMessageMismatchError | IServerError;
+export type ParseResult<Params> =
+  | IMessagePayload<Params>
+  | IMessageMismatchError
+  | IServerError;
 
-const errorResponseMessageIndicator = pgMessages.errorResponse.indicator.charCodeAt(0);
+const errorResponseMessageIndicator = pgMessages.errorResponse.indicator.charCodeAt(
+  0,
+);
 
 export const parseMessage = <Params extends object>(
   message: IServerMessage<Params>,
@@ -86,10 +104,9 @@ export const parseMessage = <Params extends object>(
   let bufferOffset = messageOffset;
   const indicator = buf.readInt8(bufferOffset);
   const expectedIndicator = message.indicator.charCodeAt(0);
-  const isUnexpectedErrorMessage = (
-    indicator === errorResponseMessageIndicator
-    && expectedIndicator !== errorResponseMessageIndicator
-  );
+  const isUnexpectedErrorMessage =
+    indicator === errorResponseMessageIndicator &&
+    expectedIndicator !== errorResponseMessageIndicator;
 
   bufferOffset++;
 
@@ -100,7 +117,7 @@ export const parseMessage = <Params extends object>(
 
   if (indicator !== expectedIndicator && !isUnexpectedErrorMessage) {
     return {
-      type: "MessageMismatchError",
+      type: 'MessageMismatchError',
       messageName: message.name,
       bufferOffset: messageEnd,
     };
@@ -121,14 +138,18 @@ export const parseMessage = <Params extends object>(
       if (type === cByteDict) {
         const dict: { [key: string]: string } = {};
         let fieldKey;
-        while (({
-          result: fieldKey,
-          offset: bufferOffset,
-        } = parseSimpleType(byte1, buf, bufferOffset)).result !== "\u0000") {
-          const {
-            result: fieldValue,
-            offset: valueOffset,
-          } = parseSimpleType(cString, buf, bufferOffset);
+        while (
+          ({ result: fieldKey, offset: bufferOffset } = parseSimpleType(
+            byte1,
+            buf,
+            bufferOffset,
+          )).result !== '\u0000'
+        ) {
+          const { result: fieldValue, offset: valueOffset } = parseSimpleType(
+            cString,
+            buf,
+            bufferOffset,
+          );
           bufferOffset = valueOffset;
           dict[fieldKey] = fieldValue;
         }
@@ -152,10 +173,11 @@ export const parseMessage = <Params extends object>(
         }
         result[key] = array;
       } else {
-        const {
-          result: fieldResult,
-          offset: fieldOffset,
-        } = parseSimpleType(type, buf, bufferOffset);
+        const { result: fieldResult, offset: fieldOffset } = parseSimpleType(
+          type,
+          buf,
+          bufferOffset,
+        );
         result[key] = fieldResult;
         bufferOffset = fieldOffset;
       }
@@ -163,7 +185,7 @@ export const parseMessage = <Params extends object>(
     }
   } catch (e) {
     return {
-      type: "MessageMismatchError",
+      type: 'MessageMismatchError',
       messageName: message.name,
       bufferOffset: messageEnd,
     };
@@ -171,14 +193,14 @@ export const parseMessage = <Params extends object>(
 
   if (isUnexpectedErrorMessage) {
     return {
-      type: "ServerError",
+      type: 'ServerError',
       bufferOffset,
       severity: result.fields.S,
       message: result.fields.M,
     };
   }
   return {
-    type: "MessagePayload",
+    type: 'MessagePayload',
     data: result as Params,
     bufferOffset,
     messageName: message.name,
@@ -191,9 +213,9 @@ export const buildMessage = <Params extends object>(
 ): Buffer => {
   const bufArray = message.pattern(parameters);
   const bufferSize =
-    +(message.indicator ? 1 : 0) // indicator byte if present
-    + 4 // message size
-    + sumSize(bufArray); // payload
+    +(message.indicator ? 1 : 0) + // indicator byte if present
+    4 + // message size
+    sumSize(bufArray); // payload
   const buf = Buffer.alloc(bufferSize);
   let offset = 0;
   if (message.indicator) {
@@ -217,17 +239,17 @@ export const parseOneOf = (
   buffer: Buffer,
   offset: number,
 ): ParseResult<object> => {
-  const messageName = messages.map((m) => m.name).join(" | ");
+  const messageName = messages.map((m) => m.name).join(' | ');
   let lastBufferOffset = 0;
   for (const message of messages) {
     const parseResult = parseMessage(message, buffer, offset);
-    if (parseResult.type !== "MessageMismatchError") {
+    if (parseResult.type !== 'MessageMismatchError') {
       return parseResult;
     }
     lastBufferOffset = parseResult.bufferOffset;
   }
   return {
-    type: "MessageMismatchError",
+    type: 'MessageMismatchError',
     messageName,
     bufferOffset: lastBufferOffset,
   };

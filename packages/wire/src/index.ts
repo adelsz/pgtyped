@@ -1,8 +1,3 @@
-export {
-  AsyncQueue,
-} from "./queue";
+export { AsyncQueue } from './queue';
 
-export {
-  messages,
-  PreparedObjectType,
-} from "./messages";
+export { messages, PreparedObjectType } from './messages';

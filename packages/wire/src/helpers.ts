@@ -1,17 +1,15 @@
-import { SSL_OP_TLS_D5_BUG } from "constants";
+import { SSL_OP_TLS_D5_BUG } from 'constants';
 
 interface ISized {
   length: number;
 }
-export const sumSize = (array: ISized[]): number => array
-  .reduce((acc, e) => (acc + e.length), 0);
+export const sumSize = (array: ISized[]): number =>
+  array.reduce((acc, e) => acc + e.length, 0);
 
-export const dictToArray = (
-  dict: { [key: string]: string },
-): string[] => (
-    Object
-      .entries(dict)
-      .reduce((acc, [key, val]) => [...acc, key, val], [] as string[])
+export const dictToArray = (dict: { [key: string]: string }): string[] =>
+  Object.entries(dict).reduce(
+    (acc, [key, val]) => [...acc, key, val],
+    [] as string[],
   );
 
 export const int16 = (val: number): Buffer => {
@@ -26,7 +24,8 @@ export const int32 = (val: number): Buffer => {
   return buf;
 };
 
-export const cByteDict = (dict: { [key: string]: string }): Buffer => (null as any);
+export const cByteDict = (dict: { [key: string]: string }): Buffer =>
+  null as any;
 
 export const cStringDict = (dict: { [key: string]: string }): Buffer => {
   const dictArray = dictToArray(dict);
@@ -44,9 +43,9 @@ export const cStringDict = (dict: { [key: string]: string }): Buffer => {
 
 export const byte1 = (num: string): Buffer => Buffer.from(num);
 
-export const byte4 = (): Buffer => (null as any);
+export const byte4 = (): Buffer => null as any;
 
-export const byteN = (buf: Buffer): Buffer => (null as any);
+export const byteN = (buf: Buffer): Buffer => null as any;
 
 export const cString = (str: string): Buffer => {
   const buf = Buffer.alloc(str.length + 1, 0);
@@ -66,12 +65,11 @@ export const fixedArray = <Item>(
   const result = Buffer.alloc(size, 0);
   result.writeUInt16BE(items.length, 0);
   let offset = 2;
-  builtItems.forEach(
-    (bufferArray) => bufferArray.forEach(
-      (buffer) => {
-        buffer.copy(result, offset);
-        offset = offset + buffer.length;
-      }),
+  builtItems.forEach((bufferArray) =>
+    bufferArray.forEach((buffer) => {
+      buffer.copy(result, offset);
+      offset = offset + buffer.length;
+    }),
   );
   return result;
 };

@@ -9,14 +9,85 @@ An SQL type generator that makes it possible to use raw SQL with guaranteed type
 
 ---
 
-### Features:
+## Features:
 1. Automatically generates types for parameters/results of SQL queries of any complexity.
-2. Generate query types as you write them using watch mode.
-3. Useful parameter interpolation helpers for arrays and objects.
-4. No need to define your DB schema in TypeScript, your running DB is the live source of type data.
-5. Prevents SQL injections by not doing explicit parameter substitution. Instead, queries and parameters are sent separately to the DB driver, allowing parameter substitution to be safely done by the PostgreSQL server.
+2. Supports extracting and typing queries from both SQL and TS files.
+3. Generate query types as you write them using watch mode.
+4. Useful parameter interpolation helpers for arrays and objects.
+5. No need to define your DB schema in TypeScript, your running DB is the live source of type data.
+6. Prevents SQL injections by not doing explicit parameter substitution. Instead, queries and parameters are sent separately to the DB driver, allowing parameter substitution to be safely done by the PostgreSQL server.
 
-### Example:
+## Supported file sources:
+
+PgTyped can extract and process queries from both SQL and TS files:
+
+### For queries defined in SQL files:
+
+Query code in `books/queries.sql`:
+```sql
+/* @name FindBookById */
+SELECT * FROM books WHERE id = :bookId;
+```
+
+PgTyped parses the SQL file extracting all queries and generating strictly typed TS queries in `users/queries.ts`:
+
+```ts
+/** Types generated for queries found in "src/books/queries.sql" */
+
+//...
+
+/** 'FindBookById' parameters type */
+export interface IFindBookByIdParams {
+  bookId: number | null;
+}
+
+/** 'FindBookById' return type */
+export interface IFindBookByIdResult {
+  id: number;
+  rank: number | null;
+  name: string | null;
+  author_id: number | null;
+}
+
+/**
+ * Query generated from SQL:
+ * SELECT * FROM books WHERE id = :commentId
+ */
+export const findBookById = new PreparedQuery<
+  IFindBookByIdParams,
+  IFindBookByIdResult
+>(...);
+```
+
+Query `findBookById` is statically typed with types inferred from the PostgreSQL schema.  
+It can now be imported and executed as follows:
+
+```ts
+import { Client } from 'pg';
+import { findBookById } from './src/books/queries.sql';
+
+export const client = new Client({
+  host: 'localhost',
+  user: 'test',
+  password: 'example',
+  database: 'test',
+});
+
+async function main() {
+  await client.connect();
+  const books = await findBookById.run(
+    {
+      bookId: 'carl-sagan-76',
+    },
+    client,
+  );
+  console.log(`Book name: ${books[0].name}`);
+}
+
+main();
+```
+
+### For queries defined in TS files:
 
 Query code in `users/queries.ts`:
 ```ts
@@ -57,61 +128,87 @@ To run the `selectUserIds` query:
   console.log(users[0]);
 ```
 
-### Demo:
-
-![](https://raw.githubusercontent.com/adelsz/pgtyped/master/demo.gif)
-
 ### Getting started:
 
 1. `npm install @pgtyped/cli @pgtyped/query typescript`
-2. Create a config file for the type generator
-3. Put your queries in separate files (ex. `queries.ts`) and use the `sql` tag when defining them.
-3. Run `npx pgtyped` to generate query type files.
+2. Create a PgTyped `config.json` file.
+3. Run `npx pgtyped -w -c config.json` to start PgTyped in watch mode.
 
-You can also refer to the [example](https://github.com/adelsz/pgtyped/tree/master/packages/example) app, to see pgtyped in action.  
-Additional details are available in READMEs for the [@pgtyped/cli](https://github.com/adelsz/pgtyped/tree/master/packages/cli) and [@pgtyped/query](https://github.com/adelsz/pgtyped/tree/master/packages/query) packages.
+Refer to the [example app](./packages/example/README.md) for a preconfigured example.  
 
 ### Using PgTyped:
 
-`pgtyped` command scans your `srcDir` for query files, 
+PgTyped requires a `config.json` file to run, a basic config file looks like this:
+```json
+{
+  "transforms": [
+    {
+      "mode": "sql",
+      "include": "queries.sql"
+    }
+  ],
+  "srcDir": "./src/",
+  "db": {
+    "host": "db",
+    "user": "test",
+    "dbName": "test",
+    "password": "example"
+  }
+}
+```
 
+Refer to PgTyped [CLI docs](./packages/cli/README.md) for more info on the config file and CLI flags.
 
-### Interpolation helpers:
+To find out more on how to write typed queries in TS or SQL files:
+* [Annotated SQL files](./docs/annotated-sql.md)
+* [TypeScript files](./docs/sql-in-ts.md)
 
-| Helper       | Syntax                      | Parameter Type                                                    |
-|---------------------|-----------------------------|------------------------------------------------------------|
-| Named parameters    | `$paramName`                | `paramName: ParamType`                                     |
-| Single value list   | `$paramName(name, author)`  | `paramName: { name: NameType, author: AuthorType }`        |
-| Multiple value list | `$$paramName`               | `paramName: Array<ParamType>`                              |
-| Multiple value list | `$$paramName(name, author)` | `paramName: Array<{ name: NameType, author: AuthorType }>` |
+### Parameter expansions:
 
-Examples:
+PgTyped also supports parameter expansions to help you build more complicated queries.
+For example, a typical insert query looks like this:
 
-| Query                                                                 | Parameters                                                         | Resulting Query                                                         |
-|-----------------------------------------------------------------------|--------------------------------------------------------------------|-------------------------------------------------------------------------|
-| `SELECT * FROM users WHERE name = $name`                              | `{name:"John"}`                                                    | `SELECT * FROM users WHERE name = 'John'`                               |
-| `INSERT INTO users (name, age) VALUES $user(name, age) RETURNING id`  | `{user:{name:"John",age:34}}`                                      | `INSERT INTO users (name, age) VALUES ('John', 34) RETURNING id`        |
-| `SELECT * FROM users WHERE role in $$roles`                           | `{roles:["admin","superuser","moderator"]}`                        | `SELECT * FROM users where role in ('admin', 'superuser', 'moderator')` |
-| `INSERT INTO users (name, age) VALUES $$users(name, age)`             | `{users:[{name:"John",age:34},{name:"Jack",age:35}]}`              | `INSERT INTO users (name, age) VALUES ('John', 34), ('Jack', 35)`       |
-
-Example `insertUsers`:
 ```sql
-INSERT INTO users (name, age)
-VALUES $$users(name, age) RETURNING id
+/*
+  @name InsertComment
+  @param comments -> ((userId, commentBody)...)
+*/
+INSERT INTO book_comments (user_id, body)
+VALUES :comments;
 ```
-can be executed as follows:
+
+Notice the expansion `comments -> ((userId, commentBody)...)` that allows to pass an array of objects as `comments`: 
 ```ts
-const usersToInsert = [
-  { name: 'Bob', age: 12 },
-  { name: 'Tom', age: 16 },
-];
-const result = await insertUsers(usersToInsert, connection);
+const parameters = [
+  {
+     userId: 1,
+     commentBody: "What a great book, highly recommended!"
+  },
+  {
+     userId: 2,
+     commentBody: "Good read, but there is much more to the subject.."
+  },
+]
 ```
+Expanded query:
+```sql
+INSERT INTO book_comments (user_id, body)
+VALUES (
+  (1, 'What a great book, highly recommended!'),
+  (2, 'Good read, but there is much more to the subject.')
+);
+```
+
+You can learn more about the expansion types here:
+* [Annotated SQL files](./docs/annotated-sql.md)
+* [TypeScript files](./docs/sql-in-ts.md)
 
 ### Project state:
 
-This project is still in an experimental stage so its APIs are expected to change frequently.
-Any help in the form of issue reports, feature requests or PRs is very appreciated.
+This project is being actively developed and its APIs might change.
+All issue reports, feature requests and PRs appreciated.
+
+[Project Goals and Roadmap](./docs/roadmap.md)
 
 ### License
 

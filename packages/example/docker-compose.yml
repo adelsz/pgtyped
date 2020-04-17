@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: example
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - ./sql/:/docker-entrypoint-initdb.d
 
