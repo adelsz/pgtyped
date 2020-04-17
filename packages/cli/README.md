@@ -1,27 +1,37 @@
 ## @pgtyped/cli
 
-This package provides the `pgtyped` command.  
-`pgtyped` supports two modes: normal and watch mode.
+This package provides the `pgtyped` CLI.  
+The `pgtyped` CLI can work in build and watch mode.
 
-In normal mode, `pgtyped` operates as follows:
-1. Scans your `srcDir` for query files. Query file name format is specified using the `queryFileName` config option.
-2. Extracts all queries defined in query files using the `sql` tagged template.
-3. Connects to your database and fetches the input and output types for all the queries found in step 3.
-4. For each query file, saves its queries type declaration in a query type declaration file (defined by the `emitFileName` option of the config.
-5. Exit
+### Flags:
 
-Watch mode operation is the same, except that `pgtyped` doesn't exit after processing all files, but continues running in the background, watching `srcDir` for changes and regenerating query types files on file change or creation.
+The CLI supports two flags:
+* `-c config_file_path.json` to pass the config file path.
+* `-w` to start in watch mode.
+
+Running the CLI:
+```
+npx pgtyped -w -c config.json
+```
 
 ### Config file:
 
 Config file format (`config.json`):
 ```js
 {
-  "emit": {
-    "mode": "query-file", // Only query-file mode is supported at the moment. 
-    "queryFileName": "queries.ts", // Filenames to scan for SQL queries
-    "emitFileName": "queries.types.ts" // Filenames to save type information into
-  },
+  // You can specify as many transforms as you want
+  // Only TS and SQL files (modes) are supported at the moment
+  "transforms": [
+    {
+      "mode": "sql", // SQL mode
+      "include": "queries.sql" // SQL files pattern to scan for queries
+    },
+    {
+      "mode": "ts", // TS mode
+      "include": "sample.ts", // TS files pattern to scan for queries
+      "emitFileName": "sample.types.ts" // Filename to save the generated query types
+    }
+  ],
   "srcDir": "./src/", // Directory to scan or watch for query files
   "db": {
     "dbName": "testdb", // DB name

@@ -1,20 +1,21 @@
-export {
-  getTypes,
-  startup,
-  IParseError,
-} from "./actions";
+export { getTypes, startup, IParseError } from './actions';
 
 export {
-  default as processQuery,
-  ParamType,
+  ParamTransform,
   IQueryParameters,
-} from "./preprocessor";
+  IInterpolatedQuery,
+  processQueryAST,
+  processQueryString,
+} from './preprocessor';
+
+export { AsyncQueue } from '@pgtyped/wire';
+
+export { default as parseTypeScriptFile } from './loader/typescript';
 
 export {
-  AsyncQueue,
-} from "@pgtyped/wire";
+  default as parseSQLFile,
+  Query as QueryAST,
+  prettyPrintEvents,
+} from './loader/sql';
 
-export {
-  default as sql,
-  TaggedQuery,
-} from "./tag";
+export { default as sql, TaggedQuery, PreparedQuery } from './tag';

@@ -1,0 +1,292 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Another test 1`] = `
+Object {
+  "events": Array [],
+  "parseTree": Object {
+    "queries": Array [
+      Object {
+        "name": "GetBooksByAuthorName",
+        "params": Array [
+          Object {
+            "codeRefs": Object {
+              "used": Object {
+                "a": 161,
+                "b": 170,
+                "col": 48,
+                "line": 5,
+              },
+            },
+            "name": "authorName",
+            "transform": Object {
+              "type": "scalar",
+            },
+          },
+        ],
+        "statement": Object {
+          "body": "SELECT b.* FROM books b
+    INNER JOIN authors a ON a.id = b.author_id
+    WHERE a.first_name || ' ' || a.last_name = :authorName",
+          "loc": Object {
+            "a": 42,
+            "b": 170,
+            "col": 4,
+            "line": 3,
+          },
+        },
+        "usedParamSet": Object {
+          "authorName": true,
+        },
+      },
+    ],
+  },
+}
+`;
+
+exports[`Named query 1`] = `
+Object {
+  "events": Array [],
+  "parseTree": Object {
+    "queries": Array [
+      Object {
+        "name": "GetAllUsers",
+        "params": Array [],
+        "statement": Object {
+          "body": "SELECT * FROM users",
+          "loc": Object {
+            "a": 29,
+            "b": 47,
+            "col": 2,
+            "line": 3,
+          },
+        },
+        "usedParamSet": Object {},
+      },
+    ],
+  },
+}
+`;
+
+exports[`Named query selects some fields 1`] = `
+Object {
+  "events": Array [],
+  "parseTree": Object {
+    "queries": Array [
+      Object {
+        "name": "GetAllUsers",
+        "params": Array [],
+        "statement": Object {
+          "body": "SELECT id, name FROM users",
+          "loc": Object {
+            "a": 29,
+            "b": 54,
+            "col": 2,
+            "line": 3,
+          },
+        },
+        "usedParamSet": Object {},
+      },
+    ],
+  },
+}
+`;
+
+exports[`Named query with a valid param 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "location": Object {
+        "a": 42,
+        "b": 49,
+        "col": 11,
+        "line": 4,
+      },
+      "message": Object {
+        "text": "Parameter \\"customer\\" is defined but never used",
+        "type": 0,
+      },
+      "type": 1,
+    },
+  ],
+  "parseTree": Object {
+    "queries": Array [
+      Object {
+        "name": "CreateCustomer",
+        "params": Array [
+          Object {
+            "codeRefs": Object {
+              "defined": Object {
+                "a": 42,
+                "b": 49,
+                "col": 11,
+                "line": 4,
+              },
+            },
+            "name": "customer",
+            "transform": Object {
+              "keys": Array [
+                "customerName",
+                "contactName",
+                "address",
+              ],
+              "type": "pick_tuple",
+            },
+          },
+          Object {
+            "codeRefs": Object {
+              "used": Object {
+                "a": 169,
+                "b": 177,
+                "col": 10,
+                "line": 7,
+              },
+            },
+            "name": "customers",
+            "transform": Object {
+              "type": "scalar",
+            },
+          },
+        ],
+        "statement": Object {
+          "body": "INSERT INTO customers (customer_name, contact_name, address)
+  VALUES :customers",
+          "loc": Object {
+            "a": 98,
+            "b": 177,
+            "col": 2,
+            "line": 6,
+          },
+        },
+        "usedParamSet": Object {
+          "customers": true,
+        },
+      },
+    ],
+  },
+}
+`;
+
+exports[`Named query with an inferred param 1`] = `
+Object {
+  "events": Array [],
+  "parseTree": Object {
+    "queries": Array [
+      Object {
+        "name": "GetUserById",
+        "params": Array [
+          Object {
+            "codeRefs": Object {
+              "used": Object {
+                "a": 65,
+                "b": 70,
+                "col": 38,
+                "line": 3,
+              },
+            },
+            "name": "userId",
+            "transform": Object {
+              "type": "scalar",
+            },
+          },
+        ],
+        "statement": Object {
+          "body": "SELECT * FROM users WHERE userId = :userId",
+          "loc": Object {
+            "a": 29,
+            "b": 70,
+            "col": 2,
+            "line": 3,
+          },
+        },
+        "usedParamSet": Object {
+          "userId": true,
+        },
+      },
+    ],
+  },
+}
+`;
+
+exports[`Unused parameters produce warnings 1`] = `
+Object {
+  "events": Array [
+    Object {
+      "location": Object {
+        "a": 39,
+        "b": 47,
+        "col": 11,
+        "line": 4,
+      },
+      "message": Object {
+        "text": "Parameter \\"userNames\\" is defined but never used",
+        "type": 0,
+      },
+      "type": 1,
+    },
+    Object {
+      "location": Object {
+        "a": 69,
+        "b": 73,
+        "col": 11,
+        "line": 5,
+      },
+      "message": Object {
+        "text": "Parameter \\"users\\" is defined but never used",
+        "type": 0,
+      },
+      "type": 1,
+    },
+  ],
+  "parseTree": Object {
+    "queries": Array [
+      Object {
+        "name": "GetAllUsers",
+        "params": Array [
+          Object {
+            "codeRefs": Object {
+              "defined": Object {
+                "a": 39,
+                "b": 47,
+                "col": 11,
+                "line": 4,
+              },
+            },
+            "name": "userNames",
+            "transform": Object {
+              "type": "array_spread",
+            },
+          },
+          Object {
+            "codeRefs": Object {
+              "defined": Object {
+                "a": 69,
+                "b": 73,
+                "col": 11,
+                "line": 5,
+              },
+            },
+            "name": "users",
+            "transform": Object {
+              "keys": Array [
+                "name",
+                "time",
+              ],
+              "type": "pick_array_spread",
+            },
+          },
+        ],
+        "statement": Object {
+          "body": "SELECT * FROM users",
+          "loc": Object {
+            "a": 102,
+            "b": 120,
+            "col": 2,
+            "line": 7,
+          },
+        },
+        "usedParamSet": Object {},
+      },
+    ],
+  },
+}
+`;

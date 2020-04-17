@@ -11,7 +11,8 @@
     "test": "jest",
     "build": "tsc --declaration",
     "check": "tsc --noEmit",
-    "watch": "tsc --declaration --watch --preserveWatchOutput"
+    "watch": "tsc --declaration --watch --preserveWatchOutput",
+    "parsegen": "antlr4ts -visitor -Xexact-output-dir -o src/loader/sql/parser src/loader/sql/grammar/*.g4"
   },
   "jest": {
     "roots": [
@@ -22,8 +23,12 @@
     }
   },
   "dependencies": {
+    "antlr4ts": "^0.5.0-alpha.3",
     "@pgtyped/wire": "^0.4.5",
     "@types/debug": "^4.1.4",
     "debug": "^4.1.1"
+  },
+  "devDependencies": {
+    "antlr4ts-cli": "^0.5.0-alpha.3"
   }
 }

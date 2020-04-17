@@ -1,21 +1,17 @@
-import * as net from "net";
-import * as util from "util";
+import * as net from 'net';
+import * as util from 'util';
 
 import {
   buildMessage,
   parseMessage,
   parseOneOf,
   ParseResult,
-} from "./protocol";
+} from './protocol';
 
-import {
-  IClientMessage,
-  TMessage,
-  IServerMessage,
-} from "./messages";
+import { IClientMessage, TMessage, IServerMessage } from './messages';
 
-import debugBase from "debug";
-const debug = debugBase("pg-wire:socket");
+import debugBase from 'debug';
+const debug = debugBase('pg-wire:socket');
 
 type Box<T> = T extends IServerMessage<infer P> ? P : any;
 type Boxified<T extends [any] | any[]> = { [P in keyof T]: Box<T[P]> };
@@ -25,35 +21,32 @@ export class AsyncQueue {
   public bufferOffset: number = 0;
   public socket: net.Socket;
   public replyPending: {
-    resolve: (data: any) => any,
-    reject: (data: any) => any,
-    parser: (buf: Buffer, offset: number) => ParseResult<object>,
+    resolve: (data: any) => any;
+    reject: (data: any) => any;
+    parser: (buf: Buffer, offset: number) => ParseResult<object>;
   } | null = null;
   constructor() {
     this.socket = new net.Socket({});
-    this.socket.on("data", (buffer: Buffer) => {
-      debug("received %o bytes", buffer.length);
+    this.socket.on('data', (buffer: Buffer) => {
+      debug('received %o bytes', buffer.length);
       this.queue.push(buffer);
       this.processQueue();
     });
   }
   public connect(passedOptions?: {
-    port?: number, host?: string,
+    port?: number;
+    host?: string;
   }): Promise<void> {
     return new Promise((resolve) => {
-      this.socket.on("connect", () => {
-        debug("socket connected");
+      this.socket.on('connect', () => {
+        debug('socket connected');
         resolve();
       });
       const defaultOptions = {
         port: 5432,
-        host: "localhost",
+        host: 'localhost',
       };
-      const options = Object.assign(
-        {},
-        defaultOptions,
-        passedOptions || {},
-      );
+      const options = Object.assign({}, defaultOptions, passedOptions || {});
       this.socket.connect(options);
     });
   }
@@ -64,7 +57,7 @@ export class AsyncQueue {
     const buf = buildMessage(message, params);
     return new Promise((resolve) => {
       this.socket.write(buf, () => resolve());
-      debug("sent %o message", message.name);
+      debug('sent %o message', message.name);
     });
   }
   public processQueue() {
@@ -82,13 +75,13 @@ export class AsyncQueue {
       this.bufferOffset = parsed.bufferOffset;
     }
 
-    if (parsed.type === "ServerError") {
+    if (parsed.type === 'ServerError') {
       this.replyPending.reject(parsed);
-    } else if (parsed.type === "MessagePayload") {
-      debug("resolved awaited %o message", parsed.messageName);
+    } else if (parsed.type === 'MessagePayload') {
+      debug('resolved awaited %o message', parsed.messageName);
       this.replyPending.resolve(parsed.data);
     } else {
-      debug("received ignored message");
+      debug('received ignored message');
       this.processQueue();
     }
   }
@@ -102,9 +95,11 @@ export class AsyncQueue {
   ): Promise<Boxified<Messages>[number]> {
     let parser: (buf: Buffer, offset: number) => ParseResult<object>;
     if (messages instanceof Array) {
-      parser = (buf: Buffer, offset: number) => parseOneOf(messages, buf, offset);
+      parser = (buf: Buffer, offset: number) =>
+        parseOneOf(messages, buf, offset);
     } else {
-      parser = (buf: Buffer, offset: number) => parseMessage(messages, buf, offset);
+      parser = (buf: Buffer, offset: number) =>
+        parseMessage(messages, buf, offset);
     }
     return new Promise((resolve, reject) => {
       this.replyPending = {
