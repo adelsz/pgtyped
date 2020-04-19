@@ -1,6 +1,6 @@
 # SQL in TS files
 
-PgTyped can also parse queries from TS files.
+PgTyped also supports parsing queries from TS files.
 Such queries must be tagged with an `sql` template literal, like this: 
 
 ```ts

@@ -1,6 +1,6 @@
 # Annotated SQL files
 
-PgTyped can parse queries from SQL files. This allows developers to write DB queries in their favourite database IDE.  
+PgTyped supports parsing queries from SQL files. This allows developers to write DB queries in their favourite database IDE.  
 To help PgTyped generate executable queries from these SQL files, they sometimes need to be annotated with special comments.  
 
 Annotated SQL file example:

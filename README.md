@@ -17,11 +17,21 @@ An SQL type generator that makes it possible to use raw SQL with guaranteed type
 5. No need to define your DB schema in TypeScript, your running DB is the live source of type data.
 6. Prevents SQL injections by not doing explicit parameter substitution. Instead, queries and parameters are sent separately to the DB driver, allowing parameter substitution to be safely done by the PostgreSQL server.
 
+## Table of contents:
+
+- [Supported file sources](#supported-file-sources)
+  - [Annotated SQL files](#queries-defined-in-sql-files)
+  - [TypeScript files](#queries-defined-in-ts-files)
+- [Getting started](#getting-started)
+  - [Configuration](#configuration)
+- [Parameter expansions](#parameter-expansions)
+- [Project state](#project-state)
+
 ## Supported file sources:
 
 PgTyped can extract and process queries from both SQL and TS files:
 
-### For queries defined in SQL files:
+### Queries defined in SQL files:
 
 Query code in `books/queries.sql`:
 ```sql
@@ -87,7 +97,9 @@ async function main() {
 main();
 ```
 
-### For queries defined in TS files:
+For more information on consuming queries from SQL files checkout the [Annotated SQL](./docs/annotated-sql.md) guide.
+
+### Queries defined in TS files:
 
 Query code in `users/queries.ts`:
 ```ts
@@ -128,7 +140,9 @@ To run the `selectUserIds` query:
   console.log(users[0]);
 ```
 
-### Getting started:
+For more information on consuming queries from TS files checkout the [SQL-in-TS](./docs/sql-in-ts.md) guide.
+
+## Getting started:
 
 1. `npm install @pgtyped/cli @pgtyped/query typescript`
 2. Create a PgTyped `config.json` file.
@@ -136,7 +150,7 @@ To run the `selectUserIds` query:
 
 Refer to the [example app](./packages/example/README.md) for a preconfigured example.  
 
-### Using PgTyped:
+### Configuration:
 
 PgTyped requires a `config.json` file to run, a basic config file looks like this:
 ```json
@@ -163,7 +177,7 @@ To find out more on how to write typed queries in TS or SQL files:
 * [Annotated SQL files](./docs/annotated-sql.md)
 * [TypeScript files](./docs/sql-in-ts.md)
 
-### Parameter expansions:
+## Parameter expansions:
 
 PgTyped also supports parameter expansions to help you build more complicated queries.
 For example, a typical insert query looks like this:
@@ -199,7 +213,7 @@ VALUES (
 );
 ```
 
-You can learn more about the expansion types here:
+You can learn more about supported expansion types here:
 * [Annotated SQL files](./docs/annotated-sql.md)
 * [TypeScript files](./docs/sql-in-ts.md)
 
