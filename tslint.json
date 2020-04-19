@@ -22,7 +22,8 @@
       "**/*Lexer.ts",
       "**/*Parser.ts",
       "**/*ParserListener.ts",
-      "**/*ParserVisitor.ts"
+      "**/*ParserVisitor.ts",
+      "**/*queries.ts"
     ]
   }
 }
