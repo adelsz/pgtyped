@@ -5,12 +5,13 @@
 ![npm](https://img.shields.io/npm/v/@pgtyped/cli)
 [![Actions Status](https://github.com/adelsz/pgtyped/workflows/CI/badge.svg)](https://github.com/adelsz/pgtyped/actions)
 
-An SQL type generator that makes it possible to use raw SQL with guaranteed type-safety. Works with PostgreSQL and TypeScript.  
+PgTyped makes it possible to use raw SQL in TypeScript with guaranteed type-safety.  
+No need to map or translate you DB schema to TypeScript, PgTyped automatically generates types and interfaces for your SQL queries by using your running DB as the source of type information.
 
 ---
 
 ## Features:
-1. Automatically generates types for parameters/results of SQL queries of any complexity.
+1. Automatically generates TS types for parameters/results of SQL queries of any complexity.
 2. Supports extracting and typing queries from both SQL and TS files.
 3. Generate query types as you write them, using watch mode.
 4. Useful parameter interpolation helpers for arrays and objects.
