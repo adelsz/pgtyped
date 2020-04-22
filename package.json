@@ -16,7 +16,7 @@
     "@types/node": "13.13.2",
     "jest": "25.4.0",
     "lerna": "3.20.2",
-    "prettier": "2.0.4",
+    "prettier": "2.0.5",
     "ts-jest": "25.4.0",
     "tslint-config-prettier": "1.18.0",
     "tslint-plugin-prettier": "2.3.0",
