@@ -57,3 +57,11 @@ test('Another test', () => {
   const parseTree = parse(text);
   expect(parseTree).toMatchSnapshot();
 });
+
+test('Double and single quotes are supported', () => {
+  const text = `
+  /* @name GetAllUsers */
+  SELECT u."rank" FROM users u where name = 'some-name';`;
+  const parseTree = parse(text);
+  expect(parseTree).toMatchSnapshot();
+});
