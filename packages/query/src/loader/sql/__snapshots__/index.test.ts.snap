@@ -43,6 +43,30 @@ Object {
 }
 `;
 
+exports[`Double and single quotes are supported 1`] = `
+Object {
+  "events": Array [],
+  "parseTree": Object {
+    "queries": Array [
+      Object {
+        "name": "GetAllUsers",
+        "params": Array [],
+        "statement": Object {
+          "body": "SELECT u.\\"rank\\" FROM users u where name = 'some-name'",
+          "loc": Object {
+            "a": 29,
+            "b": 81,
+            "col": 2,
+            "line": 3,
+          },
+        },
+        "usedParamSet": Object {},
+      },
+    ],
+  },
+}
+`;
+
 exports[`Named query 1`] = `
 Object {
   "events": Array [],

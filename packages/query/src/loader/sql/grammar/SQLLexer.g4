@@ -16,7 +16,7 @@ fragment ID: [a-zA-Z][a-zA-Z_0-9]*;
 
 OPEN_COMMENT: '/*' -> mode(COMMENT);
 SID: ID -> type(ID);
-WORD: [a-zA-Z_0-9\-+*/<>=~!@#%^&|`?$(){},.[\]]+;
+WORD: [a-zA-Z_0-9\-+*/<>=~!@#%^&|`?$(){},.[\]"]+;
 EOF_STATEMENT: ';';
 WSL     : [ \t\r\n]+ -> skip;
 // parse strings and recognize escaped quotes
