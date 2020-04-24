@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped/cli",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "main": "lib/index.js",
   "license": "MIT",
   "publishConfig": {
@@ -24,7 +24,7 @@
     }
   },
   "dependencies": {
-    "@pgtyped/query": "^0.5.0",
+    "@pgtyped/query": "^0.5.1",
     "@types/camel-case": "^1.2.1",
     "camel-case": "^4.1.1",
     "chalk": "^4.0.0",
