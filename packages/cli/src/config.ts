@@ -27,6 +27,7 @@ const configParser = t.type({
   db: t.type({
     host: t.union([t.string, t.undefined]),
     password: t.union([t.string, t.undefined]),
+    port: t.union([t.number, t.undefined]),
     user: t.string,
     dbName: t.string,
   }),

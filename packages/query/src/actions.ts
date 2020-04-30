@@ -25,15 +25,16 @@ export async function startup(
   options: {
     host?: string;
     password?: string;
+    port?: number,
     user: string;
-    database: string;
+    dbName: string;
   },
   queue: AsyncQueue,
 ) {
   await queue.connect(options);
   const startupParams = {
     user: options.user,
-    database: options.database,
+    database: options.dbName,
     client_encoding: "'utf-8'",
   };
   await queue.send(messages.startupMessage, { params: startupParams });
