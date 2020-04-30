@@ -172,7 +172,7 @@ PgTyped requires a `config.json` file to run, a basic config file looks like thi
 }
 ```
 
-Refer to PgTyped [CLI docs](./packages/cli/README.md) for more info on the config file and CLI flags.
+Refer to PgTyped [CLI docs](./packages/cli/README.md) for more info on the config file, available CLI flags and env variables.
 
 To find out more on how to write typed queries in TS or SQL files:
 * [Annotated SQL files](./docs/annotated-sql.md)

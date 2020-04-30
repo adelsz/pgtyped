@@ -14,6 +14,17 @@ Running the CLI:
 npx pgtyped -w -c config.json
 ```
 
+### Env variables:
+
+PgTyped supports common PostgreSQL environment variables:  
+* `PGHOST`
+* `PGUSER`
+* `PGPASSWORD`
+* `PGDATABASE`
+* `PGPORT`  
+
+These variables will override values provided in `config.json`.
+
 ### Config file:
 
 Config file format (`config.json`):
