@@ -16,7 +16,7 @@ import glob from 'glob';
 import minimist from 'minimist';
 import path from 'path';
 import { promisify } from 'util';
-import { IConfig, parseConfig, TransformConfig } from './config';
+import { IConfig, parseConfig, ParsedConfig, TransformConfig } from './config';
 import { queryToTypeDeclarations } from './generator';
 import { assert, debug } from './util';
 import { camelCase } from 'camel-case';
@@ -210,18 +210,10 @@ class FileProcessor {
   };
 }
 
-async function main(config: IConfig, isWatchMode: boolean) {
+async function main(config: ParsedConfig, isWatchMode: boolean) {
   const connection = new AsyncQueue();
   debug('starting codegenerator');
-  await startup(
-    {
-      host: config.db.host,
-      user: config.db.user,
-      database: config.db.dbName,
-      password: config.db.password,
-    },
-    connection,
-  );
+  await startup(config.db, connection);
 
   debug('connected to database %o', config.db.dbName);
 

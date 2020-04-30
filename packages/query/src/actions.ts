@@ -23,40 +23,47 @@ export const generateHash = (
 
 export async function startup(
   options: {
-    host?: string;
+    host: string;
     password?: string;
+    port: number;
     user: string;
-    database: string;
+    dbName: string;
   },
   queue: AsyncQueue,
 ) {
-  await queue.connect(options);
-  const startupParams = {
-    user: options.user,
-    database: options.database,
-    client_encoding: "'utf-8'",
-  };
-  await queue.send(messages.startupMessage, { params: startupParams });
-  const result = await queue.reply(
-    messages.readyForQuery,
-    messages.authenticationCleartextPassword,
-    messages.authenticationMD5Password,
-  );
-  if ('trxStatus' in result) {
-    // No auth required
-    return;
+  try {
+    await queue.connect(options);
+    const startupParams = {
+      user: options.user,
+      database: options.dbName,
+      client_encoding: "'utf-8'",
+    };
+    await queue.send(messages.startupMessage, { params: startupParams });
+    const result = await queue.reply(
+      messages.readyForQuery,
+      messages.authenticationCleartextPassword,
+      messages.authenticationMD5Password,
+    );
+    if ('trxStatus' in result) {
+      // No auth required
+      return;
+    }
+    if (!options.password) {
+      throw new Error('password required for MD5 hash auth');
+    }
+    let password = options.password;
+    if ('salt' in result) {
+      // if MD5 auth scheme
+      password = generateHash(options.user, password, result.salt);
+    }
+    await queue.send(messages.passwordMessage, { password });
+    await queue.reply(messages.authenticationOk);
+    await queue.reply(messages.readyForQuery);
+  } catch (e) {
+    // tslint:disable-next-line:no-console
+    console.error(`Connection failed: ${e.message}`);
+    process.exit(1);
   }
-  if (!options.password) {
-    throw new Error('Password required for MD5 hash auth');
-  }
-  let password = options.password;
-  if ('salt' in result) {
-    // if MD5 auth scheme
-    password = generateHash(options.user, password, result.salt);
-  }
-  await queue.send(messages.passwordMessage, { password });
-  await queue.reply(messages.authenticationOk);
-  await queue.reply(messages.readyForQuery);
 }
 
 export async function runQuery(query: string, queue: AsyncQueue) {
