@@ -23,9 +23,9 @@ export const generateHash = (
 
 export async function startup(
   options: {
-    host?: string;
+    host: string;
     password?: string;
-    port?: number,
+    port: number;
     user: string;
     dbName: string;
   },

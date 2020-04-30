@@ -28,14 +28,26 @@ const configParser = t.type({
     host: t.union([t.string, t.undefined]),
     password: t.union([t.string, t.undefined]),
     port: t.union([t.number, t.undefined]),
-    user: t.string,
-    dbName: t.string,
+    user: t.union([t.string, t.undefined]),
+    dbName: t.union([t.string, t.undefined]),
   }),
 });
 
 export type IConfig = typeof configParser._O;
 
-export function parseConfig(path: string): IConfig {
+export interface ParsedConfig {
+  db: {
+    host: string;
+    user: string;
+    password: string | undefined;
+    dbName: string;
+    port: number;
+  };
+  transforms: IConfig['transforms'];
+  srcDir: IConfig['srcDir'];
+}
+
+export function parseConfig(path: string): ParsedConfig {
   const configStr = readFileSync(path);
   let configObject;
   configObject = JSON.parse(configStr.toString());
@@ -44,5 +56,25 @@ export function parseConfig(path: string): IConfig {
     const message = reporter(result);
     throw new Error(message[0]);
   }
-  return configObject;
+  const { db, transforms, srcDir } = configObject as IConfig;
+  const host = process.env.PGHOST ?? db.host ?? '127.0.0.1';
+  const user = process.env.PGUSER ?? db.user ?? 'postgres';
+  const password = process.env.PGPASSWORD ?? db.password;
+  const dbName = process.env.PGDATABASE ?? db.dbName ?? 'postgres';
+  const port = parseInt(
+    process.env.PGPORT ?? db.port?.toString() ?? '5432',
+    10,
+  );
+  const finalDBConfig = {
+    host,
+    user,
+    password,
+    dbName,
+    port,
+  };
+  return {
+    db: finalDBConfig,
+    transforms,
+    srcDir,
+  };
 }
