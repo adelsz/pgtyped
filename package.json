@@ -14,7 +14,7 @@
   "devDependencies": {
     "@types/jest": "25.2.1",
     "@types/node": "13.13.4",
-    "jest": "25.5.2",
+    "jest": "25.5.3",
     "lerna": "3.20.2",
     "prettier": "2.0.5",
     "ts-jest": "25.4.0",
