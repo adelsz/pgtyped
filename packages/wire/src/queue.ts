@@ -33,21 +33,13 @@ export class AsyncQueue {
       this.processQueue();
     });
   }
-  public connect(passedOptions?: {
-    port?: number;
-    host?: string;
-  }): Promise<void> {
+  public connect(passedOptions: { port: number; host: string }): Promise<void> {
     return new Promise((resolve) => {
       this.socket.on('connect', () => {
         debug('socket connected');
         resolve();
       });
-      const defaultOptions = {
-        port: 5432,
-        host: 'localhost',
-      };
-      const options = Object.assign({}, defaultOptions, passedOptions || {});
-      this.socket.connect(options);
+      this.socket.connect(passedOptions);
     });
   }
   public async send<Params extends object>(
