@@ -4,7 +4,7 @@ import { PreparedQuery } from "@pgtyped/query";
 
 /** 'GetAllComments' parameters type */
 export interface IGetAllCommentsParams {
-  commentId: number | null;
+  commentId: number | null | void;
 }
 
 /** 'GetAllComments' return type */

@@ -58,8 +58,8 @@ test('query-to-interface translation (SQL)', async () => {
   );
   const expected = `/** 'DeleteUsers' parameters type */
 export interface IDeleteUsersParams {
-  id: string | null;
-  userName: string | null;
+  id: string | null | void;
+  userName: string | null | void;
 }
 
 /** 'DeleteUsers' return type */
@@ -132,8 +132,8 @@ test('query-to-interface translation (TS)', async () => {
   );
   const expected = `/** 'DeleteUsers' parameters type */
 export interface IDeleteUsersParams {
-  id: string | null;
-  userName: string | null;
+  id: string | null | void;
+  userName: string | null | void;
 }
 
 /** 'DeleteUsers' return type */

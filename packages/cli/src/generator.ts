@@ -154,7 +154,7 @@ export async function queryToTypeDeclarations(
         throw new Error(`field type ${pgTypeName} not found`);
       }
       let tsTypeName = typeMap[pgTypeName];
-      tsTypeName += ' | null';
+      tsTypeName += ' | null | void';
 
       paramFieldTypes.push({
         fieldName: param.name,

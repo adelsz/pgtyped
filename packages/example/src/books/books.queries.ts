@@ -4,7 +4,7 @@ import { PreparedQuery } from "@pgtyped/query";
 
 /** 'FindBookById' parameters type */
 export interface IFindBookByIdParams {
-  commentId: number | null;
+  commentId: number | null | void;
 }
 
 /** 'FindBookById' return type */
@@ -66,7 +66,7 @@ export const insertBooks = new PreparedQuery<IInsertBooksParams,IInsertBooksResu
 
 /** 'GetBooksByAuthorName' parameters type */
 export interface IGetBooksByAuthorNameParams {
-  authorName: string | null;
+  authorName: string | null | void;
 }
 
 /** 'GetBooksByAuthorName' return type */
