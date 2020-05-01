@@ -1,5 +1,5 @@
 import { Client, QueryResult } from 'pg';
-import { insertBooks, getBooksByAuthorName } from './books/queries';
+import { insertBooks, getBooksByAuthorName } from './books/books.queries';
 
 // tslint:disable:no-console
 

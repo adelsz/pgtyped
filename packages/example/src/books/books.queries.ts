@@ -1,4 +1,4 @@
-/** Types generated for queries found in "src/books/queries.sql" */
+/** Types generated for queries found in "src/books/books.sql" */
 
 import { PreparedQuery } from "@pgtyped/query";
 
