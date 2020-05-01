@@ -10,6 +10,7 @@ import {
   QueryAST,
 } from '@pgtyped/query';
 import chokidar from 'chokidar';
+import nun from 'nunjucks';
 import * as Option from 'fp-ts/lib/Option';
 import fs from 'fs';
 import glob from 'glob';
@@ -25,6 +26,8 @@ import { pascalCase } from 'pascal-case';
 const writeFile = promisify(fs.writeFile);
 
 const args = minimist(process.argv.slice(2));
+
+nun.configure({ autoescape: false });
 
 // tslint:disable:no-console
 const helpMessage = `PostgreSQL type generator flags:
@@ -141,12 +144,14 @@ class FileProcessor {
   private async processJob(connection: any, job: TransformJob) {
     for (const fileName of job.files) {
       console.log(`Processing ${fileName}`);
-      const ext = job.transform.mode === 'ts' ? 'ts' : 'sql';
-      const suffix = job.transform.mode === 'ts' ? 'types.ts' : 'ts';
-      const decsFileName = path.resolve(
-        path.dirname(fileName),
-        path.basename(fileName, ext) + suffix,
-      );
+      const ppath = path.parse(fileName);
+      let decsFileName;
+      if (job.transform.emitTemplate) {
+        decsFileName = nun.renderString(job.transform.emitTemplate, ppath);
+      } else {
+        const suffix = job.transform.mode === 'ts' ? 'types.ts' : 'ts';
+        decsFileName = path.resolve(ppath.dir, `${ppath.name}.${suffix}`);
+      }
       const typeDecs = await this.generateTypedecsFromFile(
         fileName,
         connection,

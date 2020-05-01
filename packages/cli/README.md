@@ -35,12 +35,13 @@ Config file format (`config.json`):
   "transforms": [
     {
       "mode": "sql", // SQL mode
-      "include": "queries.sql" // SQL files pattern to scan for queries
+      "include": "**/*.sql", // SQL files pattern to scan for queries
+      "emitTemplate": "{{dir}}/{{name}}.queries.ts" // File name template to save generated files
     },
     {
       "mode": "ts", // TS mode
-      "include": "sample.ts", // TS files pattern to scan for queries
-      "emitFileName": "sample.types.ts" // Filename to save the generated query types
+      "include": "**/action.ts", // TS file pattern to scan for queries
+      "emitTemplate": "{{dir}}/{{name}}.types.ts" // File name template to save generated files
     }
   ],
   "srcDir": "./src/", // Directory to scan or watch for query files
@@ -53,5 +54,21 @@ Config file format (`config.json`):
 }
 ```
 
-This package is part of the pgtyped project.  
+### Generated files
+
+By default, PgTyped saves generated files in the same folder as the source files it parses.  
+This behavior can be customized using the `emitTemplate` config parameter.  
+In that template, four parameters are available for interpolation: `root`, `dir`, `base`, `name` and `ext`.  
+For example, when parsing source/query file `/home/user/dir/file.sql`, these parameters are assigned the following values:
+```
+┌─────────────────────┬────────────┐
+│          dir        │    base    │
+├──────┬              ├──────┬─────┤
+│ root │              │ name │ ext │
+"  /    home/user/dir / file  .sql "
+└──────┴──────────────┴──────┴─────┘
+(All spaces in the "" line should be ignored. They are purely for formatting.)
+```
+---
+This package is part of the PgTyped project.  
 Refer to root [README](https://github.com/adelsz/pgtyped) for details.

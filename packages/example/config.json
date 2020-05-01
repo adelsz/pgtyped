@@ -2,12 +2,13 @@
   "transforms": [
     {
       "mode": "sql",
-      "include": "queries.sql"
+      "include": "**/*.sql",
+      "emitTemplate": "{{dir}}/{{name}}.queries.ts"
     },
     {
       "mode": "ts",
       "include": "sample.ts",
-      "emitFileName": "sample.types.ts"
+      "emitTemplate": "{{dir}}/{{name}}.types.ts"
     }
   ],
   "srcDir": "./src/",

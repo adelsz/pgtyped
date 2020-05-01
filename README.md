@@ -159,7 +159,8 @@ PgTyped requires a `config.json` file to run, a basic config file looks like thi
   "transforms": [
     {
       "mode": "sql",
-      "include": "queries.sql"
+      "include": "**/*.sql",
+      "emitTemplate": "{{dir}}/{{name}}.queries.ts"
     }
   ],
   "srcDir": "./src/",

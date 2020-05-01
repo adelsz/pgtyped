@@ -1,7 +1,6 @@
 /** @fileoverview Config file parser */
 
 import * as Either from 'fp-ts/lib/Either';
-import * as Option from 'fp-ts/lib/Option';
 import { readFileSync } from 'fs';
 import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
@@ -9,12 +8,17 @@ import { reporter } from 'io-ts-reporters';
 const TSTransformCodec = t.type({
   mode: t.literal('ts'),
   include: t.string,
-  emitFileName: t.string,
+  /** @deprecated emitFileName is deprecated */
+  emitFileName: t.union([t.string, t.undefined]),
+  emitTemplate: t.union([t.string, t.undefined]),
 });
 
 const SQLTransformCodec = t.type({
   mode: t.literal('sql'),
   include: t.union([t.string, t.undefined]),
+  /** @deprecated emitFileName is deprecated */
+  emitFileName: t.union([t.string, t.undefined]),
+  emitTemplate: t.union([t.string, t.undefined]),
 });
 
 const TransformCodec = t.union([TSTransformCodec, SQLTransformCodec]);
@@ -65,6 +69,12 @@ export function parseConfig(path: string): ParsedConfig {
     process.env.PGPORT ?? db.port?.toString() ?? '5432',
     10,
   );
+  if (transforms.some((tr) => !!tr.emitFileName)) {
+    // tslint:disable:no-console
+    console.log(
+      'Warning: Setting "emitFileName" is deprecated. Consider using "emitTemplate" instead.',
+    );
+  }
   const finalDBConfig = {
     host,
     user,
