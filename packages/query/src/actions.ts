@@ -94,7 +94,7 @@ export async function runQuery(query: string, queue: AsyncQueue) {
   return resultRows;
 }
 
-interface IQueryTypes {
+export interface IQueryTypes {
   paramMetadata: {
     mapping: QueryParam[];
     params: string[];

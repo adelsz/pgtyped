@@ -17,5 +17,6 @@ services:
     build: .
     volumes:
       - ../../:/app
+    restart: always
     links:
       - db
