@@ -69,18 +69,18 @@ class FileProcessor {
     });
   }
 
-  public push(job: TransformJob) {
+  public async push(job: TransformJob) {
     this.jobQueue.push(job);
     if (!this.activePromise) {
-      this.processQueue();
+      await this.processQueue();
     }
   }
 
   private resolveDone: () => void = () => undefined;
 
-  private onFileProcessed = () => {
+  private onFileProcessed = async () => {
     this.activePromise = null;
-    this.processQueue();
+    await this.processQueue();
   };
 
   private generateTypedecsFromFile = async (
@@ -199,7 +199,7 @@ class FileProcessor {
     }
   }
 
-  private processQueue = () => {
+  private processQueue = async () => {
     if (this.activePromise) {
       this.activePromise.then(this.onFileProcessed);
       return;
@@ -226,8 +226,8 @@ async function main(config: ParsedConfig, isWatchMode: boolean) {
   for (const transform of config.transforms) {
     const pattern = `${config.srcDir}/**/${transform.include}`;
     if (isWatchMode) {
-      const cb = (filePath: string) => {
-        fileProcessor.push({
+      const cb = async (filePath: string) => {
+        await fileProcessor.push({
           files: [filePath],
           transform,
         });
@@ -243,7 +243,7 @@ async function main(config: ParsedConfig, isWatchMode: boolean) {
         files: fileList,
         transform,
       };
-      fileProcessor.push(transformJob);
+      await fileProcessor.push(transformJob);
     }
   }
   if (!isWatchMode) {
