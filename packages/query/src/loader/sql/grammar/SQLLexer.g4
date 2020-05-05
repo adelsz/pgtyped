@@ -22,6 +22,7 @@ WSL     : [ \t\r\n]+ -> skip;
 // parse strings and recognize escaped quotes
 STRING: QUOT (QUOT | .*? ~([\\]) QUOT);
 PARAM_MARK: ':';
+CAST: '::' -> type(WORD);
 
 mode COMMENT;
 CID: ID -> type(ID);
