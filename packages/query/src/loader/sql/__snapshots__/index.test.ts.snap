@@ -231,6 +231,47 @@ Object {
 }
 `;
 
+exports[`Postgres cast operator is correctly parsed 1`] = `
+Object {
+  "events": Array [],
+  "parseTree": Object {
+    "queries": Array [
+      Object {
+        "name": "GetAllUsers",
+        "params": Array [
+          Object {
+            "codeRefs": Object {
+              "used": Object {
+                "a": 72,
+                "b": 75,
+                "col": 45,
+                "line": 3,
+              },
+            },
+            "name": "name",
+            "transform": Object {
+              "type": "scalar",
+            },
+          },
+        ],
+        "statement": Object {
+          "body": "SELECT u.\\"rank\\" FROM users u where name = :name::text",
+          "loc": Object {
+            "a": 29,
+            "b": 81,
+            "col": 2,
+            "line": 3,
+          },
+        },
+        "usedParamSet": Object {
+          "name": true,
+        },
+      },
+    ],
+  },
+}
+`;
+
 exports[`Unused parameters produce warnings 1`] = `
 Object {
   "events": Array [

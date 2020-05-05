@@ -65,3 +65,11 @@ test('Double and single quotes are supported', () => {
   const parseTree = parse(text);
   expect(parseTree).toMatchSnapshot();
 });
+
+test('Postgres cast operator is correctly parsed', () => {
+  const text = `
+  /* @name GetAllUsers */
+  SELECT u."rank" FROM users u where name = :name::text;`;
+  const parseTree = parse(text);
+  expect(parseTree).toMatchSnapshot();
+});
