@@ -1,61 +1,17 @@
 import {
   getTypes,
   ParamTransform,
+  parseSQLFile,
+  parseTypeScriptFile,
+  prettyPrintEvents,
   processQueryAST,
   processQueryString,
   QueryAST,
 } from '@pgtyped/query';
+import { camelCase } from 'camel-case';
 import { pascalCase } from 'pascal-case';
-
-import { debug } from './util';
 import { ProcessingMode } from './index';
-
-export enum FieldType {
-  String = 'string',
-  Number = 'number',
-  Bool = 'boolean',
-  Date = 'Date',
-}
-
-const typeMap: {
-  [pgTypeName: string]: string;
-} = {
-  // Integer types
-  int2: FieldType.Number,
-  int4: FieldType.Number,
-  int8: FieldType.Number,
-  smallint: FieldType.Number,
-  int: FieldType.Number,
-  bigint: FieldType.Number,
-
-  // Precision types
-  real: FieldType.Number,
-  float4: FieldType.Number,
-  float: FieldType.Number,
-  float8: FieldType.Number,
-  numeric: FieldType.Number,
-  decimal: FieldType.Number,
-
-  // Serial types
-  smallserial: FieldType.Number,
-  serial: FieldType.Number,
-  bigserial: FieldType.Number,
-
-  // Common string types
-  uuid: FieldType.String,
-  text: FieldType.String,
-  varchar: FieldType.String,
-  char: FieldType.String,
-
-  // Bool types
-  bit: FieldType.Bool, // TODO: better bit array support
-  bool: FieldType.Bool,
-  boolean: FieldType.Bool,
-
-  // Extra types
-  date: FieldType.Date,
-  money: FieldType.Number,
-};
+import { DefaultTypeMapping, TypeAllocator } from './types';
 
 export interface IField {
   fieldName: string;
@@ -91,6 +47,7 @@ type ParsedQuery =
 export async function queryToTypeDeclarations(
   parsedQuery: ParsedQuery,
   connection: any,
+  types: TypeAllocator = new TypeAllocator(DefaultTypeMapping),
 ): Promise<string> {
   let queryData;
   let queryName;
@@ -127,11 +84,7 @@ export async function queryToTypeDeclarations(
   const paramFieldTypes: IField[] = [];
 
   returnTypes.forEach(({ returnName, typeName, nullable }) => {
-    if (!(typeName in typeMap)) {
-      debug(`field type ${typeName} not found`);
-      return;
-    }
-    let tsTypeName = typeMap[typeName];
+    let tsTypeName = types.use(typeName);
     if (nullable) {
       tsTypeName += ' | null';
     }
@@ -150,10 +103,7 @@ export async function queryToTypeDeclarations(
     ) {
       const isArray = param.type === ParamTransform.Spread;
       const pgTypeName = params[param.assignedIndex - 1];
-      if (!(pgTypeName in typeMap)) {
-        throw new Error(`field type ${pgTypeName} not found`);
-      }
-      let tsTypeName = typeMap[pgTypeName];
+      let tsTypeName = types.use(pgTypeName);
       tsTypeName += ' | null | void';
 
       paramFieldTypes.push({
@@ -163,7 +113,7 @@ export async function queryToTypeDeclarations(
     } else {
       const isArray = param.type === ParamTransform.PickSpread;
       let fieldType = Object.values(param.dict)
-        .map((p) => `    ${p.name}: ${typeMap[params[p.assignedIndex - 1]]}`)
+        .map((p) => `    ${p.name}: ${types.use(params[p.assignedIndex - 1])}`)
         .join(',\n');
       fieldType = `{\n${fieldType}\n  }`;
       if (isArray) {
@@ -175,6 +125,8 @@ export async function queryToTypeDeclarations(
       });
     }
   }
+
+  await types.check();
 
   const resultInterfaceName = `I${interfaceName}Result`;
   const returnTypesInterface =
@@ -197,7 +149,126 @@ export async function queryToTypeDeclarations(
       { fieldName: 'result', fieldType: resultInterfaceName },
     ]);
 
-  const interfaces = `${paramTypesInterface}${returnTypesInterface}${typePairInterface}`;
+  return [paramTypesInterface, returnTypesInterface, typePairInterface].join(
+    '',
+  );
+}
 
-  return interfaces;
+interface ITypedQuery {
+  fileName: string;
+  query?: {
+    name: string;
+    ast: QueryAST;
+    paramTypeAlias: string;
+    returnTypeAlias: string;
+  };
+  typeDeclaration: string;
+}
+
+async function generateTypedecsFromFile(
+  contents: string,
+  fileName: string,
+  connection: any,
+  mode: 'ts' | 'sql',
+  types: TypeAllocator = new TypeAllocator(DefaultTypeMapping),
+): Promise<ITypedQuery[]> {
+  const results: ITypedQuery[] = [];
+  if (mode === 'ts') {
+    const queries = parseTypeScriptFile(contents, fileName);
+    for (const query of queries) {
+      const result = await queryToTypeDeclarations(
+        {
+          body: query.tagContent,
+          name: query.queryName,
+          mode: ProcessingMode.TS,
+        },
+        connection,
+      );
+      const typedQuery = {
+        fileName,
+        queryName: query.queryName,
+        typeDeclaration: result,
+      };
+      results.push(typedQuery);
+    }
+  } else {
+    const {
+      parseTree: { queries },
+      events,
+    } = parseSQLFile(contents, fileName);
+    if (events.length > 0) {
+      prettyPrintEvents(contents, events);
+      if (events.find((e) => 'critical' in e)) {
+        return results;
+      }
+    }
+    for (const query of queries) {
+      const result = await queryToTypeDeclarations(
+        { ast: query, mode: ProcessingMode.SQL },
+        connection,
+        types,
+      );
+      const typedQuery = {
+        query: {
+          name: camelCase(query.name),
+          ast: query,
+          paramTypeAlias: `I${pascalCase(query.name)}Params`,
+          returnTypeAlias: `I${pascalCase(query.name)}Result`,
+        },
+        fileName,
+        queryName: query.name,
+        typeDeclaration: result,
+      };
+      results.push(typedQuery);
+    }
+  }
+  return results;
+}
+
+export async function generateDeclarationFile(
+  contents: string,
+  fileName: string,
+  connection: any,
+  mode: 'ts' | 'sql',
+  types: TypeAllocator = new TypeAllocator(DefaultTypeMapping),
+): Promise<{ typeDecs: ITypedQuery[]; declarationFileContents: string }> {
+  if (mode === 'sql') {
+    types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
+  }
+  const typeDecs = await generateTypedecsFromFile(
+    contents,
+    fileName,
+    connection,
+    mode,
+    types,
+  );
+  let declarationFileContents = '';
+  declarationFileContents += `/** Types generated for queries found in "${fileName}" */\n`;
+  declarationFileContents += types.declaration();
+  declarationFileContents += '\n';
+  for (const typeDec of typeDecs) {
+    declarationFileContents += typeDec.typeDeclaration;
+    if (!typeDec.query) {
+      continue;
+    }
+    const queryPP = typeDec.query.ast.statement.body
+      .split('\n')
+      .map((s: string) => ' * ' + s)
+      .join('\n');
+    declarationFileContents += `const ${
+      typeDec.query.name
+    }IR: any = ${JSON.stringify(typeDec.query.ast)};\n\n`;
+    declarationFileContents +=
+      `/**\n` +
+      ` * Query generated from SQL:\n` +
+      ` * \`\`\`\n` +
+      `${queryPP}\n` +
+      ` * \`\`\`\n` +
+      ` */\n`;
+    declarationFileContents +=
+      `export const ${typeDec.query.name} = ` +
+      `new PreparedQuery<${typeDec.query.paramTypeAlias},${typeDec.query.returnTypeAlias}>` +
+      `(${typeDec.query.name}IR);\n\n\n`;
+  }
+  return { declarationFileContents, typeDecs };
 }

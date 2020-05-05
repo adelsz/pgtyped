@@ -1,6 +1,5 @@
 /** Types generated for queries found in "src/books/books.sql" */
-
-import { PreparedQuery } from "@pgtyped/query";
+import { PreparedQuery } from '@pgtyped/query';
 
 /** 'FindBookById' parameters type */
 export interface IFindBookByIdParams {

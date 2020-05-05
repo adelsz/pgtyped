@@ -1,6 +1,9 @@
 import { Client, QueryResult } from 'pg';
 import { insertBooks, getBooksByAuthorName } from './books/books.queries';
-
+import {
+  sendNotifications,
+  thresholdFrogs,
+} from './notifications/notifications.queries';
 // tslint:disable:no-console
 
 export const client = new Client({
@@ -8,7 +11,7 @@ export const client = new Client({
   user: 'test',
   password: 'example',
   database: 'test',
-  port: 5433,
+  port: 5432,
 });
 
 async function main() {
@@ -34,6 +37,16 @@ async function main() {
     client,
   );
   console.log(`Inserted book ID: ${insertedBookId}`);
+
+  await sendNotifications.run(
+    { notifications: [{ user_id: 2, payload: { num_frogs: 82 } }] },
+    client,
+  );
+
+  const notifications = await thresholdFrogs.run({ numFrogs: 80 }, client);
+
+  console.log(notifications);
+
   await client.end();
 }
 

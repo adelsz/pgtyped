@@ -1,62 +1,125 @@
 import * as queryModule from '@pgtyped/query';
+import { parseSQLFile } from '@pgtyped/query';
+import { IQueryTypes } from '@pgtyped/query/lib/actions';
 import { generateInterface, queryToTypeDeclarations } from './generator';
 import { ProcessingMode } from './index';
-import { parseSQLFile } from '@pgtyped/query';
+import { DefaultTypeMapping, TypeAllocator } from './types';
 
 const getTypesMocked = jest.spyOn(queryModule, 'getTypes').mockName('getTypes');
 
-test('query-to-interface translation (SQL)', async () => {
-  const queryString = `
+describe('query-to-interface translation (SQL)', () => {
+  test('TypeMapping and declarations', async () => {
+    const queryString = `
+    /* @name GetNotifications */
+    SELECT payload FROM notifications WHERE id = :userId;
+    `;
+    const mockTypes: IQueryTypes = {
+      returnTypes: [
+        {
+          returnName: 'payload',
+          columnName: 'payload',
+          typeName: 'json',
+          nullable: false,
+        },
+      ],
+      paramMetadata: {
+        params: ['uuid'],
+        mapping: [
+          {
+            name: 'id',
+            type: queryModule.ParamTransform.Scalar,
+            assignedIndex: 1,
+          },
+        ],
+      },
+    };
+    getTypesMocked.mockResolvedValue(mockTypes);
+    const query = parseSQLFile(queryString);
+    const types = new TypeAllocator(DefaultTypeMapping);
+    // Test out imports
+    types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
+    const result = await queryToTypeDeclarations(
+      {
+        ast: query.parseTree.queries[0],
+        mode: ProcessingMode.SQL,
+      },
+      null,
+      types,
+    );
+    const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
+
+export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
+
+    expect(types.declaration()).toEqual(expectedTypes);
+    const expected = `/** 'GetNotifications' parameters type */
+export interface IGetNotificationsParams {
+  id: string | null | void;
+}
+
+/** 'GetNotifications' return type */
+export interface IGetNotificationsResult {
+  payload: Json;
+}
+
+/** 'GetNotifications' query type */
+export interface IGetNotificationsQuery {
+  params: IGetNotificationsParams;
+  result: IGetNotificationsResult;
+}\n\n`;
+    expect(result).toEqual(expected);
+  });
+  test('DeleteUsers by UUID', async () => {
+    const queryString = `
     /* @name DeleteUsers */
       delete from users * where name = :userName and id = :userId and note = :userNote returning id, id, name, note as bote;
     `;
-  const mockTypes = {
-    returnTypes: [
-      {
-        returnName: 'id',
-        columnName: 'id',
-        typeName: 'uuid',
-        nullable: false,
-      },
-      {
-        returnName: 'name',
-        columnName: 'name',
-        typeName: 'text',
-        nullable: false,
-      },
-      {
-        returnName: 'bote',
-        columnName: 'note',
-        typeName: 'text',
-        nullable: true,
-      },
-    ],
-    paramMetadata: {
-      params: ['uuid', 'text'],
-      mapping: [
+    const mockTypes: IQueryTypes = {
+      returnTypes: [
         {
-          name: 'id',
-          type: queryModule.ParamTransform.Scalar,
-          assignedIndex: 1,
+          returnName: 'id',
+          columnName: 'id',
+          typeName: 'uuid',
+          nullable: false,
         },
         {
-          name: 'userName',
-          type: queryModule.ParamTransform.Scalar,
-          assignedIndex: 2,
+          returnName: 'name',
+          columnName: 'name',
+          typeName: 'text',
+          nullable: false,
+        },
+        {
+          returnName: 'bote',
+          columnName: 'note',
+          typeName: 'text',
+          nullable: true,
         },
       ],
-    },
-  };
-  getTypesMocked.mockResolvedValue(mockTypes as any);
-  const query = parseSQLFile(queryString);
-  const result = await queryToTypeDeclarations(
-    {
-      ast: query.parseTree.queries[0],
-      mode: ProcessingMode.SQL,
-    },
-    null,
-  );
-  const expected = `/** 'DeleteUsers' parameters type */
+      paramMetadata: {
+        params: ['uuid', 'text'],
+        mapping: [
+          {
+            name: 'id',
+            type: queryModule.ParamTransform.Scalar,
+            assignedIndex: 1,
+          },
+          {
+            name: 'userName',
+            type: queryModule.ParamTransform.Scalar,
+            assignedIndex: 2,
+          },
+        ],
+      },
+    };
+    getTypesMocked.mockResolvedValue(mockTypes);
+    const query = parseSQLFile(queryString);
+    const result = await queryToTypeDeclarations(
+      {
+        ast: query.parseTree.queries[0],
+        mode: ProcessingMode.SQL,
+      },
+      null,
+    );
+    const expected = `/** 'DeleteUsers' parameters type */
 export interface IDeleteUsersParams {
   id: string | null | void;
   userName: string | null | void;
@@ -76,15 +139,17 @@ export interface IDeleteUsersQuery {
 }
 
 `;
-  expect(result).toEqual(expected);
+    expect(result).toEqual(expected);
+  });
 });
 
 test('query-to-interface translation (TS)', async () => {
   const query = `
-      delete from users *
+      delete
+      from users *
       where name = :userName and id = :userId and note = :userNote returning id, id, name, note as bote;
-    `;
-  const mockTypes = {
+  `;
+  const mockTypes: IQueryTypes = {
     returnTypes: [
       {
         returnName: 'id',
@@ -121,7 +186,7 @@ test('query-to-interface translation (TS)', async () => {
       ],
     },
   };
-  getTypesMocked.mockResolvedValue(mockTypes as any);
+  getTypesMocked.mockResolvedValue(mockTypes);
   const result = await queryToTypeDeclarations(
     {
       name: 'DeleteUsers',
