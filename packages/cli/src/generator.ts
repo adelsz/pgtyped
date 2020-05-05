@@ -126,7 +126,8 @@ export async function queryToTypeDeclarations(
     }
   }
 
-  await types.check();
+  // TODO: revisit as part of error handling task
+  // await types.check();
 
   const resultInterfaceName = `I${interfaceName}Result`;
   const returnTypesInterface =
