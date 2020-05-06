@@ -18,7 +18,7 @@ describe('query-to-interface translation (SQL)', () => {
         {
           returnName: 'payload',
           columnName: 'payload',
-          typeName: 'json',
+          type: 'json',
           nullable: false,
         },
       ],
@@ -78,19 +78,19 @@ export interface IGetNotificationsQuery {
         {
           returnName: 'id',
           columnName: 'id',
-          typeName: 'uuid',
+          type: 'uuid',
           nullable: false,
         },
         {
           returnName: 'name',
           columnName: 'name',
-          typeName: 'text',
+          type: 'text',
           nullable: false,
         },
         {
           returnName: 'bote',
           columnName: 'note',
-          typeName: 'text',
+          type: 'text',
           nullable: true,
         },
       ],
@@ -145,28 +145,28 @@ export interface IDeleteUsersQuery {
 
 test('query-to-interface translation (TS)', async () => {
   const query = `
-      delete
-      from users *
-      where name = :userName and id = :userId and note = :userNote returning id, id, name, note as bote;
+    DELETE
+      FROM users *
+     WHERE NAME = :userName AND id = :userId AND note = :userNote RETURNING id, id, NAME, note AS bote;
   `;
   const mockTypes: IQueryTypes = {
     returnTypes: [
       {
         returnName: 'id',
         columnName: 'id',
-        typeName: 'uuid',
+        type: 'uuid',
         nullable: false,
       },
       {
         returnName: 'name',
         columnName: 'name',
-        typeName: 'text',
+        type: 'text',
         nullable: false,
       },
       {
         returnName: 'bote',
         columnName: 'note',
-        typeName: 'text',
+        type: 'text',
         nullable: true,
       },
     ],

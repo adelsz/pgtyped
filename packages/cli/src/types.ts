@@ -1,30 +1,12 @@
-export type Type =
-  | NamedType
-  | ImportedType
-  | AliasedType;
-
-export interface NamedType {
-  name: string
-  definition?: string
-}
-
-export interface ImportedType extends NamedType {
-  from: string
-}
-
-export interface AliasedType extends NamedType {
-  definition: string
-}
-
-function isImport(typ: Type): typ is ImportedType {
-  return 'from' in typ;
-}
-
-function isAlias(typ: Type): typ is AliasedType {
-  return 'definition' in typ;
-}
-
 // Default types
+import {
+  isAlias,
+  isEnum,
+  isImport,
+  MappableType,
+  Type,
+} from '@pgtyped/query/lib/type';
+
 const String: Type = { name: 'string' };
 const Number: Type = { name: 'number' };
 const Boolean: Type = { name: 'boolean' };
@@ -32,7 +14,8 @@ const Date: Type = { name: 'Date' };
 const Bytes: Type = { name: 'Buffer' };
 const Json: Type = {
   name: 'Json',
-  definition: 'null | boolean | number | string | Json[] | { [key: string]: Json }',
+  definition:
+    'null | boolean | number | string | Json[] | { [key: string]: Json }',
 };
 
 export const DefaultTypeMapping = Object.freeze({
@@ -88,20 +71,24 @@ export const DefaultTypeMapping = Object.freeze({
 
 export type BuiltinTypes = keyof typeof DefaultTypeMapping;
 
-export type TypeMapping = {
-  [postgresType in BuiltinTypes]: Type;
-};
+export type TypeMapping = Record<BuiltinTypes, Type> & Record<string, Type>;
 
 export function TypeMapping(overrides?: Partial<TypeMapping>): TypeMapping {
   return { ...DefaultTypeMapping, ...overrides };
+}
+
+function declareImport([...names]: Set<string>, from: string): string {
+  return `import { ${names.join(', ')} } from '${from}';\n`;
 }
 
 function declareAlias(name: string, definition: string): string {
   return `export type ${name} = ${definition};\n`;
 }
 
-function declareImport(names: string[], from: string): string {
-  return `import { ${names.join(', ')} } from '${from}';\n`;
+function declareEnum(name: string, values: string[]) {
+  return `export const enum ${name} {\n${values
+    .map((v) => `  ${v} = '${v}',`)
+    .join('\n')}\n}`;
 }
 
 /** Wraps a TypeMapping to track which types have been used, to accumulate errors,
@@ -109,22 +96,21 @@ function declareImport(names: string[], from: string): string {
 export class TypeAllocator {
   errors: Error[] = [];
   // from -> names
-  imports: { [k: string]: string[] } = {};
+  imports: { [k: string]: Set<string> } = {};
   // name -> definition (if any)
-  types: { [k: string]: string } = {};
+  types: { [k: string]: Type } = {};
 
   constructor(
     private mapping: TypeMapping,
     private allowUnmappedTypes?: boolean,
-  ) {
-  }
+  ) {}
 
-  isMappedType(name: string): name is BuiltinTypes {
+  isMappedType(name: string): name is keyof TypeMapping {
     return name in this.mapping;
   }
 
   /** Lookup a database-provided type name in the allocator's map */
-  use(typeNameOrType: string | Type): string {
+  use(typeNameOrType: MappableType): string {
     let typ: Type;
 
     if (typeof typeNameOrType == 'string') {
@@ -133,7 +119,9 @@ export class TypeAllocator {
           return typeNameOrType;
         }
         this.errors.push(
-          new Error(`Postgres type '${typeNameOrType}' is not supported by mapping`),
+          new Error(
+            `Postgres type '${typeNameOrType}' is not supported by mapping`,
+          ),
         );
         return 'never';
       }
@@ -142,18 +130,14 @@ export class TypeAllocator {
       typ = typeNameOrType;
     }
 
-    // If first time we have seen this type then track its use
-    if (!(typ.name in this.types)) {
-      this.types[typ.name] = typ.definition ? typ.definition : '';
+    // Track type on first occurrence
+    this.types[typ.name] = this.types[typ.name] ?? typ;
 
-      if (isImport(typ)) {
-        if (typ.from in this.imports) {
-          // Merge imports with same path
-          this.imports[typ.from].push(typ.name);
-        } else {
-          this.imports[typ.from] = [typ.name];
-        }
-      }
+    // Merge imports
+    if (isImport(typ)) {
+      this.imports[typ.from] = (this.imports[typ.from] ?? new Set()).add(
+        typ.name,
+      );
     }
 
     return typ.name;
@@ -165,19 +149,16 @@ export class TypeAllocator {
       .map(([from, names]) => declareImport(names, from))
       .join('\n');
 
-    const aliases = Object.entries(this.types)
-      .filter(([_, definition]) => definition)
-      .map(([name, definition]) => declareAlias(name, definition))
+    const enums = Object.values(this.types)
+      .filter(isEnum)
+      .map((t) => declareEnum(t.name, t.enumValues))
       .join('\n');
 
-    return [imports, aliases].filter(s => s).join('\n');
-  }
+    const aliases = Object.values(this.types)
+      .filter(isAlias)
+      .map((t) => declareAlias(t.name, t.definition))
+      .join('\n');
 
-  async check() {
-    if (this.errors.length > 0) {
-      throw new Error(
-        `Errors with types used in generation:\n\t${this.errors.join('\n\t')}`,
-      );
-    }
+    return [imports, enums, aliases].filter((s) => s).join('\n');
   }
 }

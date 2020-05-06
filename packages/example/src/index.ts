@@ -1,6 +1,7 @@
 import { Client, QueryResult } from 'pg';
 import { insertBooks, getBooksByAuthorName } from './books/books.queries';
 import {
+  notification_type,
   sendNotifications,
   thresholdFrogs,
 } from './notifications/notifications.queries';
@@ -39,7 +40,15 @@ async function main() {
   console.log(`Inserted book ID: ${insertedBookId}`);
 
   await sendNotifications.run(
-    { notifications: [{ user_id: 2, payload: { num_frogs: 82 } }] },
+    {
+      notifications: [
+        {
+          user_id: 2,
+          payload: { num_frogs: 82 },
+          type: notification_type.reminder,
+        },
+      ],
+    },
     client,
   );
 

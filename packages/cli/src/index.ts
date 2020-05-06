@@ -96,8 +96,9 @@ class FileProcessor {
 
   private processQueue = () => {
     if (this.activePromise) {
-      this.activePromise.then(this.onFileProcessed);
-      // TODO: handle promise rejection
+      this.activePromise
+        .then(this.onFileProcessed)
+        .catch((err) => console.log(`Error processing file: ${err.stack}`));
       return;
     }
     const nextJob = this.jobQueue.pop();

@@ -2,7 +2,7 @@
   "transforms": [
     {
       "mode": "sql",
-      "include": "**/*.sql",
+      "include": "**/notifications.sql",
       "emitTemplate": "{{dir}}/{{name}}.queries.ts"
     },
     {
@@ -11,11 +11,5 @@
       "emitTemplate": "{{dir}}/{{name}}.types.ts"
     }
   ],
-  "srcDir": "./src/",
-  "db": {
-    "host": "db",
-    "user": "test",
-    "dbName": "test",
-    "password": "example"
-  }
+  "srcDir": "./src/"
 }

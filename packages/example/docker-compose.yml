@@ -15,8 +15,13 @@ services:
 
   app:
     build: .
+    environment:
+      PGHOST: db
+      PGUSER: test
+      PGDATABASE: test
+      PGPASSWORD: example
     volumes:
       - ../../:/app
-    restart: always
+    restart: on-failure
     links:
       - db

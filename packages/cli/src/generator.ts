@@ -83,8 +83,8 @@ export async function queryToTypeDeclarations(
   const returnFieldTypes: IField[] = [];
   const paramFieldTypes: IField[] = [];
 
-  returnTypes.forEach(({ returnName, typeName, nullable }) => {
-    let tsTypeName = types.use(typeName);
+  returnTypes.forEach(({ returnName, type, nullable }) => {
+    let tsTypeName = types.use(type);
     if (nullable) {
       tsTypeName += ' | null';
     }
@@ -126,8 +126,11 @@ export async function queryToTypeDeclarations(
     }
   }
 
-  // TODO: revisit as part of error handling task
-  // await types.check();
+  // TypeAllocator errors are currently considered non-fatal since a `never`
+  // type is emitted which can be caught later when compiling the generated
+  // code
+  // tslint:disable-next-line:no-console
+  types.errors.forEach((err) => console.log(err));
 
   const resultInterfaceName = `I${interfaceName}Result`;
   const returnTypesInterface =
