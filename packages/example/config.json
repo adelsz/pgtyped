@@ -2,7 +2,7 @@
   "transforms": [
     {
       "mode": "sql",
-      "include": "**/notifications.sql",
+      "include": "**/*.sql",
       "emitTemplate": "{{dir}}/{{name}}.queries.ts"
     },
     {
@@ -11,5 +11,11 @@
       "emitTemplate": "{{dir}}/{{name}}.types.ts"
     }
   ],
-  "srcDir": "./src/"
+  "srcDir": "./src/",
+  "db": {
+    "host": "127.0.0.1",
+    "user": "postgres",
+    "dbName": "postgres",
+    "password": "password"
+  }
 }

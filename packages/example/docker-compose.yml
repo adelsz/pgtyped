@@ -6,8 +6,8 @@ services:
     image: postgres:12-alpine
     restart: always
     environment:
-      POSTGRES_USER: test
-      POSTGRES_PASSWORD: example
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
     ports:
       - "5432:5432"
     volumes:
@@ -17,9 +17,9 @@ services:
     build: .
     environment:
       PGHOST: db
-      PGUSER: test
-      PGDATABASE: test
-      PGPASSWORD: example
+      PGUSER: postgres
+      PGDATABASE: postgres
+      PGPASSWORD: password
     volumes:
       - ../../:/app
     restart: on-failure

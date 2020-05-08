@@ -32,7 +32,7 @@ export function isEnum(typ: MappableType): typ is EnumType {
   return typeof typ !== 'string' && 'enumValues' in typ;
 }
 
-export const enum DatabaseTypeType {
+export const enum DatabaseTypeKind {
   Base = 'b',
   Composite = 'c',
   Domain = 'd',

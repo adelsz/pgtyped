@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import debugBase from 'debug';
 
 import { IInterpolatedQuery, QueryParam } from './preprocessor';
-import { DatabaseTypeType, EnumType, isEnum, MappableType, Type } from './type';
+import { DatabaseTypeKind, isEnum, MappableType } from './type';
 
 const debugQuery = debugBase('client:query');
 
@@ -188,29 +188,57 @@ export async function getTypeData(
   return { params, fields };
 }
 
-function mergeTypeRow<T extends Record<number, MappableType>>(
-  typeMap: T,
-  oid: number,
-  typeName: string,
-  typeType: DatabaseTypeType,
-  enumLabel: string | null,
-): T {
-  // Attempt to merge any partially defined types
-  const typ = typeMap[oid] ?? typeName;
+interface TypeRow {
+  oid: string;
+  typeName: string;
+  typeKind: string;
+  enumLabel: string;
+}
 
-  if (typeType === DatabaseTypeType.Enum && enumLabel) {
-    // We should get one row per enum value
-    return {
-      ...typeMap,
-      [oid]: {
-        name: typeName,
-        // Merge enum values
-        enumValues: [...(isEnum(typ) ? typ.enumValues : []), enumLabel],
-      },
-    };
-  }
+// Aggregate rows from database types catalog into MappableTypes
+export function reduceTypeRows(
+  typeRows: TypeRow[],
+): Record<string, MappableType> {
+  return typeRows.reduce((typeMap, { oid, typeName, typeKind, enumLabel }) => {
+    // Attempt to merge any partially defined types
+    const typ = typeMap[oid] ?? typeName;
 
-  return { ...typeMap, [oid]: typ };
+    if (typeKind === DatabaseTypeKind.Enum && enumLabel) {
+      // We should get one row per enum value
+      return {
+        ...typeMap,
+        [oid]: {
+          name: typeName,
+          // Merge enum values
+          enumValues: [...(isEnum(typ) ? typ.enumValues : []), enumLabel],
+        },
+      };
+    }
+
+    return { ...typeMap, [oid]: typ };
+  }, {} as Record<string, MappableType>);
+}
+
+// TODO: self-host
+async function runTypesCatalogQuery(
+  typeOIDs: number[],
+  queue: AsyncQueue,
+): Promise<TypeRow[]> {
+  const rows = await runQuery(
+    `
+SELECT pt.oid, pt.typname, pt.typtype, pe.enumlabel
+FROM pg_type pt
+LEFT JOIN pg_enum pe ON pt.oid = pe.enumtypid
+WHERE pt.oid IN (${typeOIDs.join(',')});
+`,
+    queue,
+  );
+  return rows.map(([oid, typeName, typeKind, enumLabel]) => ({
+    oid,
+    typeName,
+    typeKind,
+    enumLabel,
+  }));
 }
 
 export async function getTypes(
@@ -228,25 +256,8 @@ export async function getTypes(
   const paramTypeOIDs = params.map((p) => p.oid);
   const returnTypesOIDs = fields.map((f) => f.typeOID);
   const usedTypesOIDs = paramTypeOIDs.concat(returnTypesOIDs);
-  const typeRows = await runQuery(
-    `
-SELECT pt.oid, pt.typname, pt.typtype, pe.enumlabel
-FROM pg_type pt
-LEFT JOIN pg_enum pe ON pt.oid = pe.enumtypid
-WHERE pt.oid IN (${usedTypesOIDs.join(',')})`,
-    queue,
-  );
-  const typeMap: Record<string, MappableType> = typeRows.reduce(
-    (acc, [oid, typName, typType, enumLabel]) =>
-      mergeTypeRow(
-        acc,
-        Number(oid),
-        typName,
-        typType as DatabaseTypeType,
-        enumLabel,
-      ),
-    {},
-  );
+  const typeRows = await runTypesCatalogQuery(usedTypesOIDs, queue);
+  const typeMap = reduceTypeRows(typeRows);
 
   const attrMatcher = ({
     tableOID,
