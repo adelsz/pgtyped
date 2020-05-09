@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`reduce type rows to MappableTypes 1`] = `
+Object {
+  "23": "int4",
+  "25": "text",
+}
+`;
+
+exports[`reduce type rows to MappableTypes 2`] = `
+Object {
+  "16398": Object {
+    "enumValues": Array [
+      "notification",
+      "reminder",
+      "deadline",
+    ],
+    "name": "notification_type",
+  },
+  "23": "int4",
+  "3802": "jsonb",
+}
+`;
+
+exports[`reduce type rows to MappableTypes 3`] = `
+Object {
+  "16398": Object {
+    "enumValues": Array [
+      "notification",
+      "reminder",
+      "deadline",
+    ],
+    "name": "notification_type",
+  },
+  "23": "int4",
+  "3802": "jsonb",
+}
+`;
+
+exports[`reduce type rows to MappableTypes 4`] = `
+Object {
+  "16398": Object {
+    "enumValues": Array [
+      "notification",
+      "reminder",
+      "deadline",
+    ],
+    "name": "notification_type",
+  },
+  "23": "int4",
+  "25": "text",
+  "3802": "jsonb",
+}
+`;
+
+exports[`reduce type rows to MappableTypes 5`] = `
+Object {
+  "1082": "date",
+  "20": "int8",
+  "23": "int4",
+  "25": "text",
+}
+`;

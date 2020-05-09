@@ -24,7 +24,10 @@ PgTyped has a number of requirements for SQL file contents:
 
 ## Parameter expansions
 
-PgTyped supports parameter expansions that help build more complicated queries.  
+You always define parameters by a colon-prefixed token in your query, like `:age`. Ordinary parameters (those that do not need to be expanded and can be directly substituted) do not need any additional annotations within the query comment block.
+
+PgTyped also supports parameter expansions that help build more complicated queries by expanding parameters into their components arrays and fields, which are then spliced into the query.
+
 For example, a typical insert query looks like this:
 
 ```sql
@@ -36,7 +39,7 @@ INSERT INTO book_comments (user_id, body)
 VALUES :comments;
 ```
 
-Here `comments -> ((userId, commentBody)...)` is a parameter expansion.
+Here `comments -> ((userId, commentBody)...)` is a parameter expansion that instructs pgtyped to expand `comments` into an array of objects with each object having a field `userId` and `commentBody`.
 
 A query can also contain multiple expansions if needed:
 ```sql

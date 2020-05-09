@@ -1,17 +1,15 @@
 name: CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    
     steps:
-    - uses: actions/checkout@v1
-    - name: npm ci
-      run: npm ci
-    - name: Bootstrap packages
-      run: npx lerna bootstrap && npm run build
-    - name: Run tests
-      run: npm test
+      - uses: actions/checkout@v1
+      - name: npm ci
+        run: npm ci
+      - name: Bootstrap packages
+        run: npx lerna bootstrap && npm run build
+      - name: Run tests
+        run: npm test

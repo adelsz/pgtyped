@@ -1,9 +1,9 @@
-import debugBase from 'debug';
-import crypto from 'crypto';
-
 import { AsyncQueue, messages, PreparedObjectType } from '@pgtyped/wire';
+import crypto from 'crypto';
+import debugBase from 'debug';
 
 import { IInterpolatedQuery, QueryParam } from './preprocessor';
+import { DatabaseTypeKind, isEnum, MappableType } from './type';
 
 const debugQuery = debugBase('client:query');
 
@@ -97,12 +97,12 @@ export async function runQuery(query: string, queue: AsyncQueue) {
 export interface IQueryTypes {
   paramMetadata: {
     mapping: QueryParam[];
-    params: string[];
+    params: MappableType[];
   };
   returnTypes: Array<{
     returnName: string;
     columnName: string;
-    typeName: string;
+    type: MappableType;
     nullable: boolean;
   }>;
 }
@@ -188,6 +188,59 @@ export async function getTypeData(
   return { params, fields };
 }
 
+interface TypeRow {
+  oid: string;
+  typeName: string;
+  typeKind: string;
+  enumLabel: string;
+}
+
+// Aggregate rows from database types catalog into MappableTypes
+export function reduceTypeRows(
+  typeRows: TypeRow[],
+): Record<string, MappableType> {
+  return typeRows.reduce((typeMap, { oid, typeName, typeKind, enumLabel }) => {
+    // Attempt to merge any partially defined types
+    const typ = typeMap[oid] ?? typeName;
+
+    if (typeKind === DatabaseTypeKind.Enum && enumLabel) {
+      // We should get one row per enum value
+      return {
+        ...typeMap,
+        [oid]: {
+          name: typeName,
+          // Merge enum values
+          enumValues: [...(isEnum(typ) ? typ.enumValues : []), enumLabel],
+        },
+      };
+    }
+
+    return { ...typeMap, [oid]: typ };
+  }, {} as Record<string, MappableType>);
+}
+
+// TODO: self-host
+async function runTypesCatalogQuery(
+  typeOIDs: number[],
+  queue: AsyncQueue,
+): Promise<TypeRow[]> {
+  const rows = await runQuery(
+    `
+SELECT pt.oid, pt.typname, pt.typtype, pe.enumlabel
+FROM pg_type pt
+LEFT JOIN pg_enum pe ON pt.oid = pe.enumtypid
+WHERE pt.oid IN (${typeOIDs.join(',')});
+`,
+    queue,
+  );
+  return rows.map(([oid, typeName, typeKind, enumLabel]) => ({
+    oid,
+    typeName,
+    typeKind,
+    enumLabel,
+  }));
+}
+
 export async function getTypes(
   queryData: IInterpolatedQuery,
   name: string,
@@ -203,17 +256,8 @@ export async function getTypes(
   const paramTypeOIDs = params.map((p) => p.oid);
   const returnTypesOIDs = fields.map((f) => f.typeOID);
   const usedTypesOIDs = paramTypeOIDs.concat(returnTypesOIDs);
-
-  const typeRows = await runQuery(
-    `select oid, typname from pg_type where oid in (${usedTypesOIDs.join(
-      ',',
-    )})`,
-    queue,
-  );
-  const typeMap: { [oid: number]: string } = typeRows.reduce(
-    (acc, [oid, typeName]) => ({ ...acc, [oid]: typeName }),
-    {},
-  );
+  const typeRows = await runTypesCatalogQuery(usedTypesOIDs, queue);
+  const typeMap = reduceTypeRows(typeRows);
 
   const attrMatcher = ({
     tableOID,
@@ -227,9 +271,9 @@ export async function getTypes(
     fields.length > 0 ? fields.map(attrMatcher).join(' or ') : false;
 
   const attributeRows = await runQuery(
-    `select
-      (attrelid || ':' || attnum) as attid, attname, attnotnull
-     from pg_attribute where ${attrSelection};`,
+    `SELECT
+      (attrelid || ':' || attnum) AS attid, attname, attnotnull
+     FROM pg_attribute WHERE ${attrSelection};`,
     queue,
   );
   const attrMap: {
@@ -251,7 +295,7 @@ export async function getTypes(
   const returnTypes = fields.map((f) => ({
     ...attrMap[`${f.tableOID}:${f.columnAttrNumber}`],
     returnName: f.name,
-    typeName: typeMap[f.typeOID],
+    type: typeMap[f.typeOID],
   }));
 
   const paramMetadata = {

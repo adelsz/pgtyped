@@ -28,13 +28,16 @@ export type TransformConfig = t.TypeOf<typeof TransformCodec>;
 const configParser = t.type({
   transforms: t.array(TransformCodec),
   srcDir: t.string,
-  db: t.type({
-    host: t.union([t.string, t.undefined]),
-    password: t.union([t.string, t.undefined]),
-    port: t.union([t.number, t.undefined]),
-    user: t.union([t.string, t.undefined]),
-    dbName: t.union([t.string, t.undefined]),
-  }),
+  db: t.union([
+    t.type({
+      host: t.union([t.string, t.undefined]),
+      password: t.union([t.string, t.undefined]),
+      port: t.union([t.number, t.undefined]),
+      user: t.union([t.string, t.undefined]),
+      dbName: t.union([t.string, t.undefined]),
+    }),
+    t.undefined,
+  ]),
 });
 
 export type IConfig = typeof configParser._O;
@@ -51,6 +54,17 @@ export interface ParsedConfig {
   srcDir: IConfig['srcDir'];
 }
 
+function merge<T>(base: T, ...overrides: Partial<T>[]): T {
+  return overrides.reduce<T>(
+    (acc, o) =>
+      Object.entries(o).reduce(
+        (oAcc, [k, v]) => (v ? { ...oAcc, [k]: v } : oAcc),
+        acc,
+      ),
+    { ...base },
+  );
+}
+
 export function parseConfig(path: string): ParsedConfig {
   const configStr = readFileSync(path);
   let configObject;
@@ -60,28 +74,34 @@ export function parseConfig(path: string): ParsedConfig {
     const message = reporter(result);
     throw new Error(message[0]);
   }
-  const { db, transforms, srcDir } = configObject as IConfig;
-  const host = process.env.PGHOST ?? db.host ?? '127.0.0.1';
-  const user = process.env.PGUSER ?? db.user ?? 'postgres';
-  const password = process.env.PGPASSWORD ?? db.password;
-  const dbName = process.env.PGDATABASE ?? db.dbName ?? 'postgres';
-  const port = parseInt(
-    process.env.PGPORT ?? db.port?.toString() ?? '5432',
-    10,
-  );
+
+  const defaultDBConfig = {
+    host: '127.0.0.1',
+    user: 'postgres',
+    password: '',
+    dbName: 'postgres',
+    port: 5432,
+  };
+
+  const envDBConfig = {
+    host: process.env.PGHOST,
+    user: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
+    dbName: process.env.PGDATABASE,
+    port: process.env.PGPORT ? Number(process.env.PGPORT) : undefined,
+  };
+
+  const { db = defaultDBConfig, transforms, srcDir } = configObject as IConfig;
+
   if (transforms.some((tr) => !!tr.emitFileName)) {
     // tslint:disable:no-console
     console.log(
       'Warning: Setting "emitFileName" is deprecated. Consider using "emitTemplate" instead.',
     );
   }
-  const finalDBConfig = {
-    host,
-    user,
-    password,
-    dbName,
-    port,
-  };
+
+  const finalDBConfig = merge(defaultDBConfig, db, envDBConfig);
+
   return {
     db: finalDBConfig,
     transforms,
