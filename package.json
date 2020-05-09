@@ -17,7 +17,7 @@
     "jest": "26.0.1",
     "lerna": "3.20.2",
     "prettier": "2.0.5",
-    "ts-jest": "25.5.0",
+    "ts-jest": "25.5.1",
     "tslint-config-prettier": "1.18.0",
     "tslint-plugin-prettier": "2.3.0",
     "tslint": "6.1.2",
