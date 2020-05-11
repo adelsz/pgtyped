@@ -82,13 +82,13 @@ function declareImport([...names]: Set<string>, from: string): string {
 }
 
 function declareAlias(name: string, definition: string): string {
-  return `export type ${name} = ${definition};\n`;
+  return `export type ${name} = ${definition};\n\n`;
 }
 
 function declareEnum(name: string, values: string[]) {
   return `export const enum ${name} {\n${values
     .map((v) => `  ${v} = '${v}',`)
-    .join('\n')}\n}`;
+    .join('\n')}\n}\n`;
 }
 
 /** Wraps a TypeMapping to track which types have been used, to accumulate errors,

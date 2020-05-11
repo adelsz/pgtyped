@@ -47,7 +47,7 @@ type ParsedQuery =
 export async function queryToTypeDeclarations(
   parsedQuery: ParsedQuery,
   connection: any,
-  types: TypeAllocator = new TypeAllocator(DefaultTypeMapping),
+  types: TypeAllocator,
 ): Promise<string> {
   let queryData;
   let queryName;
@@ -187,6 +187,7 @@ async function generateTypedecsFromFile(
           mode: ProcessingMode.TS,
         },
         connection,
+        types,
       );
       const typedQuery = {
         fileName,
