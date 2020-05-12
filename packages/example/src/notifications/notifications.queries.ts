@@ -1,11 +1,8 @@
 /** Types generated for queries found in "./src/notifications/notifications.sql" */
 import { PreparedQuery } from '@pgtyped/query';
 
-export const enum notification_type {
-  notification = 'notification',
-  reminder = 'reminder',
-  deadline = 'deadline',
-}
+export type notification_type = 'notification' | 'reminder' | 'deadline';
+
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 
 /** 'SendNotifications' parameters type */

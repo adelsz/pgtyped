@@ -14,7 +14,7 @@ Try starting PgTyped and editing them to see live query type generation.
 `git clone git@github.com:adelsz/pgtyped.git pgyped`
 2. `cd pgtyped/packages/example`
 3. `npm install`
-4. `docker-compose up`
+4. `docker-compose run watch`
 5. Try editing queries in the SQL and TS files and see how PgTyped handles it.
 
 The dockerized setup isn't required and is included for convenience.  

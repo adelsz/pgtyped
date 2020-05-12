@@ -1,19 +1,21 @@
-import { Client, QueryResult } from 'pg';
-import { insertBooks, getBooksByAuthorName } from './books/books.queries';
+import { Client } from 'pg';
+import { getBooksByAuthorName, insertBooks } from './books/books.queries';
 import {
-  notification_type,
   sendNotifications,
   thresholdFrogs,
 } from './notifications/notifications.queries';
+
 // tslint:disable:no-console
 
-export const client = new Client({
-  host: 'localhost',
-  user: 'test',
-  password: 'example',
-  database: 'test',
-  port: 5432,
-});
+const dbConfig = {
+  host: process.env.PGHOST ?? '127.0.0.1',
+  user: process.env.PGUSER ?? 'postgres',
+  password: process.env.PGPASSWORD ?? 'password',
+  database: process.env.PGDATABASE ?? 'postgres',
+  port: (process.env.PGPORT ? Number(process.env.PGPORT) : undefined) ?? 5432,
+};
+
+export const client = new Client(dbConfig);
 
 async function main() {
   await client.connect();
@@ -45,7 +47,7 @@ async function main() {
         {
           user_id: 2,
           payload: { num_frogs: 82 },
-          type: notification_type.reminder,
+          type: 'reminder',
         },
       ],
     },
@@ -59,4 +61,9 @@ async function main() {
   await client.end();
 }
 
-main();
+main()
+  .then(() => console.log('Successfully ran example code!'))
+  .catch((err) => {
+    console.error(`Error running example code: ${err.stack}`);
+    process.exit(1);
+  });

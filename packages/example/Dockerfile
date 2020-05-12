@@ -1,5 +1,10 @@
 FROM node:13-alpine
 
-WORKDIR /app
+RUN apk add --update --no-cache postgresql-client
 
-ENTRYPOINT cd packages/example && npx pgtyped -w -c config.json
+ADD scripts/wait-for-postgres-then /usr/local/bin/
+
+WORKDIR /app/packages/example
+
+ENTRYPOINT ["scripts/wait-for-postgres-then"]
+

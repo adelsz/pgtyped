@@ -61,12 +61,9 @@ describe('query-to-interface translation', () => {
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
 
-export const enum PayloadType {
-  message = 'message',
-  dynamite = 'dynamite',
-}
+export type PayloadType = 'message' | 'dynamite';
 
-export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n\n`;
+export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
