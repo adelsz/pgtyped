@@ -16,8 +16,7 @@ No need to map or translate you DB schema to TypeScript, PgTyped automatically g
 3. Generate query types as you write them, using watch mode.
 4. Useful parameter interpolation helpers for arrays and objects.
 5. No need to define your DB schema in TypeScript, your running DB is the live source of type data.
-6. Generates and exports TS data structures for advanced Postgres types (eg. TS enums corresponding to PG enums).
-7. Prevents SQL injections by not doing explicit parameter substitution. Instead, queries and parameters are sent separately to the DB driver, allowing parameter substitution to be safely done by the PostgreSQL server.
+6. Prevents SQL injections by not doing explicit parameter substitution. Instead, queries and parameters are sent separately to the DB driver, allowing parameter substitution to be safely done by the PostgreSQL server.
 
 ## Table of contents:
 
