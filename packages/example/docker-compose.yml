@@ -13,7 +13,7 @@ services:
     volumes:
       - ./sql/:/docker-entrypoint-initdb.d
 
-  app:
+  build: &build
     build: .
     environment:
       PGHOST: db
@@ -22,6 +22,19 @@ services:
       PGPASSWORD: password
     volumes:
       - ../../:/app
+    working_dir: /app/packages/example
     restart: on-failure
-    links:
+    depends_on:
       - db
+    command: npx pgtyped -c config.json
+
+  watch:
+    <<: *build
+    command: npx pgtyped -w -c config.json
+
+  test:
+    <<: *build
+    depends_on:
+      - build
+    command: npx ts-node src/index.ts
+

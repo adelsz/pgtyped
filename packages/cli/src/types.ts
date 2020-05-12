@@ -82,7 +82,11 @@ function declareImport([...names]: Set<string>, from: string): string {
 }
 
 function declareAlias(name: string, definition: string): string {
-  return `export type ${name} = ${definition};\n\n`;
+  return `export type ${name} = ${definition};\n`;
+}
+
+function declareStringUnion(name: string, values: string[]) {
+  return declareAlias(name, values.map(v => `'${v}'`).join(' | '))
 }
 
 function declareEnum(name: string, values: string[]) {
@@ -149,9 +153,10 @@ export class TypeAllocator {
       .map(([from, names]) => declareImport(names, from))
       .join('\n');
 
+    // Declare database enums as string unions to maintain assignability of their values between query files
     const enums = Object.values(this.types)
       .filter(isEnum)
-      .map((t) => declareEnum(t.name, t.enumValues))
+      .map((t) => declareStringUnion(t.name, t.enumValues))
       .join('\n');
 
     const aliases = Object.values(this.types)

@@ -3,13 +3,22 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: npm ci
-        run: npm ci
+      - run: npm ci
       - name: Bootstrap packages
         run: npx lerna bootstrap && npm run build
       - name: Run tests
         run: npm test
+
+  test_integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - run: npm ci
+      - name: Bootstrap packages
+        run: npx lerna bootstrap && npm run build
+      - name: Run integration tests
+        run: npm run test:integration

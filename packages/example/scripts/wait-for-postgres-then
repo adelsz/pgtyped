@@ -1,0 +1,16 @@
+#!/bin/sh
+
+RETRIES=${RETRIES:-15}
+
+err_file=$(mktemp)
+
+echo "Checking postgres is up..."
+until pg_isready > /dev/null 2> "$err_file" || [ "$RETRIES" -eq 0 ]; do
+  echo "Waiting for postgres server, retrying $((RETRIES=RETRIES-1)) more times..."
+  sleep 1
+done
+
+[ "$RETRIES" -eq 0 ] && cat "$err_file" && echo "Ensure you have postgresql available on your host machine" && exit 1
+rm "$err_file"
+
+exec "$@"
