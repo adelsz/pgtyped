@@ -19,7 +19,7 @@
     "lerna": "3.20.2",
     "prettier": "2.0.5",
     "ts-jest": "25.5.1",
-    "ts-node": "^8.10.1",
+    "ts-node": "8.10.1",
     "tslint": "6.1.2",
     "tslint-config-prettier": "1.18.0",
     "tslint-plugin-prettier": "2.3.0",
