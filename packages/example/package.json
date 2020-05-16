@@ -24,7 +24,7 @@
     "@pgtyped/cli": "^0.7.1",
     "@pgtyped/query": "^0.7.0",
     "@types/pg": "7.14.3",
-    "pg": "8.1.0",
+    "pg": "8.2.1",
     "typescript": "3.8.3"
   },
   "devDependencies": {
