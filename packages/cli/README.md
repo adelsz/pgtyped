@@ -45,6 +45,7 @@ Config file format (`config.json`):
     }
   ],
   "srcDir": "./src/", // Directory to scan or watch for query files
+  "failOnError": false, // Whether to fail on a file processing error and abort generation (can be omitted - default is false)
   "db": {
     "dbName": "testdb", // DB name
     "user": "user", // DB username

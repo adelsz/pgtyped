@@ -5,20 +5,21 @@ import { readFileSync } from 'fs';
 import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
 
-const TSTransformCodec = t.type({
-  mode: t.literal('ts'),
+const transformCodecProps = {
   include: t.string,
   /** @deprecated emitFileName is deprecated */
   emitFileName: t.union([t.string, t.undefined]),
   emitTemplate: t.union([t.string, t.undefined]),
+};
+
+const TSTransformCodec = t.type({
+  mode: t.literal('ts'),
+  ...transformCodecProps,
 });
 
 const SQLTransformCodec = t.type({
   mode: t.literal('sql'),
-  include: t.union([t.string, t.undefined]),
-  /** @deprecated emitFileName is deprecated */
-  emitFileName: t.union([t.string, t.undefined]),
-  emitTemplate: t.union([t.string, t.undefined]),
+  ...transformCodecProps,
 });
 
 const TransformCodec = t.union([TSTransformCodec, SQLTransformCodec]);
@@ -28,6 +29,7 @@ export type TransformConfig = t.TypeOf<typeof TransformCodec>;
 const configParser = t.type({
   transforms: t.array(TransformCodec),
   srcDir: t.string,
+  failOnError: t.union([t.boolean, t.undefined]),
   db: t.union([
     t.type({
       host: t.union([t.string, t.undefined]),
@@ -50,6 +52,7 @@ export interface ParsedConfig {
     dbName: string;
     port: number;
   };
+  failOnError: boolean;
   transforms: IConfig['transforms'];
   srcDir: IConfig['srcDir'];
 }
@@ -91,7 +94,12 @@ export function parseConfig(path: string): ParsedConfig {
     port: process.env.PGPORT ? Number(process.env.PGPORT) : undefined,
   };
 
-  const { db = defaultDBConfig, transforms, srcDir } = configObject as IConfig;
+  const {
+    db = defaultDBConfig,
+    transforms,
+    srcDir,
+    failOnError,
+  } = configObject as IConfig;
 
   if (transforms.some((tr) => !!tr.emitFileName)) {
     // tslint:disable:no-console
@@ -106,5 +114,6 @@ export function parseConfig(path: string): ParsedConfig {
     db: finalDBConfig,
     transforms,
     srcDir,
+    failOnError: failOnError ?? false,
   };
 }

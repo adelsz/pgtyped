@@ -38,9 +38,8 @@ class FileProcessor {
   public emptyQueue: Promise<void>;
   private jobQueue: TransformJob[] = [];
   private activePromise: Promise<void> | null = null;
-  private connection: any;
 
-  constructor(connection: any) {
+  constructor(private connection: any, private exitOnError: boolean) {
     this.connection = connection;
     this.emptyQueue = new Promise((resolve, reject) => {
       this.resolveDone = resolve;
@@ -59,6 +58,13 @@ class FileProcessor {
   private onFileProcessed = () => {
     this.activePromise = null;
     this.processQueue();
+  };
+
+  private onFileProcessingError = (err: any) => {
+    console.log(`Error processing file: ${err.stack || JSON.stringify(err)}`);
+    if (this.exitOnError) {
+      process.exit(1);
+    }
   };
 
   private async processJob(connection: any, job: TransformJob) {
@@ -98,14 +104,14 @@ class FileProcessor {
     if (this.activePromise) {
       this.activePromise
         .then(this.onFileProcessed)
-        .catch((err) => console.log(`Error processing file: ${err.stack}`));
+        .catch(this.onFileProcessingError);
       return;
     }
     const nextJob = this.jobQueue.pop();
     if (nextJob) {
-      this.activePromise = this.processJob(this.connection, nextJob).then(
-        this.onFileProcessed,
-      );
+      this.activePromise = this.processJob(this.connection, nextJob)
+        .then(this.onFileProcessed)
+        .catch(this.onFileProcessingError);
     } else {
       this.resolveDone();
     }
@@ -119,7 +125,7 @@ async function main(config: ParsedConfig, isWatchMode: boolean) {
 
   debug('connected to database %o', config.db.dbName);
 
-  const fileProcessor = new FileProcessor(connection);
+  const fileProcessor = new FileProcessor(connection, config.failOnError);
   for (const transform of config.transforms) {
     const pattern = `${config.srcDir}/**/${transform.include}`;
     if (isWatchMode) {
