@@ -7,7 +7,7 @@
     },
     {
       "mode": "ts",
-      "include": "sample.ts",
+      "include": "**/*.ts",
       "emitTemplate": "{{dir}}/{{name}}.types.ts"
     }
   ],
