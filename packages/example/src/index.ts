@@ -1,5 +1,6 @@
 import { Client } from 'pg';
 import { getBooksByAuthorName, insertBooks } from './books/books.queries';
+import { insertNotifications } from './notifications/notifications';
 import {
   sendNotifications,
   thresholdFrogs,
@@ -47,6 +48,18 @@ async function main() {
         {
           user_id: 2,
           payload: { num_frogs: 82 },
+          type: 'reminder',
+        },
+      ],
+    },
+    client,
+  );
+  await insertNotifications.run(
+    {
+      params: [
+        {
+          user_id: 1,
+          payload: { num_frogs: 1002 },
           type: 'reminder',
         },
       ],

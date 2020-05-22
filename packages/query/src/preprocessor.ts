@@ -313,8 +313,9 @@ export const processQueryString = (
             if (assertDictArray(dictArray)) {
               replacement = dictArray
                 .map((d) => {
-                  const tupleStr = Object.values(d)
-                    .map((value) => {
+                  const tupleStr = keys
+                    .map((key) => {
+                      const value = d[key];
                       bindings.push(value);
                       return `$${++index}`;
                     })
@@ -348,7 +349,6 @@ export const processQueryString = (
             if (assertScalarArray(scalars)) {
               replacement = scalars
                 .map((value) => {
-                  // TODO: bindings push
                   bindings.push(value);
                   return `$${++index}`;
                 })
