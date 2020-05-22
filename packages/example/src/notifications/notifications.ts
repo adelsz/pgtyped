@@ -5,4 +5,4 @@ import { IInsertNotificationsQuery } from './notifications.types';
 export const insertNotifications = sql<IInsertNotificationsQuery>`
 INSERT INTO notifications (payload, user_id, type)
 values $$params(payload, user_id, type)
-`
+`;
