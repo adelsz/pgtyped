@@ -6,7 +6,7 @@
 [![Actions Status](https://github.com/adelsz/pgtyped/workflows/CI/badge.svg)](https://github.com/adelsz/pgtyped/actions)
 
 PgTyped makes it possible to use raw SQL in TypeScript with guaranteed type-safety.  
-No need to map or translate you DB schema to TypeScript, PgTyped automatically generates types and interfaces for your SQL queries by using your running Postgres database as the source of type information.
+No need to map or translate your DB schema to TypeScript, PgTyped automatically generates types and interfaces for your SQL queries by using your running Postgres database as the source of type information.
 
 ---
 
