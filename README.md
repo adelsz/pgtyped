@@ -93,6 +93,7 @@ async function main() {
     client,
   );
   console.log(`Book name: ${books[0].name}`);
+  await client.end();
 }
 
 main();
