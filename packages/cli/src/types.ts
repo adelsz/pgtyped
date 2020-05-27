@@ -12,6 +12,7 @@ const Number: Type = { name: 'number' };
 const Boolean: Type = { name: 'boolean' };
 const Date: Type = { name: 'Date' };
 const Bytes: Type = { name: 'Buffer' };
+const Void: Type = { name: 'undefined' };
 const Json: Type = {
   name: 'Json',
   definition:
@@ -45,6 +46,7 @@ export const DefaultTypeMapping = Object.freeze({
   text: String,
   varchar: String,
   char: String,
+  citext: String,
 
   // Bool types
   bit: Boolean, // TODO: better bit array support
@@ -58,8 +60,15 @@ export const DefaultTypeMapping = Object.freeze({
   time: Date,
   timetz: Date,
 
+  // Network address types
+  inet: String,
+  cidr: String,
+  macaddr: String,
+  macaddr8: String,
+
   // Extra types
   money: Number,
+  void: Void,
 
   // JSON types
   json: Json,
