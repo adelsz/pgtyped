@@ -30,5 +30,8 @@
   },
   "devDependencies": {
     "antlr4ts-cli": "0.5.0-alpha.3"
+  },
+  "peerDependencies": {
+    "typescript": "^3.1"
   }
 }
