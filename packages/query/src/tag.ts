@@ -61,7 +61,7 @@ export class PreparedQuery<TParamType, TResultType> {
 
   constructor(query: QueryAST) {
     this.query = query;
-    this.run = async (params, connection) => {
+    this.run = async (params, connection, queryConfig) => {
       const { query: processedQuery, bindings } = processQueryAST(
         this.query,
         params as any,
