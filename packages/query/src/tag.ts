@@ -34,7 +34,7 @@ export class TaggedQuery<TTypePair extends { params: any; result: any }> {
         this.query,
         params as any,
       );
-      const config = {...queryConfig, text: processedQuery, values: bindings};
+      const config = { ...queryConfig, text: processedQuery, values: bindings };
       const result = await connection.query(config);
       return result.rows;
     };
@@ -66,7 +66,7 @@ export class PreparedQuery<TParamType, TResultType> {
         this.query,
         params as any,
       );
-      const config = {...queryConfig, text: processedQuery, values: bindings};
+      const config = { ...queryConfig, text: processedQuery, values: bindings };
       const result = await connection.query(config);
       return result.rows;
     };
