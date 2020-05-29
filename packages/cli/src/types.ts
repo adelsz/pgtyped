@@ -59,6 +59,7 @@ export const DefaultTypeMapping = Object.freeze({
   timestamptz: Date,
   time: Date,
   timetz: Date,
+  interval: String,
 
   // Network address types
   inet: String,
@@ -95,7 +96,7 @@ function declareAlias(name: string, definition: string): string {
 }
 
 function declareStringUnion(name: string, values: string[]) {
-  return declareAlias(name, values.map(v => `'${v}'`).join(' | '))
+  return declareAlias(name, values.map(v => `'${v}'`).join(' | '));
 }
 
 function declareEnum(name: string, values: string[]) {
@@ -116,7 +117,8 @@ export class TypeAllocator {
   constructor(
     private mapping: TypeMapping,
     private allowUnmappedTypes?: boolean,
-  ) {}
+  ) {
+  }
 
   isMappedType(name: string): name is keyof TypeMapping {
     return name in this.mapping;
