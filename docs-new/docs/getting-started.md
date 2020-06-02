@@ -36,7 +36,7 @@ PgTyped requires a `config.json` file to run, a basic config file looks like thi
 Refer to the [CLI page](cli) for more info on the config file, available CLI flags and environment variables.
 
 :::note
-If you are having trouble configuring PgTyped, you can refer to the [example app](./packages/example/README.md) for a preconfigured example.  
+If you are having trouble configuring PgTyped, you can refer to the [example app](https://github.com/adelsz/pgtyped/tree/master/packages/example) for a preconfigured example.  
 :::
 
 
