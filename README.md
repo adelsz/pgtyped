@@ -1,6 +1,6 @@
 <img width="340" height="150" align="right" src="https://raw.githubusercontent.com/adelsz/pgtyped/master/header.png">
 
-# PgTyped
+# [PgTyped](https://pgtyped.now.sh/)
 
 ![npm](https://img.shields.io/npm/v/@pgtyped/cli)
 [![Actions Status](https://github.com/adelsz/pgtyped/workflows/CI/badge.svg)](https://github.com/adelsz/pgtyped/actions)
@@ -17,6 +17,11 @@ No need to map or translate your DB schema to TypeScript, PgTyped automatically 
 4. Useful parameter interpolation helpers for arrays and objects.
 5. No need to define your DB schema in TypeScript, your running DB is the live source of type data.
 6. Prevents SQL injections by not doing explicit parameter substitution. Instead, queries and parameters are sent separately to the DB driver, allowing parameter substitution to be safely done by the PostgreSQL server.
+
+
+## Documentation
+
+Visit our new documentation page at [https://pgtyped.now.sh/](https://pgtyped.now.sh/).
 
 ## Table of contents:
 
@@ -99,7 +104,7 @@ async function main() {
 main();
 ```
 
-For more information on consuming queries from SQL files checkout the [Annotated SQL](./docs/annotated-sql.md) guide.
+For more information on consuming queries from SQL files checkout the [Annotated SQL](docs/annotated-sql.md) guide.
 
 ### Queries defined in TS files:
 
@@ -142,7 +147,7 @@ To run the `selectUserIds` query:
   console.log(users[0]);
 ```
 
-For more information on consuming queries from TS files checkout the [SQL-in-TS](./docs/sql-in-ts.md) guide.
+For more information on consuming queries from TS files checkout the [SQL-in-TS](docs/sql-in-ts.md) guide.
 
 ## Getting started:
 
@@ -178,8 +183,8 @@ PgTyped requires a `config.json` file to run, a basic config file looks like thi
 Refer to PgTyped [CLI docs](./packages/cli/README.md) for more info on the config file, available CLI flags and env variables.
 
 To find out more on how to write typed queries in TS or SQL files:
-* [Annotated SQL files](./docs/annotated-sql.md)
-* [TypeScript files](./docs/sql-in-ts.md)
+* [Annotated SQL files](docs/annotated-sql.md)
+* [TypeScript files](docs/sql-in-ts.md)
 
 ## Parameter expansions:
 
@@ -218,15 +223,15 @@ VALUES (
 ```
 
 You can learn more about supported expansion types here:
-* [Annotated SQL files](./docs/annotated-sql.md)
-* [TypeScript files](./docs/sql-in-ts.md)
+* [Annotated SQL files](docs/annotated-sql.md)
+* [TypeScript files](docs/sql-in-ts.md)
 
 ### Project state:
 
 This project is being actively developed and its APIs might change.
 All issue reports, feature requests and PRs appreciated.
 
-[Project Goals and Roadmap](./docs/roadmap.md)
+[Project Goals and Roadmap](docs/roadmap.md)
 
 ### License
 
