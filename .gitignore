@@ -9,3 +9,5 @@ node_modules/*
 *.interp
 *.tokens
 *.log
+
+.vercel
