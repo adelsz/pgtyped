@@ -19,36 +19,30 @@ No need to map or translate your DB schema to TypeScript, PgTyped automatically 
 6. Prevents SQL injections by not doing explicit parameter substitution. Instead, queries and parameters are sent separately to the DB driver, allowing parameter substitution to be safely done by the PostgreSQL server.
 
 
-## Documentation
+### Documentation
 
-Visit our new documentation page at [https://pgtyped.now.sh/](https://pgtyped.now.sh/).
+Visit our new documentation page at [https://pgtyped.now.sh/](https://pgtyped.now.sh/)
 
-## Table of contents:
+### Getting started
 
-- [Supported file sources](#supported-file-sources)
-  - [Annotated SQL files](#queries-defined-in-sql-files)
-  - [TypeScript files](#queries-defined-in-ts-files)
-- [Getting started](#getting-started)
-  - [Configuration](#configuration)
-- [Parameter expansions](#parameter-expansions)
-- [Project state](#project-state)
+1. `npm install @pgtyped/cli @pgtyped/query typescript` (typescript is a required peer dependency for pgtyped)
+2. Create a PgTyped `config.json` file.
+3. Run `npx pgtyped -w -c config.json` to start PgTyped in watch mode.
 
-## Supported file sources:
+Refer to the [example app](./packages/example/README.md) for a preconfigured example.  
 
-PgTyped can extract and process queries from both SQL and TS files:
+### Example
 
-### Queries defined in SQL files:
-
-Query code in `books/queries.sql`:
+Lets save some queries in `books.sql`:
 ```sql
 /* @name FindBookById */
 SELECT * FROM books WHERE id = :bookId;
 ```
 
-PgTyped parses the SQL file, extracting all queries and generating strictly typed TS queries in `books/queries.ts`:
+PgTyped parses the SQL file, extracting all queries and generating strictly typed TS queries in `books.queries.ts`:
 
 ```ts
-/** Types generated for queries found in "src/books/queries.sql" */
+/** Types generated for queries found in "books.sql" */
 
 //...
 
@@ -80,7 +74,7 @@ This generated query can be imported and executed as follows:
 
 ```ts
 import { Client } from 'pg';
-import { findBookById } from './src/books/queries.sql';
+import { findBookById } from './books.queries';
 
 export const client = new Client({
   host: 'localhost',
@@ -104,134 +98,18 @@ async function main() {
 main();
 ```
 
-For more information on consuming queries from SQL files checkout the [Annotated SQL](docs/annotated-sql.md) guide.
+### Resources
 
-### Queries defined in TS files:
-
-Query code in `users/queries.ts`:
-```ts
-import { sql } from "@pgtyped/query";
-import { ISelectUserIdsQuery } from "./queries.types.ts";
-
-export const selectUserIds = sql<ISelectUserIdsQuery>`select id from users where id = $id and age = $age`;
-```
-
-PgTyped parses `sql` queries and generates corresponding TS interfaces in `users/queries.types.ts`:
-```ts
-/** Types generated for queries found in "users/queries.ts" */
-
-/** 'selectUserIds' query type */
-export interface ISelectUserIdsQuery {
-  params: ISelectUserIdsParams;
-  result: ISelectUserIdsResult;
-}
-
-/** 'selectUserIds' parameters type */
-export interface ISelectUserIdsParams {
-  id: string | null;
-  age: number | null;
-}
-
-/** 'selectUserIds' return type */
-export interface ISelectUserIdsResult {
-  id: string;
-}
-```
-
-To run the `selectUserIds` query:
-```ts
-  const users = await selectAllUsers.run({
-    id: "some-user-id",
-  }, connection);
-
-  console.log(users[0]);
-```
-
-For more information on consuming queries from TS files checkout the [SQL-in-TS](docs/sql-in-ts.md) guide.
-
-## Getting started:
-
-1. `npm install @pgtyped/cli @pgtyped/query typescript` (typescript is a required peer dependency for pgtyped)
-2. Create a PgTyped `config.json` file.
-3. Run `npx pgtyped -w -c config.json` to start PgTyped in watch mode.
-
-Refer to the [example app](./packages/example/README.md) for a preconfigured example.  
-
-### Configuration:
-
-PgTyped requires a `config.json` file to run, a basic config file looks like this:
-```json
-{
-  "transforms": [
-    {
-      "mode": "sql",
-      "include": "**/*.sql",
-      "emitTemplate": "{{dir}}/{{name}}.queries.ts"
-    }
-  ],
-  "srcDir": "./src/",
-  "failOnError": false,
-  "db": {
-    "host": "db",
-    "user": "test",
-    "dbName": "test",
-    "password": "example"
-  }
-}
-```
-
-Refer to PgTyped [CLI docs](./packages/cli/README.md) for more info on the config file, available CLI flags and env variables.
-
-To find out more on how to write typed queries in TS or SQL files:
-* [Annotated SQL files](docs/annotated-sql.md)
-* [TypeScript files](docs/sql-in-ts.md)
-
-## Parameter expansions:
-
-PgTyped also supports parameter expansions to help you build more complicated queries.
-For example, a typical insert query looks like this:
-
-```sql
-/*
-  @name InsertComment
-  @param comments -> ((userId, commentBody)...)
-*/
-INSERT INTO book_comments (user_id, body)
-VALUES :comments;
-```
-
-Notice the expansion `comments -> ((userId, commentBody)...)` that allows to pass an array of objects as `comments`: 
-```ts
-const parameters = [
-  {
-     userId: 1,
-     commentBody: "What a great book, highly recommended!"
-  },
-  {
-     userId: 2,
-     commentBody: "Good read, but there is much more to the subject.."
-  },
-]
-```
-Expanded query:
-```sql
-INSERT INTO book_comments (user_id, body)
-VALUES (
-  (1, 'What a great book, highly recommended!'),
-  (2, 'Good read, but there is much more to the subject.')
-);
-```
-
-You can learn more about supported expansion types here:
-* [Annotated SQL files](docs/annotated-sql.md)
-* [TypeScript files](docs/sql-in-ts.md)
+1. [Configuring Pgtyped](https://pgtyped.now.sh/docs/cli)
+2. [Writing queries in SQL files](https://pgtyped.now.sh/docs/sql-file-intro)
+3. [Advanced queries and parameter expansions in SQL files](https://pgtyped.now.sh/docs/sql-file)
+3. [Writing queries in TS files](https://pgtyped.now.sh/docs/ts-file-intro)
+3. [Advanced queries and parameter expansions in TS files](https://pgtyped.now.sh/docs/ts-file)
 
 ### Project state:
 
 This project is being actively developed and its APIs might change.
 All issue reports, feature requests and PRs appreciated.
-
-[Project Goals and Roadmap](docs/roadmap.md)
 
 ### License
 
