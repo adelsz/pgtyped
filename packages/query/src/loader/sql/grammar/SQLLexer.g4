@@ -34,4 +34,5 @@ TYPE_TAG  :  '@param';
 OB: '(';
 CB: ')';
 COMMA: ',';
+ANY: .+?;
 CLOSE_COMMENT: '*/' -> mode(DEFAULT_MODE);
