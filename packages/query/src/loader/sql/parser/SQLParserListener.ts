@@ -4,9 +4,9 @@
 import { ParseTreeListener } from "antlr4ts/tree/ParseTreeListener";
 
 import { InputContext } from "./SQLParser";
-import { UniqueQueryContext } from "./SQLParser";
 import { QueryContext } from "./SQLParser";
 import { QueryDefContext } from "./SQLParser";
+import { IgnoredCommentContext } from "./SQLParser";
 import { StatementContext } from "./SQLParser";
 import { StatementBodyContext } from "./SQLParser";
 import { WordContext } from "./SQLParser";
@@ -41,17 +41,6 @@ export interface SQLParserListener extends ParseTreeListener {
 	exitInput?: (ctx: InputContext) => void;
 
 	/**
-	 * Enter a parse tree produced by `SQLParser.uniqueQuery`.
-	 * @param ctx the parse tree
-	 */
-	enterUniqueQuery?: (ctx: UniqueQueryContext) => void;
-	/**
-	 * Exit a parse tree produced by `SQLParser.uniqueQuery`.
-	 * @param ctx the parse tree
-	 */
-	exitUniqueQuery?: (ctx: UniqueQueryContext) => void;
-
-	/**
 	 * Enter a parse tree produced by `SQLParser.query`.
 	 * @param ctx the parse tree
 	 */
@@ -72,6 +61,17 @@ export interface SQLParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitQueryDef?: (ctx: QueryDefContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SQLParser.ignoredComment`.
+	 * @param ctx the parse tree
+	 */
+	enterIgnoredComment?: (ctx: IgnoredCommentContext) => void;
+	/**
+	 * Exit a parse tree produced by `SQLParser.ignoredComment`.
+	 * @param ctx the parse tree
+	 */
+	exitIgnoredComment?: (ctx: IgnoredCommentContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `SQLParser.statement`.

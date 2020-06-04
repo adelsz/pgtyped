@@ -1,6 +1,5 @@
-/*
-  @name GetAllComments
-*/
+/* A query to get all comments */
+/* @name GetAllComments */
 SELECT * FROM book_comments WHERE id = :commentId;
 
 /*

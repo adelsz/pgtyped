@@ -20,17 +20,16 @@ parser grammar SQLParser;
 options { tokenVocab = SQLLexer; }
 
 input
-    : query+ EOF
-    | uniqueQuery EOF
+    : (ignoredComment* query)+ EOF
     ;
-
-uniqueQuery: statement;
 
 query
     : queryDef statement
     ;
 
 queryDef: OPEN_COMMENT nameTag paramTag* CLOSE_COMMENT;
+
+ignoredComment: OPEN_COMMENT (~NAME_TAG)*? CLOSE_COMMENT;
 
 statement
     : statementBody EOF_STATEMENT;

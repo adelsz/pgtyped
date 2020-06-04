@@ -4,9 +4,9 @@
 import { ParseTreeVisitor } from "antlr4ts/tree/ParseTreeVisitor";
 
 import { InputContext } from "./SQLParser";
-import { UniqueQueryContext } from "./SQLParser";
 import { QueryContext } from "./SQLParser";
 import { QueryDefContext } from "./SQLParser";
+import { IgnoredCommentContext } from "./SQLParser";
 import { StatementContext } from "./SQLParser";
 import { StatementBodyContext } from "./SQLParser";
 import { WordContext } from "./SQLParser";
@@ -40,13 +40,6 @@ export interface SQLParserVisitor<Result> extends ParseTreeVisitor<Result> {
 	visitInput?: (ctx: InputContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by `SQLParser.uniqueQuery`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitUniqueQuery?: (ctx: UniqueQueryContext) => Result;
-
-	/**
 	 * Visit a parse tree produced by `SQLParser.query`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -59,6 +52,13 @@ export interface SQLParserVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitQueryDef?: (ctx: QueryDefContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SQLParser.ignoredComment`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitIgnoredComment?: (ctx: IgnoredCommentContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SQLParser.statement`.
