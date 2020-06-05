@@ -1,7 +1,7 @@
 /** @fileoverview Config file parser */
 
 import * as Either from 'fp-ts/lib/Either';
-import { readFileSync } from 'fs';
+import { join } from 'path';
 import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
 
@@ -69,9 +69,7 @@ function merge<T>(base: T, ...overrides: Partial<T>[]): T {
 }
 
 export function parseConfig(path: string): ParsedConfig {
-  const configStr = readFileSync(path);
-  let configObject;
-  configObject = JSON.parse(configStr.toString());
+  const configObject = require(join(process.cwd(), path));
   const result = configParser.decode(configObject);
   if (Either.isLeft(result)) {
     const message = reporter(result);
