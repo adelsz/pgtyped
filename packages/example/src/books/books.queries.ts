@@ -20,7 +20,7 @@ export interface IFindBookByIdQuery {
   result: IFindBookByIdResult;
 }
 
-const findBookByIdIR: any = {"name":"FindBookById","params":[{"name":"commentId","transform":{"type":"scalar"},"codeRefs":{"used":{"a":57,"b":65,"line":2,"col":32}}}],"usedParamSet":{"commentId":true},"statement":{"body":"SELECT * FROM books WHERE id = :commentId","loc":{"a":25,"b":65,"line":2,"col":0}}};
+const findBookByIdIR: any = {"name":"FindBookById","params":[{"name":"commentId","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":57,"b":65,"line":2,"col":32}]}}],"usedParamSet":{"commentId":true},"statement":{"body":"SELECT * FROM books WHERE id = :commentId","loc":{"a":25,"b":65,"line":2,"col":0}}};
 
 /**
  * Query generated from SQL:
@@ -51,7 +51,7 @@ export interface IInsertBooksQuery {
   result: IInsertBooksResult;
 }
 
-const insertBooksIR: any = {"name":"InsertBooks","params":[{"name":"books","codeRefs":{"defined":{"a":101,"b":105,"line":6,"col":9},"used":{"a":191,"b":195,"line":9,"col":8}},"transform":{"type":"pick_array_spread","keys":["rank","name","authorId"]}}],"usedParamSet":{"books":true},"statement":{"body":"INSERT INTO books (rank, name, author_id)\nVALUES :books RETURNING id as book_id","loc":{"a":141,"b":219,"line":8,"col":0}}};
+const insertBooksIR: any = {"name":"InsertBooks","params":[{"name":"books","codeRefs":{"defined":{"a":101,"b":105,"line":6,"col":9},"used":[{"a":191,"b":195,"line":9,"col":8}]},"transform":{"type":"pick_array_spread","keys":["rank","name","authorId"]}}],"usedParamSet":{"books":true},"statement":{"body":"INSERT INTO books (rank, name, author_id)\nVALUES :books RETURNING id as book_id","loc":{"a":141,"b":219,"line":8,"col":0}}};
 
 /**
  * Query generated from SQL:
@@ -82,7 +82,7 @@ export interface IGetBooksByAuthorNameQuery {
   result: IGetBooksByAuthorNameResult;
 }
 
-const getBooksByAuthorNameIR: any = {"name":"GetBooksByAuthorName","params":[{"name":"authorName","transform":{"type":"scalar"},"codeRefs":{"used":{"a":368,"b":377,"line":15,"col":44}}}],"usedParamSet":{"authorName":true},"statement":{"body":"SELECT b.* FROM books b\nINNER JOIN authors a ON a.id = b.author_id\nWHERE a.first_name || ' ' || a.last_name = :authorName","loc":{"a":257,"b":377,"line":13,"col":0}}};
+const getBooksByAuthorNameIR: any = {"name":"GetBooksByAuthorName","params":[{"name":"authorName","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":368,"b":377,"line":15,"col":44}]}}],"usedParamSet":{"authorName":true},"statement":{"body":"SELECT b.* FROM books b\nINNER JOIN authors a ON a.id = b.author_id\nWHERE a.first_name || ' ' || a.last_name = :authorName","loc":{"a":257,"b":377,"line":13,"col":0}}};
 
 /**
  * Query generated from SQL:
