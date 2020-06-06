@@ -1,10 +1,7 @@
 import { Client } from 'pg';
 import { getBooksByAuthorName, insertBooks } from './books/books.queries';
-import { insertNotifications } from './notifications/notifications';
-import {
-  sendNotifications,
-  thresholdFrogs,
-} from './notifications/notifications.queries';
+import { insertNotification, insertNotifications } from './notifications/notifications';
+import { sendNotifications, thresholdFrogs } from './notifications/notifications.queries';
 
 // tslint:disable:no-console
 
@@ -63,6 +60,16 @@ async function main() {
           type: 'reminder',
         },
       ],
+    },
+    client,
+  );
+  await insertNotification.run(
+    {
+      notification: {
+        user_id: 1,
+        payload: { num_frogs: 1002 },
+        type: 'reminder',
+      },
     },
     client,
   );

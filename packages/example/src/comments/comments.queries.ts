@@ -20,7 +20,7 @@ export interface IGetAllCommentsQuery {
   result: IGetAllCommentsResult;
 }
 
-const getAllCommentsIR: any = {"name":"GetAllComments","params":[{"name":"commentId","transform":{"type":"scalar"},"codeRefs":{"used":{"a":69,"b":77,"line":4,"col":40}}}],"usedParamSet":{"commentId":true},"statement":{"body":"SELECT * FROM book_comments WHERE id = :commentId","loc":{"a":29,"b":77,"line":4,"col":0}}};
+const getAllCommentsIR: any = {"name":"GetAllComments","params":[{"name":"commentId","transform":{"type":"scalar"},"codeRefs":{"used":{"a":101,"b":109,"line":3,"col":40}}}],"usedParamSet":{"commentId":true},"statement":{"body":"SELECT * FROM book_comments WHERE id = :commentId","loc":{"a":61,"b":109,"line":3,"col":0}}};
 
 /**
  * Query generated from SQL:
@@ -48,7 +48,7 @@ export interface IInsertCommentQuery {
   result: IInsertCommentResult;
 }
 
-const insertCommentIR: any = {"name":"InsertComment","params":[{"name":"comments","codeRefs":{"defined":{"a":115,"b":122,"line":8,"col":9},"used":{"a":207,"b":214,"line":11,"col":8}},"transform":{"type":"pick_array_spread","keys":["userId","commentBody"]}}],"usedParamSet":{"comments":true},"statement":{"body":"INSERT INTO book_comments (user_id, body)\nVALUES :comments","loc":{"a":157,"b":214,"line":10,"col":0}}};
+const insertCommentIR: any = {"name":"InsertComment","params":[{"name":"comments","codeRefs":{"defined":{"a":147,"b":154,"line":7,"col":9},"used":{"a":239,"b":246,"line":10,"col":8}},"transform":{"type":"pick_array_spread","keys":["userId","commentBody"]}}],"usedParamSet":{"comments":true},"statement":{"body":"INSERT INTO book_comments (user_id, body)\nVALUES :comments","loc":{"a":189,"b":246,"line":9,"col":0}}};
 
 /**
  * Query generated from SQL:
