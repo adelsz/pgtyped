@@ -2,7 +2,7 @@ import {
   processQueryString,
   ParamTransform,
   IQueryParameters,
-  processQueryAST,
+  processSQLQueryAST,
 } from './preprocessor';
 import { Query as QueryAST } from './loader/sql';
 
@@ -52,7 +52,7 @@ export class PreparedQuery<TParamType, TResultType> {
   constructor(query: QueryAST) {
     this.query = query;
     this.run = async (params, connection) => {
-      const { query: processedQuery, bindings } = processQueryAST(
+      const { query: processedQuery, bindings } = processSQLQueryAST(
         this.query,
         params as any,
       );

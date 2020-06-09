@@ -1,4 +1,5 @@
-import { assert, Query as QueryAST, TransformType } from './loader/sql';
+import { assert, SQLQueryAST, TransformType } from './loader/sql';
+import { TSQueryAST } from "./loader/typescript";
 
 type Scalar = string | number | null;
 
@@ -103,8 +104,8 @@ function replaceIntervals(
 }
 
 /* Processes query AST formed by new parser from pure SQL files */
-export const processQueryAST = (
-  query: QueryAST,
+export const processSQLQueryAST = (
+  query: SQLQueryAST,
   passedParams?: IQueryParameters,
 ): IInterpolatedQuery => {
   const bindings: Scalar[] = [];
@@ -266,142 +267,9 @@ export const processQueryAST = (
 };
 
 /* Processes query strings produced by old parser from SQL-in-TS statements */
-export const processQueryString = (
-  query: string,
+export const processTSQueryAST = (
+  query: TSQueryAST,
   parameters?: IQueryParameters,
 ): IInterpolatedQuery => {
-  const bindings: Scalar[] = [];
-  const params: QueryParam[] = [];
-  let index = 0;
-  const flatQuery = query.replace(
-    rootRegex,
-    (_1, prefix, paramName: string, nestedExp: string): string => {
-      let param: QueryParam | undefined;
-      let replacement = '$bad';
-      if (prefix === Prefix.Singular) {
-        if (nestedExp) {
-          const dict: { [key: string]: IScalarParam } = {};
-          const replacementContents = nestedExp.replace(
-            leafRegex,
-            (_2, leafParamName: string): string => {
-              dict[leafParamName] = {
-                type: ParamTransform.Scalar,
-                name: leafParamName,
-                assignedIndex: ++index,
-              };
-              return `$${index}`;
-            },
-          );
-          replacement = `(${replacementContents})`;
-          param = {
-            type: ParamTransform.Pick,
-            name: paramName,
-            dict,
-          };
-        } else {
-          const existingParam = params.find((p) => p.name === paramName);
-          let assignedIndex;
-          if (existingParam) {
-            assert(existingParam?.type === ParamTransform.Scalar);
-            assignedIndex = existingParam.assignedIndex;
-          } else {
-            assignedIndex = ++index;
-            param = {
-              type: ParamTransform.Scalar,
-              name: paramName,
-              assignedIndex,
-            };
-
-            if (parameters) {
-              const scalar = parameters[paramName];
-              if (assertScalar(scalar)) {
-                bindings.push(scalar);
-              } else {
-                throw new Error(`Bad parameter ${paramName} expected scalar`);
-              }
-            }
-          }
-          replacement = `$${assignedIndex}`;
-        }
-      } else if (prefix === Prefix.Plural) {
-        if (nestedExp) {
-          const dict: any = {};
-          const keys: string[] = [];
-          nestedExp.replace(leafRegex, (_, key) => {
-            keys.push(key);
-            return '';
-          });
-          if (parameters) {
-            const dictArray = parameters[paramName];
-            if (assertDictArray(dictArray)) {
-              replacement = dictArray
-                .map((d) => {
-                  const tupleStr = keys
-                    .map((key) => {
-                      const value = d[key];
-                      bindings.push(value);
-                      return `$${++index}`;
-                    })
-                    .join(', ');
-                  return `(${tupleStr})`;
-                })
-                .join(', ');
-            }
-          } else {
-            const repl = keys
-              .map((key) => {
-                const i = ++index;
-                dict[key] = {
-                  name: key,
-                  assignedIndex: i,
-                  type: ParamTransform.Scalar,
-                };
-                return `$${i}`;
-              })
-              .join(', ');
-            param = {
-              type: ParamTransform.PickSpread,
-              name: paramName,
-              dict,
-            };
-            replacement = `(${repl})`;
-          }
-        } else {
-          if (parameters) {
-            const scalars = parameters[paramName];
-            if (assertScalarArray(scalars)) {
-              replacement = scalars
-                .map((value) => {
-                  bindings.push(value);
-                  return `$${++index}`;
-                })
-                .join(', ');
-            } else {
-              throw new Error(
-                `Bad parameter ${paramName} expected array of scalars`,
-              );
-            }
-          } else {
-            param = {
-              type: ParamTransform.Spread,
-              name: paramName,
-              assignedIndex: ++index,
-            };
-            replacement = `$${index}`;
-          }
-          replacement = `(${replacement})`;
-        }
-      }
-      if (param) {
-        params.push(param);
-      }
-      return replacement;
-    },
-  );
-
-  return {
-    mapping: parameters ? [] : params,
-    query: flatQuery,
-    bindings,
-  };
+  return null as any;
 };

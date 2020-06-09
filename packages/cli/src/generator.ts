@@ -4,10 +4,10 @@ import {
   parseSQLFile,
   parseTypeScriptFile,
   prettyPrintEvents,
-  processQueryAST,
-  processQueryString,
-  QueryAST,
-} from '@pgtyped/query';
+  processTSQueryAST, processSQLQueryAST,
+  SQLQueryAST,
+  TSQueryAST,
+} from "@pgtyped/query";
 import { camelCase } from 'camel-case';
 import { pascalCase } from 'pascal-case';
 import { ProcessingMode } from './index';
@@ -35,12 +35,11 @@ export const generateTypeAlias = (typeName: string, alias: string) =>
 
 type ParsedQuery =
   | {
-      name: string;
-      body: string;
-      mode: ProcessingMode.TS;
+  ast: TSQueryAST;
+  mode: ProcessingMode.TS;
     }
   | {
-      ast: QueryAST;
+      ast: SQLQueryAST;
       mode: ProcessingMode.SQL;
     };
 
@@ -52,11 +51,11 @@ export async function queryToTypeDeclarations(
   let queryData;
   let queryName;
   if (parsedQuery.mode === ProcessingMode.TS) {
-    queryName = parsedQuery.name;
-    queryData = processQueryString(parsedQuery.body);
+    queryName = parsedQuery.ast.name;
+    queryData = processTSQueryAST(parsedQuery.ast);
   } else {
     queryName = parsedQuery.ast.name;
-    queryData = processQueryAST(parsedQuery.ast);
+    queryData = processSQLQueryAST(parsedQuery.ast);
   }
 
   const typeData = await getTypes(queryData, queryName, connection);
@@ -158,11 +157,20 @@ export async function queryToTypeDeclarations(
   );
 }
 
-interface ITypedQuery {
+type ITypedQuery = {
+  mode: 'ts';
   fileName: string;
-  query?: {
+  query: {
     name: string;
-    ast: QueryAST;
+    ast: TSQueryAST;
+  };
+  typeDeclaration: string;
+} | {
+  mode: 'sql';
+  fileName: string;
+  query: {
+    name: string;
+    ast: SQLQueryAST;
     paramTypeAlias: string;
     returnTypeAlias: string;
   };
@@ -177,55 +185,55 @@ async function generateTypedecsFromFile(
   types: TypeAllocator = new TypeAllocator(DefaultTypeMapping),
 ): Promise<ITypedQuery[]> {
   const results: ITypedQuery[] = [];
-  if (mode === 'ts') {
-    const queries = parseTypeScriptFile(contents, fileName);
-    for (const query of queries) {
+
+  const { queries, events } = mode === 'ts' ? parseTypeScriptFile(contents, fileName) : parseSQLFile(contents, fileName);
+  if (events.length > 0) {
+    prettyPrintEvents(contents, events);
+    if (events.find((e) => 'critical' in e)) {
+      return results;
+    }
+  }
+  for (const queryAST of queries) {
+    let typedQuery: ITypedQuery;
+    if (mode === 'sql') {
+      const sqlQueryAST = queryAST as SQLQueryAST;
+      const result = await queryToTypeDeclarations(
+        { ast: sqlQueryAST, mode: ProcessingMode.SQL },
+        connection,
+        types,
+      );
+      typedQuery = {
+        mode: 'sql' as const,
+        query: {
+          name: camelCase(sqlQueryAST.name),
+          ast: sqlQueryAST,
+          paramTypeAlias: `I${pascalCase(sqlQueryAST.name)}Params`,
+          returnTypeAlias: `I${pascalCase(sqlQueryAST.name)}Result`,
+        },
+        fileName,
+        typeDeclaration: result,
+      };
+    } else {
+      const tsQueryAST = queryAST as TSQueryAST;
       const result = await queryToTypeDeclarations(
         {
-          body: query.tagContent,
-          name: query.queryName,
+          ast: tsQueryAST,
           mode: ProcessingMode.TS,
         },
         connection,
         types,
       );
-      const typedQuery = {
+      typedQuery = {
+        mode: 'ts' as const,
         fileName,
-        queryName: query.queryName,
-        typeDeclaration: result,
-      };
-      results.push(typedQuery);
-    }
-  } else {
-    const {
-      parseTree: { queries },
-      events,
-    } = parseSQLFile(contents, fileName);
-    if (events.length > 0) {
-      prettyPrintEvents(contents, events);
-      if (events.find((e) => 'critical' in e)) {
-        return results;
-      }
-    }
-    for (const query of queries) {
-      const result = await queryToTypeDeclarations(
-        { ast: query, mode: ProcessingMode.SQL },
-        connection,
-        types,
-      );
-      const typedQuery = {
         query: {
-          name: camelCase(query.name),
-          ast: query,
-          paramTypeAlias: `I${pascalCase(query.name)}Params`,
-          returnTypeAlias: `I${pascalCase(query.name)}Result`,
+          name: tsQueryAST.name,
+          ast: tsQueryAST,
         },
-        fileName,
-        queryName: query.name,
         typeDeclaration: result,
       };
-      results.push(typedQuery);
     }
+    results.push(typedQuery);
   }
   return results;
 }
@@ -253,7 +261,7 @@ export async function generateDeclarationFile(
   declarationFileContents += '\n';
   for (const typeDec of typeDecs) {
     declarationFileContents += typeDec.typeDeclaration;
-    if (!typeDec.query) {
+    if (typeDec.mode === 'ts') {
       continue;
     }
     const queryPP = typeDec.query.ast.statement.body

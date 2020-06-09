@@ -1,12 +1,14 @@
 import {
   ParamTransform,
-  processQueryAST,
-  processQueryString,
+  processSQLQueryAST,
+  processTSQueryAST,
 } from './preprocessor';
-import parseText from './loader/sql';
+import parseSQLQuery from './loader/sql';
+import parseTSQuery from './loader/typescript';
 
-test('name parameter interpolation', () => {
+test('(TS) name parameter interpolation', () => {
   const query = 'SELECT id, name from users where id = $id and age > $age';
+  const parsedQuery = parseTSQuery(query);
   const parameters = {
     id: '123',
     age: 12,
@@ -18,13 +20,14 @@ test('name parameter interpolation', () => {
     bindings: ['123', 12],
   };
 
-  const result = processQueryString(query, parameters);
+  const result = processTSQueryAST(parsedQuery.queries[0], parameters);
 
   expect(result).toEqual(expectedResult);
 });
 
 test('(TS) scalar param used twice', () => {
   const query = 'SELECT id, name from users where id = $id and parent_id = $id';
+  const parsedQuery = parseTSQuery(query);
   const parameters = {
     id: '123',
   };
@@ -35,13 +38,14 @@ test('(TS) scalar param used twice', () => {
     bindings: ['123'],
   };
 
-  const result = processQueryString(query, parameters);
+  const result = processTSQueryAST(parsedQuery.queries[0], parameters);
 
   expect(result).toEqual(expectedResult);
 });
 
-test('name parameter mapping', () => {
+test('(TS) name parameter mapping', () => {
   const query = 'SELECT id, name from users where id = $id and age > $age';
+  const parsedQuery = parseTSQuery(query);
 
   const expectedResult = {
     query: 'SELECT id, name from users where id = $1 and age > $2',
@@ -60,14 +64,15 @@ test('name parameter mapping', () => {
     bindings: [],
   };
 
-  const result = processQueryString(query);
+  const result = processTSQueryAST(parsedQuery.queries[0]);
 
   expect(result).toEqual(expectedResult);
 });
 
-test('single value list parameter interpolation', () => {
+test('(TS) single value list parameter interpolation', () => {
   const query =
     'INSERT INTO users (name, age) VALUES $user(name, age) RETURNING id';
+  const parsedQuery = parseTSQuery(query);
 
   const parameters = {
     user: {
@@ -99,14 +104,15 @@ test('single value list parameter interpolation', () => {
     bindings: [],
   };
 
-  const result = processQueryString(query);
+  const result = processTSQueryAST(parsedQuery.queries[0]);
 
   expect(result).toEqual(expectedResult);
 });
 
-test('multiple value list (array) parameter mapping', () => {
+test('(TS) multiple value list (array) parameter mapping', () => {
   const query =
     'SELECT FROM users where (age in $$ages) or (age in $$otherAges)';
+  const parsedQuery = parseTSQuery(query);
 
   const expectedResult = {
     query: 'SELECT FROM users where (age in ($1)) or (age in ($2))',
@@ -125,13 +131,14 @@ test('multiple value list (array) parameter mapping', () => {
     bindings: [],
   };
 
-  const result = processQueryString(query);
+  const result = processTSQueryAST(parsedQuery.queries[0]);
 
   expect(result).toEqual(expectedResult);
 });
 
-test('multiple value list (array) parameter interpolation', () => {
+test('(TS) multiple value list (array) parameter interpolation', () => {
   const query = 'SELECT FROM users where age in $$ages';
+  const parsedQuery = parseTSQuery(query);
 
   const parameters = {
     ages: [23, 27, 50],
@@ -143,13 +150,14 @@ test('multiple value list (array) parameter interpolation', () => {
     mapping: [],
   };
 
-  const result = processQueryString(query, parameters);
+  const result = processTSQueryAST(parsedQuery.queries[0], parameters);
 
   expect(result).toEqual(expectedResult);
 });
 
-test('multiple value list (array) parameter used twice interpolation', () => {
+test('(TS) multiple value list (array) parameter used twice interpolation', () => {
   const query = 'SELECT FROM users where age in $$ages or age in $$ages';
+  const parsedQuery = parseTSQuery(query);
 
   const parameters = {
     ages: [23, 27, 50],
@@ -161,14 +169,15 @@ test('multiple value list (array) parameter used twice interpolation', () => {
     mapping: [],
   };
 
-  const result = processQueryString(query, parameters);
+  const result = processTSQueryAST(parsedQuery.queries[0], parameters);
 
   expect(result).toEqual(expectedResult);
 });
 
-test('multiple value list parameter mapping', () => {
+test('(TS) multiple value list parameter mapping', () => {
   const query =
     'INSERT INTO users (name, age) VALUES $$users(name, age) RETURNING id';
+  const parsedQuery = parseTSQuery(query);
 
   const expectedResult = {
     query: 'INSERT INTO users (name, age) VALUES ($1, $2) RETURNING id',
@@ -193,14 +202,15 @@ test('multiple value list parameter mapping', () => {
     ],
   };
 
-  const result = processQueryString(query);
+  const result = processTSQueryAST(parsedQuery.queries[0]);
 
   expect(result).toEqual(expectedResult);
 });
 
-test('multiple value list parameter interpolation', () => {
+test('(TS) multiple value list parameter interpolation', () => {
   const query =
     'INSERT INTO users (name, age) VALUES $$users(name, age) RETURNING id';
+  const parsedQuery = parseTSQuery(query);
 
   const parameters = {
     users: [
@@ -216,17 +226,17 @@ test('multiple value list parameter interpolation', () => {
     mapping: [],
   };
 
-  const result = processQueryString(query, parameters);
+  const result = processTSQueryAST(parsedQuery.queries[0], parameters);
 
   expect(result).toEqual(expectedResult);
 });
 
-test('(AST) no params', () => {
+test('(SQL) no params', () => {
   const query = `
   /* @name selectSomeUsers */
   SELECT id, name FROM users;`;
 
-  const fileAST = parseText(query);
+  const fileAST = parseSQLQuery(query);
   const parameters = {};
 
   const expectedResult = {
@@ -235,22 +245,22 @@ test('(AST) no params', () => {
     bindings: [],
   };
 
-  const interpolationResult = processQueryAST(
-    fileAST.parseTree.queries[0],
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
     parameters,
   );
-  const mappingResult = processQueryAST(fileAST.parseTree.queries[0]);
+  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
 
   expect(interpolationResult).toEqual(expectedResult);
   expect(mappingResult).toEqual(expectedResult);
 });
 
-test('(AST) two scalar params', () => {
+test('(SQL) two scalar params', () => {
   const query = `
   /* @name selectSomeUsers */
   SELECT id, name from users where id = :id and age > :age;`;
 
-  const fileAST = parseText(query);
+  const fileAST = parseSQLQuery(query);
   const parameters = {
     id: '123',
     age: 12,
@@ -279,22 +289,22 @@ test('(AST) two scalar params', () => {
     bindings: [],
   };
 
-  const interpolationResult = processQueryAST(
-    fileAST.parseTree.queries[0],
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
     parameters,
   );
-  const mappingResult = processQueryAST(fileAST.parseTree.queries[0]);
+  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
 
   expect(interpolationResult).toEqual(expectedInterpolationResult);
   expect(mappingResult).toEqual(expectedMappingResult);
 });
 
-test('(AST) one param used twice', () => {
+test('(SQL) one param used twice', () => {
   const query = `
   /* @name selectUsersAndParents */
   SELECT id, name from users where id = :id or parent_id = :id;`;
 
-  const fileAST = parseText(query);
+  const fileAST = parseSQLQuery(query);
   const parameters = {
     id: '123',
   };
@@ -317,24 +327,24 @@ test('(AST) one param used twice', () => {
     bindings: [],
   };
 
-  const interpolationResult = processQueryAST(
-    fileAST.parseTree.queries[0],
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
     parameters,
   );
-  const mappingResult = processQueryAST(fileAST.parseTree.queries[0]);
+  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
 
   expect(interpolationResult).toEqual(expectedInterpolationResult);
   expect(mappingResult).toEqual(expectedMappingResult);
 });
 
-test('(AST) array param', () => {
+test('(SQL) array param', () => {
   const query = `
   /*
     @name selectSomeUsers
     @param ages -> (...)
   */
   SELECT FROM users WHERE age in :ages;`;
-  const fileAST = parseText(query);
+  const fileAST = parseSQLQuery(query);
 
   const parameters = {
     ages: [23, 27, 50],
@@ -358,24 +368,24 @@ test('(AST) array param', () => {
     ],
   };
 
-  const interpolationResult = processQueryAST(
-    fileAST.parseTree.queries[0],
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
     parameters,
   );
-  const mappingResult = processQueryAST(fileAST.parseTree.queries[0]);
+  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
 
   expect(interpolationResult).toEqual(expectedInterpolationResult);
   expect(mappingResult).toEqual(expectedMappingResult);
 });
 
-test('(AST) array param used twice', () => {
+test('(SQL) array param used twice', () => {
   const query = `
   /*
     @name selectSomeUsers
     @param ages -> (...)
   */
   SELECT FROM users WHERE age in :ages or age in :ages;`;
-  const fileAST = parseText(query);
+  const fileAST = parseSQLQuery(query);
 
   const parameters = {
     ages: [23, 27, 50],
@@ -399,24 +409,24 @@ test('(AST) array param used twice', () => {
     ],
   };
 
-  const interpolationResult = processQueryAST(
-    fileAST.parseTree.queries[0],
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
     parameters,
   );
-  const mappingResult = processQueryAST(fileAST.parseTree.queries[0]);
+  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
 
   expect(interpolationResult).toEqual(expectedInterpolationResult);
   expect(mappingResult).toEqual(expectedMappingResult);
 });
 
-test('(AST) array and scalar param', () => {
+test('(SQL) array and scalar param', () => {
   const query = `
   /*
     @name selectSomeUsers
     @param ages -> (...)
   */
   SELECT FROM users WHERE age in :ages and id = :userId;`;
-  const fileAST = parseText(query);
+  const fileAST = parseSQLQuery(query);
 
   const parameters = {
     ages: [23, 27, 50],
@@ -446,24 +456,24 @@ test('(AST) array and scalar param', () => {
     ],
   };
 
-  const interpolationResult = processQueryAST(
-    fileAST.parseTree.queries[0],
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
     parameters,
   );
-  const mappingResult = processQueryAST(fileAST.parseTree.queries[0]);
+  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
 
   expect(interpolationResult).toEqual(expectedInterpolationResult);
   expect(mappingResult).toEqual(expectedMappingResult);
 });
 
-test('(AST) pick param', () => {
+test('(SQL) pick param', () => {
   const query = `
   /*
     @name insertUsers
     @param user -> (name, age)
   */
   INSERT INTO users (name, age) VALUES :user RETURNING id;`;
-  const fileAST = parseText(query);
+  const fileAST = parseSQLQuery(query);
 
   const parameters = {
     user: { name: 'Bob', age: 12 },
@@ -498,24 +508,24 @@ test('(AST) pick param', () => {
     ],
   };
 
-  const interpolationResult = processQueryAST(
-    fileAST.parseTree.queries[0],
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
     parameters,
   );
   expect(interpolationResult).toEqual(expectedInterpolationResult);
 
-  const mappingResult = processQueryAST(fileAST.parseTree.queries[0]);
+  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
   expect(mappingResult).toEqual(expectedMappingResult);
 });
 
-test('(AST) pick param used twice', () => {
+test('(SQL) pick param used twice', () => {
   const query = `
   /*
     @name insertUsersTwice
     @param user -> (name, age)
   */
   INSERT INTO users (name, age) VALUES :user, :user RETURNING id;`;
-  const fileAST = parseText(query);
+  const fileAST = parseSQLQuery(query);
 
   const parameters = {
     user: { name: 'Bob', age: 12 },
@@ -550,24 +560,24 @@ test('(AST) pick param used twice', () => {
     ],
   };
 
-  const interpolationResult = processQueryAST(
-    fileAST.parseTree.queries[0],
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
     parameters,
   );
   expect(interpolationResult).toEqual(expectedInterpolationResult);
 
-  const mappingResult = processQueryAST(fileAST.parseTree.queries[0]);
+  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
   expect(mappingResult).toEqual(expectedMappingResult);
 });
 
-test('(AST) pickSpread param', () => {
+test('(SQL) pickSpread param', () => {
   const query = `
   /*
     @name insertUsers
     @param users -> ((name, age)...)
   */
   INSERT INTO users (name, age) VALUES :users RETURNING id;`;
-  const fileAST = parseText(query);
+  const fileAST = parseSQLQuery(query);
 
   const parameters = {
     users: [
@@ -607,24 +617,24 @@ test('(AST) pickSpread param', () => {
     mapping: expectedMapping,
   };
 
-  const interpolationResult = processQueryAST(
-    fileAST.parseTree.queries[0],
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
     parameters,
   );
-  const mappingResult = processQueryAST(fileAST.parseTree.queries[0]);
+  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
 
   expect(interpolationResult).toEqual(expectedInterpolationResult);
   expect(mappingResult).toEqual(expectedMappingResult);
 });
 
-test('(AST) pickSpread param used twice', () => {
+test('(SQL) pickSpread param used twice', () => {
   const query = `
   /*
     @name insertUsers
     @param users -> ((name, age)...)
   */
   INSERT INTO users (name, age) VALUES :users, :users RETURNING id;`;
-  const fileAST = parseText(query);
+  const fileAST = parseSQLQuery(query);
 
   const parameters = {
     users: [
@@ -665,11 +675,11 @@ test('(AST) pickSpread param used twice', () => {
     mapping: expectedMapping,
   };
 
-  const interpolationResult = processQueryAST(
-    fileAST.parseTree.queries[0],
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
     parameters,
   );
-  const mappingResult = processQueryAST(fileAST.parseTree.queries[0]);
+  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
 
   expect(interpolationResult).toEqual(expectedInterpolationResult);
   expect(mappingResult).toEqual(expectedMappingResult);

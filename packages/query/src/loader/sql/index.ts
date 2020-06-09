@@ -212,10 +212,12 @@ class ParseListener implements SQLParserListener {
   }
 }
 
+export type SQLParseResult = { queries: Query[]; events: ParseEvent[] };
+
 function parseText(
   text: string,
   fileName: string = 'undefined.sql',
-): { parseTree: ParseTree; events: ParseEvent[] } {
+): SQLParseResult {
   const logger = new Logger(text);
   const inputStream = CharStreams.fromString(text);
   const lexer = new SQLLexer(inputStream);
@@ -231,10 +233,11 @@ function parseText(
   const listener = new ParseListener(logger);
   ParseTreeWalker.DEFAULT.walk(listener as SQLParserListener, tree);
   return {
-    parseTree: listener.parseTree,
+    queries: listener.parseTree.queries,
     events: logger.parseEvents,
   };
 }
 
 export { prettyPrintEvents } from './logger';
+export type SQLQueryAST = Query;
 export default parseText;
