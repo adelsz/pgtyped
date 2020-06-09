@@ -1,5 +1,6 @@
 import { Client } from 'pg';
 import { getBooksByAuthorName, insertBooks } from './books/books.queries';
+import { getAllComments } from './comments/comments.queries';
 import { insertNotifications } from './notifications/notifications';
 import {
   sendNotifications,
@@ -27,6 +28,9 @@ async function main() {
     client,
   );
   console.log(`Book name: ${books[0].name}`);
+
+  const comments = await getAllComments.run({ id: 1 }, client);
+  console.log(`Comments: ${JSON.stringify(comments)}`);
 
   const [{ book_id: insertedBookId }] = await insertBooks.run(
     {

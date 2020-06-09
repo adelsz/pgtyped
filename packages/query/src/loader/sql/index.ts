@@ -37,7 +37,7 @@ export interface Param {
   transform: ParamTransform;
   codeRefs: {
     defined?: CodeInterval;
-    used?: CodeInterval;
+    used: CodeInterval[];
   };
 }
 
@@ -118,6 +118,7 @@ class ParseListener implements SQLParserListener {
       name: ctx.text,
       codeRefs: {
         defined: defLoc,
+        used: [],
       },
     };
   }
@@ -202,11 +203,11 @@ class ParseListener implements SQLParserListener {
         name: paramName,
         transform: { type: TransformType.Scalar },
         codeRefs: {
-          used: useLoc,
+          used: [useLoc],
         },
       });
     } else {
-      reference.codeRefs.used = useLoc;
+      reference.codeRefs.used.push(useLoc);
     }
   }
 }
