@@ -26,7 +26,7 @@ export const DefaultTypeMapping = Object.freeze({
   int8: Number,
   smallint: Number,
   int: Number,
-  bigint: Number,
+  bigint: String,
 
   // Precision types
   real: Number,
@@ -39,7 +39,7 @@ export const DefaultTypeMapping = Object.freeze({
   // Serial types
   smallserial: Number,
   serial: Number,
-  bigserial: Number,
+  bigserial: String,
 
   // Common string types
   uuid: String,
