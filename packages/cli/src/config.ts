@@ -30,6 +30,7 @@ const configParser = t.type({
   transforms: t.array(TransformCodec),
   srcDir: t.string,
   failOnError: t.union([t.boolean, t.undefined]),
+  camelCaseColumnNames: t.union([t.boolean, t.undefined]),
   db: t.union([
     t.type({
       host: t.union([t.string, t.undefined]),
@@ -53,6 +54,7 @@ export interface ParsedConfig {
     port: number;
   };
   failOnError: boolean;
+  camelCaseColumnNames: boolean;
   transforms: IConfig['transforms'];
   srcDir: IConfig['srcDir'];
 }
@@ -97,6 +99,7 @@ export function parseConfig(path: string): ParsedConfig {
     transforms,
     srcDir,
     failOnError,
+    camelCaseColumnNames,
   } = configObject as IConfig;
 
   if (transforms.some((tr) => !!tr.emitFileName)) {
@@ -113,5 +116,6 @@ export function parseConfig(path: string): ParsedConfig {
     transforms,
     srcDir,
     failOnError: failOnError ?? false,
+    camelCaseColumnNames: camelCaseColumnNames ?? false,
   };
 }

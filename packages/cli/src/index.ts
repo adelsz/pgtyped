@@ -39,7 +39,7 @@ class FileProcessor {
   private jobQueue: TransformJob[] = [];
   private activePromise: Promise<void> | null = null;
 
-  constructor(private connection: any, private exitOnError: boolean) {
+  constructor(private connection: any, private config: ParsedConfig) {
     this.connection = connection;
     this.emptyQueue = new Promise((resolve, reject) => {
       this.resolveDone = resolve;
@@ -62,7 +62,7 @@ class FileProcessor {
 
   private onFileProcessingError = (err: any) => {
     console.log(`Error processing file: ${err.stack || JSON.stringify(err)}`);
-    if (this.exitOnError) {
+    if (this.config.failOnError) {
       process.exit(1);
     }
   };
@@ -87,6 +87,8 @@ class FileProcessor {
         fileName,
         connection,
         job.transform.mode,
+        void 0,
+        this.config,
       );
       if (typeDecs.length > 0) {
         await writeFile(decsFileName, declarationFileContents);
@@ -125,7 +127,7 @@ async function main(config: ParsedConfig, isWatchMode: boolean) {
 
   debug('connected to database %o', config.db.dbName);
 
-  const fileProcessor = new FileProcessor(connection, config.failOnError);
+  const fileProcessor = new FileProcessor(connection, config);
   for (const transform of config.transforms) {
     const pattern = `${config.srcDir}/**/${transform.include}`;
     if (isWatchMode) {
