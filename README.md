@@ -2,7 +2,7 @@
 
 # [PgTyped](https://pgtyped.now.sh/)
 
-![npm](https://img.shields.io/npm/v/@pgtyped/cli)
+![Version](https://img.shields.io/github/v/release/adelsz/pgtyped)
 [![Actions Status](https://github.com/adelsz/pgtyped/workflows/CI/badge.svg)](https://github.com/adelsz/pgtyped/actions)
 
 PgTyped makes it possible to use raw SQL in TypeScript with guaranteed type-safety.  
