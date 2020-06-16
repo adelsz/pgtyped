@@ -12,6 +12,7 @@ import { camelCase } from 'camel-case';
 import { pascalCase } from 'pascal-case';
 import { ProcessingMode } from './index';
 import { DefaultTypeMapping, TypeAllocator } from './types';
+import { ParsedConfig } from './config';
 
 export interface IField {
   fieldName: string;
@@ -48,6 +49,7 @@ export async function queryToTypeDeclarations(
   parsedQuery: ParsedQuery,
   connection: any,
   types: TypeAllocator,
+  config: ParsedConfig,
 ): Promise<string> {
   let queryData;
   let queryName;
@@ -90,7 +92,9 @@ export async function queryToTypeDeclarations(
     }
 
     returnFieldTypes.push({
-      fieldName: returnName,
+      fieldName: config.camelCaseColumnNames
+        ? camelCase(returnName)
+        : returnName,
       fieldType: tsTypeName,
     });
   });
@@ -175,6 +179,7 @@ async function generateTypedecsFromFile(
   connection: any,
   mode: 'ts' | 'sql',
   types: TypeAllocator = new TypeAllocator(DefaultTypeMapping),
+  config: ParsedConfig,
 ): Promise<ITypedQuery[]> {
   const results: ITypedQuery[] = [];
   if (mode === 'ts') {
@@ -188,6 +193,7 @@ async function generateTypedecsFromFile(
         },
         connection,
         types,
+        config,
       );
       const typedQuery = {
         fileName,
@@ -212,6 +218,7 @@ async function generateTypedecsFromFile(
         { ast: query, mode: ProcessingMode.SQL },
         connection,
         types,
+        config,
       );
       const typedQuery = {
         query: {
@@ -236,6 +243,7 @@ export async function generateDeclarationFile(
   connection: any,
   mode: 'ts' | 'sql',
   types: TypeAllocator = new TypeAllocator(DefaultTypeMapping),
+  config: ParsedConfig,
 ): Promise<{ typeDecs: ITypedQuery[]; declarationFileContents: string }> {
   if (mode === 'sql') {
     types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
@@ -246,6 +254,7 @@ export async function generateDeclarationFile(
     connection,
     mode,
     types,
+    config,
   );
   let declarationFileContents = '';
   declarationFileContents += `/** Types generated for queries found in "${fileName}" */\n`;
