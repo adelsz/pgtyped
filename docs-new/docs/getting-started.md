@@ -24,6 +24,7 @@ PgTyped requires a `config.json` file to run, a basic config file looks like thi
   ],
   "srcDir": "./src/",
   "failOnError": false,
+  "camelCaseColumnNames": false,
   "db": {
     "host": "db",
     "user": "test",

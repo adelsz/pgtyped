@@ -23,6 +23,23 @@ test('name parameter interpolation', () => {
   expect(result).toEqual(expectedResult);
 });
 
+test('(TS) scalar param used twice', () => {
+  const query = 'SELECT id, name from users where id = $id and parent_id = $id';
+  const parameters = {
+    id: '123',
+  };
+
+  const expectedResult = {
+    query: 'SELECT id, name from users where id = $1 and parent_id = $1',
+    mapping: [],
+    bindings: ['123'],
+  };
+
+  const result = processQueryString(query, parameters);
+
+  expect(result).toEqual(expectedResult);
+});
+
 test('name parameter mapping', () => {
   const query = 'SELECT id, name from users where id = $id and age > $age';
 
@@ -82,7 +99,7 @@ test('single value list parameter interpolation', () => {
     bindings: [],
   };
 
-  const result = processQueryString(query, parameters);
+  const result = processQueryString(query);
 
   expect(result).toEqual(expectedResult);
 });
@@ -123,6 +140,24 @@ test('multiple value list (array) parameter interpolation', () => {
   const expectedResult = {
     query: 'SELECT FROM users where age in ($1, $2, $3)',
     bindings: [23, 27, 50],
+    mapping: [],
+  };
+
+  const result = processQueryString(query, parameters);
+
+  expect(result).toEqual(expectedResult);
+});
+
+test('multiple value list (array) parameter used twice interpolation', () => {
+  const query = 'SELECT FROM users where age in $$ages or age in $$ages';
+
+  const parameters = {
+    ages: [23, 27, 50],
+  };
+
+  const expectedResult = {
+    query: 'SELECT FROM users where age in ($1, $2, $3) or age in ($4, $5, $6)',
+    bindings: [23, 27, 50, 23, 27, 50],
     mapping: [],
   };
 
@@ -254,6 +289,44 @@ test('(AST) two scalar params', () => {
   expect(mappingResult).toEqual(expectedMappingResult);
 });
 
+test('(AST) one param used twice', () => {
+  const query = `
+  /* @name selectUsersAndParents */
+  SELECT id, name from users where id = :id or parent_id = :id;`;
+
+  const fileAST = parseText(query);
+  const parameters = {
+    id: '123',
+  };
+
+  const expectedInterpolationResult = {
+    query: 'SELECT id, name from users where id = $1 or parent_id = $1',
+    mapping: [],
+    bindings: ['123'],
+  };
+
+  const expectedMappingResult = {
+    query: 'SELECT id, name from users where id = $1 or parent_id = $1',
+    mapping: [
+      {
+        assignedIndex: 1,
+        name: 'id',
+        type: ParamTransform.Scalar,
+      },
+    ],
+    bindings: [],
+  };
+
+  const interpolationResult = processQueryAST(
+    fileAST.parseTree.queries[0],
+    parameters,
+  );
+  const mappingResult = processQueryAST(fileAST.parseTree.queries[0]);
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+  expect(mappingResult).toEqual(expectedMappingResult);
+});
+
 test('(AST) array param', () => {
   const query = `
   /*
@@ -275,6 +348,47 @@ test('(AST) array param', () => {
 
   const expectedMappingResult = {
     query: 'SELECT FROM users WHERE age in ($1)',
+    bindings: [],
+    mapping: [
+      {
+        name: 'ages',
+        type: ParamTransform.Spread,
+        assignedIndex: 1,
+      },
+    ],
+  };
+
+  const interpolationResult = processQueryAST(
+    fileAST.parseTree.queries[0],
+    parameters,
+  );
+  const mappingResult = processQueryAST(fileAST.parseTree.queries[0]);
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+  expect(mappingResult).toEqual(expectedMappingResult);
+});
+
+test('(AST) array param used twice', () => {
+  const query = `
+  /*
+    @name selectSomeUsers
+    @param ages -> (...)
+  */
+  SELECT FROM users WHERE age in :ages or age in :ages;`;
+  const fileAST = parseText(query);
+
+  const parameters = {
+    ages: [23, 27, 50],
+  };
+
+  const expectedInterpolationResult = {
+    query: 'SELECT FROM users WHERE age in ($1,$2,$3) or age in ($1,$2,$3)',
+    bindings: [23, 27, 50],
+    mapping: [],
+  };
+
+  const expectedMappingResult = {
+    query: 'SELECT FROM users WHERE age in ($1) or age in ($1)',
     bindings: [],
     mapping: [
       {
@@ -394,6 +508,58 @@ test('(AST) pick param', () => {
   expect(mappingResult).toEqual(expectedMappingResult);
 });
 
+test('(AST) pick param used twice', () => {
+  const query = `
+  /*
+    @name insertUsersTwice
+    @param user -> (name, age)
+  */
+  INSERT INTO users (name, age) VALUES :user, :user RETURNING id;`;
+  const fileAST = parseText(query);
+
+  const parameters = {
+    user: { name: 'Bob', age: 12 },
+  };
+
+  const expectedInterpolationResult = {
+    query: 'INSERT INTO users (name, age) VALUES ($1,$2), ($1,$2) RETURNING id',
+    bindings: ['Bob', 12],
+    mapping: [],
+  };
+
+  const expectedMappingResult = {
+    query: 'INSERT INTO users (name, age) VALUES ($1,$2), ($1,$2) RETURNING id',
+    bindings: [],
+    mapping: [
+      {
+        name: 'user',
+        type: ParamTransform.Pick,
+        dict: {
+          name: {
+            assignedIndex: 1,
+            name: 'name',
+            type: ParamTransform.Scalar,
+          },
+          age: {
+            assignedIndex: 2,
+            name: 'age',
+            type: ParamTransform.Scalar,
+          },
+        },
+      },
+    ],
+  };
+
+  const interpolationResult = processQueryAST(
+    fileAST.parseTree.queries[0],
+    parameters,
+  );
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+
+  const mappingResult = processQueryAST(fileAST.parseTree.queries[0]);
+  expect(mappingResult).toEqual(expectedMappingResult);
+});
+
 test('(AST) pickSpread param', () => {
   const query = `
   /*
@@ -437,6 +603,64 @@ test('(AST) pickSpread param', () => {
 
   const expectedMappingResult = {
     query: 'INSERT INTO users (name, age) VALUES ($1,$2) RETURNING id',
+    bindings: [],
+    mapping: expectedMapping,
+  };
+
+  const interpolationResult = processQueryAST(
+    fileAST.parseTree.queries[0],
+    parameters,
+  );
+  const mappingResult = processQueryAST(fileAST.parseTree.queries[0]);
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+  expect(mappingResult).toEqual(expectedMappingResult);
+});
+
+test('(AST) pickSpread param used twice', () => {
+  const query = `
+  /*
+    @name insertUsers
+    @param users -> ((name, age)...)
+  */
+  INSERT INTO users (name, age) VALUES :users, :users RETURNING id;`;
+  const fileAST = parseText(query);
+
+  const parameters = {
+    users: [
+      { name: 'Bob', age: 12 },
+      { name: 'Tom', age: 22 },
+    ],
+  };
+
+  const expectedInterpolationResult = {
+    query:
+      'INSERT INTO users (name, age) VALUES ($1,$2),($3,$4), ($1,$2),($3,$4) RETURNING id',
+    bindings: ['Bob', 12, 'Tom', 22],
+    mapping: [],
+  };
+
+  const expectedMapping = [
+    {
+      name: 'users',
+      type: ParamTransform.PickSpread,
+      dict: {
+        name: {
+          name: 'name',
+          type: ParamTransform.Scalar,
+          assignedIndex: 1,
+        },
+        age: {
+          name: 'age',
+          type: ParamTransform.Scalar,
+          assignedIndex: 2,
+        },
+      },
+    },
+  ];
+
+  const expectedMappingResult = {
+    query: 'INSERT INTO users (name, age) VALUES ($1,$2), ($1,$2) RETURNING id',
     bindings: [],
     mapping: expectedMapping,
   };

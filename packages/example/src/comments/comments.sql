@@ -1,6 +1,6 @@
 /* A query to get all comments */
 /* @name GetAllComments */
-SELECT * FROM book_comments WHERE id = :commentId;
+SELECT * FROM book_comments WHERE id = :id or user_id = :id;
 
 /*
   @name InsertComment

@@ -3,7 +3,7 @@ import { PreparedQuery } from '@pgtyped/query';
 
 /** 'GetAllComments' parameters type */
 export interface IGetAllCommentsParams {
-  commentId: number | null | void;
+  id: number | null | void;
 }
 
 /** 'GetAllComments' return type */
@@ -25,7 +25,7 @@ const getAllCommentsIR: any = {"name":"GetAllComments","params":[{"name":"commen
 /**
  * Query generated from SQL:
  * ```
- * SELECT * FROM book_comments WHERE id = :commentId
+ * SELECT * FROM book_comments WHERE id = :id or user_id = :id
  * ```
  */
 export const getAllComments = new PreparedQuery<IGetAllCommentsParams,IGetAllCommentsResult>(getAllCommentsIR);

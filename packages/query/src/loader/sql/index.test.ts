@@ -24,14 +24,34 @@ test('Named query with an inferred param', () => {
   expect(parseTree).toMatchSnapshot();
 });
 
+test('Named query with two inferred params', () => {
+  const text = `
+  /* @name GetUserById */
+  SELECT * FROM users WHERE userId = :userId or parentId = :userId;`;
+  const parseTree = parse(text);
+  expect(parseTree).toMatchSnapshot();
+});
+
 test('Named query with a valid param', () => {
   const text = `
   /*
     @name CreateCustomer
-    @param customer -> (customerName, contactName, address)
+    @param customers -> (customerName, contactName, address)
   */
   INSERT INTO customers (customer_name, contact_name, address)
   VALUES :customers;`;
+  const parseTree = parse(text);
+  expect(parseTree).toMatchSnapshot();
+});
+
+test('Named query with pick param used twice', () => {
+  const text = `
+  /*
+    @name CreateCustomer
+    @param customers -> (customerName, contactName, address)
+  */
+  INSERT INTO customers (customer_name, contact_name, address)
+  VALUES :customers, :customers;`;
   const parseTree = parse(text);
   expect(parseTree).toMatchSnapshot();
 });
