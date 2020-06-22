@@ -3,6 +3,7 @@ import { CharStreams, CommonTokenStream } from 'antlr4ts';
 import { ParseTreeWalker } from 'antlr4ts/tree/ParseTreeWalker';
 import { QueryLexer } from './parser/QueryLexer';
 import {
+  ParamContext,
   ParamNameContext, PickKeyContext, QueryContext,
   QueryParser
 } from "./parser/QueryParser";
@@ -98,20 +99,20 @@ class ParseListener implements QueryParserListener {
   }
 
   enterParamName(ctx: ParamNameContext) {
-    const defLoc = {
-      a: ctx.start.startIndex,
-      b: ctx.start.stopIndex,
-      line: ctx.start.line,
-      col: ctx.start.charPositionInLine,
-    };
     this.currentParam = {
       name: ctx.text,
-      location: defLoc,
       selection: undefined,
     };
   }
 
-  exitParam() {
+  exitParam(ctx: ParamContext) {
+    const defLoc = {
+      a: ctx.start.startIndex,
+      b: ctx.stop!.stopIndex,
+      line: ctx.start.line,
+      col: ctx.start.charPositionInLine,
+    };
+    this.currentParam.location = defLoc;
     this.currentParam.selection = this.currentSelection as ParamSelection;
     this.query.params!.push(this.currentParam as Param);
     this.currentSelection = {};

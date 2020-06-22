@@ -4,9 +4,10 @@ export {
   ParamTransform,
   IQueryParameters,
   IInterpolatedQuery,
-  processSQLQueryAST,
-  processTSQueryAST,
 } from './preprocessor';
+
+export { processTSQueryAST } from './preprocessor-ts';
+export { processSQLQueryAST } from './preprocessor-sql';
 
 export { AsyncQueue } from '@pgtyped/wire';
 
