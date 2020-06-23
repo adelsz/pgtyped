@@ -1,6 +1,6 @@
-import { parseTSQuery } from "./loader/typescript";
-import { processTSQueryAST } from "./preprocessor-ts";
-import { ParamTransform } from "./preprocessor";
+import { parseTSQuery } from './loader/typescript';
+import { processTSQueryAST } from './preprocessor-ts';
+import { ParamTransform } from './preprocessor';
 
 test('(TS) name parameter interpolation', () => {
   const query = 'SELECT id, name from users where id = $id and age > $age';
@@ -55,14 +55,14 @@ test('(TS) pick array parameter interpolation (multiline)', () => {
   `;
   const parsedQuery = parseTSQuery(query);
   const parameters = {
-      params: [
-        {
-          user_id: 1,
-          payload: { num_frogs: 1002 },
-          type: 'reminder',
-        },
-      ],
-    };
+    params: [
+      {
+        user_id: 1,
+        payload: { num_frogs: 1002 },
+        type: 'reminder',
+      },
+    ],
+  };
 
   const expectedResult = {
     query: `
@@ -96,16 +96,21 @@ test('(TS) scalar param used twice', () => {
 });
 
 test('(TS) name parameter mapping', () => {
-  const query = 'SELECT id, name from users where id = $id and age > $age and parent_id = $id';
+  const query =
+    'SELECT id, name from users where id = $id and age > $age and parent_id = $id';
   const parsedQuery = parseTSQuery(query);
 
   const expectedResult = {
-    query: 'SELECT id, name from users where id = $1 and age > $2 and parent_id = $1',
+    query:
+      'SELECT id, name from users where id = $1 and age > $2 and parent_id = $1',
     mapping: [],
     bindings: ['1234-1235', 33],
   };
 
-  const result = processTSQueryAST(parsedQuery.query, {id: '1234-1235', age: 33});
+  const result = processTSQueryAST(parsedQuery.query, {
+    id: '1234-1235',
+    age: 33,
+  });
 
   expect(result).toEqual(expectedResult);
 });
@@ -164,7 +169,8 @@ test('(TS) single value list parameter interpolation twice', () => {
   };
 
   const expectedResult = {
-    query: 'INSERT INTO users (name, age) VALUES ($1, $2) BOGUS ($1, $3) RETURNING id',
+    query:
+      'INSERT INTO users (name, age) VALUES ($1, $2) BOGUS ($1, $3) RETURNING id',
     mapping: [],
     bindings: ['Bob', 12, '1234-123-1233'],
   };
@@ -180,7 +186,8 @@ test('(TS) multiple value list (array) parameter mapping', () => {
   const parsedQuery = parseTSQuery(query);
 
   const expectedResult = {
-    query: 'SELECT FROM users where (age in ($1) and age in ($1)) or (age in ($2))',
+    query:
+      'SELECT FROM users where (age in ($1) and age in ($1)) or (age in ($2))',
     mapping: [
       {
         name: 'ages',
@@ -210,7 +217,8 @@ test('(TS) multiple value list (array) parameter interpolation', () => {
   };
 
   const expectedResult = {
-    query: 'SELECT FROM users where age in ($1, $2, $3) or parent_age in ($1, $2, $3)',
+    query:
+      'SELECT FROM users where age in ($1, $2, $3) or parent_age in ($1, $2, $3)',
     bindings: [23, 27, 50],
     mapping: [],
   };
@@ -333,7 +341,6 @@ test('(TS) multiple value list parameter interpolation twice', () => {
 
   expect(result).toEqual(expectedResult);
 });
-
 
 test('(TS) all kinds mapping ', () => {
   const query =

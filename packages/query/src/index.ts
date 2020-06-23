@@ -11,7 +11,10 @@ export { processSQLQueryAST } from './preprocessor-sql';
 
 export { AsyncQueue } from '@pgtyped/wire';
 
-export { default as parseTypeScriptFile, TSQueryAST } from './loader/typescript';
+export {
+  default as parseTypeScriptFile,
+  TSQueryAST,
+} from './loader/typescript';
 
 export {
   default as parseSQLFile,

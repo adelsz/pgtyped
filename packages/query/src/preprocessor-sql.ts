@@ -1,12 +1,15 @@
-import { assert, SQLQueryAST, TransformType } from "./loader/sql";
+import { assert, SQLQueryAST, TransformType } from './loader/sql';
 import {
   IInterpolatedQuery,
   INestedParameters,
-  IQueryParameters, IScalarArrayParam,
+  IQueryParameters,
+  IScalarArrayParam,
   IScalarParam,
   ParamTransform,
-  QueryParam, replaceIntervals, Scalar
-} from "./preprocessor";
+  QueryParam,
+  replaceIntervals,
+  Scalar,
+} from './preprocessor';
 
 /* Processes query AST formed by new parser from pure SQL files */
 export const processSQLQueryAST = (
@@ -70,7 +73,7 @@ export const processSQLQueryAST = (
           if (passedParams) {
             const paramValue = passedParams[
               usedParam.name
-              ] as INestedParameters;
+            ] as INestedParameters;
             const val = paramValue[pickKey];
             bindings.push(val);
           }

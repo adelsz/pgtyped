@@ -4,10 +4,11 @@ import {
   parseSQLFile,
   parseTypeScriptFile,
   prettyPrintEvents,
-  processTSQueryAST, processSQLQueryAST,
+  processTSQueryAST,
+  processSQLQueryAST,
   SQLQueryAST,
   TSQueryAST,
-} from "@pgtyped/query";
+} from '@pgtyped/query';
 import { camelCase } from 'camel-case';
 import { pascalCase } from 'pascal-case';
 import { ProcessingMode } from './index';
@@ -36,8 +37,8 @@ export const generateTypeAlias = (typeName: string, alias: string) =>
 
 type ParsedQuery =
   | {
-  ast: TSQueryAST;
-  mode: ProcessingMode.TS;
+      ast: TSQueryAST;
+      mode: ProcessingMode.TS;
     }
   | {
       ast: SQLQueryAST;
@@ -105,7 +106,10 @@ export async function queryToTypeDeclarations(
       param.type === ParamTransform.Spread
     ) {
       const isArray = param.type === ParamTransform.Spread;
-      const assignedIndex = param.assignedIndex instanceof Array ? param.assignedIndex[0] : param.assignedIndex;
+      const assignedIndex =
+        param.assignedIndex instanceof Array
+          ? param.assignedIndex[0]
+          : param.assignedIndex;
       const pgTypeName = params[assignedIndex - 1];
       let tsTypeName = types.use(pgTypeName);
       tsTypeName += ' | null | void';
@@ -162,25 +166,27 @@ export async function queryToTypeDeclarations(
   );
 }
 
-type ITypedQuery = {
-  mode: 'ts';
-  fileName: string;
-  query: {
-    name: string;
-    ast: TSQueryAST;
-  };
-  typeDeclaration: string;
-} | {
-  mode: 'sql';
-  fileName: string;
-  query: {
-    name: string;
-    ast: SQLQueryAST;
-    paramTypeAlias: string;
-    returnTypeAlias: string;
-  };
-  typeDeclaration: string;
-}
+type ITypedQuery =
+  | {
+      mode: 'ts';
+      fileName: string;
+      query: {
+        name: string;
+        ast: TSQueryAST;
+      };
+      typeDeclaration: string;
+    }
+  | {
+      mode: 'sql';
+      fileName: string;
+      query: {
+        name: string;
+        ast: SQLQueryAST;
+        paramTypeAlias: string;
+        returnTypeAlias: string;
+      };
+      typeDeclaration: string;
+    };
 
 async function generateTypedecsFromFile(
   contents: string,
@@ -192,7 +198,10 @@ async function generateTypedecsFromFile(
 ): Promise<ITypedQuery[]> {
   const results: ITypedQuery[] = [];
 
-  const { queries, events } = mode === 'ts' ? parseTypeScriptFile(contents, fileName) : parseSQLFile(contents, fileName);
+  const { queries, events } =
+    mode === 'ts'
+      ? parseTypeScriptFile(contents, fileName)
+      : parseSQLFile(contents, fileName);
   if (events.length > 0) {
     prettyPrintEvents(contents, events);
     if (events.find((e) => 'critical' in e)) {

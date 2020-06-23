@@ -4,10 +4,17 @@ import { ParseTreeWalker } from 'antlr4ts/tree/ParseTreeWalker';
 import { QueryLexer } from './parser/QueryLexer';
 import {
   ParamContext,
-  ParamNameContext, PickKeyContext, QueryContext,
-  QueryParser
-} from "./parser/QueryParser";
-import { Logger, ParseEvent, ParseEventType, ParseWarningType } from '../sql/logger';
+  ParamNameContext,
+  PickKeyContext,
+  QueryContext,
+  QueryParser,
+} from './parser/QueryParser';
+import {
+  Logger,
+  ParseEvent,
+  ParseEventType,
+  ParseWarningType,
+} from '../sql/logger';
 import { Interval } from 'antlr4ts/misc';
 
 export enum ParamType {
@@ -19,16 +26,15 @@ export enum ParamType {
 
 export type ParamSelection =
   | {
-  type: ParamType.Scalar;
-} | {
-  type: ParamType.ScalarArray;
-}
+      type: ParamType.Scalar;
+    }
   | {
-  type:
-    | ParamType.Object
-    | ParamType.ObjectArray;
-  keys: string[];
-};
+      type: ParamType.ScalarArray;
+    }
+  | {
+      type: ParamType.Object | ParamType.ObjectArray;
+      keys: string[];
+    };
 
 export interface Param {
   name: string;

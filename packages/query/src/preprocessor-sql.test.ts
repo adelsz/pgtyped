@@ -1,6 +1,6 @@
-import parseSQLQuery from "./loader/sql";
-import { processSQLQueryAST } from "./preprocessor-sql";
-import { ParamTransform } from "./preprocessor";
+import parseSQLQuery from './loader/sql';
+import { processSQLQueryAST } from './preprocessor-sql';
+import { ParamTransform } from './preprocessor';
 
 test('(SQL) no params', () => {
   const query = `

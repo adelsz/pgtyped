@@ -1,8 +1,8 @@
 import { processTSQueryAST } from './preprocessor-ts';
 import { processSQLQueryAST } from './preprocessor-sql';
 import { Query as QueryAST } from './loader/sql';
-import { parseTSQuery, TSQueryAST } from "./loader/typescript";
-import { parseTypeScriptFile } from "./index";
+import { parseTSQuery, TSQueryAST } from './loader/typescript';
+import { parseTypeScriptFile } from './index';
 
 interface IDatabaseConnection {
   query: (query: string, bindings: any[]) => Promise<{ rows: any[] }>;
@@ -35,7 +35,9 @@ interface ITypePair {
   result: any;
 }
 
-const sql = <TTypePair extends ITypePair>(stringsArray: TemplateStringsArray) => {
+const sql = <TTypePair extends ITypePair>(
+  stringsArray: TemplateStringsArray,
+) => {
   const { query } = parseTSQuery(stringsArray[0]);
   return new TaggedQuery<TTypePair>(query);
 };

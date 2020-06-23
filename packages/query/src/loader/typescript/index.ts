@@ -1,6 +1,6 @@
 import ts from 'typescript';
-import parseQuery, { Query } from "./query";
-import { ParseEvent } from "../sql/logger";
+import parseQuery, { Query } from './query';
+import { ParseEvent } from '../sql/logger';
 
 export const parseTSQuery = parseQuery;
 
@@ -41,7 +41,10 @@ export function parseFile(sourceFile: ts.SourceFile): TSParseResult {
   const queries: TSQueryAST[] = [];
   const events: ParseEvent[] = [];
   for (const node of foundNodes) {
-    const {query, events: qEvents} = parseQuery(node.queryText, node.queryName);
+    const { query, events: qEvents } = parseQuery(
+      node.queryText,
+      node.queryName,
+    );
     queries.push(query);
     events.push(...qEvents);
   }

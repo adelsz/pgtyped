@@ -1,7 +1,10 @@
 import { Client } from 'pg';
 import { getBooksByAuthorName, insertBooks } from './books/books.queries';
 import { getAllComments } from './comments/comments.queries';
-import { insertNotification, insertNotifications } from "./notifications/notifications";
+import {
+  insertNotification,
+  insertNotifications,
+} from './notifications/notifications';
 import {
   sendNotifications,
   thresholdFrogs,

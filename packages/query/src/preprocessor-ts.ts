@@ -1,16 +1,19 @@
-import { TSQueryAST } from "./loader/typescript";
-import { ParamType } from "./loader/typescript/query";
-import { assert } from "./loader/sql";
+import { TSQueryAST } from './loader/typescript';
+import { ParamType } from './loader/typescript/query';
+import { assert } from './loader/sql';
 import {
   IDictArrayParam,
   IDictParam,
   IInterpolatedQuery,
   INestedParameters,
-  IQueryParameters, IScalarArrayParam,
+  IQueryParameters,
+  IScalarArrayParam,
   IScalarParam,
   ParamTransform,
-  QueryParam, replaceIntervals, Scalar
-} from "./preprocessor";
+  QueryParam,
+  replaceIntervals,
+  Scalar,
+} from './preprocessor';
 
 function processScalar(
   paramName: string,
@@ -19,9 +22,9 @@ function processScalar(
   parameters?: IQueryParameters,
 ): {
   replacement: string;
-  bindings: Scalar[],
+  bindings: Scalar[];
   nextIndex: number;
-  config: IScalarParam,
+  config: IScalarParam;
 } {
   let index = nextIndex;
   const bindings = [];
@@ -32,7 +35,7 @@ function processScalar(
   } else {
     const assignedIndex = ++index;
     replacement = `$${assignedIndex}`;
-    config = {assignedIndex, type: ParamTransform.Scalar, name: paramName};
+    config = { assignedIndex, type: ParamTransform.Scalar, name: paramName };
 
     if (parameters) {
       const value = parameters[paramName] as Scalar;
@@ -49,9 +52,9 @@ function processScalarArray(
   parameters?: IQueryParameters,
 ): {
   replacement: string;
-  bindings: Scalar[],
+  bindings: Scalar[];
   nextIndex: number;
-  config: IScalarArrayParam,
+  config: IScalarArrayParam;
 } {
   let index = nextIndex;
   const bindings: Scalar[] = [];
@@ -63,16 +66,16 @@ function processScalarArray(
   } else {
     if (parameters) {
       const values = parameters[paramName] as Scalar[];
-      assignedIndex = values.map(val => {
+      assignedIndex = values.map((val) => {
         bindings.push(val);
         return ++index;
       });
     } else {
       assignedIndex = [++index];
     }
-    config = {assignedIndex, type: ParamTransform.Spread, name: paramName};
+    config = { assignedIndex, type: ParamTransform.Spread, name: paramName };
   }
-  const replacement = '(' + assignedIndex.map(v => `$${v}`).join(', ') + ')';
+  const replacement = '(' + assignedIndex.map((v) => `$${v}`).join(', ') + ')';
 
   return { bindings, replacement, nextIndex: index, config };
 }
@@ -85,22 +88,28 @@ function processObject(
   parameters?: IQueryParameters,
 ): {
   replacement: string;
-  bindings: Scalar[],
+  bindings: Scalar[];
   nextIndex: number;
-  config: IDictParam,
+  config: IDictParam;
 } {
   let index = nextIndex;
   const bindings: Scalar[] = [];
-  let config = existingConfig || { name: paramName, type: ParamTransform.Pick, dict: {}} as IDictParam;
+  const config =
+    existingConfig ||
+    ({ name: paramName, type: ParamTransform.Pick, dict: {} } as IDictParam);
 
-  const keyIndices = keys.map(key => {
+  const keyIndices = keys.map((key) => {
     if (key in config.dict) {
       // reuse index if parameter was seen before
       return `$${config.dict[key].assignedIndex}`;
     }
 
     const assignedIndex = ++index;
-    config.dict[key] = {assignedIndex, type: ParamTransform.Scalar, name: key};
+    config.dict[key] = {
+      assignedIndex,
+      type: ParamTransform.Scalar,
+      name: key,
+    };
     if (parameters) {
       const value = (parameters[paramName] as INestedParameters)[key];
       bindings.push(value);
@@ -120,30 +129,47 @@ function processObjectArray(
   parameters?: IQueryParameters,
 ): {
   replacement: string;
-  bindings: Scalar[],
+  bindings: Scalar[];
   nextIndex: number;
-  config: IDictArrayParam,
+  config: IDictArrayParam;
 } {
   let index = nextIndex;
   const bindings: Scalar[] = [];
-  let config = existingConfig || { name: paramName, type: ParamTransform.PickSpread, dict: {}} as IDictArrayParam;
+  const config =
+    existingConfig ||
+    ({
+      name: paramName,
+      type: ParamTransform.PickSpread,
+      dict: {},
+    } as IDictArrayParam);
 
   let replacement;
   if (parameters) {
     const values = parameters[paramName] as INestedParameters[];
-    replacement = values.map(val => keys.map(key => {
-      bindings.push(val[key]);
-      return `$${++index}`;
-    }).join(', ')).map(pk => `(${pk})`).join(', ');
+    replacement = values
+      .map((val) =>
+        keys
+          .map((key) => {
+            bindings.push(val[key]);
+            return `$${++index}`;
+          })
+          .join(', '),
+      )
+      .map((pk) => `(${pk})`)
+      .join(', ');
   } else {
-    const keyIndices = keys.map( key => {
+    const keyIndices = keys.map((key) => {
       if (key in config.dict) {
         // reuse index if parameter was seen before
         return `$${config.dict[key].assignedIndex}`;
       }
 
       const assignedIndex = ++index;
-      config.dict[key] = {assignedIndex, type: ParamTransform.Scalar, name: key};
+      config.dict[key] = {
+        assignedIndex,
+        type: ParamTransform.Scalar,
+        name: key,
+      };
       return `$${assignedIndex}`;
     });
     replacement = '(' + keyIndices.join(', ') + ')';
@@ -175,15 +201,42 @@ export const processTSQueryAST = (
       result = processScalarArray(param.name, i, prevConfig, parameters);
     }
     if (param.selection.type === ParamType.Object) {
-      const prevConfig: IDictParam = baseMap[param.name] as IDictParam || { name: param.name, type: ParamTransform.Pick, dict: {}};
-      result = processObject(param.name, param.selection.keys, i, prevConfig, parameters);
+      const prevConfig: IDictParam = (baseMap[param.name] as IDictParam) || {
+        name: param.name,
+        type: ParamTransform.Pick,
+        dict: {},
+      };
+      result = processObject(
+        param.name,
+        param.selection.keys,
+        i,
+        prevConfig,
+        parameters,
+      );
     }
     if (param.selection.type === ParamType.ObjectArray) {
-      const prevConfig: IDictArrayParam = baseMap[param.name] as IDictArrayParam || { name: param.name, type: ParamTransform.PickSpread, dict: {}};
-      result = processObjectArray(param.name, param.selection.keys, i, prevConfig, parameters);
+      const prevConfig: IDictArrayParam = (baseMap[
+        param.name
+      ] as IDictArrayParam) || {
+        name: param.name,
+        type: ParamTransform.PickSpread,
+        dict: {},
+      };
+      result = processObjectArray(
+        param.name,
+        param.selection.keys,
+        i,
+        prevConfig,
+        parameters,
+      );
     }
     assert(result);
-    ({config, nextIndex: i, replacement: sub, bindings: paramBindings } = result);
+    ({
+      config,
+      nextIndex: i,
+      replacement: sub,
+      bindings: paramBindings,
+    } = result);
     baseMap[param.name] = config!;
     bindings.push(...paramBindings);
     intervals.push({ a: param.location.a, b: param.location.b, sub });

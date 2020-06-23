@@ -1,5 +1,5 @@
 import * as queryModule from '@pgtyped/query';
-import { parseSQLFile, parseTypeScriptFile } from "@pgtyped/query";
+import { parseSQLFile, parseTypeScriptFile } from '@pgtyped/query';
 import { IQueryTypes } from '@pgtyped/query/lib/actions';
 import { generateInterface, queryToTypeDeclarations } from './generator';
 import { ProcessingMode } from './index';
@@ -15,7 +15,7 @@ function parsedQuery(
 ): Parameters<typeof queryToTypeDeclarations>[0] {
   return mode === ProcessingMode.SQL
     ? { mode, ast: parseSQLFile(queryString).queries[0] }
-    : { mode, ast: parseTypeScriptFile(queryString).queries[0] }
+    : { mode, ast: parseTypeScriptFile(queryString).queries[0] };
 }
 
 describe('query-to-interface translation', () => {
