@@ -4,6 +4,7 @@ import { IQueryTypes } from '@pgtyped/query/lib/actions';
 import { generateInterface, queryToTypeDeclarations } from './generator';
 import { ProcessingMode } from './index';
 import { DefaultTypeMapping, TypeAllocator } from './types';
+import { ParsedConfig } from './config';
 
 const getTypesMocked = jest.spyOn(queryModule, 'getTypes').mockName('getTypes');
 
@@ -58,6 +59,7 @@ describe('query-to-interface translation', () => {
         parsedQuery(mode, 'GetNotifications', queryString),
         null,
         types,
+        {} as ParsedConfig,
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
 
@@ -133,6 +135,7 @@ export interface IGetNotificationsQuery {
         parsedQuery(mode, 'DeleteUsers', queryString),
         null,
         types,
+        {} as ParsedConfig,
       );
       const expected = `/** 'DeleteUsers' parameters type */
 export interface IDeleteUsersParams {
@@ -154,6 +157,73 @@ export interface IDeleteUsersQuery {
 }
 
 `;
+      expect(result).toEqual(expected);
+    });
+
+    test(`TypeMapping and declarations camelCase (${mode})`, async () => {
+      const queryString = `
+    /* @name GetNotifications */
+    SELECT payload, type FROM notifications WHERE id = :userId;
+    `;
+      const mockTypes: IQueryTypes = {
+        returnTypes: [
+          {
+            returnName: 'payload_camel_case',
+            columnName: 'payload',
+            type: 'json',
+            nullable: false,
+          },
+          {
+            returnName: 'type_camel_case',
+            columnName: 'type',
+            type: { name: 'PayloadType', enumValues: ['message', 'dynamite'] },
+            nullable: false,
+          },
+        ],
+        paramMetadata: {
+          params: ['uuid'],
+          mapping: [
+            {
+              name: 'id',
+              type: queryModule.ParamTransform.Scalar,
+              assignedIndex: 1,
+            },
+          ],
+        },
+      };
+      getTypesMocked.mockResolvedValue(mockTypes);
+      const types = new TypeAllocator(DefaultTypeMapping);
+      // Test out imports
+      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
+      const result = await queryToTypeDeclarations(
+        parsedQuery(mode, 'GetNotifications', queryString),
+        null,
+        types,
+        { camelCaseColumnNames: true } as ParsedConfig,
+      );
+      const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
+
+export type PayloadType = 'message' | 'dynamite';
+
+export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
+
+      expect(types.declaration()).toEqual(expectedTypes);
+      const expected = `/** 'GetNotifications' parameters type */
+export interface IGetNotificationsParams {
+  id: string | null | void;
+}
+
+/** 'GetNotifications' return type */
+export interface IGetNotificationsResult {
+  payloadCamelCase: Json;
+  typeCamelCase: PayloadType;
+}
+
+/** 'GetNotifications' query type */
+export interface IGetNotificationsQuery {
+  params: IGetNotificationsParams;
+  result: IGetNotificationsResult;
+}\n\n`;
       expect(result).toEqual(expected);
     });
   });
