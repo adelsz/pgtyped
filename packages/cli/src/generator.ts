@@ -101,7 +101,8 @@ export async function queryToTypeDeclarations(
       param.type === ParamTransform.Spread
     ) {
       const isArray = param.type === ParamTransform.Spread;
-      const pgTypeName = params[param.assignedIndex - 1];
+      const assignedIndex = param.assignedIndex instanceof Array ? param.assignedIndex[0] : param.assignedIndex;
+      const pgTypeName = params[assignedIndex - 1];
       let tsTypeName = types.use(pgTypeName);
       tsTypeName += ' | null | void';
 

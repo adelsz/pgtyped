@@ -21,6 +21,62 @@ test('(TS) name parameter interpolation', () => {
   expect(result).toEqual(expectedResult);
 });
 
+test('(TS) pick parameter interpolation (multiline)', () => {
+  const query = `
+    INSERT INTO notifications (payload, user_id, type)
+    VALUES $notification(payload, user_id, type)
+  `;
+  const parsedQuery = parseTSQuery(query);
+  const parameters = {
+    notification: {
+      user_id: 1,
+      payload: { num_frogs: 1002 },
+      type: 'reminder',
+    },
+  };
+
+  const expectedResult = {
+    query: `
+    INSERT INTO notifications (payload, user_id, type)
+    VALUES ($1, $2, $3)`,
+    mapping: [],
+    bindings: [{ num_frogs: 1002 }, 1, 'reminder'],
+  };
+
+  const result = processTSQueryAST(parsedQuery.query, parameters as any);
+
+  expect(result).toEqual(expectedResult);
+});
+
+test('(TS) pick array parameter interpolation (multiline)', () => {
+  const query = `
+    INSERT INTO notifications (payload, user_id, type)
+    VALUES $$params(payload, user_id, type)
+  `;
+  const parsedQuery = parseTSQuery(query);
+  const parameters = {
+      params: [
+        {
+          user_id: 1,
+          payload: { num_frogs: 1002 },
+          type: 'reminder',
+        },
+      ],
+    };
+
+  const expectedResult = {
+    query: `
+    INSERT INTO notifications (payload, user_id, type)
+    VALUES ($1, $2, $3)`,
+    mapping: [],
+    bindings: [{ num_frogs: 1002 }, 1, 'reminder'],
+  };
+
+  const result = processTSQueryAST(parsedQuery.query, parameters as any);
+
+  expect(result).toEqual(expectedResult);
+});
+
 test('(TS) scalar param used twice', () => {
   const query = 'SELECT id, name from users where id = $id and parent_id = $id';
   const parsedQuery = parseTSQuery(query);

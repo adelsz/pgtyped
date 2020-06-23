@@ -140,19 +140,20 @@ export async function getTypeData(
   name: string,
   queue: AsyncQueue,
 ): Promise<TypeData> {
+  const uniqueName = crypto.createHash('md5').update(query).digest("hex");
   // Send all the messages needed and then flush
   await queue.send(messages.parse, {
-    name,
+    name: uniqueName,
     query,
     dataTypes: [],
   });
   await queue.send(messages.describe, {
-    name,
+    name: uniqueName,
     type: PreparedObjectType.Statement,
   });
   await queue.send(messages.close, {
     target: PreparedObjectType.Statement,
-    targetName: name,
+    targetName: uniqueName,
   });
   await queue.send(messages.flush, {});
 

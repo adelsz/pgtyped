@@ -21,3 +21,21 @@ export interface IInsertNotificationsQuery {
   result: IInsertNotificationsResult;
 }
 
+/** 'insertNotification' parameters type */
+export interface IInsertNotificationParams {
+  notification: {
+    payload: Json,
+    user_id: number,
+    type: notification_type
+  };
+}
+
+/** 'insertNotification' return type */
+export type IInsertNotificationResult = void;
+
+/** 'insertNotification' query type */
+export interface IInsertNotificationQuery {
+  params: IInsertNotificationParams;
+  result: IInsertNotificationResult;
+}
+

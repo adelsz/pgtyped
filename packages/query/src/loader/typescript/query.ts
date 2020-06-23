@@ -66,31 +66,11 @@ class ParseListener implements QueryParserListener {
     this.logger = logger;
   }
 
-  exitQuery() {
-/*
-    const currentQuery = this.currentQuery as Query;
-    currentQuery.params.forEach((p) => {
-      const paramUsed = p.name in currentQuery.usedParamSet;
-      if (!paramUsed) {
-        this.logger.logEvent({
-          type: ParseEventType.Warning,
-          message: {
-            type: ParseWarningType.ParamNeverUsed,
-            text: `Parameter "${p.name}" is defined but never used`,
-          },
-          location: p.codeRefs.defined,
-        });
-      }
-    });
-    this.parseTree.queries.push(currentQuery);
-*/
-  }
-
   enterQuery(ctx: QueryContext) {
     const { inputStream } = ctx.start;
-    const a = ctx.start.startIndex;
-    const b = ctx.stop!.stopIndex;
-    const interval = new Interval(a, b);
+    const end = ctx.stop!.stopIndex;
+
+    const interval = new Interval(0, end);
     const text = inputStream!.getText(interval);
     this.query = {
       text,
@@ -169,6 +149,7 @@ function parseText(
 
   const listener = new ParseListener(queryName, logger);
   ParseTreeWalker.DEFAULT.walk(listener as QueryParserListener, tree);
+
   return {
     query: listener.query as any,
     events: logger.parseEvents,

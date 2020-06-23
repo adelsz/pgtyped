@@ -1,7 +1,7 @@
 import { processTSQueryAST } from './preprocessor-ts';
 import { processSQLQueryAST } from './preprocessor-sql';
 import { Query as QueryAST } from './loader/sql';
-import { TSQueryAST } from "./loader/typescript";
+import { parseTSQuery, TSQueryAST } from "./loader/typescript";
 import { parseTypeScriptFile } from "./index";
 
 interface IDatabaseConnection {
@@ -35,8 +35,10 @@ interface ITypePair {
   result: any;
 }
 
-const sql = <TTypePair extends ITypePair>(stringsArray: TemplateStringsArray) =>
-  new TaggedQuery<TTypePair>(parseTypeScriptFile(stringsArray[0]).queries[0]);
+const sql = <TTypePair extends ITypePair>(stringsArray: TemplateStringsArray) => {
+  const { query } = parseTSQuery(stringsArray[0]);
+  return new TaggedQuery<TTypePair>(query);
+};
 
 /* Used for pure SQL */
 export class PreparedQuery<TParamType, TResultType> {

@@ -131,8 +131,8 @@ function processObjectArray(
   let replacement;
   if (parameters) {
     const values = parameters[paramName] as INestedParameters[];
-    replacement = values.map(val => Object.values(val).map(v => {
-      bindings.push(v);
+    replacement = values.map(val => keys.map(key => {
+      bindings.push(val[key]);
       return `$${++index}`;
     }).join(', ')).map(pk => `(${pk})`).join(', ');
   } else {
