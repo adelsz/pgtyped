@@ -79,6 +79,7 @@ class ParseListener implements QueryParserListener {
     const interval = new Interval(0, end);
     const text = inputStream!.getText(interval);
     this.query = {
+      name: this.query.name,
       text,
       params: [],
     };

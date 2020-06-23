@@ -54,10 +54,10 @@ export async function queryToTypeDeclarations(
   let queryData;
   let queryName;
   if (parsedQuery.mode === ProcessingMode.TS) {
-    queryName = parsedQuery.ast.name;
+    queryName = pascalCase(parsedQuery.ast.name);
     queryData = processTSQueryAST(parsedQuery.ast);
   } else {
-    queryName = parsedQuery.ast.name;
+    queryName = pascalCase(parsedQuery.ast.name);
     queryData = processSQLQueryAST(parsedQuery.ast);
   }
 
