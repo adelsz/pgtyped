@@ -344,11 +344,11 @@ test('(TS) multiple value list parameter interpolation twice', () => {
 
 test('(TS) all kinds mapping ', () => {
   const query =
-    '$userId $age $userId $$users $age $user(id) $$users $user(id, parentId) $$comments(id, text) $user(age)';
+    'SELECT $userId $age $userId $$users $age $user(id) $$users $user(id, parentId) $$comments(id, text) $user(age)';
   const parsedQuery = parseTSQuery(query);
 
   const expectedResult = {
-    query: '$1 $2 $1 ($3) $2 ($4) ($3) ($4, $5) ($6, $7) ($8)',
+    query: 'SELECT $1 $2 $1 ($3) $2 ($4) ($3) ($4, $5) ($6, $7) ($8)',
     bindings: [],
     mapping: [
       {

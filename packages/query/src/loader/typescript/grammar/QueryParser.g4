@@ -3,11 +3,11 @@ parser grammar QueryParser;
 options { tokenVocab = QueryLexer; }
 
 input
-    : query EOF
+    : query EOF_STATEMENT? EOF
     ;
 
 query
-    : (ignored* param ignored*)*
+    : ignored+ (param ignored*)*
     ;
 
 ignored: (ID | WORD | STRING | COMMA | OB | CB | SPECIAL)+;

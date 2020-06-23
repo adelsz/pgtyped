@@ -4,12 +4,13 @@ exports[`array param 1`] = `
 Object {
   "events": Array [],
   "query": Object {
+    "name": "query",
     "params": Array [
       Object {
         "location": Object {
-          "a": 34,
+          "a": 32,
           "b": 36,
-          "col": 34,
+          "col": 32,
           "line": 1,
         },
         "name": "ids",
@@ -27,12 +28,13 @@ exports[`array spread param 1`] = `
 Object {
   "events": Array [],
   "query": Object {
+    "name": "query",
     "params": Array [
       Object {
         "location": Object {
-          "a": 72,
-          "b": 80,
-          "col": 11,
+          "a": 70,
+          "b": 116,
+          "col": 9,
           "line": 2,
         },
         "name": "customers",
@@ -56,12 +58,13 @@ exports[`pick param 1`] = `
 Object {
   "events": Array [],
   "query": Object {
+    "name": "query",
     "params": Array [
       Object {
         "location": Object {
-          "a": 33,
-          "b": 43,
-          "col": 33,
+          "a": 32,
+          "b": 61,
+          "col": 32,
           "line": 1,
         },
         "name": "activeUsers",
@@ -83,12 +86,13 @@ exports[`scalar param 1`] = `
 Object {
   "events": Array [],
   "query": Object {
+    "name": "query",
     "params": Array [
       Object {
         "location": Object {
-          "a": 32,
+          "a": 31,
           "b": 33,
-          "col": 32,
+          "col": 31,
           "line": 1,
         },
         "name": "id",
@@ -98,9 +102,9 @@ Object {
       },
       Object {
         "location": Object {
-          "a": 47,
+          "a": 46,
           "b": 51,
-          "col": 47,
+          "col": 46,
           "line": 1,
         },
         "name": "title",

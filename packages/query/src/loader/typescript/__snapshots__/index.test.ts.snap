@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`parser finds string template in correct file 1`] = `
+Object {
+  "events": Array [],
+  "queries": Array [
+    Object {
+      "name": "query",
+      "params": Array [],
+      "text": "select id, name, age from users",
+    },
+  ],
+}
+`;
+
+exports[`parser finds string template in incorrect file 1`] = `
+Object {
+  "events": Array [],
+  "queries": Array [
+    Object {
+      "name": "query",
+      "params": Array [],
+      "text": "select id, name, age from users",
+    },
+  ],
+}
+`;
