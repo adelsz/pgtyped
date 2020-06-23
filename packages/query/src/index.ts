@@ -4,17 +4,21 @@ export {
   ParamTransform,
   IQueryParameters,
   IInterpolatedQuery,
-  processQueryAST,
-  processQueryString,
 } from './preprocessor';
+
+export { processTSQueryAST } from './preprocessor-ts';
+export { processSQLQueryAST } from './preprocessor-sql';
 
 export { AsyncQueue } from '@pgtyped/wire';
 
-export { default as parseTypeScriptFile } from './loader/typescript';
+export {
+  default as parseTypeScriptFile,
+  TSQueryAST,
+} from './loader/typescript';
 
 export {
   default as parseSQLFile,
-  Query as QueryAST,
+  SQLQueryAST,
   prettyPrintEvents,
 } from './loader/sql';
 

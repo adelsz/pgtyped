@@ -1,20 +1,3 @@
-/*
--- @name GetAllUsers
--- @param userNames -> (...)
--- @param user -> (name,age)
--- @param users -> ((name,age)...)
-select * from $userNames;
-select * from $books $filterById;
-*/
-
-
-/*
-  @name GetAllUsers
-  @param userNames -> (...)
-  @param user -> (name,age)
-  @param users -> ((name,age)...)
-*/
-
 parser grammar SQLParser;
 
 options { tokenVocab = SQLLexer; }

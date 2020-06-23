@@ -1,5 +1,5 @@
 import * as queryModule from '@pgtyped/query';
-import { parseSQLFile } from '@pgtyped/query';
+import { parseSQLFile, parseTypeScriptFile } from '@pgtyped/query';
 import { IQueryTypes } from '@pgtyped/query/lib/actions';
 import { generateInterface, queryToTypeDeclarations } from './generator';
 import { ProcessingMode } from './index';
@@ -10,21 +10,25 @@ const getTypesMocked = jest.spyOn(queryModule, 'getTypes').mockName('getTypes');
 
 function parsedQuery(
   mode: ProcessingMode,
-  name: string,
   queryString: string,
 ): Parameters<typeof queryToTypeDeclarations>[0] {
   return mode === ProcessingMode.SQL
-    ? { mode, ast: parseSQLFile(queryString).parseTree.queries[0] }
-    : { mode, name, body: queryString };
+    ? { mode, ast: parseSQLFile(queryString).queries[0] }
+    : { mode, ast: parseTypeScriptFile(queryString).queries[0] };
 }
 
 describe('query-to-interface translation', () => {
   [ProcessingMode.SQL, ProcessingMode.TS].forEach((mode) => {
     test(`TypeMapping and declarations (${mode})`, async () => {
-      const queryString = `
+      const queryStringSQL = `
     /* @name GetNotifications */
     SELECT payload, type FROM notifications WHERE id = :userId;
     `;
+      const queryStringTS = `
+      const getNotifications = sql\`SELECT payload, type FROM notifications WHERE id = $userId\`;
+      `;
+      const queryString =
+        mode === ProcessingMode.SQL ? queryStringSQL : queryStringTS;
       const mockTypes: IQueryTypes = {
         returnTypes: [
           {
@@ -56,7 +60,7 @@ describe('query-to-interface translation', () => {
       // Test out imports
       types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
       const result = await queryToTypeDeclarations(
-        parsedQuery(mode, 'GetNotifications', queryString),
+        parsedQuery(mode, queryString),
         null,
         types,
         {} as ParsedConfig,
@@ -88,10 +92,13 @@ export interface IGetNotificationsQuery {
     });
 
     test(`DeleteUsers by UUID (${mode})`, async () => {
-      const queryString = `
+      const queryStringSQL = `
     /* @name DeleteUsers */
       delete from users * where name = :userName and id = :userId and note = :userNote returning id, id, name, note as bote;
     `;
+      const queryStringTS = `const deleteUsers = sql\`delete from users * where name = $userName and id = $userId and note = $userNote returning id, id, name, note as bote\``;
+      const queryString =
+        mode === ProcessingMode.SQL ? queryStringSQL : queryStringTS;
       const mockTypes: IQueryTypes = {
         returnTypes: [
           {
@@ -132,7 +139,7 @@ export interface IGetNotificationsQuery {
       const types = new TypeAllocator(DefaultTypeMapping);
       getTypesMocked.mockResolvedValue(mockTypes);
       const result = await queryToTypeDeclarations(
-        parsedQuery(mode, 'DeleteUsers', queryString),
+        parsedQuery(mode, queryString),
         null,
         types,
         {} as ParsedConfig,
@@ -161,10 +168,15 @@ export interface IDeleteUsersQuery {
     });
 
     test(`TypeMapping and declarations camelCase (${mode})`, async () => {
-      const queryString = `
+      const queryStringSQL = `
     /* @name GetNotifications */
     SELECT payload, type FROM notifications WHERE id = :userId;
     `;
+      const queryStringTS = `
+      const getNotifications = sql\`SELECT payload, type FROM notifications WHERE id = $userId\`;
+      `;
+      const queryString =
+        mode === ProcessingMode.SQL ? queryStringSQL : queryStringTS;
       const mockTypes: IQueryTypes = {
         returnTypes: [
           {
@@ -196,7 +208,7 @@ export interface IDeleteUsersQuery {
       // Test out imports
       types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
       const result = await queryToTypeDeclarations(
-        parsedQuery(mode, 'GetNotifications', queryString),
+        parsedQuery(mode, queryString),
         null,
         types,
         { camelCaseColumnNames: true } as ParsedConfig,

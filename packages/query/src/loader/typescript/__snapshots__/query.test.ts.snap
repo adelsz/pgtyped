@@ -1,0 +1,119 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`array param 1`] = `
+Object {
+  "events": Array [],
+  "query": Object {
+    "name": "query",
+    "params": Array [
+      Object {
+        "location": Object {
+          "a": 32,
+          "b": 36,
+          "col": 32,
+          "line": 1,
+        },
+        "name": "ids",
+        "selection": Object {
+          "type": "scalar_array",
+        },
+      },
+    ],
+    "text": "select * from users where id in $$ids",
+  },
+}
+`;
+
+exports[`array spread param 1`] = `
+Object {
+  "events": Array [],
+  "query": Object {
+    "name": "query",
+    "params": Array [
+      Object {
+        "location": Object {
+          "a": 70,
+          "b": 116,
+          "col": 9,
+          "line": 2,
+        },
+        "name": "customers",
+        "selection": Object {
+          "keys": Array [
+            "customerName",
+            "contactName",
+            "address",
+          ],
+          "type": "object_array",
+        },
+      },
+    ],
+    "text": "INSERT INTO customers (customer_name, contact_name, address)
+  VALUES $$customers(customerName, contactName, address)",
+  },
+}
+`;
+
+exports[`pick param 1`] = `
+Object {
+  "events": Array [],
+  "query": Object {
+    "name": "query",
+    "params": Array [
+      Object {
+        "location": Object {
+          "a": 32,
+          "b": 61,
+          "col": 32,
+          "line": 1,
+        },
+        "name": "activeUsers",
+        "selection": Object {
+          "keys": Array [
+            "userOne",
+            "userTwo",
+          ],
+          "type": "object",
+        },
+      },
+    ],
+    "text": "select * from users where id in $activeUsers(userOne, userTwo)",
+  },
+}
+`;
+
+exports[`scalar param 1`] = `
+Object {
+  "events": Array [],
+  "query": Object {
+    "name": "query",
+    "params": Array [
+      Object {
+        "location": Object {
+          "a": 31,
+          "b": 33,
+          "col": 31,
+          "line": 1,
+        },
+        "name": "id",
+        "selection": Object {
+          "type": "scalar",
+        },
+      },
+      Object {
+        "location": Object {
+          "a": 46,
+          "b": 51,
+          "col": 46,
+          "line": 1,
+        },
+        "name": "title",
+        "selection": Object {
+          "type": "scalar",
+        },
+      },
+    ],
+    "text": "select * from users where id = $id and title= $title",
+  },
+}
+`;

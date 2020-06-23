@@ -1,12 +1,19 @@
 import ts from 'typescript';
+import parseQuery, { Query } from './query';
+import { ParseEvent } from '../sql/logger';
+
+export const parseTSQuery = parseQuery;
+
+export type TSQueryAST = Query;
 
 interface INode {
   queryName: string;
-  tagName: string;
-  tagContent: string;
+  queryText: string;
 }
 
-export function parseFile(sourceFile: ts.SourceFile): INode[] {
+export type TSParseResult = { queries: TSQueryAST[]; events: ParseEvent[] };
+
+export function parseFile(sourceFile: ts.SourceFile): TSParseResult {
   const foundNodes: INode[] = [];
   parseNode(sourceFile);
 
@@ -15,22 +22,34 @@ export function parseFile(sourceFile: ts.SourceFile): INode[] {
       const queryName = node.parent.getChildren()[0].getText();
       const taggedTemplateNode = node as ts.TaggedTemplateExpression;
       const tagName = taggedTemplateNode.tag.getText();
-      const tagContent = taggedTemplateNode.template
+      const queryText = taggedTemplateNode.template
         .getText()
         .replace('\n', '')
         .slice(1, -1)
         .trim();
-      foundNodes.push({
-        queryName,
-        tagName,
-        tagContent,
-      });
+      if (tagName === 'sql') {
+        foundNodes.push({
+          queryName,
+          queryText,
+        });
+      }
     }
 
     ts.forEachChild(node, parseNode);
   }
 
-  return foundNodes;
+  const queries: TSQueryAST[] = [];
+  const events: ParseEvent[] = [];
+  for (const node of foundNodes) {
+    const { query, events: qEvents } = parseQuery(
+      node.queryText,
+      node.queryName,
+    );
+    queries.push(query);
+    events.push(...qEvents);
+  }
+
+  return { queries, events };
 }
 
 const parseCode = (fileContent: string, fileName = 'unnamed.ts') => {

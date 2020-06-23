@@ -1,10 +1,8 @@
-import {
-  processQueryString,
-  ParamTransform,
-  IQueryParameters,
-  processQueryAST,
-} from './preprocessor';
+import { processTSQueryAST } from './preprocessor-ts';
+import { processSQLQueryAST } from './preprocessor-sql';
 import { Query as QueryAST } from './loader/sql';
+import { parseTSQuery, TSQueryAST } from './loader/typescript';
+import { parseTypeScriptFile } from './index';
 
 interface IDatabaseConnection {
   query: (query: string, bindings: any[]) => Promise<{ rows: any[] }>;
@@ -17,12 +15,12 @@ export class TaggedQuery<TTypePair extends { params: any; result: any }> {
     dbConnection: IDatabaseConnection,
   ) => Promise<Array<TTypePair['result']>>;
 
-  private readonly query: string;
+  private readonly query: TSQueryAST;
 
-  constructor(query: string) {
+  constructor(query: TSQueryAST) {
     this.query = query;
     this.run = async (params, connection) => {
-      const { query: processedQuery, bindings } = processQueryString(
+      const { query: processedQuery, bindings } = processTSQueryAST(
         this.query,
         params as any,
       );
@@ -37,8 +35,12 @@ interface ITypePair {
   result: any;
 }
 
-const sql = <TTypePair extends ITypePair>(stringsArray: TemplateStringsArray) =>
-  new TaggedQuery<TTypePair>(stringsArray[0]);
+const sql = <TTypePair extends ITypePair>(
+  stringsArray: TemplateStringsArray,
+) => {
+  const { query } = parseTSQuery(stringsArray[0]);
+  return new TaggedQuery<TTypePair>(query);
+};
 
 /* Used for pure SQL */
 export class PreparedQuery<TParamType, TResultType> {
@@ -52,7 +54,7 @@ export class PreparedQuery<TParamType, TResultType> {
   constructor(query: QueryAST) {
     this.query = query;
     this.run = async (params, connection) => {
-      const { query: processedQuery, bindings } = processQueryAST(
+      const { query: processedQuery, bindings } = processSQLQueryAST(
         this.query,
         params as any,
       );

@@ -3,7 +3,7 @@ export type notification_type = 'notification' | 'reminder' | 'deadline';
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 
-/** 'insertNotifications' parameters type */
+/** 'InsertNotifications' parameters type */
 export interface IInsertNotificationsParams {
   params: Array<{
     payload: Json,
@@ -12,12 +12,30 @@ export interface IInsertNotificationsParams {
   }>;
 }
 
-/** 'insertNotifications' return type */
+/** 'InsertNotifications' return type */
 export type IInsertNotificationsResult = void;
 
-/** 'insertNotifications' query type */
+/** 'InsertNotifications' query type */
 export interface IInsertNotificationsQuery {
   params: IInsertNotificationsParams;
   result: IInsertNotificationsResult;
+}
+
+/** 'InsertNotification' parameters type */
+export interface IInsertNotificationParams {
+  notification: {
+    payload: Json,
+    user_id: number,
+    type: notification_type
+  };
+}
+
+/** 'InsertNotification' return type */
+export type IInsertNotificationResult = void;
+
+/** 'InsertNotification' query type */
+export interface IInsertNotificationQuery {
+  params: IInsertNotificationParams;
+  result: IInsertNotificationResult;
 }
 
