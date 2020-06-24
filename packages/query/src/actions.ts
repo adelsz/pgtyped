@@ -225,15 +225,20 @@ async function runTypesCatalogQuery(
   typeOIDs: number[],
   queue: AsyncQueue,
 ): Promise<TypeRow[]> {
-  const rows = await runQuery(
-    `
+  let rows: any[];
+  if (typeOIDs.length > 0) {
+    rows = await runQuery(
+      `
 SELECT pt.oid, pt.typname, pt.typtype, pe.enumlabel
 FROM pg_type pt
 LEFT JOIN pg_enum pe ON pt.oid = pe.enumtypid
 WHERE pt.oid IN (${typeOIDs.join(',')});
 `,
-    queue,
-  );
+      queue,
+    );
+  } else {
+    rows = [];
+  }
   return rows.map(([oid, typeName, typeKind, enumLabel]) => ({
     oid,
     typeName,

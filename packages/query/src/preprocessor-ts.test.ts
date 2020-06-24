@@ -342,6 +342,21 @@ test('(TS) multiple value list parameter interpolation twice', () => {
   expect(result).toEqual(expectedResult);
 });
 
+test('(TS) query with no params', () => {
+  const query = `UPDATE notifications SET payload = '{"a": "b"}'::jsonb`;
+  const parsedQuery = parseTSQuery(query);
+
+  const expectedResult = {
+    query: `UPDATE notifications SET payload = '{"a": "b"}'::jsonb`,
+    bindings: [],
+    mapping: [],
+  };
+
+  const result = processTSQueryAST(parsedQuery.query);
+
+  expect(result).toEqual(expectedResult);
+});
+
 test('(TS) all kinds mapping ', () => {
   const query =
     'SELECT $userId $age $userId $$users $age $user(id) $$users $user(id, parentId) $$comments(id, text) $user(age)';

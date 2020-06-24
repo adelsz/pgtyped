@@ -1,11 +1,11 @@
 /** Types generated for queries found in "./src/users/sample.ts" */
 
-/** 'getUsersWithComments' parameters type */
+/** 'GetUsersWithComments' parameters type */
 export interface IGetUsersWithCommentsParams {
   minCommentCount: number | null | void;
 }
 
-/** 'getUsersWithComments' return type */
+/** 'GetUsersWithComments' return type */
 export interface IGetUsersWithCommentsResult {
   id: number;
   email: string;
@@ -16,7 +16,7 @@ export interface IGetUsersWithCommentsResult {
   registration_date: Date;
 }
 
-/** 'getUsersWithComments' query type */
+/** 'GetUsersWithComments' query type */
 export interface IGetUsersWithCommentsQuery {
   params: IGetUsersWithCommentsParams;
   result: IGetUsersWithCommentsResult;
