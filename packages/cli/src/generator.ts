@@ -121,7 +121,10 @@ export async function queryToTypeDeclarations(
     } else {
       const isArray = param.type === ParamTransform.PickSpread;
       let fieldType = Object.values(param.dict)
-        .map((p) => `    ${p.name}: ${types.use(params[p.assignedIndex - 1])}`)
+        .map((p) => {
+          const paramType = types.use(params[p.assignedIndex - 1]);
+          return `    ${p.name}: ${paramType} | null | void`;
+        })
         .join(',\n');
       fieldType = `{\n${fieldType}\n  }`;
       if (isArray) {
