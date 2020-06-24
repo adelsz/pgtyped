@@ -91,6 +91,57 @@ export interface IGetNotificationsQuery {
       expect(result).toEqual(expected);
     });
 
+    test(`Insert notification query (${mode})`, async () => {
+      const queryStringSQL = `
+    /*
+      @name InsertNotifications
+      @param notification -> (payload, user_id, type)
+    */
+    INSERT INTO notifications (payload, user_id, type) VALUES :notification
+    `;
+      const queryStringTS = `const insertNotifications = sql\`INSERT INTO notifications (payload, user_id, type) VALUES $notification(payload, user_id, type)\`;`;
+      const queryString =
+        mode === ProcessingMode.SQL ? queryStringSQL : queryStringTS;
+      const mockTypes: IQueryTypes = {
+        returnTypes: [],
+        paramMetadata: {
+          params: ['json', 'uuid', 'text'],
+          mapping: [
+            {
+              name: 'notification',
+              type: queryModule.ParamTransform.Pick,
+              dict: {
+                payload: {
+                  name: 'payload',
+                  assignedIndex: 1,
+                  type: queryModule.ParamTransform.Scalar,
+                },
+                user_id: {
+                  name: 'user_id',
+                  assignedIndex: 2,
+                  type: queryModule.ParamTransform.Scalar,
+                },
+                type: {
+                  name: 'type',
+                  assignedIndex: 3,
+                  type: queryModule.ParamTransform.Scalar,
+                },
+              },
+            },
+          ],
+        },
+      };
+      const types = new TypeAllocator(DefaultTypeMapping);
+      getTypesMocked.mockResolvedValue(mockTypes);
+      const result = await queryToTypeDeclarations(
+        parsedQuery(mode, queryString),
+        null,
+        types,
+        {} as ParsedConfig,
+      );
+      expect(result).toMatchSnapshot();
+    });
+
     test(`DeleteUsers by UUID (${mode})`, async () => {
       const queryStringSQL = `
     /* @name DeleteUsers */

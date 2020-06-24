@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`query-to-interface translation Insert notification query (query-file) 1`] = `
+"/** 'InsertNotifications' parameters type */
+export interface IInsertNotificationsParams {
+  notification: {
+    payload: Json | null | void,
+    user_id: string | null | void,
+    type: string | null | void
+  };
+}
+
+/** 'InsertNotifications' return type */
+export type IInsertNotificationsResult = void;
+
+/** 'InsertNotifications' query type */
+export interface IInsertNotificationsQuery {
+  params: IInsertNotificationsParams;
+  result: IInsertNotificationsResult;
+}
+
+"
+`;
+
+exports[`query-to-interface translation Insert notification query (sql-file) 1`] = `
+"/** 'InsertNotifications' parameters type */
+export interface IInsertNotificationsParams {
+  notification: {
+    payload: Json | null | void,
+    user_id: string | null | void,
+    type: string | null | void
+  };
+}
+
+/** 'InsertNotifications' return type */
+export type IInsertNotificationsResult = void;
+
+/** 'InsertNotifications' query type */
+export interface IInsertNotificationsQuery {
+  params: IInsertNotificationsParams;
+  result: IInsertNotificationsResult;
+}
+
+"
+`;

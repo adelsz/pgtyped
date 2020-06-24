@@ -39,3 +39,20 @@ export interface IInsertNotificationQuery {
   result: IInsertNotificationResult;
 }
 
+/** 'GetAllNotifications' parameters type */
+export type IGetAllNotificationsParams = void;
+
+/** 'GetAllNotifications' return type */
+export interface IGetAllNotificationsResult {
+  id: number;
+  user_id: number | null;
+  payload: Json;
+  type: notification_type;
+}
+
+/** 'GetAllNotifications' query type */
+export interface IGetAllNotificationsQuery {
+  params: IGetAllNotificationsParams;
+  result: IGetAllNotificationsResult;
+}
+

@@ -2,6 +2,7 @@ import { sql } from '@pgtyped/query';
 import {
   IInsertNotificationQuery,
   IInsertNotificationsQuery,
+  IGetAllNotificationsQuery,
 } from './notifications.types';
 
 // Table order is (user_id, payload, type)
@@ -13,4 +14,8 @@ values $$params(payload, user_id, type)
 export const insertNotification = sql<IInsertNotificationQuery>`
     INSERT INTO notifications (payload, user_id, type)
     values $notification(payload, user_id, type)
+`;
+
+export const getAllNotifications = sql<IGetAllNotificationsQuery>`
+  SELECT * FROM notifications
 `;
