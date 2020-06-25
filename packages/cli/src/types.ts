@@ -23,7 +23,7 @@ export const DefaultTypeMapping = Object.freeze({
   // Integer types
   int2: Number,
   int4: Number,
-  int8: Number,
+  int8: String,
   smallint: Number,
   int: Number,
   bigint: String,
