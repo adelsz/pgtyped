@@ -146,17 +146,22 @@ function processObjectArray(
   let replacement;
   if (parameters) {
     const values = parameters[paramName] as INestedParameters[];
-    replacement = values
-      .map((val) =>
-        keys
-          .map((key) => {
-            bindings.push(val[key]);
-            return `$${++index}`;
-          })
-          .join(', '),
-      )
-      .map((pk) => `(${pk})`)
-      .join(', ');
+    if (values.length > 0) {
+      replacement = values
+        .map((val) =>
+          keys
+            .map((key) => {
+              bindings.push(val[key]);
+              return `$${++index}`;
+            })
+            .join(', '),
+        )
+        .map((pk) => `(${pk})`)
+        .join(', ');
+    } else {
+      // empty set for empty arrays
+      replacement = '()';
+    }
   } else {
     const keyIndices = keys.map((key) => {
       if (key in config.dict) {

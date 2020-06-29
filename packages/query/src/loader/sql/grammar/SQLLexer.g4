@@ -12,7 +12,7 @@ lexer grammar SQLLexer;
 tokens { ID }
 
 fragment QUOT: '\'';
-fragment ID: [a-zA-Z][a-zA-Z_0-9]*;
+fragment ID: [a-zA-Z_][a-zA-Z_0-9]*;
 
 OPEN_COMMENT: '/*' -> mode(COMMENT);
 SID: ID -> type(ID);
