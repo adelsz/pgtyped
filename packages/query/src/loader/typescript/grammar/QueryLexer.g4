@@ -12,7 +12,7 @@ lexer grammar QueryLexer;
 tokens { ID }
 
 fragment QUOT: '\'';
-fragment ID: [a-zA-Z][a-zA-Z_0-9]*;
+fragment ID: [a-zA-Z_][a-zA-Z_0-9]*;
 
 SID: ID -> type(ID);
 SINGULAR_PARAM_MARK: '$';

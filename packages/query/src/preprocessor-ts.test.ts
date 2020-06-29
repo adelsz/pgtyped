@@ -357,6 +357,53 @@ test('(TS) query with no params', () => {
   expect(result).toEqual(expectedResult);
 });
 
+test('(TS) query with empty spread params', () => {
+  const query = `SELECT * FROM users WHERE id IN $$ids`;
+  const parsedQuery = parseTSQuery(query);
+
+  const expectedResult = {
+    query: `SELECT * FROM users WHERE id IN ()`,
+    bindings: [],
+    mapping: [],
+  };
+
+  const result = processTSQueryAST(parsedQuery.query, { ids: [] });
+
+  expect(result).toEqual(expectedResult);
+});
+
+test('(TS) query with empty spread params', () => {
+  const query = `INSERT INTO data.action_log (id, name) VALUES $$params(id, name)`;
+  const parsedQuery = parseTSQuery(query);
+
+  const expectedResult = {
+    query: `INSERT INTO data.action_log (id, name) VALUES ()`,
+    bindings: [],
+    mapping: [],
+  };
+
+  const result = processTSQueryAST(parsedQuery.query, { params: [] });
+
+  expect(result).toEqual(expectedResult);
+});
+
+test('(TS) query with underscores in key names and param names', () => {
+  const query = `INSERT INTO data.action_log (_id, _name) VALUES $$_params(_id, _name)`;
+  const parsedQuery = parseTSQuery(query);
+
+  const expectedResult = {
+    query: `INSERT INTO data.action_log (_id, _name) VALUES ($1, $2)`,
+    bindings: ['one', 'two'],
+    mapping: [],
+  };
+
+  const result = processTSQueryAST(parsedQuery.query, {
+    _params: [{ _id: 'one', _name: 'two' }],
+  });
+
+  expect(result).toEqual(expectedResult);
+});
+
 test('(TS) all kinds mapping ', () => {
   const query =
     'SELECT $userId $age $userId $$users $age $user(id) $$users $user(id, parentId) $$comments(id, text) $user(age)';
