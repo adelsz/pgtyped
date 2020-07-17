@@ -103,7 +103,7 @@ export interface IQueryTypes {
     returnName: string;
     columnName: string;
     type: MappableType;
-    nullable: boolean;
+    nullable?: boolean;
   }>;
 }
 

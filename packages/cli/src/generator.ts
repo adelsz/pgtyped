@@ -87,7 +87,7 @@ export async function queryToTypeDeclarations(
 
   returnTypes.forEach(({ returnName, type, nullable }) => {
     let tsTypeName = types.use(type);
-    if (nullable) {
+    if (nullable || nullable == null) {
       tsTypeName += ' | null';
     }
 
