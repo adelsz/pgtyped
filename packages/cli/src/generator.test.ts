@@ -289,6 +289,77 @@ export interface IGetNotificationsQuery {
 }\n\n`;
       expect(result).toEqual(expected);
     });
+
+    test(`Columns without nullable info should be nullable (${mode})`, async () => {
+      const queryStringSQL = `
+    /* @name GetNotifications */
+    SELECT payload, type FROM notifications WHERE id = :userId;
+    `;
+      const queryStringTS = `
+      const getNotifications = sql\`SELECT payload, type FROM notifications WHERE id = $userId\`;
+      `;
+      const queryString =
+        mode === ProcessingMode.SQL ? queryStringSQL : queryStringTS;
+      const mockTypes: IQueryTypes = {
+        returnTypes: [
+          {
+            returnName: 'payload',
+            columnName: 'payload',
+            type: 'json',
+          },
+          {
+            returnName: 'type',
+            columnName: 'type',
+            type: { name: 'PayloadType', enumValues: ['message', 'dynamite'] },
+            nullable: false,
+          },
+        ],
+        paramMetadata: {
+          params: ['uuid'],
+          mapping: [
+            {
+              name: 'id',
+              type: queryModule.ParamTransform.Scalar,
+              assignedIndex: 1,
+            },
+          ],
+        },
+      };
+      getTypesMocked.mockResolvedValue(mockTypes);
+      const types = new TypeAllocator(DefaultTypeMapping);
+      // Test out imports
+      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
+      const result = await queryToTypeDeclarations(
+        parsedQuery(mode, queryString),
+        null,
+        types,
+        {} as ParsedConfig,
+      );
+      const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
+
+export type PayloadType = 'message' | 'dynamite';
+
+export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
+
+      expect(types.declaration()).toEqual(expectedTypes);
+      const expected = `/** 'GetNotifications' parameters type */
+export interface IGetNotificationsParams {
+  id: string | null | void;
+}
+
+/** 'GetNotifications' return type */
+export interface IGetNotificationsResult {
+  payload: Json | null;
+  type: PayloadType;
+}
+
+/** 'GetNotifications' query type */
+export interface IGetNotificationsQuery {
+  params: IGetNotificationsParams;
+  result: IGetNotificationsResult;
+}\n\n`;
+      expect(result).toEqual(expected);
+    });
   });
 });
 
