@@ -1,4 +1,4 @@
-/** Types generated for queries found in "./src/books/books.sql" */
+/** Types generated for queries found in "src/books/books.sql" */
 import { PreparedQuery } from '@pgtyped/query';
 
 /** 'FindBookById' parameters type */
@@ -34,9 +34,9 @@ export const findBookById = new PreparedQuery<IFindBookByIdParams,IFindBookByIdR
 /** 'InsertBooks' parameters type */
 export interface IInsertBooksParams {
   books: Array<{
-    rank: number,
-    name: string,
-    authorId: number
+    rank: number | null | void,
+    name: string | null | void,
+    authorId: number | null | void
   }>;
 }
 
@@ -63,6 +63,37 @@ const insertBooksIR: any = {"name":"InsertBooks","params":[{"name":"books","code
 export const insertBooks = new PreparedQuery<IInsertBooksParams,IInsertBooksResult>(insertBooksIR);
 
 
+/** 'UpdateBooks' parameters type */
+export interface IUpdateBooksParams {
+  name: string | null | void;
+  rank: number | null | void;
+  id: number | null | void;
+}
+
+/** 'UpdateBooks' return type */
+export type IUpdateBooksResult = void;
+
+/** 'UpdateBooks' query type */
+export interface IUpdateBooksQuery {
+  params: IUpdateBooksParams;
+  result: IUpdateBooksResult;
+}
+
+const updateBooksIR: any = {"name":"UpdateBooks","params":[{"name":"name","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":278,"b":281,"line":16,"col":12}]}},{"name":"rank","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":296,"b":299,"line":17,"col":12}]}},{"name":"id","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":313,"b":314,"line":18,"col":12}]}}],"usedParamSet":{"name":true,"rank":true,"id":true},"statement":{"body":"UPDATE books\nSET\n    name = :name,\n    rank = :rank\nWHERE id = :id","loc":{"a":249,"b":314,"line":14,"col":0}}};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * UPDATE books
+ * SET
+ *     name = :name,
+ *     rank = :rank
+ * WHERE id = :id
+ * ```
+ */
+export const updateBooks = new PreparedQuery<IUpdateBooksParams,IUpdateBooksResult>(updateBooksIR);
+
+
 /** 'GetBooksByAuthorName' parameters type */
 export interface IGetBooksByAuthorNameParams {
   authorName: string | null | void;
@@ -82,7 +113,7 @@ export interface IGetBooksByAuthorNameQuery {
   result: IGetBooksByAuthorNameResult;
 }
 
-const getBooksByAuthorNameIR: any = {"name":"GetBooksByAuthorName","params":[{"name":"authorName","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":368,"b":377,"line":15,"col":44}]}}],"usedParamSet":{"authorName":true},"statement":{"body":"SELECT b.* FROM books b\nINNER JOIN authors a ON a.id = b.author_id\nWHERE a.first_name || ' ' || a.last_name = :authorName","loc":{"a":257,"b":377,"line":13,"col":0}}};
+const getBooksByAuthorNameIR: any = {"name":"GetBooksByAuthorName","params":[{"name":"authorName","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":463,"b":472,"line":24,"col":44}]}}],"usedParamSet":{"authorName":true},"statement":{"body":"SELECT b.* FROM books b\nINNER JOIN authors a ON a.id = b.author_id\nWHERE a.first_name || ' ' || a.last_name = :authorName","loc":{"a":352,"b":472,"line":22,"col":0}}};
 
 /**
  * Query generated from SQL:
