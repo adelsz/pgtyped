@@ -46,6 +46,7 @@ export const DefaultTypeMapping = Object.freeze({
   text: String,
   varchar: String,
   char: String,
+  bpchar: String,
   citext: String,
 
   // Bool types
