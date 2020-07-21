@@ -1,5 +1,10 @@
 import { Client } from 'pg';
-import { getBooksByAuthorName, insertBooks } from './books/books.queries';
+import {
+  getBooksByAuthorName,
+  insertBooks,
+  updateBooks,
+  updateBooksCustom,
+} from './books/books.queries';
 import { getAllComments } from './comments/comments.queries';
 import {
   insertNotification,
@@ -24,13 +29,6 @@ export const client = new Client(dbConfig);
 
 async function main() {
   await client.connect();
-  const books = await getBooksByAuthorName.run(
-    {
-      authorName: 'Carl Sagan',
-    },
-    client,
-  );
-  console.log(`Book name: ${books[0].name}`);
 
   const comments = await getAllComments.run({ id: 1 }, client);
   console.log(`Comments: ${JSON.stringify(comments)}`);
@@ -48,6 +46,18 @@ async function main() {
     client,
   );
   console.log(`Inserted book ID: ${insertedBookId}`);
+
+  await updateBooks.run({ id: 2, rank: 12, name: 'Another title' }, client);
+
+  await updateBooksCustom.run({ id: 2, rank: 13 }, client);
+
+  const books = await getBooksByAuthorName.run(
+    {
+      authorName: 'Carl Sagan',
+    },
+    client,
+  );
+  console.log(`Book: ${JSON.stringify(books[0])}`);
 
   await sendNotifications.run(
     {
