@@ -10,7 +10,8 @@
       "minor": {
         "groupName": "all non-major dependencies",
         "groupSlug": "all-minor-patch"
-      }
+      },
+      "excludePackageNames": ["antlr4ts", "antlr4ts-cli", "typescript"]
     }
   ]
 }
