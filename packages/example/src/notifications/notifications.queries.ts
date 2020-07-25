@@ -8,9 +8,9 @@ export type Json = null | boolean | number | string | Json[] | { [key: string]: 
 /** 'SendNotifications' parameters type */
 export interface ISendNotificationsParams {
   notifications: Array<{
-    user_id: number,
-    payload: Json,
-    type: notification_type
+    user_id: number | null | void,
+    payload: Json | null | void,
+    type: notification_type | null | void
   }>;
 }
 

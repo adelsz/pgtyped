@@ -12,6 +12,7 @@ export interface IFindBookByIdResult {
   rank: number | null;
   name: string | null;
   author_id: number | null;
+  r: number | null;
 }
 
 /** 'FindBookById' query type */
@@ -139,6 +140,7 @@ export interface IGetBooksByAuthorNameResult {
   rank: number | null;
   name: string | null;
   author_id: number | null;
+  r: number | null;
 }
 
 /** 'GetBooksByAuthorName' query type */

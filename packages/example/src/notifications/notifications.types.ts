@@ -6,9 +6,9 @@ export type Json = null | boolean | number | string | Json[] | { [key: string]: 
 /** 'InsertNotifications' parameters type */
 export interface IInsertNotificationsParams {
   params: Array<{
-    payload: Json,
-    user_id: number,
-    type: notification_type
+    payload: Json | null | void,
+    user_id: number | null | void,
+    type: notification_type | null | void
   }>;
 }
 
@@ -24,9 +24,9 @@ export interface IInsertNotificationsQuery {
 /** 'InsertNotification' parameters type */
 export interface IInsertNotificationParams {
   notification: {
-    payload: Json,
-    user_id: number,
-    type: notification_type
+    payload: Json | null | void,
+    user_id: number | null | void,
+    type: notification_type | null | void
   };
 }
 
