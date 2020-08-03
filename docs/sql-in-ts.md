@@ -110,7 +110,7 @@ const parameters = {
 ```
 Expanded query to be executed:
 ```sql
-INSERT INTO users (name, age) VALUES (('Rob', 56), ('Tom', 45)) RETURNING id;
+INSERT INTO users (name, age) VALUES ('Rob', 56), ('Tom', 45) RETURNING id;
 ```
 
 ### Reference
