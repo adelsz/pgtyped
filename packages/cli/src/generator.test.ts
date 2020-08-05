@@ -360,6 +360,64 @@ export interface IGetNotificationsQuery {
 }\n\n`;
       expect(result).toEqual(expected);
     });
+
+    test(`Fixed-length character type (${mode})`, async () => {
+      const queryStringSQL = `
+      /* @name GetCountry */
+      SELECT iso FROM countries WHERE id = :countryId;
+      `;
+      const queryStringTS = `
+      const getCountry = sql\`SELECT iso FROM countries WHERE id = $countryId\`;
+      `;
+      const queryString =
+        mode === ProcessingMode.SQL ? queryStringSQL : queryStringTS;
+      const mockTypes: IQueryTypes = {
+        returnTypes: [
+          {
+            returnName: 'iso',
+            columnName: 'iso',
+            type: 'character(3)',
+            nullable: false,
+          },
+        ],
+        paramMetadata: {
+          params: ['uuid'],
+          mapping: [
+            {
+              name: 'id',
+              type: queryModule.ParamTransform.Scalar,
+              assignedIndex: 1,
+            },
+          ],
+        },
+      };
+      getTypesMocked.mockResolvedValue(mockTypes);
+      const types = new TypeAllocator(DefaultTypeMapping);
+      // Test out imports
+      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
+      const result = await queryToTypeDeclarations(
+        parsedQuery(mode, queryString),
+        null,
+        types,
+        {} as ParsedConfig,
+      );
+      const expected = `/** 'GetCountry' parameters type */
+export interface IGetCountryParams {
+  id: string | null | void;
+}
+
+/** 'GetCountry' return type */
+export interface IGetCountryResult {
+  iso: string
+}
+
+/** 'GetCountry' query type */
+export interface IGetCountryQuery {
+  params: IGetCountryParams;
+  result: IGetCountryResult;
+}\n\n`;
+      expect(result).toEqual(expected);
+    });
   });
 });
 
