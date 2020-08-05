@@ -87,7 +87,7 @@ async function main() {
   await client.connect();
   const books = await findBookById.run(
     {
-      bookId: 'carl-sagan-76',
+      bookId: 5,
     },
     client,
   );
