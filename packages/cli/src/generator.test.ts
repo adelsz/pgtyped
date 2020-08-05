@@ -408,7 +408,7 @@ export interface IGetCountryParams {
 
 /** 'GetCountry' return type */
 export interface IGetCountryResult {
-  iso: string
+  iso: string;
 }
 
 /** 'GetCountry' query type */
