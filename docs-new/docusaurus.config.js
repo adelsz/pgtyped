@@ -1,7 +1,7 @@
 module.exports = {
   title: 'PgTyped',
   tagline: 'Typesafe SQL in TypeScript',
-  url: 'https://your-docusaurus-test-site.com',
+  url: 'https://pgtyped.now.sh',
   baseUrl: '/',
   favicon: 'img/favicon.ico',
   organizationName: 'adelsz', // Usually your GitHub org/user name.
@@ -12,7 +12,7 @@ module.exports = {
         alt: 'pgtyped',
         src: 'img/logo.svg',
       },
-      links: [
+      items: [
         {
           to: 'docs/',
           activeBasePath: 'docs',
@@ -47,13 +47,7 @@ module.exports = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           editUrl:
-            'https://github.com/facebook/docusaurus/edit/master/website/',
-        },
-        blog: {
-          showReadingTime: true,
-          // Please change this to your repo.
-          editUrl:
-            'https://github.com/facebook/docusaurus/edit/master/website/blog/',
+            'https://github.com/adelsz/pgtyped/edit/master/docs-new/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),

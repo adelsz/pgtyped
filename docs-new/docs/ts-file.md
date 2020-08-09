@@ -114,7 +114,7 @@ query.run(parameters, connection);
 ```
 ```sql title="Resulting query:"
 -- Bindings: ['Rob', 56, 'Tom', 45]
-INSERT INTO users (name, age) VALUES (($1, $2), ($3, $4)) RETURNING id;
+INSERT INTO users (name, age) VALUES ($1, $2), ($3, $4) RETURNING id;
 ```
 
 ## Reference
