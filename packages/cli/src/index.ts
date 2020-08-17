@@ -133,6 +133,7 @@ async function main(
   debug('connected to database %o', config.db.dbName);
 
   const fileProcessor = new FileProcessor(connection, config);
+  let fileOverrideUsed = false;
   for (const transform of config.transforms) {
     const pattern = `${config.srcDir}/**/${transform.include}`;
     if (isWatchMode) {
@@ -154,6 +155,9 @@ async function main(
       let fileList = glob.sync(pattern);
       if (fileOverride) {
         fileList = fileList.includes(fileOverride) ? [fileOverride] : [];
+        if (fileList.length > 0) {
+          fileOverrideUsed = true;
+        }
       }
       debug('found query files %o', fileList);
       const transformJob = {
@@ -162,6 +166,11 @@ async function main(
       };
       fileProcessor.push(transformJob);
     }
+  }
+  if (fileOverride && !fileOverrideUsed) {
+    console.log(
+      'File override specified, but file was not found in provided transforms'
+    );
   }
   if (!isWatchMode) {
     await fileProcessor.emptyQueue;
