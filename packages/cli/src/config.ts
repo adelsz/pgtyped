@@ -71,10 +71,8 @@ function merge<T>(base: T, ...overrides: Partial<T>[]): T {
 }
 
 export function parseConfig(path: string): ParsedConfig {
-  if (!isAbsolute(path)) {
-    path = join(process.cwd(), path);
-  }
-  const configObject = require(path);
+  const fullPath = isAbsolute(path) ? path : join(process.cwd(), path);
+  const configObject = require(fullPath);
   const result = configParser.decode(configObject);
   if (Either.isLeft(result)) {
     const message = reporter(result);
