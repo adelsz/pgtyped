@@ -55,3 +55,11 @@ export const selectUserIds =
 
 For more information on writing queries in TS files checkout the [SQL-in-TS](ts-file) guide.
 
+# Parameter substitution cheatsheet
+
+|                       | Query in TS                 | Query with substituted parameter |
+|-----------------------|-----------------------------|----------------------------------|
+| Simple parameter      | $parameter                  | $1                               |
+| Array spread          | $$array                     | ($1, $2, $3)                     |
+| Object pick           | $object(prop1, prop2)       | ($1, $2)                         |
+| Array spread and pick | $$objectArray(prop1, prop2) | ($1, $2), ($3, $4), ($5, $6)     |
