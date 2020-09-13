@@ -123,7 +123,7 @@ export const messages = {
     name: 'StartupMessage',
     type: 'CLIENT',
     indicator: null,
-    pattern: (data) => [
+    pattern: data => [
       // The protocol version number.
       // The most significant 16 bits are the major version number (3 for the protocol described here).
       // The least significant 16 bits are the minor version number (0 for the protocol described here).
@@ -169,7 +169,7 @@ export const messages = {
     name: 'PasswordMessage',
     type: 'CLIENT',
     indicator: 'p',
-    pattern: (data) => [cString(data.password)],
+    pattern: data => [cString(data.password)],
   } as IClientMessage<{
     /** Password string either plain text or MD5 encrypted */
     password: string;
@@ -179,7 +179,7 @@ export const messages = {
     name: 'Query',
     type: 'CLIENT',
     indicator: 'Q',
-    pattern: (data) => [cString(data.query)],
+    pattern: data => [cString(data.query)],
   } as IClientMessage<{
     /** SQL command (or commands) expressed as a text string */
     query: string;
@@ -282,7 +282,7 @@ export const messages = {
     name: 'Parse',
     type: 'CLIENT',
     indicator: 'P',
-    pattern: (params) => [
+    pattern: params => [
       cString(params.name),
       cString(params.query),
       fixedArray(({ oid }) => [int32(oid)], params.dataTypes),
@@ -363,7 +363,7 @@ export const messages = {
     name: 'Close',
     type: 'CLIENT',
     indicator: 'C',
-    pattern: (params) => [byte1(params.target), cString(params.targetName)],
+    pattern: params => [byte1(params.target), cString(params.targetName)],
   } as IClientMessage<{
     /** 'S' to close a prepared statement; or 'P' to close a portal. */
     target: PreparedObjectType;

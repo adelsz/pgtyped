@@ -34,7 +34,7 @@ export class AsyncQueue {
     });
   }
   public connect(passedOptions: { port: number; host: string }): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       this.socket.on('connect', () => {
         debug('socket connected');
         resolve();
@@ -47,7 +47,7 @@ export class AsyncQueue {
     params: Params,
   ): Promise<void> {
     const buf = buildMessage(message, params);
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       this.socket.write(buf, () => resolve());
       debug('sent %o message', message.name);
     });

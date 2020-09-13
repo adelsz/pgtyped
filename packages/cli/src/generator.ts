@@ -121,7 +121,7 @@ export async function queryToTypeDeclarations(
     } else {
       const isArray = param.type === ParamTransform.PickSpread;
       let fieldType = Object.values(param.dict)
-        .map((p) => {
+        .map(p => {
           const paramType = types.use(params[p.assignedIndex - 1]);
           return `    ${p.name}: ${paramType} | null | void`;
         })
@@ -141,7 +141,7 @@ export async function queryToTypeDeclarations(
   // type is emitted which can be caught later when compiling the generated
   // code
   // tslint:disable-next-line:no-console
-  types.errors.forEach((err) => console.log(err));
+  types.errors.forEach(err => console.log(err));
 
   const resultInterfaceName = `I${interfaceName}Result`;
   const returnTypesInterface =
@@ -207,7 +207,7 @@ async function generateTypedecsFromFile(
       : parseSQLFile(contents, fileName);
   if (events.length > 0) {
     prettyPrintEvents(contents, events);
-    if (events.find((e) => 'critical' in e)) {
+    if (events.find(e => 'critical' in e)) {
       return results;
     }
   }

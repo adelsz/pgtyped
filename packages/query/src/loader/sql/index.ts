@@ -83,7 +83,7 @@ class ParseListener implements SQLParserListener {
 
   exitQuery() {
     const currentQuery = this.currentQuery as Query;
-    currentQuery.params.forEach((p) => {
+    currentQuery.params.forEach(p => {
       const paramUsed = p.name in currentQuery.usedParamSet;
       if (!paramUsed) {
         this.logger.logEvent({
@@ -189,9 +189,7 @@ class ParseListener implements SQLParserListener {
     assert(this.currentQuery.params);
     assert(this.currentQuery.usedParamSet);
     this.currentQuery.usedParamSet[paramName] = true;
-    const reference = this.currentQuery.params.find(
-      (p) => p.name === paramName,
-    );
+    const reference = this.currentQuery.params.find(p => p.name === paramName);
     const useLoc = {
       a: ctx.start.startIndex,
       b: ctx.start.stopIndex,

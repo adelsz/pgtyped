@@ -227,7 +227,7 @@ export const buildMessage = <Params extends object>(
   buf.writeUInt32BE(messageSize, offset);
   offset += 4;
 
-  bufArray.forEach((sbuf) => {
+  bufArray.forEach(sbuf => {
     sbuf.copy(buf, offset);
     offset = offset + sbuf.length;
   });
@@ -239,7 +239,7 @@ export const parseOneOf = (
   buffer: Buffer,
   offset: number,
 ): ParseResult<object> => {
-  const messageName = messages.map((m) => m.name).join(' | ');
+  const messageName = messages.map(m => m.name).join(' | ');
   let lastBufferOffset = 0;
   for (const message of messages) {
     const parseResult = parseMessage(message, buffer, offset);

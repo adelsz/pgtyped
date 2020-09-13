@@ -103,7 +103,7 @@ export function parseConfig(path: string): ParsedConfig {
     camelCaseColumnNames,
   } = configObject as IConfig;
 
-  if (transforms.some((tr) => !!tr.emitFileName)) {
+  if (transforms.some(tr => !!tr.emitFileName)) {
     // tslint:disable:no-console
     console.log(
       'Warning: Setting "emitFileName" is deprecated. Consider using "emitTemplate" instead.',

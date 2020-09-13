@@ -18,7 +18,7 @@ export const processSQLQueryAST = (
 ): IInterpolatedQuery => {
   const bindings: Scalar[] = [];
   const paramMapping: QueryParam[] = [];
-  const usedParams = query.params.filter((p) => p.name in query.usedParamSet);
+  const usedParams = query.params.filter(p => p.name in query.usedParamSet);
   const { a: statementStart } = query.statement.loc;
   let i = 1;
   const intervals: { a: number; b: number; sub: string }[] = [];
@@ -34,7 +34,7 @@ export const processSQLQueryAST = (
       if (passedParams) {
         const paramValue = passedParams[usedParam.name];
         sub = (paramValue as Scalar[])
-          .map((val) => {
+          .map(val => {
             bindings.push(val);
             return `$${i++}`;
           })
@@ -48,7 +48,7 @@ export const processSQLQueryAST = (
         } as IScalarArrayParam);
         sub = `$${idx}`;
       }
-      paramLocs.forEach((pl) =>
+      paramLocs.forEach(pl =>
         intervals.push({
           ...pl,
           sub: `(${sub})`,
@@ -63,7 +63,7 @@ export const processSQLQueryAST = (
         [key: string]: IScalarParam;
       } = {};
       const sub = usedParam.transform.keys
-        .map((pickKey) => {
+        .map(pickKey => {
           const idx = i++;
           dict[pickKey] = {
             name: pickKey,
@@ -88,7 +88,7 @@ export const processSQLQueryAST = (
         });
       }
 
-      paramLocs.forEach((pl) =>
+      paramLocs.forEach(pl =>
         intervals.push({
           ...pl,
           sub: `(${sub})`,
@@ -103,10 +103,10 @@ export const processSQLQueryAST = (
       if (passedParams) {
         const passedParam = passedParams[usedParam.name] as INestedParameters[];
         sub = passedParam
-          .map((entity) => {
+          .map(entity => {
             assert(usedParam.transform.type === TransformType.PickArraySpread);
             const ssub = usedParam.transform.keys
-              .map((pickKey) => {
+              .map(pickKey => {
                 const val = entity[pickKey];
                 bindings.push(val);
                 return `$${i++}`;
@@ -120,7 +120,7 @@ export const processSQLQueryAST = (
           [key: string]: IScalarParam;
         } = {};
         sub = usedParam.transform.keys
-          .map((pickKey) => {
+          .map(pickKey => {
             const idx = i++;
             dict[pickKey] = {
               name: pickKey,
@@ -137,7 +137,7 @@ export const processSQLQueryAST = (
         });
       }
 
-      paramLocs.forEach((pl) =>
+      paramLocs.forEach(pl =>
         intervals.push({
           ...pl,
           sub: `(${sub})`,
@@ -159,7 +159,7 @@ export const processSQLQueryAST = (
       } as IScalarParam);
     }
 
-    paramLocs.forEach((pl) =>
+    paramLocs.forEach(pl =>
       intervals.push({
         ...pl,
         sub: `$${assignedIndex}`,
