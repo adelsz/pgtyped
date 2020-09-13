@@ -38,7 +38,7 @@ SELECT * FROM users
 ORDER BY (CASE WHEN :asc = true THEN :sort_column END) ASC, :sort_column DESC;
 ```
 
-### Advanced dynamic queries 
+### Advanced dynamic queries
 
 More complicated dynamic queries can be built similarly to the above two.  
 Note that highly dynamic SQL queries can lead to worse DB execution times, so sometimes it is worth to split a complex query into multiple independent ones.

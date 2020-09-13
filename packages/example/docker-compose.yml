@@ -1,7 +1,6 @@
 version: '3.1'
 
 services:
-
   db:
     image: postgres:12-alpine
     restart: always
@@ -9,7 +8,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - ./sql/:/docker-entrypoint-initdb.d
 
@@ -37,4 +36,3 @@ services:
     depends_on:
       - build
     command: npx ts-node src/index.ts
-

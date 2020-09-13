@@ -102,7 +102,7 @@ function declareStringUnion(name: string, values: string[]) {
 
 function declareEnum(name: string, values: string[]) {
   return `export const enum ${name} {\n${values
-    .map((v) => `  ${v} = '${v}',`)
+    .map(v => `  ${v} = '${v}',`)
     .join('\n')}\n}\n`;
 }
 
@@ -118,8 +118,7 @@ export class TypeAllocator {
   constructor(
     private mapping: TypeMapping,
     private allowUnmappedTypes?: boolean,
-  ) {
-  }
+  ) {}
 
   isMappedType(name: string): name is keyof TypeMapping {
     return name in this.mapping;
@@ -168,14 +167,14 @@ export class TypeAllocator {
     // Declare database enums as string unions to maintain assignability of their values between query files
     const enums = Object.values(this.types)
       .filter(isEnum)
-      .map((t) => declareStringUnion(t.name, t.enumValues))
+      .map(t => declareStringUnion(t.name, t.enumValues))
       .join('\n');
 
     const aliases = Object.values(this.types)
       .filter(isAlias)
-      .map((t) => declareAlias(t.name, t.definition))
+      .map(t => declareAlias(t.name, t.definition))
       .join('\n');
 
-    return [imports, enums, aliases].filter((s) => s).join('\n');
+    return [imports, enums, aliases].filter(s => s).join('\n');
   }
 }

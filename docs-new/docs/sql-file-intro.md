@@ -1,12 +1,13 @@
 ---
 id: sql-file-intro
-title: Queries in SQL files 
+title: Queries in SQL files
 sidebar_label: Queries in SQL files
 ---
 
-Having installed and configured PgTyped it is now time to write some queries.  
+Having installed and configured PgTyped it is now time to write some queries.
 
 Lets create our first query in `books/queries.sql`:
+
 ```sql title="books/queries.sql"
 /* @name FindBookById */
 SELECT * FROM books WHERE id = :bookId;
