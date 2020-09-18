@@ -39,8 +39,10 @@ class FileProcessor {
   private jobQueue: TransformJob[] = [];
   private activePromise: Promise<void> | null = null;
 
-  constructor(private connection: any, private config: ParsedConfig) {
-    this.connection = connection;
+  constructor(
+    private readonly connection: AsyncQueue,
+    private readonly config: ParsedConfig,
+  ) {
     this.emptyQueue = new Promise((resolve, reject) => {
       this.resolveDone = resolve;
     });
@@ -67,38 +69,39 @@ class FileProcessor {
     }
   };
 
-  private async processJob(connection: any, job: TransformJob) {
-    for (const fileName of job.files) {
-      console.log(`Processing ${fileName}`);
-      const ppath = path.parse(fileName);
-      let decsFileName;
-      if (job.transform.emitTemplate) {
-        decsFileName = nun.renderString(job.transform.emitTemplate, ppath);
-      } else {
-        const suffix = job.transform.mode === 'ts' ? 'types.ts' : 'ts';
-        decsFileName = path.resolve(ppath.dir, `${ppath.name}.${suffix}`);
-      }
-      const contents = fs.readFileSync(fileName).toString();
-      const {
-        declarationFileContents,
-        typeDecs,
-      } = await generateDeclarationFile(
-        contents,
-        fileName,
-        connection,
-        job.transform.mode,
-        void 0,
-        this.config,
+  private async processFile(fileName: string, transform: TransformConfig) {
+    console.log(`Processing ${fileName}`);
+    const ppath = path.parse(fileName);
+    let decsFileName;
+    if (transform.emitTemplate) {
+      decsFileName = nun.renderString(transform.emitTemplate, ppath);
+    } else {
+      const suffix = transform.mode === 'ts' ? 'types.ts' : 'ts';
+      decsFileName = path.resolve(ppath.dir, `${ppath.name}.${suffix}`);
+    }
+    const contents = fs.readFileSync(fileName).toString();
+    const { declarationFileContents, typeDecs } = await generateDeclarationFile(
+      contents,
+      fileName,
+      this.connection,
+      transform.mode,
+      void 0,
+      this.config,
+    );
+    if (typeDecs.length > 0) {
+      await writeFile(decsFileName, declarationFileContents);
+      console.log(
+        `Saved ${typeDecs.length} query types to ${path.relative(
+          process.cwd(),
+          decsFileName,
+        )}`,
       );
-      if (typeDecs.length > 0) {
-        await writeFile(decsFileName, declarationFileContents);
-        console.log(
-          `Saved ${typeDecs.length} query types to ${path.relative(
-            process.cwd(),
-            decsFileName,
-          )}`,
-        );
-      }
+    }
+  }
+
+  private async processJob(job: TransformJob) {
+    for (const fileName of job.files) {
+      await this.processFile(fileName, job.transform);
     }
   }
 
@@ -111,7 +114,7 @@ class FileProcessor {
     }
     const nextJob = this.jobQueue.pop();
     if (nextJob) {
-      this.activePromise = this.processJob(this.connection, nextJob)
+      this.activePromise = this.processJob(nextJob)
         .then(this.onFileProcessed)
         .catch(this.onFileProcessingError);
     } else {
