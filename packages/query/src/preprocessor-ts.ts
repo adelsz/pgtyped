@@ -66,7 +66,7 @@ function processScalarArray(
   } else {
     if (parameters) {
       const values = parameters[paramName] as Scalar[];
-      assignedIndex = values.map(val => {
+      assignedIndex = values.map((val) => {
         bindings.push(val);
         return ++index;
       });
@@ -75,7 +75,7 @@ function processScalarArray(
     }
     config = { assignedIndex, type: ParamTransform.Spread, name: paramName };
   }
-  const replacement = '(' + assignedIndex.map(v => `$${v}`).join(', ') + ')';
+  const replacement = '(' + assignedIndex.map((v) => `$${v}`).join(', ') + ')';
 
   return { bindings, replacement, nextIndex: index, config };
 }
@@ -98,7 +98,7 @@ function processObject(
     existingConfig ||
     ({ name: paramName, type: ParamTransform.Pick, dict: {} } as IDictParam);
 
-  const keyIndices = keys.map(key => {
+  const keyIndices = keys.map((key) => {
     if (key in config.dict) {
       // reuse index if parameter was seen before
       return `$${config.dict[key].assignedIndex}`;
@@ -148,22 +148,22 @@ function processObjectArray(
     const values = parameters[paramName] as INestedParameters[];
     if (values.length > 0) {
       replacement = values
-        .map(val =>
+        .map((val) =>
           keys
-            .map(key => {
+            .map((key) => {
               bindings.push(val[key]);
               return `$${++index}`;
             })
             .join(', '),
         )
-        .map(pk => `(${pk})`)
+        .map((pk) => `(${pk})`)
         .join(', ');
     } else {
       // empty set for empty arrays
       replacement = '()';
     }
   } else {
-    const keyIndices = keys.map(key => {
+    const keyIndices = keys.map((key) => {
       if (key in config.dict) {
         // reuse index if parameter was seen before
         return `$${config.dict[key].assignedIndex}`;

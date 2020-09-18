@@ -172,7 +172,9 @@ if (require.main === module) {
 
   try {
     const config = parseConfig(configPath);
-    main(config, isWatchMode).catch(e => debug('error in main: %o', e.message));
+    main(config, isWatchMode).catch((e) =>
+      debug('error in main: %o', e.message),
+    );
   } catch (e) {
     console.error('Failed to parse config file:');
     console.error(e.message);

@@ -67,12 +67,12 @@ function styleIntervals(
 
 export function prettyPrintEvents(text: string, parseEvents: ParseEvent[]) {
   let msg = chalk.underline.magenta('Parsed file:\n');
-  const errors = parseEvents.filter(e => e.type === ParseEventType.Error);
-  const warnings = parseEvents.filter(e => e.type === ParseEventType.Warning);
+  const errors = parseEvents.filter((e) => e.type === ParseEventType.Error);
+  const warnings = parseEvents.filter((e) => e.type === ParseEventType.Warning);
   const lineStyle = {} as any;
   const locsToColor = parseEvents
-    .filter(w => w.location)
-    .map(w => {
+    .filter((w) => w.location)
+    .map((w) => {
       const style =
         w.type === ParseEventType.Error
           ? chalk.underline.red
@@ -95,13 +95,17 @@ export function prettyPrintEvents(text: string, parseEvents: ParseEvent[]) {
   if (errors.length > 0) {
     msg += chalk.underline.red('\nErrors:\n');
     msg += errors
-      .map(w => `- (${w.location?.line}:${w.location?.col}) ${w.message.text}`)
+      .map(
+        (w) => `- (${w.location?.line}:${w.location?.col}) ${w.message.text}`,
+      )
       .join('\n');
   }
   if (warnings.length > 0) {
     msg += chalk.underline.yellow('\nWarnings:\n');
     msg += warnings
-      .map(w => `- (${w.location?.line}:${w.location?.col}) ${w.message.text}`)
+      .map(
+        (w) => `- (${w.location?.line}:${w.location?.col}) ${w.message.text}`,
+      )
       .join('\n');
   }
   // tslint:disable-next-line:no-console

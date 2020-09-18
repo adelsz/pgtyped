@@ -35,7 +35,7 @@ export const cStringDict = (dict: { [key: string]: string }): Buffer => {
   const buf = Buffer.alloc(count + 1, 0);
 
   let offset = 0;
-  dictArray.forEach(str => {
+  dictArray.forEach((str) => {
     offset = offset + buf.write(str, offset) + 1;
   });
   return buf;
@@ -65,8 +65,8 @@ export const fixedArray = <Item>(
   const result = Buffer.alloc(size, 0);
   result.writeUInt16BE(items.length, 0);
   let offset = 2;
-  builtItems.forEach(bufferArray =>
-    bufferArray.forEach(buffer => {
+  builtItems.forEach((bufferArray) =>
+    bufferArray.forEach((buffer) => {
       buffer.copy(result, offset);
       offset = offset + buffer.length;
     }),

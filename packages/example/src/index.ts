@@ -103,7 +103,7 @@ async function main() {
 
 main()
   .then(() => console.log('Successfully ran example code!'))
-  .catch(err => {
+  .catch((err) => {
     console.error(`Error running example code: ${err.stack}`);
     process.exit(1);
   });

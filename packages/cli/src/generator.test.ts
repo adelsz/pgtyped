@@ -18,7 +18,7 @@ function parsedQuery(
 }
 
 describe('query-to-interface translation', () => {
-  [ProcessingMode.SQL, ProcessingMode.TS].forEach(mode => {
+  [ProcessingMode.SQL, ProcessingMode.TS].forEach((mode) => {
     test(`TypeMapping and declarations (${mode})`, async () => {
       const queryStringSQL = `
     /* @name GetNotifications */

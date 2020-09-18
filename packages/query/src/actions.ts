@@ -74,7 +74,7 @@ export async function runQuery(query: string, queue: AsyncQueue) {
     const result = await queue.reply(messages.rowDescription);
     debugQuery(
       'received row description: %o',
-      result.fields.map(c => c.name.toString()),
+      result.fields.map((c) => c.name.toString()),
     );
   }
   {
@@ -86,7 +86,7 @@ export async function runQuery(query: string, queue: AsyncQueue) {
       if ('commandTag' in result) {
         break;
       }
-      const row = result.columns.map(c => c.value.toString());
+      const row = result.columns.map((c) => c.value.toString());
       resultRows.push(row);
       debugQuery('received row data: %o', row);
     }
@@ -259,8 +259,8 @@ export async function getTypes(
 
   const { params, fields } = typeData;
 
-  const paramTypeOIDs = params.map(p => p.oid);
-  const returnTypesOIDs = fields.map(f => f.typeOID);
+  const paramTypeOIDs = params.map((p) => p.oid);
+  const returnTypesOIDs = fields.map((f) => f.typeOID);
   const usedTypesOIDs = paramTypeOIDs.concat(returnTypesOIDs);
   const typeRows = await runTypesCatalogQuery(usedTypesOIDs, queue);
   const typeMap = reduceTypeRows(typeRows);
@@ -298,7 +298,7 @@ export async function getTypes(
     {},
   );
 
-  const returnTypes = fields.map(f => ({
+  const returnTypes = fields.map((f) => ({
     ...attrMap[`${f.tableOID}:${f.columnAttrNumber}`],
     returnName: f.name,
     type: typeMap[f.typeOID],
