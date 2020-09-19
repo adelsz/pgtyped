@@ -68,7 +68,8 @@ class FileProcessor {
   };
 
   private async processJob(connection: any, job: TransformJob) {
-    for (const fileName of job.files) {
+    for (let fileName of job.files) {
+      fileName = path.relative(process.cwd(), fileName);
       console.log(`Processing ${fileName}`);
       const ppath = path.parse(fileName);
       let decsFileName;
