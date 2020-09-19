@@ -8,7 +8,7 @@ import minimist from 'minimist';
 import nun from 'nunjucks';
 import { parseConfig, ParsedConfig, TransformConfig } from './config';
 import { debug } from './util';
-import { WorkerInterface } from './worker';
+import { WorkerInterface, processFile } from './worker';
 
 const args = minimist(process.argv.slice(2));
 
@@ -31,70 +31,46 @@ interface TransformJob {
 }
 
 class FileProcessor {
-  public readonly emptyQueue: Promise<void>;
-  private readonly jobQueue: TransformJob[] = [];
-  private activePromise: Promise<void> | null = null;
   private readonly worker: WorkerInterface;
+  public readonly workQueue: Promise<unknown>[] = [];
 
   constructor(private readonly config: ParsedConfig) {
-    this.emptyQueue = new Promise((resolve, reject) => {
-      this.resolveDone = resolve;
-    });
     this.worker = new JestWorker(require.resolve('./worker'), {
       exposedMethods: ['processFile'],
       setupArgs: [this.config],
+      computeWorkerKey: (method, fileName): string | null => {
+        switch (method) {
+          case processFile.name:
+            return fileName as string;
+          default:
+            return null;
+        }
+      },
     }) as WorkerInterface;
   }
 
   public push(job: TransformJob) {
-    this.jobQueue.push(job);
-    if (!this.activePromise) {
-      this.processQueue();
-    }
+    this.workQueue.push(
+      ...job.files.map(async (fileName) => {
+        try {
+          const result = await this.worker.processFile(fileName, job.transform);
+          if (result) {
+            console.log(
+              `Saved ${result.typeDecsLength} query types from ${fileName} to ${result.relativePath}`,
+            );
+          }
+        } catch (err) {
+          console.log(
+            `Error processing file: ${err.stack || JSON.stringify(err)}`,
+          );
+          if (this.config.failOnError) {
+            await this.worker.end();
+            process.exit(1);
+          }
+        }
+      }),
+    );
   }
-
-  private resolveDone: () => void = () => undefined;
-
-  private onFileProcessed = () => {
-    this.activePromise = null;
-    this.processQueue();
-  };
-
-  private onFileProcessingError = (err: any) => {
-    console.log(`Error processing file: ${err.stack || JSON.stringify(err)}`);
-    if (this.config.failOnError) {
-      process.exit(1);
-    }
-  };
-
-  private async processJob(job: TransformJob) {
-    for (const fileName of job.files) {
-      console.log(`Processing ${fileName}`);
-      const result = await this.worker.processFile(fileName, job.transform);
-      if (result) {
-        console.log(
-          `Saved ${result.typeDecsLength} query types to ${result.relativePath}`,
-        );
-      }
-    }
-  }
-
-  private processQueue = () => {
-    if (this.activePromise) {
-      this.activePromise
-        .then(this.onFileProcessed)
-        .catch(this.onFileProcessingError);
-      return;
-    }
-    const nextJob = this.jobQueue.pop();
-    if (nextJob) {
-      this.activePromise = this.processJob(nextJob)
-        .then(this.onFileProcessed)
-        .catch(this.onFileProcessingError);
-    } else {
-      this.resolveDone();
-    }
-  };
 }
 
 async function main(config: ParsedConfig, isWatchMode: boolean) {
@@ -123,7 +99,7 @@ async function main(config: ParsedConfig, isWatchMode: boolean) {
     }
   }
   if (!isWatchMode) {
-    await fileProcessor.emptyQueue;
+    await Promise.all(fileProcessor.workQueue);
     process.exit(0);
   }
 }
