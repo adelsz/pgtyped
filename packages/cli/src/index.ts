@@ -1,18 +1,14 @@
 #!/usr/bin/env node
 
 import { AsyncQueue, startup } from '@pgtyped/query';
+import JestWorker from 'jest-worker';
 import chokidar from 'chokidar';
-import fs from 'fs';
 import glob from 'glob';
 import minimist from 'minimist';
 import nun from 'nunjucks';
-import path from 'path';
-import { promisify } from 'util';
 import { parseConfig, ParsedConfig, TransformConfig } from './config';
-import { generateDeclarationFile } from './generator';
 import { debug } from './util';
-
-const writeFile = promisify(fs.writeFile);
+import { WorkerInterface } from './worker';
 
 const args = minimist(process.argv.slice(2));
 
@@ -35,17 +31,19 @@ interface TransformJob {
 }
 
 class FileProcessor {
-  public emptyQueue: Promise<void>;
-  private jobQueue: TransformJob[] = [];
+  public readonly emptyQueue: Promise<void>;
+  private readonly jobQueue: TransformJob[] = [];
   private activePromise: Promise<void> | null = null;
+  private readonly worker: WorkerInterface;
 
-  constructor(
-    private readonly connection: AsyncQueue,
-    private readonly config: ParsedConfig,
-  ) {
+  constructor(private readonly config: ParsedConfig) {
     this.emptyQueue = new Promise((resolve, reject) => {
       this.resolveDone = resolve;
     });
+    this.worker = new JestWorker(require.resolve('./worker'), {
+      exposedMethods: ['processFile'],
+      setupArgs: [this.config],
+    }) as WorkerInterface;
   }
 
   public push(job: TransformJob) {
@@ -69,39 +67,15 @@ class FileProcessor {
     }
   };
 
-  private async processFile(fileName: string, transform: TransformConfig) {
-    console.log(`Processing ${fileName}`);
-    const ppath = path.parse(fileName);
-    let decsFileName;
-    if (transform.emitTemplate) {
-      decsFileName = nun.renderString(transform.emitTemplate, ppath);
-    } else {
-      const suffix = transform.mode === 'ts' ? 'types.ts' : 'ts';
-      decsFileName = path.resolve(ppath.dir, `${ppath.name}.${suffix}`);
-    }
-    const contents = fs.readFileSync(fileName).toString();
-    const { declarationFileContents, typeDecs } = await generateDeclarationFile(
-      contents,
-      fileName,
-      this.connection,
-      transform.mode,
-      void 0,
-      this.config,
-    );
-    if (typeDecs.length > 0) {
-      await writeFile(decsFileName, declarationFileContents);
-      console.log(
-        `Saved ${typeDecs.length} query types to ${path.relative(
-          process.cwd(),
-          decsFileName,
-        )}`,
-      );
-    }
-  }
-
   private async processJob(job: TransformJob) {
     for (const fileName of job.files) {
-      await this.processFile(fileName, job.transform);
+      console.log(`Processing ${fileName}`);
+      const result = await this.worker.processFile(fileName, job.transform);
+      if (result) {
+        console.log(
+          `Saved ${result.typeDecsLength} query types to ${result.relativePath}`,
+        );
+      }
     }
   }
 
@@ -124,13 +98,7 @@ class FileProcessor {
 }
 
 async function main(config: ParsedConfig, isWatchMode: boolean) {
-  const connection = new AsyncQueue();
-  debug('starting codegenerator');
-  await startup(config.db, connection);
-
-  debug('connected to database %o', config.db.dbName);
-
-  const fileProcessor = new FileProcessor(connection, config);
+  const fileProcessor = new FileProcessor(config);
   for (const transform of config.transforms) {
     const pattern = `${config.srcDir}/**/${transform.include}`;
     if (isWatchMode) {
