@@ -4,7 +4,7 @@ import { Query as QueryAST } from './loader/sql';
 import { parseTSQuery, TSQueryAST } from './loader/typescript';
 import { parseTypeScriptFile } from './index';
 
-interface IDatabaseConnection {
+export interface IDatabaseConnection {
   query: (query: string, bindings: any[]) => Promise<{ rows: any[] }>;
 }
 
