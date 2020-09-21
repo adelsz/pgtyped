@@ -11,13 +11,13 @@ No need to map or translate your DB schema to TypeScript, PgTyped automatically 
 ---
 
 ## Features:
+
 1. Automatically generates TS types for parameters/results of SQL queries of any complexity.
 2. Supports extracting and typing queries from both SQL and TS files.
 3. Generate query types as you write them, using watch mode.
 4. Useful parameter interpolation helpers for arrays and objects.
 5. No need to define your DB schema in TypeScript, your running DB is the live source of type data.
 6. Prevents SQL injections by not doing explicit parameter substitution. Instead, queries and parameters are sent separately to the DB driver, allowing parameter substitution to be safely done by the PostgreSQL server.
-
 
 ### Documentation
 
@@ -29,11 +29,12 @@ Visit our new documentation page at [https://pgtyped.now.sh/](https://pgtyped.no
 2. Create a PgTyped `config.json` file.
 3. Run `npx pgtyped -w -c config.json` to start PgTyped in watch mode.
 
-Refer to the [example app](./packages/example/README.md) for a preconfigured example.  
+Refer to the [example app](./packages/example/README.md) for a preconfigured example.
 
 ### Example
 
 Lets save some queries in `books.sql`:
+
 ```sql
 /* @name FindBookById */
 SELECT * FROM books WHERE id = :bookId;
@@ -103,8 +104,8 @@ main();
 1. [Configuring Pgtyped](https://pgtyped.now.sh/docs/cli)
 2. [Writing queries in SQL files](https://pgtyped.now.sh/docs/sql-file-intro)
 3. [Advanced queries and parameter expansions in SQL files](https://pgtyped.now.sh/docs/sql-file)
-3. [Writing queries in TS files](https://pgtyped.now.sh/docs/ts-file-intro)
-3. [Advanced queries and parameter expansions in TS files](https://pgtyped.now.sh/docs/ts-file)
+4. [Writing queries in TS files](https://pgtyped.now.sh/docs/ts-file-intro)
+5. [Advanced queries and parameter expansions in TS files](https://pgtyped.now.sh/docs/ts-file)
 
 ### Project state:
 

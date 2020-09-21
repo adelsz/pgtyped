@@ -6,28 +6,32 @@ The `pgtyped` CLI can work in build and watch mode.
 ### Flags:
 
 The CLI supports two flags:
-* `-c config_file_path.json` to pass the config file path.
-* `-w` to start in watch mode.
+
+- `-c config_file_path.json` to pass the config file path.
+- `-w` to start in watch mode.
 
 Running the CLI:
+
 ```
 npx pgtyped -w -c config.json
 ```
 
 ### Env variables:
 
-PgTyped supports common PostgreSQL environment variables:  
-* `PGHOST`
-* `PGUSER`
-* `PGPASSWORD`
-* `PGDATABASE`
-* `PGPORT`  
+PgTyped supports common PostgreSQL environment variables:
+
+- `PGHOST`
+- `PGUSER`
+- `PGPASSWORD`
+- `PGDATABASE`
+- `PGPORT`
 
 These variables will override values provided in `config.json`.
 
 ### Config file:
 
 Config file format (`config.json`):
+
 ```js
 {
   // You can specify as many transforms as you want
@@ -62,6 +66,7 @@ By default, PgTyped saves generated files in the same folder as the source files
 This behavior can be customized using the `emitTemplate` config parameter.  
 In that template, four parameters are available for interpolation: `root`, `dir`, `base`, `name` and `ext`.  
 For example, when parsing source/query file `/home/user/dir/file.sql`, these parameters are assigned the following values:
+
 ```
 ┌─────────────────────┬────────────┐
 │          dir        │    base    │
@@ -71,6 +76,8 @@ For example, when parsing source/query file `/home/user/dir/file.sql`, these par
 └──────┴──────────────┴──────┴─────┘
 (All spaces in the "" line should be ignored. They are purely for formatting.)
 ```
+
 ---
+
 This package is part of the PgTyped project.  
 Refer to root [README](https://github.com/adelsz/pgtyped) for details.
