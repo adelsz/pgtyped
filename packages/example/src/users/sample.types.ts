@@ -21,3 +21,4 @@ export interface IGetUsersWithCommentsQuery {
   params: IGetUsersWithCommentsParams;
   result: IGetUsersWithCommentsResult;
 }
+
