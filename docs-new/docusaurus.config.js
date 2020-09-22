@@ -46,8 +46,7 @@ module.exports = {
           homePageId: 'intro',
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
-          editUrl:
-            'https://github.com/adelsz/pgtyped/edit/master/docs-new/',
+          editUrl: 'https://github.com/adelsz/pgtyped/edit/master/docs-new/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -55,5 +54,4 @@ module.exports = {
       },
     ],
   ],
-
 };
