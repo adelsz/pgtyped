@@ -1,6 +1,6 @@
 ---
 id: getting-started
-title: Getting Started 
+title: Getting Started
 sidebar_label: Getting Started
 ---
 
@@ -13,6 +13,7 @@ sidebar_label: Getting Started
 ### Configuration
 
 PgTyped requires a `config.json` file to run, a basic config file looks like this:
+
 ```json title="config.json"
 {
   "transforms": [
@@ -39,5 +40,3 @@ Refer to the [CLI page](cli) for more info on the config file, available CLI fla
 :::note
 If you are having trouble configuring PgTyped, you can refer to the [example app](https://github.com/adelsz/pgtyped/tree/master/packages/example) for a preconfigured example.  
 :::
-
-

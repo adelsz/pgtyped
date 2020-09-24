@@ -6,13 +6,14 @@ sidebar_label: CLI config
 
 `pgtyped` CLI can be launched in build or watch mode.  
 Watch mode is most useful for a local development workflow,
- while build mode can be used for generating types when running CI.
+while build mode can be used for generating types when running CI.
 
 ### Flags
 
 The CLI supports two flags:
-* `-c config_file_path.json` to pass the config file path.
-* `-w` to start in watch mode.
+
+- `-c config_file_path.json` to pass the config file path.
+- `-w` to start in watch mode.
 
 ```shell script title="Example:"
 npx pgtyped -w -c config.json
@@ -20,12 +21,13 @@ npx pgtyped -w -c config.json
 
 ### Environment variables
 
-PgTyped supports common PostgreSQL environment variables:  
-* `PGHOST`
-* `PGUSER`
-* `PGPASSWORD`
-* `PGDATABASE`
-* `PGPORT`  
+PgTyped supports common PostgreSQL environment variables:
+
+- `PGHOST`
+- `PGUSER`
+- `PGPASSWORD`
+- `PGDATABASE`
+- `PGPORT`
 
 These variables will override values provided in `config.json`.
 
@@ -65,6 +67,7 @@ By default, PgTyped saves generated files in the same folder as the source files
 This behavior can be customized using the `emitTemplate` config parameter.  
 In that template, four parameters are available for interpolation: `root`, `dir`, `base`, `name` and `ext`.  
 For example, when parsing source/query file `/home/user/dir/file.sql`, these parameters are assigned the following values:
+
 ```
 ┌─────────────────────┬────────────┐
 │          dir        │    base    │
