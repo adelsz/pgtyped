@@ -128,7 +128,7 @@ query.run(parameters, connection);
 INSERT INTO users (name, age) VALUES ($1, $2), ($3, $4) RETURNING id;
 ```
 
-## Reference
+## Parameter type reference
 
 | Expansion             | Syntax                      | Parameter Type                                             |
 | --------------------- | --------------------------- | ---------------------------------------------------------- |
@@ -136,3 +136,12 @@ INSERT INTO users (name, age) VALUES ($1, $2), ($3, $4) RETURNING id;
 | Object pick           | `$paramName(name, author)`  | `paramName: { name: NameType, author: AuthorType }`        |
 | Array spread          | `$$paramName`               | `paramName: Array<ParamType>`                              |
 | Array pick and spread | `$$paramName(name, author)` | `paramName: Array<{ name: NameType, author: AuthorType }>` |
+
+## Substitution reference
+
+| Expansion             | Query in TS                  | Query with substituted parameter  |
+|-----------------------|------------------------------|-----------------------------------|
+| Simple parameter      | `$parameter`                 | `$1`                              |
+| Object pick           | `$object(prop1, prop2)`      | `($1, $2)`                        |
+| Array spread          | `$$array`                    | `($1, $2, $3)`                    |
+| Array pick and spread | `$$objectArray(prop1, prop2)`| `($1, $2), ($3, $4), ($5, $6)`    |
