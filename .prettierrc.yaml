@@ -1,3 +1,2 @@
-trailingComma: "all"
+trailingComma: 'all'
 singleQuote: true
-allowParens: avoid

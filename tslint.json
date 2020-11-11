@@ -23,7 +23,9 @@
       "**/*Parser.ts",
       "**/*ParserListener.ts",
       "**/*ParserVisitor.ts",
-      "**/*queries.ts"
+      "**/*queries.ts",
+      "packages/example/**/*.ts",
+      "packages/query/src/loader/*/parser/**/*.ts"
     ]
   }
 }

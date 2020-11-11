@@ -12,7 +12,8 @@ const features = [
     imageUrl: 'img/typesafety.svg',
     description: (
       <>
-        Pgtyped generates TS types for parameters and results of SQL queries of any complexity.
+        Pgtyped generates TS types for parameters and results of SQL queries of
+        any complexity.
       </>
     ),
   },
@@ -21,8 +22,9 @@ const features = [
     imageUrl: 'img/multifile.svg',
     description: (
       <>
-        Queries can be written in SQL files together with useful parameter annotations.
-        In Typescript files, queries can be defined using a <code>sql</code> template string literal.
+        Queries can be written in SQL files together with useful parameter
+        annotations. In Typescript files, queries can be defined using a{' '}
+        <code>sql</code> template string literal.
       </>
     ),
   },
@@ -31,14 +33,15 @@ const features = [
     imageUrl: 'img/integrity.svg',
     description: (
       <>
-        PgTyped prevents SQL injections by separately sending queries and parameters to the DB for execution.
-        This allows parameter substitution to be safely done by the PostgreSQL server
+        PgTyped prevents SQL injections by separately sending queries and
+        parameters to the DB for execution. This allows parameter substitution
+        to be safely done by the PostgreSQL server
       </>
     ),
   },
 ];
 
-function Feature({imageUrl, title, description}) {
+function Feature({ imageUrl, title, description }) {
   const imgUrl = useBaseUrl(imageUrl);
   return (
     <div className={classnames('col col--4', styles.feature)}>
@@ -55,11 +58,12 @@ function Feature({imageUrl, title, description}) {
 
 function Home() {
   const context = useDocusaurusContext();
-  const {siteConfig = {}} = context;
+  const { siteConfig = {} } = context;
   return (
     <Layout
       title={`PgTyped - Typesafe SQL in Typescript`}
-      description="Typesafe SQL in Typescript">
+      description="Typesafe SQL in Typescript"
+    >
       <header className={classnames('hero hero--primary', styles.heroBanner)}>
         <div className="container">
           <h1 className="hero__title">{siteConfig.title}</h1>
@@ -70,7 +74,8 @@ function Home() {
                 'button button--outline button--secondary button--lg',
                 styles.getStarted,
               )}
-              to={useBaseUrl('docs/')}>
+              to={useBaseUrl('docs/')}
+            >
               Get Started
             </Link>
           </div>
