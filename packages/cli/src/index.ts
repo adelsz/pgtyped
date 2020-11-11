@@ -170,7 +170,7 @@ async function main(
   }
   if (fileOverride && !fileOverrideUsed) {
     console.log(
-      'File override specified, but file was not found in provided transforms'
+      'File override specified, but file was not found in provided transforms',
     );
   }
   if (!isWatchMode) {
