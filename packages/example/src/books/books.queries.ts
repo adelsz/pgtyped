@@ -1,5 +1,9 @@
-/** Types generated for queries found in "./src/books/books.sql" */
+/** Types generated for queries found in "src/books/books.sql" */
 import { PreparedQuery } from '@pgtyped/query';
+
+export type stringArray = (string)[];
+
+export type numberArray = (number)[];
 
 /** 'FindBookById' parameters type */
 export interface IFindBookByIdParams {
@@ -12,7 +16,6 @@ export interface IFindBookByIdResult {
   rank: number | null;
   name: string | null;
   author_id: number | null;
-  r: number | null;
 }
 
 /** 'FindBookById' query type */
@@ -140,7 +143,6 @@ export interface IGetBooksByAuthorNameResult {
   rank: number | null;
   name: string | null;
   author_id: number | null;
-  r: number | null;
 }
 
 /** 'GetBooksByAuthorName' query type */
@@ -160,5 +162,31 @@ const getBooksByAuthorNameIR: any = {"name":"GetBooksByAuthorName","params":[{"n
  * ```
  */
 export const getBooksByAuthorName = new PreparedQuery<IGetBooksByAuthorNameParams,IGetBooksByAuthorNameResult>(getBooksByAuthorNameIR);
+
+
+/** 'AggregateEmailsAndAges' parameters type */
+export type IAggregateEmailsAndAgesParams = void;
+
+/** 'AggregateEmailsAndAges' return type */
+export interface IAggregateEmailsAndAgesResult {
+  emails: stringArray | null;
+  ages: numberArray | null;
+}
+
+/** 'AggregateEmailsAndAges' query type */
+export interface IAggregateEmailsAndAgesQuery {
+  params: IAggregateEmailsAndAgesParams;
+  result: IAggregateEmailsAndAgesResult;
+}
+
+const aggregateEmailsAndAgesIR: any = {"name":"AggregateEmailsAndAges","params":[],"usedParamSet":{},"statement":{"body":"SELECT array_agg(email) as emails, array_agg(age) as ages FROM users","loc":{"a":710,"b":777,"line":40,"col":0}}};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT array_agg(email) as emails, array_agg(age) as ages FROM users
+ * ```
+ */
+export const aggregateEmailsAndAges = new PreparedQuery<IAggregateEmailsAndAgesParams,IAggregateEmailsAndAgesResult>(aggregateEmailsAndAgesIR);
 
 

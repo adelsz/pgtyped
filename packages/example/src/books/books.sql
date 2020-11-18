@@ -35,3 +35,6 @@ WHERE id = :id;
 SELECT b.* FROM books b
 INNER JOIN authors a ON a.id = b.author_id
 WHERE a.first_name || ' ' || a.last_name = :authorName;
+
+/* @name AggregateEmailsAndAges */
+SELECT array_agg(email) as emails, array_agg(age) as ages FROM users;
