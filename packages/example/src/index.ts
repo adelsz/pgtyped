@@ -1,7 +1,7 @@
 import { Client } from 'pg';
 import expect from 'expect';
 import {
-  aggregateEmailsAndAges,
+  aggregateEmailsAndTest,
   getBooksByAuthorName,
   insertBooks,
   updateBooks,
@@ -62,9 +62,11 @@ async function main() {
   );
   console.log(`Book: ${JSON.stringify(books[0])}`);
 
-  const [aggregateData] = await aggregateEmailsAndAges.run(undefined, client);
-  console.log('Aggregated data: ', aggregateData.ages, aggregateData.emails);
-  expect(aggregateData.ages).toEqual([35, 23, 19]);
+  const [aggregateData] = await aggregateEmailsAndTest.run(
+    { testAges: [35, 23, 19] },
+    client,
+  );
+  expect(aggregateData.agetest).toBe(true);
   expect(aggregateData.emails).toEqual([
     'alex.doe@example.com',
     'jane.holmes@example.com',

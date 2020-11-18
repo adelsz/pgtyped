@@ -164,29 +164,31 @@ const getBooksByAuthorNameIR: any = {"name":"GetBooksByAuthorName","params":[{"n
 export const getBooksByAuthorName = new PreparedQuery<IGetBooksByAuthorNameParams,IGetBooksByAuthorNameResult>(getBooksByAuthorNameIR);
 
 
-/** 'AggregateEmailsAndAges' parameters type */
-export type IAggregateEmailsAndAgesParams = void;
+/** 'AggregateEmailsAndTest' parameters type */
+export interface IAggregateEmailsAndTestParams {
+  testAges: numberArray | null | void;
+}
 
-/** 'AggregateEmailsAndAges' return type */
-export interface IAggregateEmailsAndAgesResult {
+/** 'AggregateEmailsAndTest' return type */
+export interface IAggregateEmailsAndTestResult {
   emails: stringArray | null;
-  ages: numberArray | null;
+  agetest: boolean | null;
 }
 
-/** 'AggregateEmailsAndAges' query type */
-export interface IAggregateEmailsAndAgesQuery {
-  params: IAggregateEmailsAndAgesParams;
-  result: IAggregateEmailsAndAgesResult;
+/** 'AggregateEmailsAndTest' query type */
+export interface IAggregateEmailsAndTestQuery {
+  params: IAggregateEmailsAndTestParams;
+  result: IAggregateEmailsAndTestResult;
 }
 
-const aggregateEmailsAndAgesIR: any = {"name":"AggregateEmailsAndAges","params":[],"usedParamSet":{},"statement":{"body":"SELECT array_agg(email) as emails, array_agg(age) as ages FROM users","loc":{"a":710,"b":777,"line":40,"col":0}}};
+const aggregateEmailsAndTestIR: any = {"name":"AggregateEmailsAndTest","params":[{"name":"testAges","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":763,"b":770,"line":40,"col":53}]}}],"usedParamSet":{"testAges":true},"statement":{"body":"SELECT array_agg(email) as emails, array_agg(age) = :testAges as ageTest FROM users","loc":{"a":710,"b":792,"line":40,"col":0}}};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT array_agg(email) as emails, array_agg(age) as ages FROM users
+ * SELECT array_agg(email) as emails, array_agg(age) = :testAges as ageTest FROM users
  * ```
  */
-export const aggregateEmailsAndAges = new PreparedQuery<IAggregateEmailsAndAgesParams,IAggregateEmailsAndAgesResult>(aggregateEmailsAndAgesIR);
+export const aggregateEmailsAndTest = new PreparedQuery<IAggregateEmailsAndTestParams,IAggregateEmailsAndTestResult>(aggregateEmailsAndTestIR);
 
 
