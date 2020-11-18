@@ -1,4 +1,4 @@
-/** Types generated for queries found in "./src/notifications/notifications.ts" */
+/** Types generated for queries found in "src/notifications/notifications.ts" */
 export type notification_type = 'notification' | 'reminder' | 'deadline';
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };

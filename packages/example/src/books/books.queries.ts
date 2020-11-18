@@ -1,5 +1,9 @@
-/** Types generated for queries found in "./src/books/books.sql" */
+/** Types generated for queries found in "src/books/books.sql" */
 import { PreparedQuery } from '@pgtyped/query';
+
+export type stringArray = (string)[];
+
+export type numberArray = (number)[];
 
 /** 'FindBookById' parameters type */
 export interface IFindBookByIdParams {
@@ -12,7 +16,6 @@ export interface IFindBookByIdResult {
   rank: number | null;
   name: string | null;
   author_id: number | null;
-  r: number | null;
 }
 
 /** 'FindBookById' query type */
@@ -140,7 +143,6 @@ export interface IGetBooksByAuthorNameResult {
   rank: number | null;
   name: string | null;
   author_id: number | null;
-  r: number | null;
 }
 
 /** 'GetBooksByAuthorName' query type */
@@ -160,5 +162,33 @@ const getBooksByAuthorNameIR: any = {"name":"GetBooksByAuthorName","params":[{"n
  * ```
  */
 export const getBooksByAuthorName = new PreparedQuery<IGetBooksByAuthorNameParams,IGetBooksByAuthorNameResult>(getBooksByAuthorNameIR);
+
+
+/** 'AggregateEmailsAndTest' parameters type */
+export interface IAggregateEmailsAndTestParams {
+  testAges: numberArray | null | void;
+}
+
+/** 'AggregateEmailsAndTest' return type */
+export interface IAggregateEmailsAndTestResult {
+  emails: stringArray | null;
+  agetest: boolean | null;
+}
+
+/** 'AggregateEmailsAndTest' query type */
+export interface IAggregateEmailsAndTestQuery {
+  params: IAggregateEmailsAndTestParams;
+  result: IAggregateEmailsAndTestResult;
+}
+
+const aggregateEmailsAndTestIR: any = {"name":"AggregateEmailsAndTest","params":[{"name":"testAges","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":763,"b":770,"line":40,"col":53}]}}],"usedParamSet":{"testAges":true},"statement":{"body":"SELECT array_agg(email) as emails, array_agg(age) = :testAges as ageTest FROM users","loc":{"a":710,"b":792,"line":40,"col":0}}};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT array_agg(email) as emails, array_agg(age) = :testAges as ageTest FROM users
+ * ```
+ */
+export const aggregateEmailsAndTest = new PreparedQuery<IAggregateEmailsAndTestParams,IAggregateEmailsAndTestResult>(aggregateEmailsAndTestIR);
 
 
