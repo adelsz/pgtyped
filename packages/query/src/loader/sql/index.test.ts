@@ -93,3 +93,14 @@ test('Postgres cast operator is correctly parsed', () => {
   const parseTree = parse(text);
   expect(parseTree).toMatchSnapshot();
 });
+
+test('Ignore inline comments in queries', () => {
+  const text = `
+  /* @name Subscription */
+  SELECT sub.* FROM (
+  /* ts-sql-plugin:ignore-cost */
+    SELECT * FROM test WHERE test = null
+  ) sub WHERE test = null;`;
+  const parseTree = parse(text);
+  expect(parseTree).toMatchSnapshot();
+});

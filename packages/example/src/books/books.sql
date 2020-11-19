@@ -25,6 +25,7 @@ WHERE id = :id;
   @name UpdateBooks
 */
 UPDATE books
+/* ignored comment */
 SET
     name = :name,
     rank = :rank

@@ -65,6 +65,31 @@ Object {
 }
 `;
 
+exports[`Ignore inline comments in queries 1`] = `
+Object {
+  "events": Array [],
+  "queries": Array [
+    Object {
+      "name": "Subscription",
+      "params": Array [],
+      "statement": Object {
+        "body": "SELECT sub.* FROM (
+                                 
+    SELECT * FROM test WHERE test = null
+  ) sub WHERE test = null",
+        "loc": Object {
+          "a": 30,
+          "b": 149,
+          "col": 2,
+          "line": 3,
+        },
+      },
+      "usedParamSet": Object {},
+    },
+  ],
+}
+`;
+
 exports[`Named query 1`] = `
 Object {
   "events": Array [],

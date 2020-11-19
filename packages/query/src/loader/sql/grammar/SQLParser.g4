@@ -18,7 +18,7 @@ statement
     : statementBody EOF_STATEMENT;
 
 statementBody
-    : word (param | word)*;
+    : word (ignoredComment | param | word)*;
 
 word: WORD | ID | STRING;
 
