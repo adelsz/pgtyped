@@ -65,6 +65,83 @@ Object {
 }
 `;
 
+exports[`Ignore inline comments in queries 1`] = `
+Object {
+  "events": Array [],
+  "queries": Array [
+    Object {
+      "name": "UpdateBooks",
+      "params": Array [
+        Object {
+          "codeRefs": Object {
+            "used": Array [
+              Object {
+                "a": 80,
+                "b": 83,
+                "col": 14,
+                "line": 5,
+              },
+            ],
+          },
+          "name": "name",
+          "transform": Object {
+            "type": "scalar",
+          },
+        },
+        Object {
+          "codeRefs": Object {
+            "used": Array [
+              Object {
+                "a": 94,
+                "b": 97,
+                "col": 28,
+                "line": 5,
+              },
+            ],
+          },
+          "name": "rank",
+          "transform": Object {
+            "type": "scalar",
+          },
+        },
+        Object {
+          "codeRefs": Object {
+            "used": Array [
+              Object {
+                "a": 111,
+                "b": 112,
+                "col": 45,
+                "line": 5,
+              },
+            ],
+          },
+          "name": "id",
+          "transform": Object {
+            "type": "scalar",
+          },
+        },
+      ],
+      "statement": Object {
+        "body": "UPDATE books
+                       
+  SET name = :name, rank = :rank WHERE id = :id",
+        "loc": Object {
+          "a": 29,
+          "b": 112,
+          "col": 2,
+          "line": 3,
+        },
+      },
+      "usedParamSet": Object {
+        "id": true,
+        "name": true,
+        "rank": true,
+      },
+    },
+  ],
+}
+`;
+
 exports[`Named query 1`] = `
 Object {
   "events": Array [],

@@ -3,6 +3,7 @@ import { CharStreams, CommonTokenStream } from 'antlr4ts';
 import { ParseTreeWalker } from 'antlr4ts/tree/ParseTreeWalker';
 import { SQLLexer } from './parser/SQLLexer';
 import {
+  IgnoredCommentContext,
   KeyContext,
   ParamIdContext,
   ParamNameContext,
@@ -182,6 +183,26 @@ class ParseListener implements SQLParserListener {
       body,
       loc,
     };
+  }
+
+  /** strip JS-like comments from SQL statements */
+  exitIgnoredComment(ctx: IgnoredCommentContext) {
+    if (!this.currentQuery.statement) {
+      return;
+    }
+    assert(this.currentQuery.statement);
+    const statement = this.currentQuery.statement;
+    const a = ctx.start.startIndex - statement.loc.a;
+    const b = ctx.stop!.stopIndex - statement.loc.a + 1;
+    const body = statement.body;
+    assert(b);
+    const [partA, ignored, partB] = [
+      body.slice(0, a),
+      body.slice(a, b),
+      body.slice(b),
+    ];
+    const strippedStatement = partA + ' '.repeat(b - a) + partB;
+    this.currentQuery.statement.body = strippedStatement;
   }
 
   enterParamId(ctx: ParamIdContext) {

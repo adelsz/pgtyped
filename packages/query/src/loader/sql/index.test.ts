@@ -93,3 +93,14 @@ test('Postgres cast operator is correctly parsed', () => {
   const parseTree = parse(text);
   expect(parseTree).toMatchSnapshot();
 });
+
+test('Ignore inline comments in queries', () => {
+  const text = `
+  /* @name UpdateBooks */
+  UPDATE books
+  /* ignored comment */
+  SET name = :name, rank = :rank WHERE id = :id;
+`;
+  const parseTree = parse(text);
+  expect(parseTree).toMatchSnapshot();
+});
