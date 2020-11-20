@@ -70,21 +70,73 @@ Object {
   "events": Array [],
   "queries": Array [
     Object {
-      "name": "Subscription",
-      "params": Array [],
+      "name": "UpdateBooks",
+      "params": Array [
+        Object {
+          "codeRefs": Object {
+            "used": Array [
+              Object {
+                "a": 80,
+                "b": 83,
+                "col": 14,
+                "line": 5,
+              },
+            ],
+          },
+          "name": "name",
+          "transform": Object {
+            "type": "scalar",
+          },
+        },
+        Object {
+          "codeRefs": Object {
+            "used": Array [
+              Object {
+                "a": 94,
+                "b": 97,
+                "col": 28,
+                "line": 5,
+              },
+            ],
+          },
+          "name": "rank",
+          "transform": Object {
+            "type": "scalar",
+          },
+        },
+        Object {
+          "codeRefs": Object {
+            "used": Array [
+              Object {
+                "a": 111,
+                "b": 112,
+                "col": 45,
+                "line": 5,
+              },
+            ],
+          },
+          "name": "id",
+          "transform": Object {
+            "type": "scalar",
+          },
+        },
+      ],
       "statement": Object {
-        "body": "SELECT sub.* FROM (
-                                 
-    SELECT * FROM test WHERE test = null
-  ) sub WHERE test = null",
+        "body": "UPDATE books
+                       
+  SET name = :name, rank = :rank WHERE id = :id",
         "loc": Object {
-          "a": 30,
-          "b": 149,
+          "a": 29,
+          "b": 112,
           "col": 2,
           "line": 3,
         },
       },
-      "usedParamSet": Object {},
+      "usedParamSet": Object {
+        "id": true,
+        "name": true,
+        "rank": true,
+      },
     },
   ],
 }

@@ -31,7 +31,6 @@ SET
     rank = :rank
 WHERE id = :id;
 
-
 /* @name GetBooksByAuthorName */
 SELECT b.* FROM books b
 INNER JOIN authors a ON a.id = b.author_id

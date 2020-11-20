@@ -96,11 +96,11 @@ test('Postgres cast operator is correctly parsed', () => {
 
 test('Ignore inline comments in queries', () => {
   const text = `
-  /* @name Subscription */
-  SELECT sub.* FROM (
-  /* ts-sql-plugin:ignore-cost */
-    SELECT * FROM test WHERE test = null
-  ) sub WHERE test = null;`;
+  /* @name UpdateBooks */
+  UPDATE books
+  /* ignored comment */
+  SET name = :name, rank = :rank WHERE id = :id;
+`;
   const parseTree = parse(text);
   expect(parseTree).toMatchSnapshot();
 });

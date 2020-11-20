@@ -185,10 +185,11 @@ class ParseListener implements SQLParserListener {
     };
   }
 
+  /** strip JS-like comments from SQL statements */
   exitIgnoredComment(ctx: IgnoredCommentContext) {
-    // strip JS-like comments from SQL statements
-    const { inputStream } = ctx.start;
-    assert(inputStream);
+    if (!this.currentQuery.statement) {
+      return;
+    }
     assert(this.currentQuery.statement);
     const statement = this.currentQuery.statement;
     const a = ctx.start.startIndex - statement.loc.a;

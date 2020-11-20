@@ -117,7 +117,7 @@ export interface IUpdateBooksQuery {
   result: IUpdateBooksResult;
 }
 
-const updateBooksIR: any = {"name":"UpdateBooks","params":[{"name":"name","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":499,"b":502,"line":30,"col":12}]}},{"name":"rank","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":517,"b":520,"line":31,"col":12}]}},{"name":"id","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":534,"b":535,"line":32,"col":12}]}}],"usedParamSet":{"name":true,"rank":true,"id":true},"statement":{"body":"UPDATE books\n                     \nSET\n    name = :name,\n    rank = :rank\nWHERE id = :i","loc":{"a":448,"b":535,"line":27,"col":0}}};
+const updateBooksIR: any = {"name":"UpdateBooks","params":[{"name":"name","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":499,"b":502,"line":30,"col":12}]}},{"name":"rank","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":517,"b":520,"line":31,"col":12}]}},{"name":"id","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":534,"b":535,"line":32,"col":12}]}}],"usedParamSet":{"name":true,"rank":true,"id":true},"statement":{"body":"UPDATE books\n                     \nSET\n    name = :name,\n    rank = :rank\nWHERE id = :id","loc":{"a":448,"b":535,"line":27,"col":0}}};
 
 /**
  * Query generated from SQL:
@@ -127,7 +127,7 @@ const updateBooksIR: any = {"name":"UpdateBooks","params":[{"name":"name","trans
  * SET
  *     name = :name,
  *     rank = :rank
- * WHERE id = :i
+ * WHERE id = :id
  * ```
  */
 export const updateBooks = new PreparedQuery<IUpdateBooksParams,IUpdateBooksResult>(updateBooksIR);
@@ -152,7 +152,7 @@ export interface IGetBooksByAuthorNameQuery {
   result: IGetBooksByAuthorNameResult;
 }
 
-const getBooksByAuthorNameIR: any = {"name":"GetBooksByAuthorName","params":[{"name":"authorName","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":684,"b":693,"line":38,"col":44}]}}],"usedParamSet":{"authorName":true},"statement":{"body":"SELECT b.* FROM books b\nINNER JOIN authors a ON a.id = b.author_id\nWHERE a.first_name || ' ' || a.last_name = :authorName","loc":{"a":573,"b":693,"line":36,"col":0}}};
+const getBooksByAuthorNameIR: any = {"name":"GetBooksByAuthorName","params":[{"name":"authorName","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":683,"b":692,"line":37,"col":44}]}}],"usedParamSet":{"authorName":true},"statement":{"body":"SELECT b.* FROM books b\nINNER JOIN authors a ON a.id = b.author_id\nWHERE a.first_name || ' ' || a.last_name = :authorName","loc":{"a":572,"b":692,"line":35,"col":0}}};
 
 /**
  * Query generated from SQL:
@@ -182,7 +182,7 @@ export interface IAggregateEmailsAndTestQuery {
   result: IAggregateEmailsAndTestResult;
 }
 
-const aggregateEmailsAndTestIR: any = {"name":"AggregateEmailsAndTest","params":[{"name":"testAges","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":785,"b":792,"line":41,"col":53}]}}],"usedParamSet":{"testAges":true},"statement":{"body":"SELECT array_agg(email) as emails, array_agg(age) = :testAges as ageTest FROM users","loc":{"a":732,"b":814,"line":41,"col":0}}};
+const aggregateEmailsAndTestIR: any = {"name":"AggregateEmailsAndTest","params":[{"name":"testAges","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":784,"b":791,"line":40,"col":53}]}}],"usedParamSet":{"testAges":true},"statement":{"body":"SELECT array_agg(email) as emails, array_agg(age) = :testAges as ageTest FROM users","loc":{"a":731,"b":813,"line":40,"col":0}}};
 
 /**
  * Query generated from SQL:
