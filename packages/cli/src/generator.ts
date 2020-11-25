@@ -116,7 +116,7 @@ export async function queryToTypeDeclarations(
 
       paramFieldTypes.push({
         fieldName: param.name,
-        fieldType: isArray ? `Array<${tsTypeName}>` : tsTypeName,
+        fieldType: isArray ? `readonly (${tsTypeName})[]` : tsTypeName,
       });
     } else {
       const isArray = param.type === ParamTransform.PickSpread;
@@ -128,7 +128,7 @@ export async function queryToTypeDeclarations(
         .join(',\n');
       fieldType = `{\n${fieldType}\n  }`;
       if (isArray) {
-        fieldType = `Array<${fieldType}>`;
+        fieldType = `readonly (${fieldType})[]`;
       }
       paramFieldTypes.push({
         fieldName: param.name,
