@@ -1,5 +1,7 @@
 import { Client } from 'pg';
+import expect from 'expect';
 import {
+  aggregateEmailsAndTest,
   getBooksByAuthorName,
   insertBooks,
   updateBooks,
@@ -14,6 +16,7 @@ import {
   sendNotifications,
   thresholdFrogs,
 } from './notifications/notifications.queries';
+import assert from 'assert';
 
 // tslint:disable:no-console
 
@@ -58,6 +61,17 @@ async function main() {
     client,
   );
   console.log(`Book: ${JSON.stringify(books[0])}`);
+
+  const [aggregateData] = await aggregateEmailsAndTest.run(
+    { testAges: [35, 23, 19] },
+    client,
+  );
+  expect(aggregateData.agetest).toBe(true);
+  expect(aggregateData.emails).toEqual([
+    'alex.doe@example.com',
+    'jane.holmes@example.com',
+    'andrewjackson@example.com',
+  ]);
 
   await sendNotifications.run(
     {

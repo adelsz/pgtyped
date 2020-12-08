@@ -1,4 +1,4 @@
-/** Types generated for queries found in "./src/users/sample.ts" */
+/** Types generated for queries found in "src/users/sample.ts" */
 
 /** 'GetUsersWithComments' parameters type */
 export interface IGetUsersWithCommentsParams {

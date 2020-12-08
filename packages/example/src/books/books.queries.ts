@@ -1,5 +1,9 @@
-/** Types generated for queries found in "./src/books/books.sql" */
+/** Types generated for queries found in "src/books/books.sql" */
 import { PreparedQuery } from '@pgtyped/query';
+
+export type stringArray = (string)[];
+
+export type numberArray = (number)[];
 
 /** 'FindBookById' parameters type */
 export interface IFindBookByIdParams {
@@ -12,7 +16,6 @@ export interface IFindBookByIdResult {
   rank: number | null;
   name: string | null;
   author_id: number | null;
-  r: number | null;
 }
 
 /** 'FindBookById' query type */
@@ -114,12 +117,13 @@ export interface IUpdateBooksQuery {
   result: IUpdateBooksResult;
 }
 
-const updateBooksIR: any = {"name":"UpdateBooks","params":[{"name":"name","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":477,"b":480,"line":29,"col":12}]}},{"name":"rank","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":495,"b":498,"line":30,"col":12}]}},{"name":"id","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":512,"b":513,"line":31,"col":12}]}}],"usedParamSet":{"name":true,"rank":true,"id":true},"statement":{"body":"UPDATE books\nSET\n    name = :name,\n    rank = :rank\nWHERE id = :id","loc":{"a":448,"b":513,"line":27,"col":0}}};
+const updateBooksIR: any = {"name":"UpdateBooks","params":[{"name":"name","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":499,"b":502,"line":30,"col":12}]}},{"name":"rank","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":517,"b":520,"line":31,"col":12}]}},{"name":"id","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":534,"b":535,"line":32,"col":12}]}}],"usedParamSet":{"name":true,"rank":true,"id":true},"statement":{"body":"UPDATE books\n                     \nSET\n    name = :name,\n    rank = :rank\nWHERE id = :id","loc":{"a":448,"b":535,"line":27,"col":0}}};
 
 /**
  * Query generated from SQL:
  * ```
  * UPDATE books
+ *                      
  * SET
  *     name = :name,
  *     rank = :rank
@@ -140,7 +144,6 @@ export interface IGetBooksByAuthorNameResult {
   rank: number | null;
   name: string | null;
   author_id: number | null;
-  r: number | null;
 }
 
 /** 'GetBooksByAuthorName' query type */
@@ -149,7 +152,7 @@ export interface IGetBooksByAuthorNameQuery {
   result: IGetBooksByAuthorNameResult;
 }
 
-const getBooksByAuthorNameIR: any = {"name":"GetBooksByAuthorName","params":[{"name":"authorName","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":662,"b":671,"line":37,"col":44}]}}],"usedParamSet":{"authorName":true},"statement":{"body":"SELECT b.* FROM books b\nINNER JOIN authors a ON a.id = b.author_id\nWHERE a.first_name || ' ' || a.last_name = :authorName","loc":{"a":551,"b":671,"line":35,"col":0}}};
+const getBooksByAuthorNameIR: any = {"name":"GetBooksByAuthorName","params":[{"name":"authorName","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":683,"b":692,"line":37,"col":44}]}}],"usedParamSet":{"authorName":true},"statement":{"body":"SELECT b.* FROM books b\nINNER JOIN authors a ON a.id = b.author_id\nWHERE a.first_name || ' ' || a.last_name = :authorName","loc":{"a":572,"b":692,"line":35,"col":0}}};
 
 /**
  * Query generated from SQL:
@@ -160,5 +163,33 @@ const getBooksByAuthorNameIR: any = {"name":"GetBooksByAuthorName","params":[{"n
  * ```
  */
 export const getBooksByAuthorName = new PreparedQuery<IGetBooksByAuthorNameParams,IGetBooksByAuthorNameResult>(getBooksByAuthorNameIR);
+
+
+/** 'AggregateEmailsAndTest' parameters type */
+export interface IAggregateEmailsAndTestParams {
+  testAges: numberArray | null | void;
+}
+
+/** 'AggregateEmailsAndTest' return type */
+export interface IAggregateEmailsAndTestResult {
+  emails: stringArray | null;
+  agetest: boolean | null;
+}
+
+/** 'AggregateEmailsAndTest' query type */
+export interface IAggregateEmailsAndTestQuery {
+  params: IAggregateEmailsAndTestParams;
+  result: IAggregateEmailsAndTestResult;
+}
+
+const aggregateEmailsAndTestIR: any = {"name":"AggregateEmailsAndTest","params":[{"name":"testAges","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":784,"b":791,"line":40,"col":53}]}}],"usedParamSet":{"testAges":true},"statement":{"body":"SELECT array_agg(email) as emails, array_agg(age) = :testAges as ageTest FROM users","loc":{"a":731,"b":813,"line":40,"col":0}}};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT array_agg(email) as emails, array_agg(age) = :testAges as ageTest FROM users
+ * ```
+ */
+export const aggregateEmailsAndTest = new PreparedQuery<IAggregateEmailsAndTestParams,IAggregateEmailsAndTestResult>(aggregateEmailsAndTestIR);
 
 

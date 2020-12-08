@@ -17,6 +17,7 @@ nun.configure({ autoescape: false });
 // tslint:disable:no-console
 const helpMessage = `PostgreSQL type generator flags:
   -w --watch     Watch mode
+  -f --file      File (overrides src directory in config, incompatible with watch mode)
   -h --help      Display this message
   -c             Config file (required)`;
 
@@ -73,8 +74,19 @@ class FileProcessor {
   }
 }
 
-async function main(config: ParsedConfig, isWatchMode: boolean) {
+async function main(
+  config: ParsedConfig,
+  isWatchMode: boolean,
+  fileOverride?: string,
+) {
+  const connection = new AsyncQueue();
+  debug('starting codegenerator');
+  await startup(config.db, connection);
+
+  debug('connected to database %o', config.db.dbName);
+
   const fileProcessor = new FileProcessor(config);
+  let fileOverrideUsed = false;
   for (const transform of config.transforms) {
     const pattern = `${config.srcDir}/**/${transform.include}`;
     if (isWatchMode) {
@@ -89,7 +101,17 @@ async function main(config: ParsedConfig, isWatchMode: boolean) {
         .on('add', cb)
         .on('change', cb);
     } else {
-      const fileList = glob.sync(pattern);
+      /**
+       * If the user didn't provide the -f paramter, we're using the list of files we got from glob.
+       * If he did, we're using glob file list to detect if his provided file should be used with this transform.
+       */
+      let fileList = glob.sync(pattern);
+      if (fileOverride) {
+        fileList = fileList.includes(fileOverride) ? [fileOverride] : [];
+        if (fileList.length > 0) {
+          fileOverrideUsed = true;
+        }
+      }
       debug('found query files %o', fileList);
       const transformJob = {
         files: fileList,
@@ -97,6 +119,11 @@ async function main(config: ParsedConfig, isWatchMode: boolean) {
       };
       fileProcessor.push(transformJob);
     }
+  }
+  if (fileOverride && !fileOverrideUsed) {
+    console.log(
+      'File override specified, but file was not found in provided transforms',
+    );
   }
   if (!isWatchMode) {
     await Promise.all(fileProcessor.workQueue);
@@ -110,16 +137,21 @@ if (require.main === module) {
     process.exit(0);
   }
 
-  const { c: configPath, w: isWatchMode } = args;
+  const { c: configPath, w: isWatchMode, f: fileOverride } = args;
 
   if (typeof configPath !== 'string') {
     console.log('Config file required. See help -h for details.\nExiting.');
     process.exit(0);
   }
 
+  if (isWatchMode && fileOverride) {
+    console.log('File override is not compatible with watch mode.\nExiting.');
+    process.exit(0);
+  }
+
   try {
     const config = parseConfig(configPath);
-    main(config, isWatchMode).catch((e) =>
+    main(config, isWatchMode, fileOverride).catch((e) =>
       debug('error in main: %o', e.message),
     );
   } catch (e) {
