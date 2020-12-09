@@ -34,7 +34,7 @@ export class AsyncQueue {
     host: string;
     ssl?: tls.ConnectionOptions | boolean;
   }): Promise<void> {
-    const { ssl, ...options } = passedOptions;
+    const { ssl, ...connectOptions } = passedOptions;
     const sslEnabled = ssl === true || ssl != null;
 
     const attachDataListener = () => {
@@ -101,7 +101,7 @@ export class AsyncQueue {
         });
       }
 
-      this.socket.connect(options);
+      this.socket.connect(connectOptions);
     });
   }
   public async send<Params extends object>(
