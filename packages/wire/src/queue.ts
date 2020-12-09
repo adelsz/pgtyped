@@ -77,7 +77,7 @@ export class AsyncQueue {
               );
           }
 
-          const options = {
+          const options: tls.ConnectionOptions = {
             socket: this.socket,
           };
 
@@ -85,6 +85,9 @@ export class AsyncQueue {
             Object.assign(options, ssl);
           }
 
+          if (net.isIP(connectOptions.host) === 0) {
+            options.servername = connectOptions.host;
+          }
           try {
             this.socket = tls.connect(options);
           } catch (err) {
