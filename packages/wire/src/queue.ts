@@ -49,15 +49,15 @@ export class AsyncQueue {
       this.socket.on('connect', () => {
         debug('socket connected');
 
-        if (!sslEnabled) {
-          attachDataListener();
-          resolve();
-        } else {
+        if (sslEnabled) {
           const requestSSLMessage = Buffer.allocUnsafe(8);
           requestSSLMessage.writeInt32BE(8, 0);
           requestSSLMessage.writeInt32BE(80877103, 4);
 
           this.socket.write(requestSSLMessage);
+        } else {
+          attachDataListener();
+          resolve();
         }
       });
 
