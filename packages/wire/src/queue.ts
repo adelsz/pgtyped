@@ -1,5 +1,6 @@
 import * as net from 'net';
 import * as util from 'util';
+import * as tls from 'tls';
 
 import {
   buildMessage,
@@ -27,19 +28,80 @@ export class AsyncQueue {
   } | null = null;
   constructor() {
     this.socket = new net.Socket({});
-    this.socket.on('data', (buffer: Buffer) => {
-      debug('received %o bytes', buffer.length);
-      this.queue.push(buffer);
-      this.processQueue();
-    });
   }
-  public connect(passedOptions: { port: number; host: string }): Promise<void> {
+  public connect(passedOptions: {
+    port: number;
+    host: string;
+    ssl?: tls.ConnectionOptions | boolean;
+  }): Promise<void> {
+    const { ssl, ...options } = passedOptions;
+    const sslEnabled = ssl === true || ssl != null;
+
+    const attachDataListener = () => {
+      this.socket.on('data', (buffer: Buffer) => {
+        debug('received %o bytes', buffer.length);
+        this.queue.push(buffer);
+        this.processQueue();
+      });
+    };
+
     return new Promise((resolve) => {
       this.socket.on('connect', () => {
         debug('socket connected');
-        resolve();
+
+        if (!sslEnabled) {
+          attachDataListener();
+          resolve();
+        } else {
+          const requestSSLMessage = Buffer.allocUnsafe(8);
+          requestSSLMessage.writeInt32BE(8, 0);
+          requestSSLMessage.writeInt32BE(80877103, 4);
+
+          this.socket.write(requestSSLMessage);
+        }
       });
-      this.socket.connect(passedOptions);
+
+      if (sslEnabled) {
+        this.socket.once('data', (buffer) => {
+          const responseCode = buffer.toString('utf8');
+          switch (responseCode) {
+            case 'S':
+              break;
+            case 'N':
+              this.socket.end();
+              throw new Error('The server does not support SSL connections');
+            default:
+              this.socket.end();
+              throw new Error(
+                'There was an error establishing an SSL connection',
+              );
+          }
+
+          const options = {
+            socket: this.socket,
+          };
+
+          if (ssl !== true) {
+            Object.assign(options, ssl);
+          }
+
+          try {
+            this.socket = tls.connect(options);
+          } catch (err) {
+            debug('ssl error', err);
+
+            this.socket.end();
+            throw new Error(
+              'There was an error establishing an SSL connection',
+            );
+          }
+
+          attachDataListener();
+          resolve();
+        });
+      }
+
+      this.socket.connect(options);
     });
   }
   public async send<Params extends object>(

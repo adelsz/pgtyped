@@ -1,5 +1,6 @@
 import { AsyncQueue, messages, PreparedObjectType } from '@pgtyped/wire';
 import crypto from 'crypto';
+import tls from 'tls';
 import debugBase from 'debug';
 
 import { IInterpolatedQuery, QueryParam } from './preprocessor';
@@ -28,6 +29,7 @@ export async function startup(
     port: number;
     user: string;
     dbName: string;
+    ssl?: tls.ConnectionOptions | boolean;
   },
   queue: AsyncQueue,
 ) {
