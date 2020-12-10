@@ -9,12 +9,7 @@ import {
   ParseResult,
 } from './protocol';
 
-import {
-  IClientMessage,
-  TMessage,
-  IServerMessage,
-  messages as protocolMessages,
-} from './messages';
+import { IClientMessage, TMessage, IServerMessage, messages } from './messages';
 
 import debugBase from 'debug';
 const debug = debugBase('pg-wire:socket');
@@ -55,7 +50,7 @@ export class AsyncQueue {
         debug('socket connected');
 
         if (sslEnabled) {
-          this.send(protocolMessages.sslRequest, {});
+          this.send(messages.sslRequest, {});
         } else {
           attachDataListener();
           resolve();
@@ -146,19 +141,19 @@ export class AsyncQueue {
   }
   /**
    * Waits for the next message to arrive and parses it, resolving with the parsed value.
-   * @param messages The message type to parse or an array of messages to match any of them
+   * @param serverMessages The message type to parse or an array of messages to match any of them
    * @returns The parsed params
    */
   public async reply<Messages extends Array<IServerMessage<any>>>(
-    ...messages: Messages
+    ...serverMessages: Messages
   ): Promise<Boxified<Messages>[number]> {
     let parser: (buf: Buffer, offset: number) => ParseResult<object>;
-    if (messages instanceof Array) {
+    if (serverMessages instanceof Array) {
       parser = (buf: Buffer, offset: number) =>
-        parseOneOf(messages, buf, offset);
+        parseOneOf(serverMessages, buf, offset);
     } else {
       parser = (buf: Buffer, offset: number) =>
-        parseMessage(messages, buf, offset);
+        parseMessage(serverMessages, buf, offset);
     }
     return new Promise((resolve, reject) => {
       this.replyPending = {
