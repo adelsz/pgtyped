@@ -9,7 +9,7 @@ import {
   ParseResult,
 } from './protocol';
 
-import { IClientMessage, TMessage, IServerMessage } from './messages';
+import { IClientMessage, TMessage, IServerMessage, messages } from './messages';
 
 import debugBase from 'debug';
 const debug = debugBase('pg-wire:socket');
@@ -50,11 +50,7 @@ export class AsyncQueue {
         debug('socket connected');
 
         if (sslEnabled) {
-          const requestSSLMessage = Buffer.allocUnsafe(8);
-          requestSSLMessage.writeInt32BE(8, 0);
-          requestSSLMessage.writeInt32BE(80877103, 4);
-
-          this.socket.write(requestSSLMessage);
+          this.send(messages.sslRequest, {});
         } else {
           attachDataListener();
           resolve();
@@ -88,6 +84,7 @@ export class AsyncQueue {
           if (net.isIP(connectOptions.host) === 0) {
             options.servername = connectOptions.host;
           }
+
           try {
             this.socket = tls.connect(options);
           } catch (err) {
