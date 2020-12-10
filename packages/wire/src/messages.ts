@@ -52,6 +52,16 @@ export enum PreparedObjectType {
 }
 
 export const messages = {
+  /** SSLRequest message requests SSL from a remote host  */
+  sslRequest: {
+    name: 'SSLRequest',
+    type: 'CLIENT',
+    indicator: null,
+    pattern: () => [
+      // The SSL request code.
+      int32(80877103),
+    ],
+  } as IClientMessage<{}>,
   /** ReadyForQuery message informs the frontend that it can safely send a new command. */
   readyForQuery: {
     name: 'ReadyForQuery',

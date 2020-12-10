@@ -11,9 +11,10 @@ while build mode can be used for generating types when running CI.
 ### Flags
 
 The CLI supports three flags:
-* `-c config_file_path.json` to pass the config file path.
-* `-w` to start in watch mode.
-* `-f file_path.ts` if you only want to process one file (which can be useful when working on a big project). Incompatible with watch mode. Uses transforms defined in the config file to determine the mode and emit template, so a file path that doesn't fit the include glob patterns will not be processed.
+
+- `-c config_file_path.json` to pass the config file path.
+- `-w` to start in watch mode.
+- `-f file_path.ts` if you only want to process one file (which can be useful when working on a big project). Incompatible with watch mode. Uses transforms defined in the config file to determine the mode and emit template, so a file path that doesn't fit the include glob patterns will not be processed.
 
 ```shell script title="Example:"
 npx pgtyped -w -c config.json
@@ -56,7 +57,9 @@ These variables will override values provided in `config.json`.
     "dbName": "testdb", // DB name
     "user": "user", // DB username
     "password": "password", // DB password (optional)
-    "host": "127.0.0.1" // DB host (optional)
+    "host": "127.0.0.1", // DB host (optional)
+    "port": 5432, // DB port (optional)
+    "ssl": false // Whether or not to connect to DB with SSL (optional)
   }
 }
 ```
@@ -76,4 +79,60 @@ For example, when parsing source/query file `/home/user/dir/file.sql`, these par
 "  /    home/user/dir / file  .sql "
 └──────┴──────────────┴──────┴─────┘
 (All spaces in the "" line should be ignored. They are purely for formatting.)
+```
+
+### Configuring SSL options
+
+By default, if enabled it will attempt to verify the SSL connection with the local certificates on the machine.
+
+Options can also be provided to customize the certificate used or to ignore SSL errors. More information about options can be found [here](https://nodejs.org/api/tls.html#tls_new_tls_tlssocket_socket_options).
+
+Sample configuration files have been provided below.
+
+```js title="custom_ca.json"
+{
+  "transforms": [
+    {
+      "mode": "sql",
+      "include": "**/*.sql",
+      "emitTemplate": "{{dir}}/{{name}}.queries.ts"
+    }
+  ],
+  "srcDir": "./src/",
+  "failOnError": false,
+  "camelCaseColumnNames": false,
+  "db": {
+    "dbName": "testdb",
+    "user": "user",
+    "host": "someremote.host.com",
+    "ssl": {
+      "host": "someremote.host.com",
+      "port": 5432,
+      "ca": ["insert CA here"]
+    }
+  }
+}
+```
+
+```js title="ignore_ssl.json"
+{
+  "transforms": [
+    {
+      "mode": "sql",
+      "include": "**/*.sql",
+      "emitTemplate": "{{dir}}/{{name}}.queries.ts"
+    }
+  ],
+  "srcDir": "./src/",
+  "failOnError": false,
+  "camelCaseColumnNames": false,
+  "db": {
+    "dbName": "testdb",
+    "user": "user",
+    "host": "someremote.host.com",
+    "ssl": {
+      "rejectUnauthorized": false
+    }
+  }
+}
 ```

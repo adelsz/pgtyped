@@ -4,6 +4,7 @@ import * as Either from 'fp-ts/lib/Either';
 import { join, isAbsolute } from 'path';
 import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
+import tls from 'tls';
 
 const transformCodecProps = {
   include: t.string,
@@ -38,6 +39,7 @@ const configParser = t.type({
       port: t.union([t.number, t.undefined]),
       user: t.union([t.string, t.undefined]),
       dbName: t.union([t.string, t.undefined]),
+      ssl: t.union([t.UnknownRecord, t.boolean, t.undefined]),
     }),
     t.undefined,
   ]),
@@ -52,6 +54,7 @@ export interface ParsedConfig {
     password: string | undefined;
     dbName: string;
     port: number;
+    ssl?: tls.ConnectionOptions | boolean;
   };
   failOnError: boolean;
   camelCaseColumnNames: boolean;
