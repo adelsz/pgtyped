@@ -83,6 +83,8 @@ For example, when parsing source/query file `/home/user/dir/file.sql`, these par
 
 ### Configuring SSL options
 
+By default, if enabled it will attempt to verify the SSL connection with the local certificates on the machine.
+
 Options can also be provided to customize the certificate used or to ignore SSL errors. More information about options can be found [here](https://nodejs.org/api/tls.html#tls_new_tls_tlssocket_socket_options).
 
 Sample configuration files have been provided below.
