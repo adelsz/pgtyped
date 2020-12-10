@@ -9,7 +9,12 @@ import {
   ParseResult,
 } from './protocol';
 
-import { IClientMessage, TMessage, IServerMessage, messages } from './messages';
+import {
+  IClientMessage,
+  TMessage,
+  IServerMessage,
+  messages as protocolMessages,
+} from './messages';
 
 import debugBase from 'debug';
 const debug = debugBase('pg-wire:socket');
@@ -50,7 +55,7 @@ export class AsyncQueue {
         debug('socket connected');
 
         if (sslEnabled) {
-          this.send(messages.sslRequest, {});
+          this.send(protocolMessages.sslRequest, {});
         } else {
           attachDataListener();
           resolve();
