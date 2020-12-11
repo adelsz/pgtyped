@@ -5,6 +5,7 @@ import { join, isAbsolute } from 'path';
 import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
 import tls from 'tls';
+import parseDatabaseUrl, { DatabaseConfig } from 'ts-parse-database-url';
 
 const transformCodecProps = {
   include: t.string,
@@ -32,6 +33,7 @@ const configParser = t.type({
   srcDir: t.string,
   failOnError: t.union([t.boolean, t.undefined]),
   camelCaseColumnNames: t.union([t.boolean, t.undefined]),
+  dbUrl: t.union([t.string, t.undefined]),
   db: t.union([
     t.type({
       host: t.union([t.string, t.undefined]),
@@ -73,9 +75,26 @@ function merge<T>(base: T, ...overrides: Partial<T>[]): T {
   );
 }
 
+function convertParsedURLToDBConfig({
+  host,
+  password,
+  user,
+  port,
+  database,
+}: DatabaseConfig) {
+  return {
+    host,
+    password,
+    user,
+    port,
+    dbName: database,
+  };
+}
+
 export function parseConfig(path: string): ParsedConfig {
   const fullPath = isAbsolute(path) ? path : join(process.cwd(), path);
   const configObject = require(fullPath);
+
   const result = configParser.decode(configObject);
   if (Either.isLeft(result)) {
     const message = reporter(result);
@@ -100,11 +119,16 @@ export function parseConfig(path: string): ParsedConfig {
 
   const {
     db = defaultDBConfig,
+    dbUrl,
     transforms,
     srcDir,
     failOnError,
     camelCaseColumnNames,
   } = configObject as IConfig;
+
+  const urlDBConfig = dbUrl
+    ? convertParsedURLToDBConfig(parseDatabaseUrl(dbUrl))
+    : {};
 
   if (transforms.some((tr) => !!tr.emitFileName)) {
     // tslint:disable:no-console
@@ -113,7 +137,7 @@ export function parseConfig(path: string): ParsedConfig {
     );
   }
 
-  const finalDBConfig = merge(defaultDBConfig, db, envDBConfig);
+  const finalDBConfig = merge(defaultDBConfig, db, urlDBConfig, envDBConfig);
 
   return {
     db: finalDBConfig,

@@ -4,7 +4,7 @@ title: CLI config
 sidebar_label: CLI config
 ---
 
-`pgtyped` CLI can be launched in build or watch mode.  
+`pgtyped` CLI can be launched in build or watch mode.
 Watch mode is most useful for a local development workflow,
 while build mode can be used for generating types when running CI.
 
@@ -53,6 +53,7 @@ These variables will override values provided in `config.json`.
   "srcDir": "./src/", // Directory to scan or watch for query files
   "failOnError": false, // Whether to fail on a file processing error and abort generation (can be omitted - default is false)
   "camelCaseColumnNames": false, // convert to camelCase column names of result interface
+  "dbUrl": "postgres://user:password@host/database", // DB URL (optional - will be merged with db if provided)
   "db": {
     "dbName": "testdb", // DB name
     "user": "user", // DB username
@@ -66,9 +67,9 @@ These variables will override values provided in `config.json`.
 
 ### Customizing generated file paths
 
-By default, PgTyped saves generated files in the same folder as the source files it parses.  
-This behavior can be customized using the `emitTemplate` config parameter.  
-In that template, four parameters are available for interpolation: `root`, `dir`, `base`, `name` and `ext`.  
+By default, PgTyped saves generated files in the same folder as the source files it parses.
+This behavior can be customized using the `emitTemplate` config parameter.
+In that template, four parameters are available for interpolation: `root`, `dir`, `base`, `name` and `ext`.
 For example, when parsing source/query file `/home/user/dir/file.sql`, these parameters are assigned the following values:
 
 ```
