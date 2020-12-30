@@ -34,6 +34,7 @@ const configParser = t.type({
   failOnError: t.union([t.boolean, t.undefined]),
   camelCaseColumnNames: t.union([t.boolean, t.undefined]),
   dbUrl: t.union([t.string, t.undefined]),
+  overrideDbUrlEnvName: t.union([t.string, t.undefined]),
   db: t.union([
     t.type({
       host: t.union([t.string, t.undefined]),
@@ -91,6 +92,12 @@ function convertParsedURLToDBConfig({
   };
 }
 
+function getDbUrlFromEnv(overrideEnvVarName?: string): string | undefined {
+  const defaultEnvName = 'DATABSE_URL';
+
+  return process.env[overrideEnvVarName || defaultEnvName];
+}
+
 export function parseConfig(path: string): ParsedConfig {
   const fullPath = isAbsolute(path) ? path : join(process.cwd(), path);
   const configObject = require(fullPath);
@@ -120,14 +127,17 @@ export function parseConfig(path: string): ParsedConfig {
   const {
     db = defaultDBConfig,
     dbUrl,
+    overrideDbUrlEnvName,
     transforms,
     srcDir,
     failOnError,
     camelCaseColumnNames,
   } = configObject as IConfig;
 
-  const urlDBConfig = dbUrl
-    ? convertParsedURLToDBConfig(parseDatabaseUrl(dbUrl))
+  const finalDbUrl = getDbUrlFromEnv(overrideDbUrlEnvName) || dbUrl;
+
+  const urlDBConfig = finalDbUrl
+    ? convertParsedURLToDBConfig(parseDatabaseUrl(finalDbUrl))
     : {};
 
   if (transforms.some((tr) => !!tr.emitFileName)) {

@@ -54,6 +54,7 @@ These variables will override values provided in `config.json`.
   "failOnError": false, // Whether to fail on a file processing error and abort generation (can be omitted - default is false)
   "camelCaseColumnNames": false, // convert to camelCase column names of result interface
   "dbUrl": "postgres://user:password@host/database", // DB URL (optional - will be merged with db if provided)
+  "dbUrlEnvName": "DATABASE_URL", // DB URL env name (optional - will be read from .env) 
   "db": {
     "dbName": "testdb", // DB name
     "user": "user", // DB username
