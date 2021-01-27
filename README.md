@@ -62,7 +62,7 @@ export interface IFindBookByIdResult {
 
 /**
  * Query generated from SQL:
- * SELECT * FROM books WHERE id = :commentId
+ * SELECT * FROM books WHERE id = :bookId
  */
 export const findBookById = new PreparedQuery<
   IFindBookByIdParams,
