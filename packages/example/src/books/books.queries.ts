@@ -1,9 +1,9 @@
 /** Types generated for queries found in "src/books/books.sql" */
 import { PreparedQuery } from '@pgtyped/query';
 
-export type stringArray = (string)[];
-
 export type numberArray = (number)[];
+
+export type stringArray = (string)[];
 
 /** 'FindBookById' parameters type */
 export interface IFindBookByIdParams {
@@ -37,11 +37,11 @@ export const findBookById = new PreparedQuery<IFindBookByIdParams,IFindBookByIdR
 
 /** 'InsertBooks' parameters type */
 export interface IInsertBooksParams {
-  books: Array<{
+  books: readonly ({
     rank: number | null | void,
     name: string | null | void,
     authorId: number | null | void
-  }>;
+  })[];
 }
 
 /** 'InsertBooks' return type */
