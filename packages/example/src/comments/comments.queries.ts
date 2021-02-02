@@ -33,10 +33,10 @@ export const getAllComments = new PreparedQuery<IGetAllCommentsParams,IGetAllCom
 
 /** 'InsertComment' parameters type */
 export interface IInsertCommentParams {
-  comments: Array<{
+  comments: readonly ({
     userId: number | null | void,
     commentBody: string | null | void
-  }>;
+  })[];
 }
 
 /** 'InsertComment' return type */

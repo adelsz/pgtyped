@@ -1,17 +1,17 @@
 /** Types generated for queries found in "src/notifications/notifications.sql" */
 import { PreparedQuery } from '@pgtyped/query';
 
-export type notification_type = 'notification' | 'reminder' | 'deadline';
+export type notification_type = 'deadline' | 'notification' | 'reminder';
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 
 /** 'SendNotifications' parameters type */
 export interface ISendNotificationsParams {
-  notifications: Array<{
+  notifications: readonly ({
     user_id: number | null | void,
     payload: Json | null | void,
     type: notification_type | null | void
-  }>;
+  })[];
 }
 
 /** 'SendNotifications' return type */
