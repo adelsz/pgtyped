@@ -67,7 +67,7 @@ describe('query-to-interface translation', () => {
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
 
-export type PayloadType = 'message' | 'dynamite';
+export type PayloadType = 'dynamite' | 'message';
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
 
@@ -266,7 +266,7 @@ export interface IDeleteUsersQuery {
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
 
-export type PayloadType = 'message' | 'dynamite';
+export type PayloadType = 'dynamite' | 'message';
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
 
@@ -341,7 +341,7 @@ export interface IGetNotificationsQuery {
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
 
-export type PayloadType = 'message' | 'dynamite';
+export type PayloadType = 'dynamite' | 'message';
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
 
@@ -412,7 +412,7 @@ export interface IGetNotificationsQuery {
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
 
-export type PayloadType = 'message' | 'dynamite';
+export type PayloadType = 'dynamite' | 'message';
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
 
