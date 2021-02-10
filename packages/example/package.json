@@ -26,7 +26,7 @@
     "@types/pg": "7.14.9",
     "expect": "26.6.2",
     "pg": "8.5.1",
-    "typescript": "3.8.3"
+    "typescript": "3.9.9"
   },
   "devDependencies": {
     "ts-node": "9.1.1"
