@@ -45,6 +45,6 @@
     "@types/minimist": "1.2.1"
   },
   "peerDependencies": {
-    "typescript": "^3.1"
+    "typescript": "3.1 - 4"
   }
 }
