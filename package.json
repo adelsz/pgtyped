@@ -16,7 +16,7 @@
     "@types/jest": "26.0.20",
     "@types/node": "13.13.41",
     "jest": "26.6.3",
-    "lerna": "3.22.1",
+    "lerna": "4.0.0",
     "prettier": "2.2.1",
     "ts-jest": "26.5.1",
     "ts-node": "9.1.1",
