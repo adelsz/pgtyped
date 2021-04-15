@@ -14,6 +14,7 @@ import { pascalCase } from 'pascal-case';
 import { ProcessingMode } from './index';
 import { DefaultTypeMapping, TypeAllocator } from './types';
 import { ParsedConfig } from './config';
+import path from 'path';
 
 export interface IField {
   fieldName: string;
@@ -277,8 +278,17 @@ export async function generateDeclarationFile(
     types,
     config,
   );
+
+  // file paths in generated files must be stable across platforms
+  // https://github.com/adelsz/pgtyped/issues/230
+  const isWindowsPath = path.sep === '\\';
+  // always emit POSIX paths
+  const stableFilePath = isWindowsPath
+    ? fileName.replace(/\\/g, '/')
+    : fileName;
+
   let declarationFileContents = '';
-  declarationFileContents += `/** Types generated for queries found in "${fileName}" */\n`;
+  declarationFileContents += `/** Types generated for queries found in "${stableFilePath}" */\n`;
   declarationFileContents += types.declaration();
   declarationFileContents += '\n';
   for (const typeDec of typeDecs) {
