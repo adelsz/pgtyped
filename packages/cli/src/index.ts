@@ -185,8 +185,10 @@ if (require.main === module) {
     process.exit(0);
   }
 
-  const { c: configPath, w: isWatchMode, f: fileOverride } = args;
-
+  const isWatchMode = args.w || args.watch
+  const fileOverride = args.f || args.file
+  const configPath = args.c
+    
   if (typeof configPath !== 'string') {
     console.log('Config file required. See help -h for details.\nExiting.');
     process.exit(0);
