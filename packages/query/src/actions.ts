@@ -1,4 +1,5 @@
 import { AsyncQueue, messages, PreparedObjectType } from '@pgtyped/wire';
+import { cString } from '@pgtyped/wire/lib/helpers';
 import crypto from 'crypto';
 import * as tls from 'tls';
 import debugBase from 'debug';
@@ -45,22 +46,91 @@ export async function startup(
       messages.readyForQuery,
       messages.authenticationCleartextPassword,
       messages.authenticationMD5Password,
+      messages.authenticationSASL,
     );
     if ('trxStatus' in result) {
       // No auth required
       return;
     }
     if (!options.password) {
-      throw new Error('password required for MD5 hash auth');
+      throw new Error('password required for hash auth');
     }
     let password = options.password;
-    if ('salt' in result) {
-      // if MD5 auth scheme
+    if ('SASLMechanisms' in result) {
+      // https://github.com/brianc/node-postgres/blob/master/packages/pg/lib/sasl.js
+      // https://github.com/ecotilly/DataAnalytics/blob/27d5def10d49bcc46833c6b07dd428ac816fd21c/et-gcp-firebase/functions/node_modules%20copy/pg/lib/connection.js
+      // https://www.2ndquadrant.com/en/blog/password-authentication-methods-in-postgresql/
+      // https://www.postgresql.org/docs/current/protocol-message-formats.html
+      if (result.SASLMechanisms?.indexOf('SCRAM-SHA-256') === -1) {
+        throw new Error('SASL: Only mechanism SCRAM-SHA-256 is currently supported')
+      }
+
+      const clientNonce = crypto.randomBytes(18).toString('base64')
+      const response = 'n,,n=*,r=' + clientNonce;
+      await queue.send(messages.SASLInitialResponse, {
+        mechanism: 'SCRAM-SHA-256',
+        responseLength: Buffer.byteLength(response),
+        response,
+      });
+
+      const SASLContinueResult = await queue.reply(messages.AuthenticationSASLContinue);
+
+      const serverVariables = extractVariablesFromFirstServerMessage(SASLContinueResult.SASLdata);
+      if (!serverVariables.nonce.startsWith(clientNonce)) {
+        throw new Error('SASL: SCRAM-SERVER-FIRST-MESSAGE: server nonce does not start with client nonce')
+      }
+
+      const passwordBytes = cString(password)
+
+      const saltBytes = Buffer.from(serverVariables.salt, 'base64')
+      const saltedPassword = Hi(passwordBytes, saltBytes, serverVariables.iteration)
+
+      const clientKey = createHMAC(saltedPassword, 'Client Key')
+      const storedKey = crypto.createHash('sha256').update(clientKey).digest()
+
+      const clientFirstMessageBare = 'n=*,r=' + clientNonce
+      const serverFirstMessage = 'r=' + serverVariables.nonce + ',s=' + serverVariables.salt + ',i=' + serverVariables.iteration
+
+      const clientFinalMessageWithoutProof = 'c=biws,r=' + serverVariables.nonce
+
+      const authMessage = clientFirstMessageBare + ',' + serverFirstMessage + ',' + clientFinalMessageWithoutProof
+
+      const clientSignature = createHMAC(storedKey, authMessage)
+      const clientProofBytes = xorBuffers(clientKey, clientSignature)
+      const clientProof = clientProofBytes.toString('base64')
+
+      const serverKey = createHMAC(saltedPassword, 'Server Key')
+      const serverSignatureBytes = createHMAC(serverKey, authMessage)
+
+      const calculatedServerSignature = serverSignatureBytes.toString('base64')
+
+
+      // then client sends a SASLResponse
+      await queue.send(messages.SASLResponse, {
+        response: clientFinalMessageWithoutProof + ',p=' + clientProof,
+      })
+
+      // then server sends AuthenticationSASLFinal
+
+      const AuthenticationSASLFinalResult = await queue.reply(messages.AuthenticationSASLFinal);
+      const { serverSignatureFromServer } = parseServerFinalMessage(AuthenticationSASLFinalResult.SASLdata.slice(0, -1))
+
+      if (calculatedServerSignature !== serverSignatureFromServer) {
+        throw new Error('SASL: SCRAM-SERVER-FINAL-MESSAGE: server signature does not match')
+      }
+
+      // TODO add a queue.reply method that parses several messages in the final received buffer:
+      // AuthenticationSASLFinal
+      // ParameterStatus (several times)
+      // BackendKeyData
+      // ReadyForQuery
+
+    } else if ('salt' in result) {
       password = generateHash(options.user, password, result.salt);
+      await queue.send(messages.passwordMessage, { password });
+      await queue.reply(messages.authenticationOk);
+      await queue.reply(messages.readyForQuery);
     }
-    await queue.send(messages.passwordMessage, { password });
-    await queue.reply(messages.authenticationOk);
-    await queue.reply(messages.readyForQuery);
   } catch (e) {
     // tslint:disable-next-line:no-console
     console.error(`Connection failed: ${e.message}`);
@@ -310,4 +380,102 @@ export async function getTypes(
   };
 
   return { paramMetadata, returnTypes };
+}
+
+function isBase64(text: string) {
+  return /^(?:[a-zA-Z0-9+/]{4})*(?:[a-zA-Z0-9+/]{2}==|[a-zA-Z0-9+/]{3}=)?$/.test(text)
+}
+
+function parseAttributePairs(text: string) {
+  if (typeof text !== 'string') {
+    throw new TypeError('SASL: attribute pairs text must be a string')
+  }
+
+  return new Map(
+    text.split(',').filter(attrValue => /^.=./.test(attrValue)).map((attrValue) => {
+      const name = attrValue[0]
+      const value = attrValue.substring(2)
+      return [name, value]
+    })
+  )
+}
+
+function parseServerFinalMessage(serverData: string) {
+  const attrPairs = parseAttributePairs(serverData)
+  const serverSignatureFromServer = attrPairs.get('v')
+  if (!serverSignatureFromServer) {
+    throw new Error('SASL: SCRAM-SERVER-FINAL-MESSAGE: server signature is missing')
+  } else if (!isBase64(serverSignatureFromServer)) {
+    throw new Error('SASL: SCRAM-SERVER-FINAL-MESSAGE: server signature must be base64')
+  }
+  return {
+    serverSignatureFromServer,
+  }
+}
+
+function extractVariablesFromFirstServerMessage (data: string): {nonce: string; salt: string; iteration: number} {
+  let nonce, salt, iteration
+
+  String(data).split(',').forEach(function (part) {
+    switch (part[0]) {
+      case 'r':
+        nonce = part.substr(2)
+        break
+      case 's':
+        salt = part.substr(2)
+        break
+      case 'i':
+        iteration = parseInt(part.substr(2), 10)
+        break
+    }
+  })
+
+  if (!nonce) {
+    throw new Error('SASL: SCRAM-SERVER-FIRST-MESSAGE: nonce missing')
+  }
+
+  if (!salt) {
+    throw new Error('SASL: SCRAM-SERVER-FIRST-MESSAGE: salt missing')
+  }
+
+  if (!iteration) {
+    throw new Error('SASL: SCRAM-SERVER-FIRST-MESSAGE: iteration missing')
+  }
+
+  return {
+    nonce,
+    salt,
+    iteration
+  }
+}
+
+function xorBuffers (a: Buffer, b: Buffer): Buffer {
+  if (!Buffer.isBuffer(a)) a = Buffer.from(a)
+  if (!Buffer.isBuffer(b)) b = Buffer.from(b)
+  var res = []
+  if (a.length > b.length) {
+    for (let i = 0; i < b.length; i++) {
+      res.push(a[i] ^ b[i])
+    }
+  } else {
+    for (let j = 0; j < a.length; j++) {
+      res.push(a[j] ^ b[j])
+    }
+  }
+  return Buffer.from(res)
+}
+
+function createHMAC (key: NodeJS.ArrayBufferView, msg: string | NodeJS.ArrayBufferView) {
+  return crypto.createHmac('sha256', key).update(msg).digest()
+}
+
+function Hi (password: NodeJS.ArrayBufferView, saltBytes: Buffer, iterations: number) {
+  let ui1 = createHMAC(password, Buffer.concat([saltBytes, Buffer.from([0, 0, 0, 1])]))
+  let ui = ui1
+  for (let i = 0; i < iterations - 1; i++) {
+    ui1 = createHMAC(password, ui1)
+    ui = xorBuffers(ui, ui1)
+  }
+
+  return ui
 }

@@ -5,9 +5,11 @@ import {
   cByteDict,
   cString,
   cStringDict,
+  cStringUnknownLengthArray,
   fixedArray,
   int16,
   int32,
+  simpleString
 } from './helpers';
 
 export interface IClientMessage<Params extends object | void> {
@@ -106,6 +108,16 @@ export const messages = {
     /** md5 salt to use */
     salt: Buffer;
   }>,
+  /** AuthenticationSASL message informs the frontend that we must set up a SASL connection */
+  authenticationSASL: {
+    name: 'AuthenticationSASL',
+    type: 'SERVER',
+    indicator: 'R',
+    pattern: {
+      status: int32(10),
+      SASLMechanisms: cStringUnknownLengthArray,
+    },
+  } as IServerMessage<{SASLMechanisms: string[] | undefined}>,
   /**
    * BackendKeyData message provides secret-key data that the frontend must save to be able to issue cancel requests later.
    * The frontend should not respond to this message, but should continue listening for a ReadyForQuery message.
@@ -174,6 +186,44 @@ export const messages = {
     /** The current value of the parameter */
     value: string;
   }>,
+  /** PasswordMessage sends a password response on initial auth. */
+  SASLInitialResponse: {
+    name: 'SASLInitialResponse',
+    type: 'CLIENT',
+    indicator: 'p',
+    pattern: (data) => [cString(data.mechanism), int32(data.responseLength), simpleString(data.response)],
+  } as IClientMessage<{
+    mechanism: string;
+    responseLength: number;
+    response: string;
+  }>,
+  AuthenticationSASLContinue: {
+    name: 'AuthenticationSASLContinue',
+    type: 'SERVER',
+    indicator: 'R',
+    pattern: {
+      status: int32(11),
+      SASLdata: simpleString,
+    },
+  } as IServerMessage<{SASLdata: string}>,
+  SASLResponse: {
+    name: 'SASLResponse',
+    type: 'CLIENT',
+    indicator: 'p',
+    pattern: (data) => [simpleString(data.response)],
+  } as IClientMessage<{
+    response: string;
+  }>,
+  AuthenticationSASLFinal: {
+    name: 'AuthenticationSASLFinal',
+    type: 'SERVER',
+    indicator: 'R',
+    pattern: {
+      status: int32(12),
+      SASLdata: cString,
+      disregardedPostgresData: simpleString
+    },
+  } as IServerMessage<{SASLdata: string}>,
   /** PasswordMessage sends a password response on initial auth. */
   passwordMessage: {
     name: 'PasswordMessage',
