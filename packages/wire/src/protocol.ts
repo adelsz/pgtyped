@@ -4,9 +4,11 @@ import {
   byteN,
   cByteDict,
   cString,
+  cStringUnknownLengthArray,
   int16,
   int32,
   sumSize,
+  simpleString
 } from './helpers';
 
 import {
@@ -44,6 +46,9 @@ export const parseSimpleType = (
     }
     result = buf.toString('utf8', stringStart, offset);
     offset++;
+  } else if (type === simpleString) {
+    result = buf.toString('utf8', offset);
+    offset += result.length;
   } else if (type === byteN) {
     const chunkSize = buf.readInt32BE(offset);
     offset += 4;
@@ -133,7 +138,8 @@ export const parseMessage = <Params extends object>(
   const patternPairs = Object.entries(pattern);
   let pairIndex = 0;
   try {
-    while (bufferOffset !== messageEnd) {
+    // The messageEnd doesn't work for AuthenticationSASLFinal, as it sends some additional info.
+    while (bufferOffset < messageEnd) {
       const [key, type] = patternPairs[pairIndex];
       if (type === cByteDict) {
         const dict: { [key: string]: string } = {};
@@ -144,7 +150,7 @@ export const parseMessage = <Params extends object>(
             buf,
             bufferOffset,
           )).result !== '\u0000'
-        ) {
+          ) {
           const { result: fieldValue, offset: valueOffset } = parseSimpleType(
             cString,
             buf,
@@ -154,6 +160,21 @@ export const parseMessage = <Params extends object>(
           dict[fieldKey] = fieldValue;
         }
         result[key] = dict;
+      } else if (type === cStringUnknownLengthArray) {
+        const arr: string[] = [];
+
+        while (bufferOffset < messageEnd - 1) {
+          const { result: arrayValue, offset: valueOffset } = parseSimpleType(
+            cString,
+            buf,
+            bufferOffset,
+          );
+          bufferOffset = valueOffset;
+          arr.push(arrayValue);
+        }
+
+        result[key] = arr;
+        if (bufferOffset === messageEnd - 1) bufferOffset = messageEnd;
       } else if (type instanceof Array) {
         const arraySize = buf.readInt16BE(bufferOffset);
         bufferOffset += 2;
