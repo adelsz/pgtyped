@@ -13,7 +13,8 @@
     "arrow-parens": false,
     "array-type": false,
     "max-line-length": false,
-    "max-classes-per-file": false
+    "max-classes-per-file": false,
+    "no-string-literal": false
   },
   "rulesDirectory": [],
   "linterOptions": {

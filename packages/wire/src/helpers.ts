@@ -41,7 +41,8 @@ export const cStringDict = (dict: { [key: string]: string }): Buffer => {
   return buf;
 };
 
-export const cStringUnknownLengthArray = (array: string[]): Buffer => null as any;
+export const cStringUnknownLengthArray = (array: string[]): Buffer =>
+  null as any;
 
 export const byte1 = (num: string): Buffer => Buffer.from(num);
 
@@ -55,11 +56,11 @@ export const cString = (str: string): Buffer => {
   return buf;
 };
 
-export const simpleString = (str: string): Buffer => {
+export const notNullTerminatedString = (str: string): Buffer => {
   const buf = Buffer.alloc(str.length, 0);
   buf.write(str);
   return buf;
-}
+};
 
 export const fixedArray = <Item>(
   builder: (item: Item) => Buffer[],
