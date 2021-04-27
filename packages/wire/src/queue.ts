@@ -1,9 +1,11 @@
+import { keyof } from 'io-ts';
 import * as net from 'net';
 import * as tls from 'tls';
 
 import {
   buildMessage,
   parseMessage,
+  parseMultiple,
   parseOneOf,
   ParseResult,
 } from './protocol';
@@ -23,7 +25,10 @@ export class AsyncQueue {
   public replyPending: {
     resolve: (data: any) => any;
     reject: (data: any) => any;
-    parser: (buf: Buffer, offset: number) => ParseResult<object>;
+    parser: (
+      buf: Buffer,
+      offset: number,
+    ) => ParseResult<object> | ParseResult<object>[];
   } | null = null;
   constructor() {
     this.socket = new net.Socket({});
@@ -103,6 +108,7 @@ export class AsyncQueue {
       this.socket.connect(connectOptions);
     });
   }
+
   public async send<Params extends object>(
     message: IClientMessage<Params>,
     params: Params,
@@ -113,29 +119,60 @@ export class AsyncQueue {
       debug('sent %o message', message.name);
     });
   }
+
   public processQueue() {
     if (!this.replyPending || this.queue.length === 0) {
       return;
     }
     const buf = this.queue[0];
+
     const parsed = this.replyPending.parser(buf, this.bufferOffset);
 
-    // Move queue cursor in any case
-    if (parsed.bufferOffset >= buf.length) {
-      this.bufferOffset = 0;
-      this.queue.pop();
-    } else {
-      this.bufferOffset = parsed.bufferOffset;
-    }
+    if (Array.isArray(parsed)) {
+      // Move queue cursor in any case
+      const lastBufferOffset = parsed[parsed.length - 1].bufferOffset;
+      if (lastBufferOffset >= buf.length) {
+        this.bufferOffset = 0;
+        this.queue.pop();
+      } else {
+        this.bufferOffset = lastBufferOffset;
+      }
 
-    if (parsed.type === 'ServerError') {
-      this.replyPending.reject(parsed);
-    } else if (parsed.type === 'MessagePayload') {
-      debug('resolved awaited %o message', parsed.messageName);
-      this.replyPending.resolve(parsed.data);
+      const res = parsed.reduce(
+        (acc, result) => ({
+          ...acc,
+          ...(result.type !== 'ServerError' &&
+          result.type !== 'MessageMismatchError'
+            ? { [result.messageName]: result.data }
+            : {}),
+        }),
+        {},
+      ) as Record<keyof IServerMessage<any>, IServerMessage<any>>;
+
+      if (!Object.keys(res).length) {
+        this.replyPending.reject(parsed);
+      } else {
+        debug('resolved awaited %o message', res);
+        this.replyPending.resolve(res);
+      }
     } else {
-      debug('received ignored message');
-      this.processQueue();
+      // Move queue cursor in any case
+      if (parsed.bufferOffset >= buf.length) {
+        this.bufferOffset = 0;
+        this.queue.pop();
+      } else {
+        this.bufferOffset = parsed.bufferOffset;
+      }
+
+      if (parsed.type === 'ServerError') {
+        this.replyPending.reject(parsed);
+      } else if (parsed.type === 'MessagePayload') {
+        debug('resolved awaited %o message', parsed.messageName);
+        this.replyPending.resolve(parsed.data);
+      } else {
+        debug('received ignored message');
+        this.processQueue();
+      }
     }
   }
   /**
@@ -159,6 +196,27 @@ export class AsyncQueue {
         resolve,
         reject,
         parser,
+      };
+      this.processQueue();
+    });
+  }
+
+  /**
+   * Waits for the next buffer consisting of multiple messages to arrive and parses it, resolving with the parsed
+   * values.
+   * @param serverMessages The array of messages to match
+   * @returns The parsed params
+   */
+  public async multiMessageReply<Messages extends Array<IServerMessage<any>>>(
+    ...serverMessages: Messages
+  ): // TODO better type return
+  Promise<Record<string, any>> {
+    return new Promise((resolve, reject) => {
+      this.replyPending = {
+        resolve,
+        reject,
+        parser: (buf: Buffer, offset: number) =>
+          parseMultiple(serverMessages, buf, offset),
       };
       this.processQueue();
     });
