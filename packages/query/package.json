@@ -27,7 +27,7 @@
     "@pgtyped/wire": "^0.10.1",
     "@types/chalk": "^2.2.0",
     "@types/debug": "^4.1.4",
-    "antlr4ts": "0.5.0-alpha.4",
+    "antlr4ts": "0.5.0-dev",
     "chalk": "^4.1.0",
     "debug": "^4.1.1"
   },
