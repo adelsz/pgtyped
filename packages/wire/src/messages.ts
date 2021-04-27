@@ -5,9 +5,11 @@ import {
   cByteDict,
   cString,
   cStringDict,
+  cStringUnknownLengthArray,
   fixedArray,
   int16,
   int32,
+  notNullTerminatedString,
 } from './helpers';
 
 export interface IClientMessage<Params extends object | void> {
@@ -106,6 +108,19 @@ export const messages = {
     /** md5 salt to use */
     salt: Buffer;
   }>,
+  /** AuthenticationSASL message informs the frontend that we must set up a SASL connection */
+  authenticationSASL: {
+    name: 'AuthenticationSASL',
+    type: 'SERVER',
+    indicator: 'R',
+    pattern: {
+      status: int32(10),
+      SASLMechanisms: cStringUnknownLengthArray,
+    },
+  } as IServerMessage<{
+    /** An array of SASL mechanisms that PostgreSQL supports. Currently only SCRAM-SHA-256 */
+    SASLMechanisms: string[] | undefined;
+  }>,
   /**
    * BackendKeyData message provides secret-key data that the frontend must save to be able to issue cancel requests later.
    * The frontend should not respond to this message, but should continue listening for a ReadyForQuery message.
@@ -173,6 +188,70 @@ export const messages = {
     name: string;
     /** The current value of the parameter */
     value: string;
+  }>,
+  /** SASLInitialResponse gives the server the selected SASL mechanism and the initial client response */
+  SASLInitialResponse: {
+    name: 'SASLInitialResponse',
+    type: 'CLIENT',
+    indicator: 'p',
+    pattern: (data) => [
+      cString(data.mechanism),
+      int32(data.responseLength),
+      notNullTerminatedString(data.response),
+    ],
+  } as IClientMessage<{
+    /** The selected SASL mechanism (only SCRAM-SHA-256 is supported at the moment) */
+    mechanism: string;
+    /** The length of the response */
+    responseLength: number;
+    /** The response consisting of a clientNonce most importantly. See for more info:
+     *  https://tools.ietf.org/html/rfc5802#section-5
+     */
+    response: string;
+  }>,
+  /**
+   * AuthenticationSASLContinue gives the client specific data for the SCRAM method, such as the nonce salt
+   *  and the number of iterations for the chosen hash function.
+   */
+  AuthenticationSASLContinue: {
+    name: 'AuthenticationSASLContinue',
+    type: 'SERVER',
+    indicator: 'R',
+    pattern: {
+      status: int32(11),
+      SASLData: notNullTerminatedString,
+    },
+  } as IServerMessage<{ SASLData: string }>,
+  /**
+   * Now the right hash function is known, the client can send back a hashed password using the SASLResponse message
+   */
+  SASLResponse: {
+    name: 'SASLResponse',
+    type: 'CLIENT',
+    indicator: 'p',
+    pattern: (data) => [notNullTerminatedString(data.response)],
+  } as IClientMessage<{
+    /** The response consisting of a password most importantly. See for more info:
+     *  https://tools.ietf.org/html/rfc5802#section-5
+     */
+    response: string;
+  }>,
+  /** The AuthenticationSASLFinal message is sent when the password is correct and it returns a server signature
+   *  that can be verified on the client.
+   */
+  authenticationSASLFinal: {
+    name: 'AuthenticationSASLFinal',
+    type: 'SERVER',
+    indicator: 'R',
+    pattern: {
+      status: int32(12),
+      SASLData: notNullTerminatedString,
+    },
+  } as IServerMessage<{
+    /** The response consisting of a server signature most importantly. See for more info:
+     *  https://tools.ietf.org/html/rfc5802#section-5
+     */
+    SASLData: string;
   }>,
   /** PasswordMessage sends a password response on initial auth. */
   passwordMessage: {
