@@ -23,9 +23,9 @@
   "dependencies": {
     "@pgtyped/cli": "^0.10.3",
     "@pgtyped/query": "^0.10.2",
-    "@types/pg": "7.14.9",
+    "@types/pg": "7.14.11",
     "expect": "26.6.2",
-    "pg": "8.5.1",
+    "pg": "8.6.0",
     "typescript": "3.8.3"
   },
   "devDependencies": {
