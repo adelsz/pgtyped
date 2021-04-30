@@ -2,17 +2,14 @@
 
 import { AsyncQueue, startup } from '@pgtyped/query';
 import chokidar from 'chokidar';
-import fs from 'fs';
+import fs from 'fs-extra';
 import glob from 'glob';
 import minimist from 'minimist';
 import nun from 'nunjucks';
 import path from 'path';
-import { promisify } from 'util';
 import { parseConfig, ParsedConfig, TransformConfig } from './config';
 import { generateDeclarationFile } from './generator';
 import { debug } from './util';
-
-const writeFile = promisify(fs.writeFile);
 
 const args = minimist(process.argv.slice(2));
 
@@ -93,7 +90,7 @@ class FileProcessor {
         this.config,
       );
       if (typeDecs.length > 0) {
-        await writeFile(decsFileName, declarationFileContents);
+        await fs.outputFile(decsFileName, declarationFileContents);
         console.log(
           `Saved ${typeDecs.length} query types to ${path.relative(
             process.cwd(),
