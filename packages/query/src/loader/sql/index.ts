@@ -144,14 +144,10 @@ class ParseListener implements SQLParserListener {
     this.currentTransform = {};
   }
 
-  enterSpreadTransform(ctx: SpreadTransformContext) {
-    assert(this.currentParam);
-    const required = !!ctx.C_REQUIRED_MARK();
-
+  enterSpreadTransform() {
     this.currentTransform = {
       type: TransformType.ArraySpread,
     };
-    this.currentParam.required = required;
   }
 
   enterSpreadPickTransform() {

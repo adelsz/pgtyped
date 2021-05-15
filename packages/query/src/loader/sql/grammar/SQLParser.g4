@@ -33,7 +33,7 @@ transformRule:
 	| pickTransform
 	| spreadPickTransform;
 
-spreadTransform: OB SPREAD C_REQUIRED_MARK? CB;
+spreadTransform: OB SPREAD CB;
 
 pickTransform: OB key (COMMA key)* COMMA? CB;
 

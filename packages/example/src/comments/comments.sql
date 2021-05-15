@@ -5,9 +5,9 @@ SELECT * FROM book_comments WHERE id = :id! OR user_id = :id;
 /* A query to get multiple comments */
 /*
   @name GetAllCommentsByIds
-  @param ids -> (...!)
+  @param ids -> (...)
 */
-SELECT * FROM book_comments WHERE id in :ids;
+SELECT * FROM book_comments WHERE id in :ids AND id in :ids!;
 
 /*
   @name InsertComment
