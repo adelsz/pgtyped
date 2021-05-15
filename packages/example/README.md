@@ -11,7 +11,7 @@ Try starting PgTyped and editing them to see live query type generation.
 
 ### Using the dockerized example setup:
 1. Clone the whole pgtyped monorepo into some directory.  
-`git clone git@github.com:adelsz/pgtyped.git pgyped`
+`git clone git@github.com:adelsz/pgtyped.git pgtyped`
 2. `cd pgtyped/packages/example`
 3. `npm install`
 4. `docker-compose run watch`
