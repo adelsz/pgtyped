@@ -194,11 +194,13 @@ test('(TS) multiple value list (array) parameter mapping', () => {
       {
         name: 'ages',
         type: ParamTransform.Spread,
+        required: false,
         assignedIndex: [1],
       },
       {
         name: 'otherAges',
         type: ParamTransform.Spread,
+        required: false,
         assignedIndex: [2],
       },
     ],
@@ -434,6 +436,7 @@ test('(TS) all kinds mapping ', () => {
       {
         name: 'users',
         type: ParamTransform.Spread,
+        required: false,
         assignedIndex: [3],
       },
       {
@@ -483,5 +486,26 @@ test('(TS) all kinds mapping ', () => {
 
   const result = processTSQueryAST(parsedQuery.query);
 
+  expect(result).toEqual(expectedResult);
+});
+
+test('(TS) required ', () => {
+  const query = 'SELECT $$users!';
+  const parsedQuery = parseTSQuery(query);
+
+  const expectedResult = {
+    query: 'SELECT ($1)',
+    bindings: [],
+    mapping: [
+      {
+        name: 'users',
+        type: ParamTransform.Spread,
+        required: true,
+        assignedIndex: [1],
+      },
+    ],
+  };
+
+  const result = processTSQueryAST(parsedQuery.query);
   expect(result).toEqual(expectedResult);
 });

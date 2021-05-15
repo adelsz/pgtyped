@@ -14,6 +14,7 @@ Object {
           "line": 1,
         },
         "name": "ids",
+        "required": false,
         "selection": Object {
           "type": "scalar_array",
         },

@@ -33,7 +33,6 @@ export type ParamTransform =
     }
   | {
       type: TransformType.ArraySpread;
-      required: boolean;
     }
   | {
       type: TransformType.PickTuple | TransformType.PickArraySpread;
@@ -146,12 +145,13 @@ class ParseListener implements SQLParserListener {
   }
 
   enterSpreadTransform(ctx: SpreadTransformContext) {
+    assert(this.currentParam);
     const required = !!ctx.C_REQUIRED_MARK();
 
     this.currentTransform = {
       type: TransformType.ArraySpread,
-      required,
     };
+    this.currentParam.required = required;
   }
 
   enterSpreadPickTransform() {

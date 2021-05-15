@@ -469,7 +469,7 @@ export class QueryParser extends Parser {
 			this.state = 91;
 			this.match(QueryParser.PLURAL_PARAM_MARK);
 			this.state = 92;
-			this.paramName();
+			this.scalarParamName();
 			}
 		}
 		catch (re) {
@@ -621,7 +621,7 @@ export class QueryParser extends Parser {
 		"R\x07\x06\x02\x02RT\x05\x16\f\x02SQ\x03\x02\x02\x02TW\x03\x02\x02\x02" +
 		"US\x03\x02\x02\x02UV\x03\x02\x02\x02VY\x03\x02\x02\x02WU\x03\x02\x02\x02" +
 		"XZ\x07\x06\x02\x02YX\x03\x02\x02\x02YZ\x03\x02\x02\x02Z[\x03\x02\x02\x02" +
-		"[\\\x07\b\x02\x02\\\x0F\x03\x02\x02\x02]^\x07\x05\x02\x02^_\x05\x14\v" +
+		"[\\\x07\b\x02\x02\\\x0F\x03\x02\x02\x02]^\x07\x05\x02\x02^_\x05\x12\n" +
 		"\x02_\x11\x03\x02\x02\x02`b\x07\x03\x02\x02ac\x07\n\x02\x02ba\x03\x02" +
 		"\x02\x02bc\x03\x02\x02\x02c\x13\x03\x02\x02\x02de\x07\x03\x02\x02e\x15" +
 		"\x03\x02\x02\x02fh\x07\x03\x02\x02gi\x07\n\x02\x02hg\x03\x02\x02\x02h" +
@@ -1001,8 +1001,8 @@ export class ArrayPickParamContext extends ParserRuleContext {
 
 export class ArrayParamContext extends ParserRuleContext {
 	public PLURAL_PARAM_MARK(): TerminalNode { return this.getToken(QueryParser.PLURAL_PARAM_MARK, 0); }
-	public paramName(): ParamNameContext {
-		return this.getRuleContext(0, ParamNameContext);
+	public scalarParamName(): ScalarParamNameContext {
+		return this.getRuleContext(0, ScalarParamNameContext);
 	}
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);

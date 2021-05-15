@@ -33,7 +33,7 @@ export const getAllComments = new PreparedQuery<IGetAllCommentsParams,IGetAllCom
 
 /** 'GetAllCommentsByIds' parameters type */
 export interface IGetAllCommentsByIdsParams {
-  ids: readonly (number | null | void)[];
+  ids: readonly (number)[];
 }
 
 /** 'GetAllCommentsByIds' return type */
@@ -50,7 +50,7 @@ export interface IGetAllCommentsByIdsQuery {
   result: IGetAllCommentsByIdsResult;
 }
 
-const getAllCommentsByIdsIR: any = {"name":"GetAllCommentsByIds","params":[{"name":"ids","codeRefs":{"defined":{"a":203,"b":205,"line":8,"col":9},"used":[{"a":260,"b":262,"line":10,"col":41}]},"transform":{"type":"array_spread","required":false},"required":false}],"usedParamSet":{"ids":true},"statement":{"body":"SELECT * FROM book_comments WHERE id in :ids","loc":{"a":219,"b":262,"line":10,"col":0}}};
+const getAllCommentsByIdsIR: any = {"name":"GetAllCommentsByIds","params":[{"name":"ids","codeRefs":{"defined":{"a":203,"b":205,"line":8,"col":9},"used":[{"a":261,"b":263,"line":10,"col":41}]},"required":true,"transform":{"type":"array_spread"}}],"usedParamSet":{"ids":true},"statement":{"body":"SELECT * FROM book_comments WHERE id in :ids","loc":{"a":220,"b":263,"line":10,"col":0}}};
 
 /**
  * Query generated from SQL:
@@ -78,7 +78,7 @@ export interface IInsertCommentQuery {
   result: IInsertCommentResult;
 }
 
-const insertCommentIR: any = {"name":"InsertComment","params":[{"name":"comments","codeRefs":{"defined":{"a":300,"b":307,"line":14,"col":9},"used":[{"a":394,"b":401,"line":17,"col":8}]},"transform":{"type":"pick_array_spread","keys":[{"name":"userId","required":true},{"name":"commentBody","required":true}]},"required":false}],"usedParamSet":{"comments":true},"statement":{"body":"INSERT INTO book_comments (user_id, body)\nVALUES :comments","loc":{"a":344,"b":401,"line":16,"col":0}}};
+const insertCommentIR: any = {"name":"InsertComment","params":[{"name":"comments","codeRefs":{"defined":{"a":301,"b":308,"line":14,"col":9},"used":[{"a":395,"b":402,"line":17,"col":8}]},"transform":{"type":"pick_array_spread","keys":[{"name":"userId","required":true},{"name":"commentBody","required":true}]},"required":false}],"usedParamSet":{"comments":true},"statement":{"body":"INSERT INTO book_comments (user_id, body)\nVALUES :comments","loc":{"a":345,"b":402,"line":16,"col":0}}};
 
 /**
  * Query generated from SQL:

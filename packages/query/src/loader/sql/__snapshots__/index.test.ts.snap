@@ -499,8 +499,8 @@ Object {
             "used": Array [],
           },
           "name": "userNames",
+          "required": false,
           "transform": Object {
-            "required": false,
             "type": "array_spread",
           },
         },

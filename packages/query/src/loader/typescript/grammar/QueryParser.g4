@@ -25,7 +25,7 @@ pickParam: SINGULAR_PARAM_MARK paramName OB pickKey (COMMA pickKey)* COMMA? CB;
 
 arrayPickParam: PLURAL_PARAM_MARK paramName OB pickKey (COMMA pickKey)* COMMA? CB;
 
-arrayParam: PLURAL_PARAM_MARK paramName;
+arrayParam: PLURAL_PARAM_MARK scalarParamName;
 
 scalarParamName: ID REQUIRED_MARK?;
 

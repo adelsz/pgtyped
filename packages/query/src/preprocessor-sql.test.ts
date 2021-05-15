@@ -137,6 +137,7 @@ test('(SQL) array param', () => {
       {
         name: 'ages',
         type: ParamTransform.Spread,
+        required: false,
         assignedIndex: 1,
       },
     ],
@@ -177,6 +178,7 @@ test('(SQL) array param used twice', () => {
     mapping: [
       {
         name: 'ages',
+        required: false,
         type: ParamTransform.Spread,
         assignedIndex: 1,
       },
@@ -220,6 +222,7 @@ test('(SQL) array and scalar param', () => {
       {
         name: 'ages',
         type: ParamTransform.Spread,
+        required: false,
         assignedIndex: 1,
       },
       {
@@ -558,5 +561,47 @@ test('(SQL) pick param required', () => {
   expect(interpolationResult).toEqual(expectedInterpolationResult);
 
   const mappingResult = processSQLQueryAST(fileAST.queries[0]);
+  expect(mappingResult).toEqual(expectedMappingResult);
+});
+
+test('(SQL) array param required', () => {
+  const query = `
+  /*
+    @name selectSomeUsers
+    @param ages -> (...!)
+  */
+  SELECT FROM users WHERE age in :ages;`;
+  const fileAST = parseSQLQuery(query);
+
+  const parameters = {
+    ages: [23, 27, 50],
+  };
+
+  const expectedInterpolationResult = {
+    query: 'SELECT FROM users WHERE age in ($1,$2,$3)',
+    bindings: [23, 27, 50],
+    mapping: [],
+  };
+
+  const expectedMappingResult = {
+    query: 'SELECT FROM users WHERE age in ($1)',
+    bindings: [],
+    mapping: [
+      {
+        name: 'ages',
+        type: ParamTransform.Spread,
+        required: true,
+        assignedIndex: 1,
+      },
+    ],
+  };
+
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
+    parameters,
+  );
+  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
   expect(mappingResult).toEqual(expectedMappingResult);
 });

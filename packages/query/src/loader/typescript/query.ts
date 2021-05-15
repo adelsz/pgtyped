@@ -3,6 +3,7 @@ import { CharStreams, CommonTokenStream } from 'antlr4ts';
 import { ParseTreeWalker } from 'antlr4ts/tree/ParseTreeWalker';
 import { QueryLexer } from './parser/QueryLexer';
 import {
+  ArrayParamContext,
   ParamContext,
   ParamNameContext,
   PickKeyContext,

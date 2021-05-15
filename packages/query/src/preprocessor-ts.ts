@@ -51,7 +51,7 @@ function processScalar(
 }
 
 function processScalarArray(
-  paramName: string,
+  { name, required }: Param,
   nextIndex: number,
   existingConfig?: IScalarArrayParam,
   parameters?: IQueryParameters,
@@ -70,7 +70,7 @@ function processScalarArray(
     assignedIndex = config.assignedIndex as number[];
   } else {
     if (parameters) {
-      const values = parameters[paramName] as Scalar[];
+      const values = parameters[name] as Scalar[];
       assignedIndex = values.map((val) => {
         bindings.push(val);
         return ++index;
@@ -81,8 +81,8 @@ function processScalarArray(
     config = {
       assignedIndex,
       type: ParamTransform.Spread,
-      name: paramName,
-      required: false,
+      name,
+      required,
     };
   }
   const replacement = '(' + assignedIndex.map((v) => `$${v}`).join(', ') + ')';
@@ -216,7 +216,7 @@ export const processTSQueryAST = (
     }
     if (param.selection.type === ParamType.ScalarArray) {
       const prevConfig = baseMap[param.name] as IScalarArrayParam | undefined;
-      result = processScalarArray(param.name, i, prevConfig, parameters);
+      result = processScalarArray(param, i, prevConfig, parameters);
     }
     if (param.selection.type === ParamType.Object) {
       const prevConfig: IDictParam = (baseMap[param.name] as IDictParam) || {
