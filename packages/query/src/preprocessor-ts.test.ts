@@ -138,11 +138,13 @@ test('(TS) single value list parameter interpolation', () => {
             assignedIndex: 1,
             name: 'name',
             type: ParamTransform.Scalar,
+            required: false,
           },
           age: {
             assignedIndex: 2,
             name: 'age',
             type: ParamTransform.Scalar,
+            required: false,
           },
         },
       },
@@ -244,11 +246,13 @@ test('(TS) multiple value list parameter mapping', () => {
           name: {
             name: 'name',
             type: ParamTransform.Scalar,
+            required: false,
             assignedIndex: 1,
           },
           age: {
             name: 'age',
             type: ParamTransform.Scalar,
+            required: false,
             assignedIndex: 2,
           },
         },
@@ -277,11 +281,13 @@ test('(TS) multiple value list parameter mapping twice', () => {
           name: {
             name: 'name',
             type: ParamTransform.Scalar,
+            required: false,
             assignedIndex: 1,
           },
           age: {
             name: 'age',
             type: ParamTransform.Scalar,
+            required: false,
             assignedIndex: 2,
           },
         },
@@ -406,21 +412,23 @@ test('(TS) query with underscores in key names and param names', () => {
 
 test('(TS) all kinds mapping ', () => {
   const query =
-    'SELECT $userId $age $userId $$users $age $user(id) $$users $user(id, parentId) $$comments(id, text) $user(age)';
+    'SELECT $userId $age! $userId $$users $age $user(id) $$users $user(id, parentId, age) $$comments(id!, text) $user(age!)';
   const parsedQuery = parseTSQuery(query);
 
   const expectedResult = {
-    query: 'SELECT $1 $2 $1 ($3) $2 ($4) ($3) ($4, $5) ($6, $7) ($8)',
+    query: 'SELECT $1 $2 $1 ($3) $2 ($4) ($3) ($4, $5, $6) ($7, $8) ($6)',
     bindings: [],
     mapping: [
       {
         name: 'userId',
         type: ParamTransform.Scalar,
+        required: false,
         assignedIndex: 1,
       },
       {
         name: 'age',
         type: ParamTransform.Scalar,
+        required: true,
         assignedIndex: 2,
       },
       {
@@ -435,16 +443,19 @@ test('(TS) all kinds mapping ', () => {
           id: {
             name: 'id',
             type: ParamTransform.Scalar,
+            required: false,
             assignedIndex: 4,
           },
           age: {
             name: 'age',
             type: ParamTransform.Scalar,
-            assignedIndex: 8,
+            required: true,
+            assignedIndex: 6,
           },
           parentId: {
             name: 'parentId',
             type: ParamTransform.Scalar,
+            required: false,
             assignedIndex: 5,
           },
         },
@@ -456,12 +467,14 @@ test('(TS) all kinds mapping ', () => {
           id: {
             name: 'id',
             type: ParamTransform.Scalar,
-            assignedIndex: 6,
+            required: true,
+            assignedIndex: 7,
           },
           text: {
             name: 'text',
             type: ParamTransform.Scalar,
-            assignedIndex: 7,
+            required: false,
+            assignedIndex: 8,
           },
         },
       },

@@ -5,12 +5,13 @@ import { ParseTreeVisitor } from "antlr4ts/tree/ParseTreeVisitor";
 
 import { InputContext } from "./QueryParser";
 import { QueryContext } from "./QueryParser";
-import { IgnoredContext } from "./QueryParser";
 import { ParamContext } from "./QueryParser";
+import { IgnoredContext } from "./QueryParser";
 import { ScalarParamContext } from "./QueryParser";
 import { PickParamContext } from "./QueryParser";
 import { ArrayPickParamContext } from "./QueryParser";
 import { ArrayParamContext } from "./QueryParser";
+import { ScalarParamNameContext } from "./QueryParser";
 import { ParamNameContext } from "./QueryParser";
 import { PickKeyContext } from "./QueryParser";
 
@@ -38,18 +39,18 @@ export interface QueryParserVisitor<Result> extends ParseTreeVisitor<Result> {
 	visitQuery?: (ctx: QueryContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by `QueryParser.ignored`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitIgnored?: (ctx: IgnoredContext) => Result;
-
-	/**
 	 * Visit a parse tree produced by `QueryParser.param`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	visitParam?: (ctx: ParamContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `QueryParser.ignored`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitIgnored?: (ctx: IgnoredContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `QueryParser.scalarParam`.
@@ -78,6 +79,13 @@ export interface QueryParserVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitArrayParam?: (ctx: ArrayParamContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `QueryParser.scalarParamName`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitScalarParamName?: (ctx: ScalarParamNameContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `QueryParser.paramName`.

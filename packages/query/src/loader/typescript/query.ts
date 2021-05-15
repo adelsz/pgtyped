@@ -8,6 +8,7 @@ import {
   PickKeyContext,
   QueryContext,
   QueryParser,
+  ScalarParamNameContext,
 } from './parser/QueryParser';
 import {
   Logger,
@@ -24,6 +25,11 @@ export enum ParamType {
   ObjectArray = 'object_array',
 }
 
+export interface ParamKey {
+  name: string;
+  required: boolean;
+}
+
 export type ParamSelection =
   | {
       type: ParamType.Scalar;
@@ -33,12 +39,13 @@ export type ParamSelection =
     }
   | {
       type: ParamType.Object | ParamType.ObjectArray;
-      keys: string[];
+      keys: ParamKey[];
     };
 
 export interface Param {
   name: string;
   selection: ParamSelection;
+  required: boolean;
   location: CodeInterval;
 }
 
@@ -92,6 +99,16 @@ class ParseListener implements QueryParserListener {
     };
   }
 
+  enterScalarParamName(ctx: ScalarParamNameContext) {
+    const required = !!ctx.REQUIRED_MARK();
+    const name = ctx.ID().text;
+
+    this.currentParam = {
+      name,
+      required,
+    };
+  }
+
   exitParam(ctx: ParamContext) {
     const defLoc = {
       a: ctx.start.startIndex,
@@ -134,7 +151,11 @@ class ParseListener implements QueryParserListener {
 
   enterPickKey(ctx: PickKeyContext) {
     assert('keys' in this.currentSelection);
-    this.currentSelection.keys!.push(ctx.text);
+
+    const required = !!ctx.REQUIRED_MARK();
+    const name = ctx.ID().text;
+
+    this.currentSelection.keys!.push({ name, required });
   }
 }
 

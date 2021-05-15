@@ -1,5 +1,5 @@
 import { TSQueryAST } from './loader/typescript';
-import { ParamType } from './loader/typescript/query';
+import { Param, ParamKey, ParamType } from './loader/typescript/query';
 import { assert } from './loader/sql';
 import {
   IDictArrayParam,
@@ -16,7 +16,7 @@ import {
 } from './preprocessor';
 
 function processScalar(
-  paramName: string,
+  { name, required }: Param,
   nextIndex: number,
   existingConfig?: IScalarParam,
   parameters?: IQueryParameters,
@@ -35,10 +35,15 @@ function processScalar(
   } else {
     const assignedIndex = ++index;
     replacement = `$${assignedIndex}`;
-    config = { assignedIndex, type: ParamTransform.Scalar, name: paramName };
+    config = {
+      assignedIndex,
+      type: ParamTransform.Scalar,
+      name,
+      required,
+    };
 
     if (parameters) {
-      const value = parameters[paramName] as Scalar;
+      const value = parameters[name] as Scalar;
       bindings.push(value);
     }
   }
@@ -73,7 +78,12 @@ function processScalarArray(
     } else {
       assignedIndex = [++index];
     }
-    config = { assignedIndex, type: ParamTransform.Spread, name: paramName };
+    config = {
+      assignedIndex,
+      type: ParamTransform.Spread,
+      name: paramName,
+      required: false,
+    };
   }
   const replacement = '(' + assignedIndex.map((v) => `$${v}`).join(', ') + ')';
 
@@ -82,7 +92,7 @@ function processScalarArray(
 
 function processObject(
   paramName: string,
-  keys: string[],
+  keys: ParamKey[],
   nextIndex: number,
   existingConfig?: IDictParam,
   parameters?: IQueryParameters,
@@ -98,20 +108,22 @@ function processObject(
     existingConfig ||
     ({ name: paramName, type: ParamTransform.Pick, dict: {} } as IDictParam);
 
-  const keyIndices = keys.map((key) => {
-    if (key in config.dict) {
+  const keyIndices = keys.map(({ name, required }) => {
+    if (name in config.dict) {
+      config.dict[name].required = config.dict[name].required || required;
       // reuse index if parameter was seen before
-      return `$${config.dict[key].assignedIndex}`;
+      return `$${config.dict[name].assignedIndex}`;
     }
 
     const assignedIndex = ++index;
-    config.dict[key] = {
+    config.dict[name] = {
       assignedIndex,
+      name,
+      required,
       type: ParamTransform.Scalar,
-      name: key,
     };
     if (parameters) {
-      const value = (parameters[paramName] as INestedParameters)[key];
+      const value = (parameters[paramName] as INestedParameters)[name];
       bindings.push(value);
     }
     return `$${assignedIndex}`;
@@ -123,7 +135,7 @@ function processObject(
 
 function processObjectArray(
   paramName: string,
-  keys: string[],
+  keys: ParamKey[],
   nextIndex: number,
   existingConfig?: IDictArrayParam,
   parameters?: IQueryParameters,
@@ -150,8 +162,8 @@ function processObjectArray(
       replacement = values
         .map((val) =>
           keys
-            .map((key) => {
-              bindings.push(val[key]);
+            .map(({ name }) => {
+              bindings.push(val[name]);
               return `$${++index}`;
             })
             .join(', '),
@@ -163,17 +175,18 @@ function processObjectArray(
       replacement = '()';
     }
   } else {
-    const keyIndices = keys.map((key) => {
-      if (key in config.dict) {
+    const keyIndices = keys.map(({ name, required }) => {
+      if (name in config.dict) {
         // reuse index if parameter was seen before
-        return `$${config.dict[key].assignedIndex}`;
+        return `$${config.dict[name].assignedIndex}`;
       }
 
       const assignedIndex = ++index;
-      config.dict[key] = {
+      config.dict[name] = {
         assignedIndex,
+        name,
+        required,
         type: ParamTransform.Scalar,
-        name: key,
       };
       return `$${assignedIndex}`;
     });
@@ -199,7 +212,7 @@ export const processTSQueryAST = (
     let result;
     if (param.selection.type === ParamType.Scalar) {
       const prevConfig = baseMap[param.name] as IScalarParam | undefined;
-      result = processScalar(param.name, i, prevConfig, parameters);
+      result = processScalar(param, i, prevConfig, parameters);
     }
     if (param.selection.type === ParamType.ScalarArray) {
       const prevConfig = baseMap[param.name] as IScalarArrayParam | undefined;

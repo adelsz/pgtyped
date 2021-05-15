@@ -49,11 +49,13 @@ test('(SQL) two scalar params', () => {
       {
         assignedIndex: 1,
         name: 'id',
+        required: false,
         type: ParamTransform.Scalar,
       },
       {
         assignedIndex: 2,
         name: 'age',
+        required: false,
         type: ParamTransform.Scalar,
       },
     ],
@@ -92,6 +94,7 @@ test('(SQL) one param used twice', () => {
       {
         assignedIndex: 1,
         name: 'id',
+        required: false,
         type: ParamTransform.Scalar,
       },
     ],
@@ -222,6 +225,7 @@ test('(SQL) array and scalar param', () => {
       {
         name: 'userId',
         type: ParamTransform.Scalar,
+        required: false,
         assignedIndex: 2,
       },
     ],
@@ -268,11 +272,13 @@ test('(SQL) pick param', () => {
             assignedIndex: 1,
             name: 'name',
             type: ParamTransform.Scalar,
+            required: false,
           },
           age: {
             assignedIndex: 2,
             name: 'age',
             type: ParamTransform.Scalar,
+            required: false,
           },
         },
       },
@@ -320,11 +326,13 @@ test('(SQL) pick param used twice', () => {
             assignedIndex: 1,
             name: 'name',
             type: ParamTransform.Scalar,
+            required: false,
           },
           age: {
             assignedIndex: 2,
             name: 'age',
             type: ParamTransform.Scalar,
+            required: false,
           },
         },
       },
@@ -371,11 +379,13 @@ test('(SQL) pickSpread param', () => {
         name: {
           name: 'name',
           type: ParamTransform.Scalar,
+          required: false,
           assignedIndex: 1,
         },
         age: {
           name: 'age',
           type: ParamTransform.Scalar,
+          required: false,
           assignedIndex: 2,
         },
       },
@@ -429,11 +439,13 @@ test('(SQL) pickSpread param used twice', () => {
         name: {
           name: 'name',
           type: ParamTransform.Scalar,
+          required: false,
           assignedIndex: 1,
         },
         age: {
           name: 'age',
           type: ParamTransform.Scalar,
+          required: false,
           assignedIndex: 2,
         },
       },
@@ -453,5 +465,98 @@ test('(SQL) pickSpread param used twice', () => {
   const mappingResult = processSQLQueryAST(fileAST.queries[0]);
 
   expect(interpolationResult).toEqual(expectedInterpolationResult);
+  expect(mappingResult).toEqual(expectedMappingResult);
+});
+
+test('(SQL) scalar param required and optional', () => {
+  const query = `
+  /* @name selectSomeUsers */
+  SELECT id, name from users where id = :id! and user_id = :id;`;
+
+  const fileAST = parseSQLQuery(query);
+  const parameters = {
+    id: '123',
+  };
+
+  const expectedInterpolationResult = {
+    query: 'SELECT id, name from users where id = $1 and user_id = $1',
+    mapping: [],
+    bindings: ['123'],
+  };
+
+  const expectedMappingResult = {
+    query: 'SELECT id, name from users where id = $1 and user_id = $1',
+    mapping: [
+      {
+        assignedIndex: 1,
+        name: 'id',
+        required: true,
+        type: ParamTransform.Scalar,
+      },
+    ],
+    bindings: [],
+  };
+
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
+    parameters,
+  );
+  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+  expect(mappingResult).toEqual(expectedMappingResult);
+});
+
+test('(SQL) pick param required', () => {
+  const query = `
+  /*
+    @name insertUsers
+    @param user -> (name!, age)
+  */
+  INSERT INTO users (name, age) VALUES :user RETURNING id;`;
+  const fileAST = parseSQLQuery(query);
+
+  const parameters = {
+    user: { name: 'Bob', age: 12 },
+  };
+
+  const expectedInterpolationResult = {
+    query: 'INSERT INTO users (name, age) VALUES ($1,$2) RETURNING id',
+    bindings: ['Bob', 12],
+    mapping: [],
+  };
+
+  const expectedMappingResult = {
+    query: 'INSERT INTO users (name, age) VALUES ($1,$2) RETURNING id',
+    bindings: [],
+    mapping: [
+      {
+        name: 'user',
+        type: ParamTransform.Pick,
+        dict: {
+          name: {
+            assignedIndex: 1,
+            name: 'name',
+            type: ParamTransform.Scalar,
+            required: true,
+          },
+          age: {
+            assignedIndex: 2,
+            name: 'age',
+            type: ParamTransform.Scalar,
+            required: false,
+          },
+        },
+      },
+    ],
+  };
+
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
+    parameters,
+  );
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+
+  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
   expect(mappingResult).toEqual(expectedMappingResult);
 });

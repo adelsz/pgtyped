@@ -10,6 +10,7 @@ export enum ParamTransform {
 export interface IScalarParam {
   name: string;
   type: ParamTransform.Scalar;
+  required: boolean;
   assignedIndex: number;
 }
 
@@ -24,6 +25,7 @@ export interface IDictParam {
 export interface IScalarArrayParam {
   name: string;
   type: ParamTransform.Spread;
+  required: boolean;
   assignedIndex: number | number[];
 }
 
@@ -34,7 +36,6 @@ export interface IDictArrayParam {
     [key: string]: IScalarParam;
   };
 }
-
 export type QueryParam =
   | IScalarParam
   | IScalarArrayParam

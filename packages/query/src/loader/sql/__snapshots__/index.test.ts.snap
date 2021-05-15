@@ -19,6 +19,7 @@ Object {
             ],
           },
           "name": "authorName",
+          "required": false,
           "transform": Object {
             "type": "scalar",
           },
@@ -84,6 +85,7 @@ Object {
             ],
           },
           "name": "name",
+          "required": false,
           "transform": Object {
             "type": "scalar",
           },
@@ -100,6 +102,7 @@ Object {
             ],
           },
           "name": "rank",
+          "required": false,
           "transform": Object {
             "type": "scalar",
           },
@@ -116,6 +119,7 @@ Object {
             ],
           },
           "name": "id",
+          "required": false,
           "transform": Object {
             "type": "scalar",
           },
@@ -211,11 +215,21 @@ Object {
             ],
           },
           "name": "customers",
+          "required": false,
           "transform": Object {
             "keys": Array [
-              "customerName",
-              "contactName",
-              "address",
+              Object {
+                "name": "customerName",
+                "required": false,
+              },
+              Object {
+                "name": "contactName",
+                "required": false,
+              },
+              Object {
+                "name": "address",
+                "required": false,
+              },
             ],
             "type": "pick_tuple",
           },
@@ -258,6 +272,7 @@ Object {
             ],
           },
           "name": "userId",
+          "required": false,
           "transform": Object {
             "type": "scalar",
           },
@@ -311,11 +326,21 @@ Object {
             ],
           },
           "name": "customers",
+          "required": false,
           "transform": Object {
             "keys": Array [
-              "customerName",
-              "contactName",
-              "address",
+              Object {
+                "name": "customerName",
+                "required": false,
+              },
+              Object {
+                "name": "contactName",
+                "required": false,
+              },
+              Object {
+                "name": "address",
+                "required": false,
+              },
             ],
             "type": "pick_tuple",
           },
@@ -364,6 +389,7 @@ Object {
             ],
           },
           "name": "userId",
+          "required": false,
           "transform": Object {
             "type": "scalar",
           },
@@ -405,6 +431,7 @@ Object {
             ],
           },
           "name": "name",
+          "required": false,
           "transform": Object {
             "type": "scalar",
           },
@@ -473,6 +500,7 @@ Object {
           },
           "name": "userNames",
           "transform": Object {
+            "required": false,
             "type": "array_spread",
           },
         },
@@ -489,8 +517,14 @@ Object {
           "name": "users",
           "transform": Object {
             "keys": Array [
-              "name",
-              "time",
+              Object {
+                "name": "name",
+                "required": false,
+              },
+              Object {
+                "name": "time",
+                "required": false,
+              },
             ],
             "type": "pick_array_spread",
           },

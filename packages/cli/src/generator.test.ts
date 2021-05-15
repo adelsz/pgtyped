@@ -51,6 +51,7 @@ describe('query-to-interface translation', () => {
               name: 'userId',
               type: queryModule.ParamTransform.Scalar,
               assignedIndex: 1,
+              required: false,
             },
           ],
         },
@@ -114,16 +115,19 @@ export interface IGetNotificationsQuery {
                 payload: {
                   name: 'payload',
                   assignedIndex: 1,
+                  required: false,
                   type: queryModule.ParamTransform.Scalar,
                 },
                 user_id: {
                   name: 'user_id',
                   assignedIndex: 2,
+                  required: false,
                   type: queryModule.ParamTransform.Scalar,
                 },
                 type: {
                   name: 'type',
                   assignedIndex: 3,
+                  required: false,
                   type: queryModule.ParamTransform.Scalar,
                 },
               },
@@ -196,11 +200,13 @@ export interface IInsertNotificationsQuery {
             {
               name: 'userName',
               type: queryModule.ParamTransform.Scalar,
+              required: false,
               assignedIndex: 1,
             },
             {
               name: 'userId',
               type: queryModule.ParamTransform.Scalar,
+              required: false,
               assignedIndex: 2,
             },
             {
@@ -274,6 +280,7 @@ export interface IDeleteUsersQuery {
             {
               name: 'userId',
               type: queryModule.ParamTransform.Scalar,
+              required: false,
               assignedIndex: 1,
             },
           ],
@@ -350,6 +357,7 @@ export interface IGetNotificationsQuery {
               name: 'userIds',
               type: queryModule.ParamTransform.Spread,
               assignedIndex: 1,
+              required: false,
             },
           ],
         },
@@ -420,6 +428,7 @@ export interface IGetNotificationsQuery {
             {
               name: 'userId',
               type: queryModule.ParamTransform.Scalar,
+              required: false,
               assignedIndex: 1,
             },
           ],

@@ -45,6 +45,7 @@ export const processSQLQueryAST = (
           name: usedParam.name,
           type: ParamTransform.Spread,
           assignedIndex: idx,
+          required: usedParam.required,
         } as IScalarArrayParam);
         sub = `$${idx}`;
       }
@@ -63,10 +64,11 @@ export const processSQLQueryAST = (
         [key: string]: IScalarParam;
       } = {};
       const sub = usedParam.transform.keys
-        .map((pickKey) => {
+        .map(({ name, required }) => {
           const idx = i++;
-          dict[pickKey] = {
-            name: pickKey,
+          dict[name] = {
+            name,
+            required,
             type: ParamTransform.Scalar,
             assignedIndex: idx,
           } as IScalarParam;
@@ -74,7 +76,7 @@ export const processSQLQueryAST = (
             const paramValue = passedParams[
               usedParam.name
             ] as INestedParameters;
-            const val = paramValue[pickKey];
+            const val = paramValue[name];
             bindings.push(val);
           }
           return `$${idx}`;
@@ -106,8 +108,8 @@ export const processSQLQueryAST = (
           .map((entity) => {
             assert(usedParam.transform.type === TransformType.PickArraySpread);
             const ssub = usedParam.transform.keys
-              .map((pickKey) => {
-                const val = entity[pickKey];
+              .map(({ name }) => {
+                const val = entity[name];
                 bindings.push(val);
                 return `$${i++}`;
               })
@@ -120,10 +122,11 @@ export const processSQLQueryAST = (
           [key: string]: IScalarParam;
         } = {};
         sub = usedParam.transform.keys
-          .map((pickKey) => {
+          .map(({ name, required }) => {
             const idx = i++;
-            dict[pickKey] = {
-              name: pickKey,
+            dict[name] = {
+              name,
+              required,
               type: ParamTransform.Scalar,
               assignedIndex: idx,
             } as IScalarParam;
@@ -156,6 +159,7 @@ export const processSQLQueryAST = (
         name: usedParam.name,
         type: ParamTransform.Scalar,
         assignedIndex,
+        required: usedParam.required,
       } as IScalarParam);
     }
 
