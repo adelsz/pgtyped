@@ -568,9 +568,9 @@ test('(SQL) array param required', () => {
   const query = `
   /*
     @name selectSomeUsers
-    @param ages -> (...!)
+    @param ages -> (...)
   */
-  SELECT FROM users WHERE age in :ages;`;
+  SELECT FROM users WHERE age in :ages!;`;
   const fileAST = parseSQLQuery(query);
 
   const parameters = {
