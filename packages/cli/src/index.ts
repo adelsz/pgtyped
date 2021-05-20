@@ -90,13 +90,18 @@ class FileProcessor {
         this.config,
       );
       if (typeDecs.length > 0) {
-        await fs.outputFile(decsFileName, declarationFileContents);
-        console.log(
-          `Saved ${typeDecs.length} query types to ${path.relative(
-            process.cwd(),
-            decsFileName,
-          )}`,
-        );
+        const oldDeclarationFileContents = (await fs.pathExists(decsFileName))
+          ? await fs.readFile(decsFileName, { encoding: 'utf-8' })
+          : null;
+        if (oldDeclarationFileContents !== declarationFileContents) {
+          await fs.outputFile(decsFileName, declarationFileContents);
+          console.log(
+            `Saved ${typeDecs.length} query types to ${path.relative(
+              process.cwd(),
+              decsFileName,
+            )}`,
+          );
+        }
       }
     }
   }
