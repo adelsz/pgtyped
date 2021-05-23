@@ -207,7 +207,7 @@ class ParseListener implements SQLParserListener {
     const b = ctx.stop!.stopIndex - statement.loc.a + 1;
     const body = statement.body;
     assert(b);
-    const [partA, ignored, partB] = [
+    const [partA, , partB] = [
       body.slice(0, a),
       body.slice(a, b),
       body.slice(b),
@@ -252,11 +252,8 @@ class ParseListener implements SQLParserListener {
 
 export type SQLParseResult = { queries: Query[]; events: ParseEvent[] };
 
-function parseText(
-  text: string,
-  fileName: string = 'undefined.sql',
-): SQLParseResult {
-  const logger = new Logger(text);
+function parseText(text: string): SQLParseResult {
+  const logger = new Logger();
   const inputStream = CharStreams.fromString(text);
   const lexer = new SQLLexer(inputStream);
   lexer.removeErrorListeners();

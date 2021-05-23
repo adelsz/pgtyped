@@ -139,7 +139,6 @@ type TypeData =
  */
 export async function getTypeData(
   query: string,
-  name: string,
   queue: AsyncQueue,
 ): Promise<TypeData> {
   const uniqueName = crypto.createHash('md5').update(query).digest('hex');
@@ -251,10 +250,9 @@ WHERE pt.oid IN (${typeOIDs.join(',')});
 
 export async function getTypes(
   queryData: IInterpolatedQuery,
-  name: string,
   queue: AsyncQueue,
 ): Promise<IQueryTypes | IParseError> {
-  const typeData = await getTypeData(queryData.query, name, queue);
+  const typeData = await getTypeData(queryData.query, queue);
   if ('errorCode' in typeData) {
     return typeData;
   }

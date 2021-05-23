@@ -1,5 +1,4 @@
 import * as net from 'net';
-import * as util from 'util';
 import * as tls from 'tls';
 
 import {
@@ -9,7 +8,7 @@ import {
   ParseResult,
 } from './protocol';
 
-import { IClientMessage, TMessage, IServerMessage, messages } from './messages';
+import { IClientMessage, IServerMessage, messages } from './messages';
 
 import debugBase from 'debug';
 const debug = debugBase('pg-wire:socket');

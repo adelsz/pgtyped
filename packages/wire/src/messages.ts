@@ -407,13 +407,3 @@ export const messages = {
     },
   } as IServerMessage<{ commandTag: string }>,
 };
-
-export type TMessage =
-  | IServerMessage<{ commandTag: string }>
-  | IServerMessage<{
-      /** Row columns array */
-      columns: Array<{
-        /** The value of the column, in the format indicated by the associated format code. n is the above length. */
-        value: Buffer;
-      }>;
-    }>;

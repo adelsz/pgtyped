@@ -11,12 +11,7 @@ import {
   QueryParser,
   ScalarParamNameContext,
 } from './parser/QueryParser';
-import {
-  Logger,
-  ParseEvent,
-  ParseEventType,
-  ParseWarningType,
-} from '../sql/logger';
+import { Logger, ParseEvent } from '../sql/logger';
 import { Interval } from 'antlr4ts/misc';
 
 export enum ParamType {
@@ -164,7 +159,7 @@ function parseText(
   text: string,
   queryName: string = 'query',
 ): { query: Query; events: ParseEvent[] } {
-  const logger = new Logger(text);
+  const logger = new Logger();
   const inputStream = CharStreams.fromString(text);
   const lexer = new QueryLexer(inputStream);
   lexer.removeErrorListeners();

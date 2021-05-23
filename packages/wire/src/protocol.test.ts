@@ -1,12 +1,6 @@
-import {
-  buildMessage,
-  IMessagePayload,
-  parseMessage,
-  parseOneOf,
-  ParseResult,
-} from '../src/protocol';
+import { buildMessage, parseMessage, parseOneOf } from '../src/protocol';
 
-import { messages, IServerMessage } from '../src/messages';
+import { messages } from '../src/messages';
 
 test('buildMessage for StartupMessage works', () => {
   const base = buildMessage(messages.startupMessage, {

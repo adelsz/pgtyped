@@ -62,7 +62,7 @@ export async function queryToTypeDeclarations(
     queryData = processSQLQueryAST(parsedQuery.ast);
   }
 
-  const typeData = await getTypes(queryData, queryName, connection);
+  const typeData = await getTypes(queryData, connection);
   const interfaceName = pascalCase(queryName);
 
   if ('errorCode' in typeData) {
@@ -210,7 +210,7 @@ async function generateTypedecsFromFile(
   const { queries, events } =
     mode === 'ts'
       ? parseTypeScriptFile(contents, fileName)
-      : parseSQLFile(contents, fileName);
+      : parseSQLFile(contents);
   if (events.length > 0) {
     prettyPrintEvents(contents, events);
     if (events.find((e) => 'critical' in e)) {
