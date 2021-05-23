@@ -120,13 +120,6 @@ test('(TS) single value list parameter interpolation', () => {
     'INSERT INTO users (name, age) VALUES $user(name, age) RETURNING id';
   const parsedQuery = parseTSQuery(query);
 
-  const parameters = {
-    user: {
-      name: 'Bob',
-      age: 12,
-    },
-  };
-
   const expectedResult = {
     query: 'INSERT INTO users (name, age) VALUES ($1, $2) RETURNING id',
     mapping: [
