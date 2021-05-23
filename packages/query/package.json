@@ -19,6 +19,7 @@
     "roots": [
       "src"
     ],
+    "testRegex": "\\.test\\.tsx?$",
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     }

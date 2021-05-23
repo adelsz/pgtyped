@@ -14,7 +14,7 @@
     "lib"
   ],
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1",
+    "test": "docker-compose run test",
     "typegen": "pgtyped -c config.json",
     "build": "tsc --declaration",
     "watch": "tsc --declaration --watch --preserveWatchOutput",

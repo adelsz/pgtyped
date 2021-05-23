@@ -14,7 +14,10 @@
     "watch": "tsc --declaration --watch --preserveWatchOutput"
   },
   "jest": {
-    "testRegex": "(/tests/.*|(\\.|/)test)\\.tsx?$",
+    "roots": [
+      "src"
+    ],
+    "testRegex": "\\.test\\.tsx?$",
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     }
