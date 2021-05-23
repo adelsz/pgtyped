@@ -48,7 +48,7 @@ describe('query-to-interface translation', () => {
           params: ['uuid'],
           mapping: [
             {
-              name: 'id',
+              name: 'userId',
               type: queryModule.ParamTransform.Scalar,
               assignedIndex: 1,
             },
@@ -74,7 +74,7 @@ export type Json = null | boolean | number | string | Json[] | { [key: string]: 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
-  id: string | null | void;
+  userId: string | null | void;
 }
 
 /** 'GetNotifications' return type */
@@ -172,17 +172,22 @@ export interface IGetNotificationsQuery {
           },
         ],
         paramMetadata: {
-          params: ['uuid', 'text'],
+          params: ['text', 'uuid', 'text'],
           mapping: [
             {
-              name: 'id',
+              name: 'userName',
               type: queryModule.ParamTransform.Scalar,
               assignedIndex: 1,
             },
             {
-              name: 'userName',
+              name: 'userId',
               type: queryModule.ParamTransform.Scalar,
               assignedIndex: 2,
+            },
+            {
+              name: 'userNote',
+              type: queryModule.ParamTransform.Scalar,
+              assignedIndex: 3,
             },
           ],
         },
@@ -197,8 +202,9 @@ export interface IGetNotificationsQuery {
       );
       const expected = `/** 'DeleteUsers' parameters type */
 export interface IDeleteUsersParams {
-  id: string | null | void;
   userName: string | null | void;
+  userId: string | null | void;
+  userNote: string | null | void;
 }
 
 /** 'DeleteUsers' return type */
@@ -247,7 +253,7 @@ export interface IDeleteUsersQuery {
           params: ['uuid'],
           mapping: [
             {
-              name: 'id',
+              name: 'userId',
               type: queryModule.ParamTransform.Scalar,
               assignedIndex: 1,
             },
@@ -273,7 +279,7 @@ export type Json = null | boolean | number | string | Json[] | { [key: string]: 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
-  id: string | null | void;
+  userId: string | null | void;
 }
 
 /** 'GetNotifications' return type */
@@ -322,7 +328,7 @@ export interface IGetNotificationsQuery {
           params: ['uuid'],
           mapping: [
             {
-              name: 'id',
+              name: 'userIds',
               type: queryModule.ParamTransform.Spread,
               assignedIndex: 1,
             },
@@ -348,7 +354,7 @@ export type Json = null | boolean | number | string | Json[] | { [key: string]: 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
-  id: readonly (string | null | void)[];
+  userIds: readonly (string | null | void)[];
 }
 
 /** 'GetNotifications' return type */
@@ -393,7 +399,7 @@ export interface IGetNotificationsQuery {
           params: ['uuid'],
           mapping: [
             {
-              name: 'id',
+              name: 'userId',
               type: queryModule.ParamTransform.Scalar,
               assignedIndex: 1,
             },
@@ -419,7 +425,7 @@ export type Json = null | boolean | number | string | Json[] | { [key: string]: 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
-  id: string | null | void;
+  userId: string | null | void;
 }
 
 /** 'GetNotifications' return type */
