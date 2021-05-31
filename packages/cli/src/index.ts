@@ -39,7 +39,7 @@ class FileProcessor {
 
   constructor(private connection: any, private config: ParsedConfig) {
     this.connection = connection;
-    this.emptyQueue = new Promise((resolve, reject) => {
+    this.emptyQueue = new Promise((resolve) => {
       this.resolveDone = resolve;
     });
   }
