@@ -9,8 +9,7 @@
     "watch": "lerna run --parallel watch",
     "lint": "tslint --project tsconfig.json -t verbose",
     "lint!": "npm run lint -- --fix",
-    "test": "npm run lint && jest",
-    "test:integration": "cd packages/example && docker-compose run test"
+    "test": "npm run lint && lerna run test"
   },
   "devDependencies": {
     "@types/jest": "26.0.23",
@@ -27,11 +26,5 @@
   },
   "dependencies": {
     "io-ts": "^2.1.2"
-  },
-  "jest": {
-    "testRegex": "(/tests/.*|(\\.|/)test)\\.tsx?$",
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    }
   }
 }
