@@ -4,23 +4,17 @@ import { AsyncQueue, startup } from '@pgtyped/query';
 import chokidar from 'chokidar';
 import fs from 'fs-extra';
 import glob from 'glob';
-import minimist from 'minimist';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import nun from 'nunjucks';
 import path from 'path';
 import { parseConfig, ParsedConfig, TransformConfig } from './config';
 import { generateDeclarationFile } from './generator';
 import { debug } from './util';
 
-const args = minimist(process.argv.slice(2));
+// tslint:disable:no-console
 
 nun.configure({ autoescape: false });
-
-// tslint:disable:no-console
-const helpMessage = `PostgreSQL type generator flags:
-  -w --watch     Watch mode
-  -f --file      File (overrides src directory in config, incompatible with watch mode)
-  -h --help      Display this message
-  -c             Config file (required)`;
 
 export enum ProcessingMode {
   SQL = 'sql-file',
@@ -182,14 +176,44 @@ async function main(
 }
 
 if (require.main === module) {
-  if (args.h || args.help) {
-    console.log(helpMessage);
-    process.exit(0);
-  }
+  const args = yargs(hideBin(process.argv))
+    .version()
+    .env()
+    .options({
+      config: {
+        alias: 'c',
+        type: 'string',
+        description: 'Config file path',
+        demandOption: true,
+      },
+      watch: {
+        alias: 'w',
+        description: 'Watch mode',
+        type: 'boolean',
+      },
+      uri: {
+        type: 'string',
+        description: 'DB connection URI (overrides config)',
+      },
+      file: {
+        alias: 'f',
+        type: 'string',
+        conflicts: 'watch',
+        description:
+          'File path (process single file, incompatible with --watch)',
+      },
+    })
+    .epilogue(
+      'For more information, find our manual at https://pgtyped.vercel.app/',
+    )
+    .parseSync();
 
-  const isWatchMode = args.w || args.watch;
-  const fileOverride = args.f || args.file;
-  const configPath = args.c;
+  const {
+    watch: isWatchMode,
+    file: fileOverride,
+    config: configPath,
+    uri: connectionUri,
+  } = args;
 
   if (typeof configPath !== 'string') {
     console.log('Config file required. See help -h for details.\nExiting.');
@@ -202,8 +226,8 @@ if (require.main === module) {
   }
 
   try {
-    const config = parseConfig(configPath);
-    main(config, isWatchMode, fileOverride).catch((e) =>
+    const config = parseConfig(configPath, connectionUri);
+    main(config, isWatchMode || false, fileOverride).catch((e) =>
       debug('error in main: %o', e.message),
     );
   } catch (e) {

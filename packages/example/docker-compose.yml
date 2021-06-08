@@ -26,11 +26,11 @@ services:
     restart: on-failure
     depends_on:
       - db
-    command: npx pgtyped -c config.json
+    command: npx pgtyped --config config.json
 
   watch:
     <<: *build
-    command: npx pgtyped -w -c config.json
+    command: npx pgtyped --watch --config config.json
 
   test:
     <<: *build
