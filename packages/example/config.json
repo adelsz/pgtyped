@@ -13,9 +13,6 @@
   ],
   "srcDir": "./src/",
   "db": {
-    "host": "127.0.0.1",
-    "user": "postgres",
-    "dbName": "postgres",
-    "password": "password"
+    "dbUrl": "postgres://postgres:password@db/postgres"
   }
 }

@@ -5,7 +5,7 @@ import { join, isAbsolute } from 'path';
 import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
 import tls from 'tls';
-import parseDatabaseUrl, { DatabaseConfig } from 'ts-parse-database-url';
+import parseDatabaseUri, { DatabaseConfig } from 'ts-parse-database-url';
 
 const transformCodecProps = {
   include: t.string,
@@ -91,7 +91,10 @@ function convertParsedURLToDBConfig({
   };
 }
 
-export function parseConfig(path: string): ParsedConfig {
+export function parseConfig(
+  path: string,
+  argConnectionUri?: string,
+): ParsedConfig {
   const fullPath = isAbsolute(path) ? path : join(process.cwd(), path);
   const configObject = require(fullPath);
 
@@ -115,19 +118,23 @@ export function parseConfig(path: string): ParsedConfig {
     password: process.env.PGPASSWORD,
     dbName: process.env.PGDATABASE,
     port: process.env.PGPORT ? Number(process.env.PGPORT) : undefined,
+    uri: process.env.PGURI,
   };
 
   const {
     db = defaultDBConfig,
-    dbUrl,
+    dbUrl: configDbUri,
     transforms,
     srcDir,
     failOnError,
     camelCaseColumnNames,
   } = configObject as IConfig;
 
-  const urlDBConfig = dbUrl
-    ? convertParsedURLToDBConfig(parseDatabaseUrl(dbUrl))
+  // CLI connectionUri flag takes precedence over the env and config one
+  const dbUri = argConnectionUri || envDBConfig.uri || configDbUri;
+
+  const urlDBConfig = dbUri
+    ? convertParsedURLToDBConfig(parseDatabaseUri(dbUri))
     : {};
 
   if (transforms.some((tr) => !!tr.emitFileName)) {
@@ -137,7 +144,7 @@ export function parseConfig(path: string): ParsedConfig {
     );
   }
 
-  const finalDBConfig = merge(defaultDBConfig, db, urlDBConfig, envDBConfig);
+  const finalDBConfig = merge(defaultDBConfig, db, envDBConfig, urlDBConfig);
 
   return {
     db: finalDBConfig,

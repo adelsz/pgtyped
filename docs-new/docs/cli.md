@@ -15,6 +15,7 @@ The CLI supports three flags:
 - `-c config_file_path.json` to pass the config file path.
 - `-w` to start in watch mode.
 - `-f file_path.ts` if you only want to process one file (which can be useful when working on a big project). Incompatible with watch mode. Uses transforms defined in the config file to determine the mode and emit template, so a file path that doesn't fit the include glob patterns will not be processed.
+- `--uri` to specify a PG connection URI (overriding the config value).
 
 ```shell script title="Example:"
 npx pgtyped -w -c config.json
@@ -29,6 +30,7 @@ PgTyped supports common PostgreSQL environment variables:
 - `PGPASSWORD`
 - `PGDATABASE`
 - `PGPORT`
+- `PGURI`
 
 These variables will override values provided in `config.json`.
 
