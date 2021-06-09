@@ -10,12 +10,14 @@ while build mode can be used for generating types when running CI.
 
 ### Flags
 
-The CLI supports three flags:
+The CLI supports a number of flags:
 
-- `-c config_file_path.json` to pass the config file path.
-- `-w` to start in watch mode.
-- `-f file_path.ts` if you only want to process one file (which can be useful when working on a big project). Incompatible with watch mode. Uses transforms defined in the config file to determine the mode and emit template, so a file path that doesn't fit the include glob patterns will not be processed.
+- `--config config_file_path.json` to pass the config file path.
+- `--watch` to start in watch mode.
+- `--file file_path.ts` if you only want to process one file (which can be useful when working on a big project). Incompatible with watch mode. Uses transforms defined in the config file to determine the mode and emit template, so a file path that doesn't fit the include glob patterns will not be processed.
 - `--uri` to specify a PG connection URI (overriding the config value).
+- `--help` for a quick flag reference.
+- `--version` to show the version number.
 
 ```shell script title="Example:"
 npx pgtyped -w -c config.json
