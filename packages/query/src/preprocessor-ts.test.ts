@@ -1,6 +1,6 @@
 import { parseTSQuery } from './loader/typescript';
-import { processTSQueryAST } from './preprocessor-ts';
 import { ParamTransform } from './preprocessor';
+import { processTSQueryAST } from './preprocessor-ts';
 
 test('(TS) name parameter interpolation', () => {
   const query = 'SELECT id, name from users where id = $id and age > $age';
@@ -489,7 +489,7 @@ test('(TS) all kinds mapping ', () => {
   expect(result).toEqual(expectedResult);
 });
 
-test('(TS) required ', () => {
+test('(TS) required spread', () => {
   const query = 'SELECT $$users!';
   const parsedQuery = parseTSQuery(query);
 
