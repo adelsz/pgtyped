@@ -212,6 +212,7 @@ export interface IInsertNotificationsQuery {
             {
               name: 'userNote',
               type: queryModule.ParamTransform.Scalar,
+              required: false,
               assignedIndex: 3,
             },
           ],
