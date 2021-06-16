@@ -21,13 +21,13 @@ ignored: (ID | WORD | STRING | COMMA | OB | CB | SPECIAL | REQUIRED_MARK)+;
 
 scalarParam: SINGULAR_PARAM_MARK scalarParamName;
 
-scalarParamName: ID REQUIRED_MARK?;
-
 pickParam: SINGULAR_PARAM_MARK paramName OB pickKey (COMMA pickKey)* COMMA? CB;
 
 arrayPickParam: PLURAL_PARAM_MARK paramName OB pickKey (COMMA pickKey)* COMMA? CB;
 
-arrayParam: PLURAL_PARAM_MARK paramName;
+arrayParam: PLURAL_PARAM_MARK scalarParamName;
+
+scalarParamName: ID REQUIRED_MARK?;
 
 paramName: ID;
 
