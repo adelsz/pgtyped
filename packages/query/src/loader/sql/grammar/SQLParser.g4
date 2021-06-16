@@ -1,20 +1,24 @@
 parser grammar SQLParser;
 
-options {
-	tokenVocab = SQLLexer;
-}
+options { tokenVocab = SQLLexer; }
 
-input: (ignoredComment* query)+ EOF;
+input
+    : (ignoredComment* query)+ EOF
+    ;
 
-query: queryDef statement;
+query
+    : queryDef statement
+    ;
 
 queryDef: OPEN_COMMENT nameTag paramTag* CLOSE_COMMENT;
 
 ignoredComment: OPEN_COMMENT (~NAME_TAG)*? CLOSE_COMMENT;
 
-statement: statementBody EOF_STATEMENT;
+statement
+    : statementBody EOF_STATEMENT;
 
-statementBody: word (ignoredComment | param | word)*;
+statementBody
+    : word (ignoredComment | param | word)*;
 
 word: WORD | ID | STRING;
 
@@ -28,10 +32,10 @@ paramTag: TYPE_TAG paramName paramTransform;
 
 paramTransform: TRANSFORM_ARROW transformRule;
 
-transformRule:
-	spreadTransform
-	| pickTransform
-	| spreadPickTransform;
+transformRule
+    : spreadTransform
+    | pickTransform
+    | spreadPickTransform;
 
 spreadTransform: OB SPREAD CB;
 

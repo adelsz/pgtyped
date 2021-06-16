@@ -25,7 +25,7 @@ const getAllCommentsIR: any = {"name":"GetAllComments","params":[{"name":"id","r
 /**
  * Query generated from SQL:
  * ```
- * SELECT * FROM book_comments WHERE id = :id! OR user_id = :id                                      
+ * SELECT * FROM book_comments WHERE id = :id! OR user_id = :id
  * ```
  */
 export const getAllComments = new PreparedQuery<IGetAllCommentsParams,IGetAllCommentsResult>(getAllCommentsIR);
