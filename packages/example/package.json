@@ -14,7 +14,7 @@
     "lib"
   ],
   "scripts": {
-    "test": "docker-compose run test",
+    "test": "docker-compose run test; docker-compose down",
     "typegen": "pgtyped -c config.json",
     "build": "tsc --declaration",
     "watch": "tsc --declaration --watch --preserveWatchOutput",
