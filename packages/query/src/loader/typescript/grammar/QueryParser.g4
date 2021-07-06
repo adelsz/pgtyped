@@ -10,8 +10,6 @@ query
     : ignored+ (param ignored*)*
     ;
 
-ignored: (ID | WORD | STRING | COMMA | OB | CB | SPECIAL)+;
-
 param
     : pickParam
     | arrayPickParam
@@ -19,14 +17,18 @@ param
     | arrayParam
     ;
 
-scalarParam: SINGULAR_PARAM_MARK paramName;
+ignored: (ID | WORD | STRING | COMMA | OB | CB | SPECIAL | REQUIRED_MARK)+;
+
+scalarParam: SINGULAR_PARAM_MARK scalarParamName;
 
 pickParam: SINGULAR_PARAM_MARK paramName OB pickKey (COMMA pickKey)* COMMA? CB;
 
 arrayPickParam: PLURAL_PARAM_MARK paramName OB pickKey (COMMA pickKey)* COMMA? CB;
 
-arrayParam: PLURAL_PARAM_MARK paramName;
+arrayParam: PLURAL_PARAM_MARK scalarParamName;
+
+scalarParamName: ID REQUIRED_MARK?;
 
 paramName: ID;
 
-pickKey: ID;
+pickKey: ID REQUIRED_MARK?;

@@ -2,7 +2,7 @@
 
 /** 'GetUsersWithComments' parameters type */
 export interface IGetUsersWithCommentsParams {
-  minCommentCount: number | null | void;
+  minCommentCount: number;
 }
 
 /** 'GetUsersWithComments' return type */

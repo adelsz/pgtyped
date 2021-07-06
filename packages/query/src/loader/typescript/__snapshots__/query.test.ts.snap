@@ -14,6 +14,7 @@ Object {
           "line": 1,
         },
         "name": "ids",
+        "required": false,
         "selection": Object {
           "type": "scalar_array",
         },
@@ -40,9 +41,18 @@ Object {
         "name": "customers",
         "selection": Object {
           "keys": Array [
-            "customerName",
-            "contactName",
-            "address",
+            Object {
+              "name": "customerName",
+              "required": false,
+            },
+            Object {
+              "name": "contactName",
+              "required": false,
+            },
+            Object {
+              "name": "address",
+              "required": false,
+            },
           ],
           "type": "object_array",
         },
@@ -70,8 +80,14 @@ Object {
         "name": "activeUsers",
         "selection": Object {
           "keys": Array [
-            "userOne",
-            "userTwo",
+            Object {
+              "name": "userOne",
+              "required": false,
+            },
+            Object {
+              "name": "userTwo",
+              "required": false,
+            },
           ],
           "type": "object",
         },
@@ -96,6 +112,7 @@ Object {
           "line": 1,
         },
         "name": "id",
+        "required": false,
         "selection": Object {
           "type": "scalar",
         },
@@ -108,6 +125,7 @@ Object {
           "line": 1,
         },
         "name": "title",
+        "required": false,
         "selection": Object {
           "type": "scalar",
         },

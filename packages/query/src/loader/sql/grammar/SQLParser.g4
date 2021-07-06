@@ -24,7 +24,7 @@ word: WORD | ID | STRING;
 
 param: PARAM_MARK paramId;
 
-paramId: ID;
+paramId: ID S_REQUIRED_MARK?;
 
 nameTag: NAME_TAG queryName;
 
@@ -43,7 +43,7 @@ pickTransform: OB key (COMMA key)* COMMA? CB;
 
 spreadPickTransform: OB pickTransform SPREAD CB;
 
-key: ID;
+key: ID C_REQUIRED_MARK?;
 
 queryName: ID;
 paramName: ID;

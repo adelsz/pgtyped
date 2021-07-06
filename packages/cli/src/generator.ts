@@ -113,7 +113,10 @@ export async function queryToTypeDeclarations(
           : param.assignedIndex;
       const pgTypeName = params[assignedIndex - 1];
       let tsTypeName = types.use(pgTypeName);
-      tsTypeName += ' | null | void';
+
+      if (!param.required) {
+        tsTypeName += ' | null | void';
+      }
 
       paramFieldTypes.push({
         fieldName: param.name,
@@ -124,7 +127,9 @@ export async function queryToTypeDeclarations(
       let fieldType = Object.values(param.dict)
         .map((p) => {
           const paramType = types.use(params[p.assignedIndex - 1]);
-          return `    ${p.name}: ${paramType} | null | void`;
+          return p.required
+            ? `    ${p.name}: ${paramType}`
+            : `    ${p.name}: ${paramType} | null | void`;
         })
         .join(',\n');
       fieldType = `{\n${fieldType}\n  }`;

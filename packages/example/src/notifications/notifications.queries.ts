@@ -8,9 +8,9 @@ export type Json = null | boolean | number | string | Json[] | { [key: string]: 
 /** 'SendNotifications' parameters type */
 export interface ISendNotificationsParams {
   notifications: readonly ({
-    user_id: number | null | void,
-    payload: Json | null | void,
-    type: notification_type | null | void
+    user_id: number,
+    payload: Json,
+    type: notification_type
   })[];
 }
 
@@ -25,7 +25,7 @@ export interface ISendNotificationsQuery {
   result: ISendNotificationsResult;
 }
 
-const sendNotificationsIR: any = {"name":"SendNotifications","params":[{"name":"notifications","codeRefs":{"defined":{"a":38,"b":50,"line":3,"col":9},"used":[{"a":147,"b":159,"line":6,"col":8}]},"transform":{"type":"pick_array_spread","keys":["user_id","payload","type"]}}],"usedParamSet":{"notifications":true},"statement":{"body":"INSERT INTO notifications (user_id, payload, type)\nVALUES :notifications RETURNING id as notification_id","loc":{"a":88,"b":191,"line":5,"col":0}}};
+const sendNotificationsIR: any = {"name":"SendNotifications","params":[{"name":"notifications","codeRefs":{"defined":{"a":38,"b":50,"line":3,"col":9},"used":[{"a":150,"b":162,"line":6,"col":8}]},"transform":{"type":"pick_array_spread","keys":[{"name":"user_id","required":true},{"name":"payload","required":true},{"name":"type","required":true}]},"required":false}],"usedParamSet":{"notifications":true},"statement":{"body":"INSERT INTO notifications (user_id, payload, type)\nVALUES :notifications RETURNING id as notification_id","loc":{"a":91,"b":194,"line":5,"col":0}}};
 
 /**
  * Query generated from SQL:
@@ -56,7 +56,7 @@ export interface IGetNotificationsQuery {
   result: IGetNotificationsResult;
 }
 
-const getNotificationsIR: any = {"name":"GetNotifications","params":[{"name":"userId","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":272,"b":277,"line":11,"col":18}]}}],"usedParamSet":{"userId":true},"statement":{"body":"SELECT *\n  FROM notifications\n WHERE user_id = :userId","loc":{"a":224,"b":277,"line":9,"col":0}}};
+const getNotificationsIR: any = {"name":"GetNotifications","params":[{"name":"userId","required":false,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":275,"b":280,"line":11,"col":18}]}}],"usedParamSet":{"userId":true},"statement":{"body":"SELECT *\n  FROM notifications\n WHERE user_id = :userId","loc":{"a":227,"b":280,"line":9,"col":0}}};
 
 /**
  * Query generated from SQL:
@@ -71,7 +71,7 @@ export const getNotifications = new PreparedQuery<IGetNotificationsParams,IGetNo
 
 /** 'ThresholdFrogs' parameters type */
 export interface IThresholdFrogsParams {
-  numFrogs: number | null | void;
+  numFrogs: number;
 }
 
 /** 'ThresholdFrogs' return type */
@@ -87,7 +87,7 @@ export interface IThresholdFrogsQuery {
   result: IThresholdFrogsResult;
 }
 
-const thresholdFrogsIR: any = {"name":"ThresholdFrogs","params":[{"name":"numFrogs","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":455,"b":462,"line":20,"col":46}]}}],"usedParamSet":{"numFrogs":true},"statement":{"body":"SELECT u.user_name, n.payload, n.type\nFROM notifications n\nINNER JOIN users u on n.user_id = u.id\nWHERE CAST (n.payload->'num_frogs' AS int) > :numFrogs","loc":{"a":311,"b":462,"line":17,"col":0}}};
+const thresholdFrogsIR: any = {"name":"ThresholdFrogs","params":[{"name":"numFrogs","required":true,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":458,"b":466,"line":20,"col":46}]}}],"usedParamSet":{"numFrogs":true},"statement":{"body":"SELECT u.user_name, n.payload, n.type\nFROM notifications n\nINNER JOIN users u on n.user_id = u.id\nWHERE CAST (n.payload->'num_frogs' AS int) > :numFrogs!","loc":{"a":314,"b":466,"line":17,"col":0}}};
 
 /**
  * Query generated from SQL:
@@ -95,7 +95,7 @@ const thresholdFrogsIR: any = {"name":"ThresholdFrogs","params":[{"name":"numFro
  * SELECT u.user_name, n.payload, n.type
  * FROM notifications n
  * INNER JOIN users u on n.user_id = u.id
- * WHERE CAST (n.payload->'num_frogs' AS int) > :numFrogs
+ * WHERE CAST (n.payload->'num_frogs' AS int) > :numFrogs!
  * ```
  */
 export const thresholdFrogs = new PreparedQuery<IThresholdFrogsParams,IThresholdFrogsResult>(thresholdFrogsIR);

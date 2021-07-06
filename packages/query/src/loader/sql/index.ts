@@ -8,6 +8,7 @@ import {
   ParamIdContext,
   ParamNameContext,
   QueryNameContext,
+  SpreadTransformContext,
   SQLParser,
   StatementBodyContext,
 } from './parser/SQLParser';
@@ -21,21 +22,27 @@ export enum TransformType {
   PickArraySpread = 'pick_array_spread',
 }
 
+export interface ParamKey {
+  name: string;
+  required: boolean;
+}
+
 export type ParamTransform =
   | {
       type: TransformType.Scalar;
     }
   | {
-      type:
-        | TransformType.PickTuple
-        | TransformType.ArraySpread
-        | TransformType.PickArraySpread;
-      keys: string[];
+      type: TransformType.ArraySpread;
+    }
+  | {
+      type: TransformType.PickTuple | TransformType.PickArraySpread;
+      keys: ParamKey[];
     };
 
 export interface Param {
   name: string;
   transform: ParamTransform;
+  required: boolean;
   codeRefs: {
     defined?: CodeInterval;
     used: CodeInterval[];
@@ -162,7 +169,11 @@ class ParseListener implements SQLParserListener {
 
   enterKey(ctx: KeyContext) {
     assert('keys' in this.currentTransform && this.currentTransform.keys);
-    this.currentTransform.keys.push(ctx.text);
+
+    const required = !!ctx.C_REQUIRED_MARK();
+    const name = ctx.ID().text;
+
+    this.currentTransform.keys.push({ name, required });
   }
 
   enterStatementBody(ctx: StatementBodyContext) {
@@ -206,28 +217,34 @@ class ParseListener implements SQLParserListener {
   }
 
   enterParamId(ctx: ParamIdContext) {
-    const paramName = ctx.text;
     assert(this.currentQuery.params);
     assert(this.currentQuery.usedParamSet);
+
+    const paramName = ctx.ID().text;
+    const required = !!ctx.S_REQUIRED_MARK();
+
     this.currentQuery.usedParamSet[paramName] = true;
     const reference = this.currentQuery.params.find(
       (p) => p.name === paramName,
     );
     const useLoc = {
       a: ctx.start.startIndex,
-      b: ctx.start.stopIndex,
+      b: ctx.stop?.stopIndex ?? ctx.start.stopIndex,
       line: ctx.start.line,
       col: ctx.start.charPositionInLine,
     };
+
     if (!reference) {
       this.currentQuery.params.push({
         name: paramName,
+        required,
         transform: { type: TransformType.Scalar },
         codeRefs: {
           used: [useLoc],
         },
       });
     } else {
+      reference.required = reference.required || required;
       reference.codeRefs.used.push(useLoc);
     }
   }
