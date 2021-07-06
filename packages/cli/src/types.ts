@@ -37,8 +37,8 @@ export const DefaultTypeMapping = Object.freeze({
   float4: Number,
   float: Number,
   float8: Number,
-  numeric: Number,
-  decimal: Number,
+  numeric: String,
+  decimal: String,
 
   // Serial types
   smallserial: Number,
@@ -73,7 +73,7 @@ export const DefaultTypeMapping = Object.freeze({
   macaddr8: String,
 
   // Extra types
-  money: Number,
+  money: String,
   void: Void,
 
   // JSON types
