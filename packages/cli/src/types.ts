@@ -82,6 +82,9 @@ export const DefaultTypeMapping = Object.freeze({
 
   // Bytes
   bytea: Bytes,
+
+  // Postgis types
+  point: getArray(Number),
 });
 
 export type BuiltinTypes = keyof typeof DefaultTypeMapping;
