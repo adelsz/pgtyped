@@ -52,6 +52,7 @@ export const DefaultTypeMapping = Object.freeze({
   char: String,
   bpchar: String,
   citext: String,
+  name: String,
 
   // Bool types
   bit: Boolean, // TODO: better bit array support
