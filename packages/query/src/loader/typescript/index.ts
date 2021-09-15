@@ -1,4 +1,4 @@
-import ts from 'typescript';
+import * as ts from 'typescript';
 import parseQuery, { Query } from './query';
 import { ParseEvent } from '../sql/logger';
 
