@@ -22,7 +22,8 @@ export const int32 = (val: number): Buffer => {
   return buf;
 };
 
-export const cByteDict = (): Buffer => null as any;
+export const cByteDict = (dict: { [key: string]: string }): Buffer =>
+  null as any;
 
 export const cStringDict = (dict: { [key: string]: string }): Buffer => {
   const dictArray = dictToArray(dict);
@@ -42,7 +43,7 @@ export const byte1 = (num: string): Buffer => Buffer.from(num);
 
 export const byte4 = (): Buffer => null as any;
 
-export const byteN = (): Buffer => null as any;
+export const byteN = (buf: Buffer): Buffer => null as any;
 
 export const cString = (str: string): Buffer => {
   const buf = Buffer.alloc(str.length + 1, 0);
