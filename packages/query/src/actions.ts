@@ -1,6 +1,6 @@
 import { AsyncQueue, messages, PreparedObjectType } from '@pgtyped/wire';
 import crypto from 'crypto';
-import tls from 'tls';
+import * as tls from 'tls';
 import debugBase from 'debug';
 
 import { IInterpolatedQuery, QueryParam } from './preprocessor';
