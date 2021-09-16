@@ -232,7 +232,7 @@ if (require.main === module) {
     );
   } catch (e) {
     console.error('Failed to parse config file:');
-    console.error(e.message);
+    console.error((e as any).message);
     process.exit();
   }
 }
