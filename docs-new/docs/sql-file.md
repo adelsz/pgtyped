@@ -27,6 +27,7 @@ PgTyped has a number of requirements for SQL file contents:
 3. Each query must be a single SQL statement that ends with a semicolon.
 4. Queries can contain parameters. Parameters should start with a colon, ex. `:paramName`.
 5. Annotations can include param expansions if needed using the `@param` tag.
+6. Parameters can be forced to be not nullable using an exclamation mark `:paramName!`.
 
 ## Parameter expansions
 
@@ -152,6 +153,31 @@ insertUsers.run(parameters, connection);
 ```sql title="Resulting query:"
 -- Bindings: ['Rob', 56, 'Tom', 45]
 INSERT INTO users (name, age) VALUES ($1, $2), ($3, $4) RETURNING id;
+```
+
+### Enforcing non-nullability
+
+Sometimes you might want to force pgTyped to use a non-nullable type for a nullable parameter.
+This can be done using the exclamation mark modifier `:paramName!`.
+
+#### Example:
+
+```sql title="Query definition:"
+/* @name GetAllComments */
+SELECT * FROM book_comments WHERE id = :id OR user_id = :id;
+
+/* @name GetAllCommentsStrict */
+SELECT * FROM book_comments WHERE id = :id! OR user_id = :id;
+```
+
+```ts title="Resulting code:"
+export interface IGetAllCommentsParams {
+  id: number | null | void;
+}
+
+export interface IGetAllCommentsStrictParams {
+  id: number;
+}
 ```
 
 :::note
