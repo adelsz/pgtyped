@@ -13,7 +13,8 @@
     "arrow-parens": false,
     "array-type": false,
     "max-line-length": false,
-    "max-classes-per-file": false
+    "max-classes-per-file": false,
+    "no-unused-variable": true
   },
   "rulesDirectory": [],
   "linterOptions": {
@@ -25,6 +26,7 @@
       "**/*ParserVisitor.ts",
       "**/*queries.ts",
       "packages/example/**/*.ts",
+      "packages/query/src/loader/*/{index,query}.ts",
       "packages/query/src/loader/*/parser/**/*.ts"
     ]
   }

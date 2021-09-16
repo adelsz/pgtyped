@@ -72,7 +72,6 @@ export function replaceIntervals(
   let result = '';
   for (const interval of intervals) {
     const a = str.slice(0, interval.a + offset);
-    const b = str.slice(interval.a + offset, interval.b + offset + 1);
     const c = str.slice(interval.b + offset + 1, str.length);
     result = a + interval.sub + c;
     offset += result.length - str.length;

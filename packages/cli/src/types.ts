@@ -108,12 +108,6 @@ function declareStringUnion(name: string, values: string[]) {
   return declareAlias(name, values.sort().map((v) => `'${v}'`).join(' | '));
 }
 
-function declareEnum(name: string, values: string[]) {
-  return `export const enum ${name} {\n${values.sort()
-    .map((v) => `  ${v} = '${v}',`)
-    .join('\n')}\n}\n`;
-}
-
 /** Wraps a TypeMapping to track which types have been used, to accumulate errors,
  * and emit necessary type definitions. */
 export class TypeAllocator {

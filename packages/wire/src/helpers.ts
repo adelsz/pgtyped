@@ -1,5 +1,3 @@
-import { SSL_OP_TLS_D5_BUG } from 'constants';
-
 interface ISized {
   length: number;
 }
