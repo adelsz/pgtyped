@@ -4,7 +4,14 @@ import { Query as QueryAST } from './loader/sql';
 import { parseTSQuery, TSQueryAST } from './loader/typescript';
 
 export interface IDatabaseConnection {
-  query: (query: string, bindings: any[]) => Promise<{ rows: any[] }>;
+  query: (
+    query: string,
+    bindings: any[],
+    meta: {
+      /** Name of this query. For example: `"findBookById"` */
+      name: string;
+    },
+  ) => Promise<{ rows: any[] }>;
 }
 
 /* Used for SQL-in-TS */
@@ -23,7 +30,9 @@ export class TaggedQuery<TTypePair extends { params: any; result: any }> {
         this.query,
         params as any,
       );
-      const result = await connection.query(processedQuery, bindings);
+      const result = await connection.query(processedQuery, bindings, {
+        name: query.name,
+      });
       return result.rows;
     };
   }
@@ -57,7 +66,9 @@ export class PreparedQuery<TParamType, TResultType> {
         this.query,
         params as any,
       );
-      const result = await connection.query(processedQuery, bindings);
+      const result = await connection.query(processedQuery, bindings, {
+        name: query.name,
+      });
       return result.rows;
     };
   }
