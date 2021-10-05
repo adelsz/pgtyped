@@ -1,4 +1,9 @@
-import { buildMessage, parseMessage, parseOneOf, parseMultiple } from '../src/protocol';
+import {
+  buildMessage,
+  parseMessage,
+  parseOneOf,
+  parseMultiple,
+} from '../src/protocol';
 
 import { messages } from '../src/messages';
 

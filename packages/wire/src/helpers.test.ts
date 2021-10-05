@@ -6,7 +6,6 @@ import {
   fixedArray,
   int32,
   sumSize,
-  cStringUnknownLengthArray,
 } from '../src/helpers';
 
 test('cString works', () => {

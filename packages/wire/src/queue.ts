@@ -1,4 +1,3 @@
-import { keyof } from 'io-ts';
 import * as net from 'net';
 import * as tls from 'tls';
 

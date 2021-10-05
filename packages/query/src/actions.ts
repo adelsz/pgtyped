@@ -1,5 +1,4 @@
 import { AsyncQueue, messages, PreparedObjectType } from '@pgtyped/wire';
-import { IServerMessage } from '@pgtyped/wire/lib/messages';
 import crypto from 'crypto';
 import * as tls from 'tls';
 import debugBase from 'debug';
@@ -103,7 +102,7 @@ export async function startup(
         messages.readyForQuery,
       );
 
-      const finalSASL = finalMessage['AuthenticationSASLFinal'];
+      const finalSASL = finalMessage.AuthenticationSASLFinal;
       if ('SASLData' in finalSASL) {
         checkServerFinalMessage(finalSASL.SASLData, calculatedServerSignature);
       } else {
