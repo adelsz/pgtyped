@@ -1,11 +1,5 @@
 /**
  * SASL-helpers for authentication using SASL
- * Some helpful resources:
- * @see https://github.com/brianc/node-postgres/blob/master/packages/pg/lib/sasl.js
- * @see https://github.com/ecotilly/DataAnalytics/blob/27d5def10d49bcc46833c6b07dd428ac816fd21c/et-gcp-firebase/functions/node_modules%20copy/pg/lib/connection.js
- * @see https://www.2ndquadrant.com/en/blog/password-authentication-methods-in-postgresql/
- * @see https://www.postgresql.org/docs/current/protocol-message-formats.html
- * @see https://tools.ietf.org/html/rfc5802
  */
 import { cString } from '@pgtyped/wire/lib/helpers';
 import crypto from 'crypto';

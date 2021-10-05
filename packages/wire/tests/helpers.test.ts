@@ -1,3 +1,4 @@
+import { notNullTerminatedString } from '../lib/helpers';
 import {
   cString,
   cStringDict,
@@ -5,6 +6,7 @@ import {
   fixedArray,
   int32,
   sumSize,
+  cStringUnknownLengthArray,
 } from '../src/helpers';
 
 test('cString works', () => {
@@ -65,5 +67,11 @@ test('fixedArray works', () => {
     0,
     4,
   ]);
+  expect(base).toEqual(expected);
+});
+
+test('notNullTerminatedString works', () => {
+  const base = notNullTerminatedString('test');
+  const expected = Buffer.from([116, 101, 115, 116]);
   expect(base).toEqual(expected);
 });

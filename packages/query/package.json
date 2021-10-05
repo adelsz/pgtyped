@@ -24,7 +24,7 @@
     }
   },
   "dependencies": {
-    "@pgtyped/wire": "file:../wire",
+    "@pgtyped/wire": "^0.10.2",
     "@types/chalk": "^2.2.0",
     "@types/debug": "^4.1.4",
     "antlr4ts": "0.5.0-alpha.4",

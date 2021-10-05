@@ -209,8 +209,7 @@ export class AsyncQueue {
    */
   public async multiMessageReply<Messages extends Array<IServerMessage<any>>>(
     ...serverMessages: Messages
-  ): // TODO better type return
-  Promise<Record<string, any>> {
+  ): Promise<Record<string, any>> {
     return new Promise((resolve, reject) => {
       this.replyPending = {
         resolve,
