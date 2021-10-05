@@ -1,4 +1,3 @@
-import { notNullTerminatedString } from '../lib/helpers';
 import {
   cString,
   cStringDict,
@@ -6,6 +5,7 @@ import {
   fixedArray,
   int32,
   sumSize,
+  notNullTerminatedString,
 } from '../src/helpers';
 
 test('cString works', () => {
