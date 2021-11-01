@@ -7,13 +7,13 @@ export interface IGetUsersWithCommentsParams {
 
 /** 'GetUsersWithComments' return type */
 export interface IGetUsersWithCommentsResult {
-  id: number;
-  email: string;
-  user_name: string;
-  first_name: string | null;
-  last_name: string | null;
   age: number | null;
+  email: string;
+  first_name: string | null;
+  id: number;
+  last_name: string | null;
   registration_date: Date;
+  user_name: string;
 }
 
 /** 'GetUsersWithComments' query type */

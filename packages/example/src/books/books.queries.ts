@@ -12,10 +12,10 @@ export interface IFindBookByIdParams {
 
 /** 'FindBookById' return type */
 export interface IFindBookByIdResult {
-  id: number;
-  rank: number | null;
-  name: string | null;
   author_id: number | null;
+  id: number;
+  name: string | null;
+  rank: number | null;
 }
 
 /** 'FindBookById' query type */
@@ -69,8 +69,8 @@ export const insertBooks = new PreparedQuery<IInsertBooksParams,IInsertBooksResu
 
 /** 'UpdateBooksCustom' parameters type */
 export interface IUpdateBooksCustomParams {
-  rank: number | null | void;
   id: number;
+  rank: number | null | void;
 }
 
 /** 'UpdateBooksCustom' return type */
@@ -103,9 +103,9 @@ export const updateBooksCustom = new PreparedQuery<IUpdateBooksCustomParams,IUpd
 
 /** 'UpdateBooks' parameters type */
 export interface IUpdateBooksParams {
+  id: number;
   name: string | null | void;
   rank: number | null | void;
-  id: number;
 }
 
 /** 'UpdateBooks' return type */
@@ -140,10 +140,10 @@ export interface IGetBooksByAuthorNameParams {
 
 /** 'GetBooksByAuthorName' return type */
 export interface IGetBooksByAuthorNameResult {
-  id: number;
-  rank: number | null;
-  name: string | null;
   author_id: number | null;
+  id: number;
+  name: string | null;
+  rank: number | null;
 }
 
 /** 'GetBooksByAuthorName' query type */
@@ -172,8 +172,8 @@ export interface IAggregateEmailsAndTestParams {
 
 /** 'AggregateEmailsAndTest' return type */
 export interface IAggregateEmailsAndTestResult {
-  emails: stringArray | null;
   agetest: boolean | null;
+  emails: stringArray | null;
 }
 
 /** 'AggregateEmailsAndTest' query type */
