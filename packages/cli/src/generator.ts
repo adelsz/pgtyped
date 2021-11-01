@@ -27,7 +27,10 @@ ${contents}
 }\n\n`;
 
 export const generateInterface = (interfaceName: string, fields: IField[]) => {
-  const contents = fields
+  const sortedFields = fields.slice().sort((a, b) =>
+    a.fieldName.localeCompare(b.fieldName),
+  );
+  const contents = sortedFields
     .map(({ fieldName, fieldType }) => `  ${fieldName}: ${fieldType};`)
     .join('\n');
   return interfaceGen(interfaceName, contents);
