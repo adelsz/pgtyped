@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@types/debug": "4.1.7",
-    "@types/fs-extra": "9.0.12",
+    "@types/fs-extra": "9.0.13",
     "@types/glob": "7.1.4",
     "@types/yargs": "17.0.2"
   },
