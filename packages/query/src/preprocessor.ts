@@ -60,6 +60,9 @@ export interface IQueryParameters {
     | INestedParameters[];
 }
 
+/* Match query ending with where-in: "... <column> IN <:variable>" */
+const IN_SPREAD = /\S+\s+in\s+(\S+)$/i
+
 export function replaceIntervals(
   str: string,
   intervals: { a: number; b: number; sub: string }[],
@@ -71,9 +74,15 @@ export function replaceIntervals(
   let offset = 0;
   let result = '';
   for (const interval of intervals) {
-    const a = str.slice(0, interval.a + offset);
-    const c = str.slice(interval.b + offset + 1, str.length);
-    result = a + interval.sub + c;
+    const queryTillIntervalEnd = str.slice(0, interval.b + offset + 1);
+    const restQueryAfterInterval = str.slice(interval.b + offset + 1, str.length);
+    // support for ignoring empty WHERE IN
+    if (interval.sub === '()' && queryTillIntervalEnd.match(IN_SPREAD) !== null) {
+      result = queryTillIntervalEnd.replace(/\S+\s+in\s+(\S+)$/i, '1 = 1 /* empty $1 */') + restQueryAfterInterval
+      continue;
+    }
+    const queryTillInterval = str.slice(0, interval.a + offset);
+    result = queryTillInterval + interval.sub + restQueryAfterInterval;
     offset += result.length - str.length;
     str = result;
   }

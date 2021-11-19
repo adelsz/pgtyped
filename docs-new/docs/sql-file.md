@@ -90,6 +90,16 @@ selectSomeUsers.run(parameters, connection);
 SELECT FROM users WHERE age in ($1, $2, $3);
 ```
 
+The array spread expansion features support for empty lists _when used in `WHERE IN`_ statements.
+In these cases, instead of outputting `()` a tautology condition is placed instead (condition cannot be trivially omittied, because it would break condition chaining with brackets and logical operators).
+
+Beware that this feature is not supported in other contexts, such as `VALUES()`. In that cases you will still see the SQL invalid `()`. Support for values is much more challenging to support, since there is no easy way to create an empty selection _with matching column set_ to the selection.
+
+```sql title="Resulting query with empty argument list:"
+-- Parameters: []
+SELECT FROM users WHERE 1 = 1 /* empty :ages */;
+```
+
 ### Object pick
 
 The object pick expansion allows to pass an object as a parameter.

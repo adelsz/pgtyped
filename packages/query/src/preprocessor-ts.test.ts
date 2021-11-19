@@ -363,7 +363,7 @@ test('(TS) query with empty spread params', () => {
   const parsedQuery = parseTSQuery(query);
 
   const expectedResult = {
-    query: `SELECT * FROM users WHERE id IN ()`,
+    query: `SELECT * FROM users WHERE 1 = 1 /* empty $$ids */`,
     bindings: [],
     mapping: [],
   };

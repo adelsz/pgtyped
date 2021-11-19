@@ -153,6 +153,48 @@ test('(SQL) array param', () => {
   expect(mappingResult).toEqual(expectedMappingResult);
 });
 
+test('(SQL) empty array param', () => {
+  const query = `
+  /*
+    @name selectSomeUsers
+    @param ages -> (...)
+  */
+  SELECT FROM users WHERE age in :ages;`;
+  const fileAST = parseSQLQuery(query);
+
+  const parameters = {
+    ages: [],
+  };
+
+  const expectedInterpolationResult = {
+    query: 'SELECT FROM users WHERE 1 = 1 /* empty :ages */',
+    bindings: [],
+    mapping: [],
+  };
+
+  const expectedMappingResult = {
+    query: 'SELECT FROM users WHERE age in ($1)',
+    bindings: [],
+    mapping: [
+      {
+        name: 'ages',
+        type: ParamTransform.Spread,
+        required: false,
+        assignedIndex: 1,
+      },
+    ]
+  };
+
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
+    parameters,
+  );
+  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+  expect(mappingResult).toEqual(expectedMappingResult);
+});
+
 test('(SQL) array param used twice', () => {
   const query = `
   /*
