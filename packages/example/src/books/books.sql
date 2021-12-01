@@ -1,11 +1,11 @@
 /* @name FindBookById */
-SELECT * FROM books WHERE id = :commentId;
+SELECT * FROM books WHERE id = :id;
 
 /*
   @name InsertBooks
-  @param books -> ((rank!, name!, authorId!)...)
+  @param books -> ((rank!, name!, authorId!, categories)...)
 */
-INSERT INTO books (rank, name, author_id)
+INSERT INTO books (rank, name, author_id, categories)
 VALUES :books RETURNING id as book_id;
 
 /*

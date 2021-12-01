@@ -61,3 +61,27 @@ Object {
   "25": "text",
 }
 `;
+
+exports[`reduce type rows to MappableTypes 6`] = `
+Object {
+  "16398": Object {
+    "enumValues": Array [
+      "notification",
+      "reminder",
+      "deadline",
+    ],
+    "name": "notification_type",
+  },
+  "24": Object {
+    "elementType": Object {
+      "enumValues": Array [
+        "notification",
+        "reminder",
+        "deadline",
+      ],
+      "name": "notification_type",
+    },
+    "name": "_enum",
+  },
+}
+`;
