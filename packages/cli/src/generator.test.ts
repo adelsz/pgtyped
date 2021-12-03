@@ -228,16 +228,16 @@ export interface IInsertNotificationsQuery {
       );
       const expected = `/** 'DeleteUsers' parameters type */
 export interface IDeleteUsersParams {
-  userName: string | null | void;
   userId: string | null | void;
+  userName: string | null | void;
   userNote: string | null | void;
 }
 
 /** 'DeleteUsers' return type */
 export interface IDeleteUsersResult {
+  bote: string | null;
   id: string;
   name: string;
-  bote: string | null;
 }
 
 /** 'DeleteUsers' query type */
@@ -475,8 +475,8 @@ export interface IGetNotificationsQuery {
 
 test('interface generation', () => {
   const expected = `export interface User {
-  name: string;
   age: number;
+  name: string;
 }
 
 `;

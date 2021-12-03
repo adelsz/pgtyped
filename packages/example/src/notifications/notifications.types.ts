@@ -45,9 +45,9 @@ export type IGetAllNotificationsParams = void;
 /** 'GetAllNotifications' return type */
 export interface IGetAllNotificationsResult {
   id: number;
-  user_id: number | null;
   payload: Json;
   type: notification_type;
+  user_id: number | null;
 }
 
 /** 'GetAllNotifications' query type */
