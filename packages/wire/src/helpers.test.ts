@@ -41,29 +41,15 @@ test('cStringDicts works', () => {
 });
 
 test('fixedArray works', () => {
-  const base = fixedArray(({ a, b }) => [int32(a), int32(b)], [
-    { a: 1, b: 2 },
-    { a: 3, b: 4 },
-  ]);
+  const base = fixedArray(
+    ({ a, b }) => [int32(a), int32(b)],
+    [
+      { a: 1, b: 2 },
+      { a: 3, b: 4 },
+    ],
+  );
   const expected = Buffer.from([
-    0,
-    2,
-    0,
-    0,
-    0,
-    1,
-    0,
-    0,
-    0,
-    2,
-    0,
-    0,
-    0,
-    3,
-    0,
-    0,
-    0,
-    4,
+    0, 2, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 4,
   ]);
   expect(base).toEqual(expected);
 });
