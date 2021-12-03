@@ -63,7 +63,7 @@ export async function startup(
     await queue.reply(messages.readyForQuery);
   } catch (e) {
     // tslint:disable-next-line:no-console
-    console.error(`Connection failed: ${e.message}`);
+    console.error(`Connection failed: ${(e as any).message}`);
     process.exit(1);
   }
 }
