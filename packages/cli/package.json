@@ -45,7 +45,7 @@
     "@types/debug": "4.1.7",
     "@types/fs-extra": "9.0.12",
     "@types/glob": "7.2.0",
-    "@types/yargs": "17.0.2"
+    "@types/yargs": "17.0.7"
   },
   "peerDependencies": {
     "typescript": "3.1 - 4"
