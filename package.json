@@ -16,7 +16,7 @@
     "@types/node": "16.11.11",
     "jest": "27.4.3",
     "lerna": "4.0.0",
-    "prettier": "2.5.0",
+    "prettier": "2.5.1",
     "ts-jest": "27.0.7",
     "ts-node": "10.4.0",
     "tslint": "6.1.3",
