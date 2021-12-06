@@ -43,12 +43,14 @@ test('createClientSASLContinueResponse to fail when SASLData does not contain cl
 });
 test('createClientSASLContinueResponse works as expected', () => {
   const clientNonce = 'a';
-  const { response, calculatedServerSignature } =
-    createClientSASLContinueResponse(
-      'password',
-      clientNonce,
-      'r=ab,s=abcd,i=1',
-    );
+  const {
+    response,
+    calculatedServerSignature,
+  } = createClientSASLContinueResponse(
+    'password',
+    clientNonce,
+    'r=ab,s=abcd,i=1',
+  );
   expect(response).toEqual(
     'c=biws,r=ab,p=mU8grLfTjDrJer9ITsdHk0igMRDejG10EJPFbIBL3D0=',
   );

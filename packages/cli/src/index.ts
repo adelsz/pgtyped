@@ -4,10 +4,10 @@ import { AsyncQueue, startup } from '@pgtyped/query';
 import chokidar from 'chokidar';
 import fs from 'fs-extra';
 import glob from 'glob';
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
 import nun from 'nunjucks';
 import path from 'path';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import { parseConfig, ParsedConfig, TransformConfig } from './config';
 import { generateDeclarationFile } from './generator';
 import { debug } from './util';
@@ -72,15 +72,17 @@ class FileProcessor {
         decsFileName = path.resolve(ppath.dir, `${ppath.name}.${suffix}`);
       }
       const contents = fs.readFileSync(fileName).toString();
-      const { declarationFileContents, typeDecs } =
-        await generateDeclarationFile(
-          contents,
-          fileName,
-          connection,
-          job.transform.mode,
-          void 0,
-          this.config,
-        );
+      const {
+        declarationFileContents,
+        typeDecs,
+      } = await generateDeclarationFile(
+        contents,
+        fileName,
+        connection,
+        job.transform.mode,
+        void 0,
+        this.config,
+      );
       if (typeDecs.length > 0) {
         const oldDeclarationFileContents = (await fs.pathExists(decsFileName))
           ? await fs.readFile(decsFileName, { encoding: 'utf-8' })
