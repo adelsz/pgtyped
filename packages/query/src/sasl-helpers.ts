@@ -17,9 +17,8 @@ export function createClientSASLContinueResponse(
   clientNonce: string,
   SASLData: string,
 ): { response: string; calculatedServerSignature: string } {
-  const SASLContinueServerVariables = extractVariablesFromSASLContinueServerMessage(
-    SASLData,
-  );
+  const SASLContinueServerVariables =
+    extractVariablesFromSASLContinueServerMessage(SASLData);
 
   if (!SASLContinueServerVariables.nonce.startsWith(clientNonce)) {
     throw new Error(
@@ -96,9 +95,11 @@ export function checkServerFinalMessage(
   }
 }
 
-function extractVariablesFromSASLContinueServerMessage(
-  data: string,
-): { nonce: string; salt: string; iteration: number } {
+function extractVariablesFromSASLContinueServerMessage(data: string): {
+  nonce: string;
+  salt: string;
+  iteration: number;
+} {
   let nonce: string | undefined;
   let salt: string | undefined;
   let iteration: number | undefined;
