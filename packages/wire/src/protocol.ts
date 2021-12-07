@@ -98,9 +98,8 @@ export type ParseResult<Params> =
   | IMessageMismatchError
   | IServerError;
 
-const errorResponseMessageIndicator = pgMessages.errorResponse.indicator.charCodeAt(
-  0,
-);
+const errorResponseMessageIndicator =
+  pgMessages.errorResponse.indicator.charCodeAt(0);
 
 export const parseMessage = <Params extends object>(
   message: IServerMessage<Params>,
@@ -183,10 +182,8 @@ export const parseMessage = <Params extends object>(
           const subPattern = Object.entries(type[0] as object);
           const subResult: { [key: string]: any } = {};
           for (const [subKey, subType] of subPattern) {
-            const {
-              result: fieldResult,
-              offset: fieldOffset,
-            } = parseSimpleType(subType, buf, bufferOffset);
+            const { result: fieldResult, offset: fieldOffset } =
+              parseSimpleType(subType, buf, bufferOffset);
             subResult[subKey] = fieldResult;
             bufferOffset = fieldOffset;
           }

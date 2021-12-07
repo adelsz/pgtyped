@@ -3,6 +3,9 @@
   "packageRules": [
     {
       "matchPackagePatterns": ["*"],
+      "schedule": ["every weekend"],
+      "automerge": true,
+      "automergeType": "branch",
       "minor": {
         "groupName": "all non-major dependencies",
         "groupSlug": "all-minor-patch"

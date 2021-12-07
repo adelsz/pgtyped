@@ -8,10 +8,10 @@ export interface IGetAllCommentsParams {
 
 /** 'GetAllComments' return type */
 export interface IGetAllCommentsResult {
+  body: string | null;
+  book_id: number | null;
   id: number;
   user_id: number | null;
-  book_id: number | null;
-  body: string | null;
 }
 
 /** 'GetAllComments' query type */
@@ -25,7 +25,7 @@ const getAllCommentsIR: any = {"name":"GetAllComments","params":[{"name":"id","r
 /**
  * Query generated from SQL:
  * ```
- * SELECT * FROM book_comments WHERE id = :id! OR user_id = :id
+ * SELECT * FROM book_comments WHERE id = :id! OR user_id = :id                                      
  * ```
  */
 export const getAllComments = new PreparedQuery<IGetAllCommentsParams,IGetAllCommentsResult>(getAllCommentsIR);
@@ -38,10 +38,10 @@ export interface IGetAllCommentsByIdsParams {
 
 /** 'GetAllCommentsByIds' return type */
 export interface IGetAllCommentsByIdsResult {
+  body: string | null;
+  book_id: number | null;
   id: number;
   user_id: number | null;
-  book_id: number | null;
-  body: string | null;
 }
 
 /** 'GetAllCommentsByIds' query type */

@@ -45,9 +45,9 @@ export interface IGetNotificationsParams {
 /** 'GetNotifications' return type */
 export interface IGetNotificationsResult {
   id: number;
-  user_id: number | null;
   payload: Json;
   type: notification_type;
+  user_id: number | null;
 }
 
 /** 'GetNotifications' query type */
@@ -76,9 +76,9 @@ export interface IThresholdFrogsParams {
 
 /** 'ThresholdFrogs' return type */
 export interface IThresholdFrogsResult {
-  user_name: string;
   payload: Json;
   type: notification_type;
+  user_name: string;
 }
 
 /** 'ThresholdFrogs' query type */
