@@ -152,7 +152,7 @@ export class TypeAllocator {
               `Postgres type '${typeNameOrType}' is not supported by mapping`,
             ),
           );
-          return 'never';
+          return 'unknown';
         }
         typ = this.mapping[typeNameOrType];
       }
