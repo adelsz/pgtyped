@@ -5,6 +5,7 @@ import {
   fixedArray,
   int32,
   sumSize,
+  notNullTerminatedString,
 } from '../src/helpers';
 
 test('cString works', () => {
@@ -51,5 +52,11 @@ test('fixedArray works', () => {
   const expected = Buffer.from([
     0, 2, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 4,
   ]);
+  expect(base).toEqual(expected);
+});
+
+test('notNullTerminatedString works', () => {
+  const base = notNullTerminatedString('test');
+  const expected = Buffer.from([116, 101, 115, 116]);
   expect(base).toEqual(expected);
 });

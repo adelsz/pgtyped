@@ -4,9 +4,11 @@ import {
   byteN,
   cByteDict,
   cString,
+  cStringUnknownLengthArray,
   int16,
   int32,
   sumSize,
+  notNullTerminatedString,
 } from './helpers';
 
 import {
@@ -19,6 +21,7 @@ export const parseSimpleType = (
   type: any,
   buf: Buffer,
   offset: number,
+  offsetEnd?: number,
 ): {
   result: any;
   offset: number;
@@ -44,6 +47,9 @@ export const parseSimpleType = (
     }
     result = buf.toString('utf8', stringStart, offset);
     offset++;
+  } else if (type === notNullTerminatedString) {
+    result = buf.toString('utf8', offset, offsetEnd);
+    offset += result.length;
   } else if (type === byteN) {
     const chunkSize = buf.readInt32BE(offset);
     offset += 4;
@@ -153,6 +159,21 @@ export const parseMessage = <Params extends object>(
           dict[fieldKey] = fieldValue;
         }
         result[key] = dict;
+      } else if (type === cStringUnknownLengthArray) {
+        const arr: string[] = [];
+
+        while (bufferOffset < messageEnd - 1) {
+          const { result: arrayValue, offset: valueOffset } = parseSimpleType(
+            cString,
+            buf,
+            bufferOffset,
+          );
+          bufferOffset = valueOffset;
+          arr.push(arrayValue);
+        }
+
+        result[key] = arr;
+        if (bufferOffset === messageEnd - 1) bufferOffset = messageEnd;
       } else if (type instanceof Array) {
         const arraySize = buf.readInt16BE(bufferOffset);
         bufferOffset += 2;
@@ -174,6 +195,7 @@ export const parseMessage = <Params extends object>(
           type,
           buf,
           bufferOffset,
+          messageEnd,
         );
         result[key] = fieldResult;
         bufferOffset = fieldOffset;
@@ -250,4 +272,25 @@ export const parseOneOf = (
     messageName,
     bufferOffset: lastBufferOffset,
   };
+};
+
+export const parseMultiple = (
+  messages: Array<IServerMessage<any>>,
+  buffer: Buffer,
+  offset: number,
+): ParseResult<object>[] => {
+  const result: ParseResult<object>[] = [];
+  const bufferEnd = buffer.byteLength;
+  let lastBufferOffset = offset;
+
+  while (lastBufferOffset < bufferEnd) {
+    const parseResult = parseOneOf(messages, buffer, lastBufferOffset);
+    if (parseResult.type !== 'MessageMismatchError') {
+      result.push(parseResult);
+      lastBufferOffset = parseResult.bufferOffset;
+    } else {
+      return [parseResult];
+    }
+  }
+  return result;
 };

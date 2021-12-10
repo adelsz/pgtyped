@@ -2,6 +2,11 @@ import { AsyncQueue, messages, PreparedObjectType } from '@pgtyped/wire';
 import crypto from 'crypto';
 import * as tls from 'tls';
 import debugBase from 'debug';
+import {
+  createClientSASLContinueResponse,
+  createInitialSASLResponse,
+  checkServerFinalMessage,
+} from './sasl-helpers';
 
 import { IInterpolatedQuery, QueryParam } from './preprocessor';
 import { DatabaseTypeKind, isEnum, MappableType } from './type';
@@ -45,22 +50,66 @@ export async function startup(
       messages.readyForQuery,
       messages.authenticationCleartextPassword,
       messages.authenticationMD5Password,
+      messages.authenticationSASL,
     );
     if ('trxStatus' in result) {
       // No auth required
       return;
     }
     if (!options.password) {
-      throw new Error('password required for MD5 hash auth');
+      throw new Error('password required for hash auth');
     }
     let password = options.password;
-    if ('salt' in result) {
-      // if MD5 auth scheme
+    if ('SASLMechanisms' in result) {
+      if (result.SASLMechanisms?.indexOf('SCRAM-SHA-256') === -1) {
+        throw new Error(
+          'SASL: Only mechanism SCRAM-SHA-256 is currently supported',
+        );
+      }
+
+      const { clientNonce, response: initialSASLResponse } =
+        createInitialSASLResponse();
+      await queue.send(messages.SASLInitialResponse, {
+        mechanism: 'SCRAM-SHA-256',
+        responseLength: Buffer.byteLength(initialSASLResponse),
+        response: initialSASLResponse,
+      });
+
+      const SASLContinueResult = await queue.reply(
+        messages.AuthenticationSASLContinue,
+      );
+
+      const { response: SASLContinueResponse, calculatedServerSignature } =
+        createClientSASLContinueResponse(
+          password,
+          clientNonce,
+          SASLContinueResult.SASLData,
+        );
+
+      await queue.send(messages.SASLResponse, {
+        response: SASLContinueResponse,
+      });
+
+      const finalMessage = await queue.multiMessageReply(
+        messages.authenticationSASLFinal,
+        messages.authenticationOk,
+        messages.parameterStatus,
+        messages.backendKeyData,
+        messages.readyForQuery,
+      );
+
+      const finalSASL = finalMessage.AuthenticationSASLFinal;
+      if ('SASLData' in finalSASL) {
+        checkServerFinalMessage(finalSASL.SASLData, calculatedServerSignature);
+      } else {
+        throw new Error('SASL: No final SASL data returned');
+      }
+    } else if ('salt' in result) {
       password = generateHash(options.user, password, result.salt);
+      await queue.send(messages.passwordMessage, { password });
+      await queue.reply(messages.authenticationOk);
+      await queue.reply(messages.readyForQuery);
     }
-    await queue.send(messages.passwordMessage, { password });
-    await queue.reply(messages.authenticationOk);
-    await queue.reply(messages.readyForQuery);
   } catch (e) {
     // tslint:disable-next-line:no-console
     console.error(`Connection failed: ${(e as any).message}`);
