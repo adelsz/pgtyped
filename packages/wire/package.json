@@ -27,6 +27,6 @@
     "debug": "^4.1.1"
   },
   "devDependencies": {
-    "@types/node": "14.18.0"
+    "@types/node": "16.11.12"
   }
 }
