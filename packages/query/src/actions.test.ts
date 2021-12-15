@@ -163,4 +163,35 @@ test('reduce type rows to MappableTypes', () => {
       },
     ]),
   ).toMatchSnapshot();
+
+  expect(
+    reduceTypeRows([
+      {
+        oid: '16398',
+        typeName: 'notification_type',
+        typeKind: 'e',
+        enumLabel: 'notification',
+      },
+      {
+        oid: '16398',
+        typeName: 'notification_type',
+        typeKind: 'e',
+        enumLabel: 'reminder',
+      },
+      {
+        oid: '16398',
+        typeName: 'notification_type',
+        typeKind: 'e',
+        enumLabel: 'deadline',
+      },
+      {
+        oid: '24',
+        typeName: '_enum',
+        typeKind: 'b',
+        enumLabel: '',
+        typeCategory: 'A' as any,
+        elementTypeOid: '16398',
+      },
+    ]),
+  ).toMatchSnapshot();
 });

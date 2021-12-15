@@ -9,6 +9,7 @@ CREATE TABLE users (
 );
 
 CREATE TYPE notification_type AS ENUM ('notification', 'reminder', 'deadline');
+CREATE TYPE category AS ENUM ('thriller', 'science-fiction', 'novel');
 
 CREATE TABLE notifications (
   id SERIAL PRIMARY KEY,
@@ -27,7 +28,8 @@ CREATE TABLE books (
   id SERIAL PRIMARY KEY,
   rank INTEGER,
   name TEXT,
-  author_id INTEGER REFERENCES authors
+  author_id INTEGER REFERENCES authors,
+  categories category[]
 );
 
 CREATE TABLE book_comments (

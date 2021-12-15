@@ -49,6 +49,7 @@ test('fixedArray works', () => {
       { a: 3, b: 4 },
     ],
   );
+  // prettier-ignore
   const expected = Buffer.from([
     0, 2, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 4,
   ]);

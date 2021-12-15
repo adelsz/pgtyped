@@ -10,11 +10,10 @@ import {
   sumSize,
   notNullTerminatedString,
 } from './helpers';
-
 import {
-  messages as pgMessages,
   IClientMessage,
   IServerMessage,
+  messages as pgMessages,
 } from './messages';
 
 export const parseSimpleType = (

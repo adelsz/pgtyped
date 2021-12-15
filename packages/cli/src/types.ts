@@ -2,6 +2,7 @@
 import {
   isAlias,
   isEnum,
+  isEnumArray,
   isImport,
   MappableType,
   Type,
@@ -157,7 +158,13 @@ export class TypeAllocator {
         typ = this.mapping[typeNameOrType];
       }
     } else {
-      typ = typeNameOrType;
+      if (isEnumArray(typeNameOrType)) {
+        typ = getArray(typeNameOrType.elementType);
+        // make sure the element type is used so it appears in the declaration
+        this.use(typeNameOrType.elementType);
+      } else {
+        typ = typeNameOrType;
+      }
     }
 
     // Track type on first occurrence
