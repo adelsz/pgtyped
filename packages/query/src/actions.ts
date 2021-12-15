@@ -66,10 +66,8 @@ export async function startup(
         );
       }
 
-      const {
-        clientNonce,
-        response: initialSASLResponse,
-      } = createInitialSASLResponse();
+      const { clientNonce, response: initialSASLResponse } =
+        createInitialSASLResponse();
       await queue.send(messages.SASLInitialResponse, {
         mechanism: 'SCRAM-SHA-256',
         responseLength: Buffer.byteLength(initialSASLResponse),
@@ -80,14 +78,12 @@ export async function startup(
         messages.AuthenticationSASLContinue,
       );
 
-      const {
-        response: SASLContinueResponse,
-        calculatedServerSignature,
-      } = createClientSASLContinueResponse(
-        password,
-        clientNonce,
-        SASLContinueResult.SASLData,
-      );
+      const { response: SASLContinueResponse, calculatedServerSignature } =
+        createClientSASLContinueResponse(
+          password,
+          clientNonce,
+          SASLContinueResult.SASLData,
+        );
 
       await queue.send(messages.SASLResponse, {
         response: SASLContinueResponse,

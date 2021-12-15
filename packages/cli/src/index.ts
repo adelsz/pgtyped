@@ -72,17 +72,15 @@ class FileProcessor {
         decsFileName = path.resolve(ppath.dir, `${ppath.name}.${suffix}`);
       }
       const contents = fs.readFileSync(fileName).toString();
-      const {
-        declarationFileContents,
-        typeDecs,
-      } = await generateDeclarationFile(
-        contents,
-        fileName,
-        connection,
-        job.transform.mode,
-        void 0,
-        this.config,
-      );
+      const { declarationFileContents, typeDecs } =
+        await generateDeclarationFile(
+          contents,
+          fileName,
+          connection,
+          job.transform.mode,
+          void 0,
+          this.config,
+        );
       if (typeDecs.length > 0) {
         const oldDeclarationFileContents = (await fs.pathExists(decsFileName))
           ? await fs.readFile(decsFileName, { encoding: 'utf-8' })
