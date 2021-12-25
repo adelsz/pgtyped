@@ -1,6 +1,7 @@
 /* @name FindBookById */
 SELECT * FROM books WHERE id = :id;
 
+
 /*
   @name InsertBooks
   @param books -> ((rank!, name!, authorId!, categories)...)
@@ -29,6 +30,15 @@ UPDATE books
 SET
     name = :name,
     rank = :rank
+WHERE id = :id!;
+
+/*
+  @name UpdateBooksRankNotNull
+*/
+UPDATE books
+SET
+    rank = :rank!,
+    name = :name
 WHERE id = :id!;
 
 /* @name GetBooksByAuthorName */

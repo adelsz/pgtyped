@@ -18,7 +18,7 @@ OPEN_COMMENT: '/*' -> mode(COMMENT);
 SID: ID -> type(ID);
 S_REQUIRED_MARK: '!';
 WORD: [a-zA-Z_0-9]+;
-SPECIAL: [\-+*/<>=~!@#%^&|`?$(){},.[\]"]+ -> type(WORD);
+SPECIAL: [\-+*/<>=~@#%^&|`?$(){},.[\]"]+ -> type(WORD);
 EOF_STATEMENT: ';';
 WSL     : [ \t\r\n]+ -> skip;
 // parse strings and recognize escaped quotes

@@ -20,7 +20,7 @@ statement
 statementBody
     : word (ignoredComment | param | word)*;
 
-word: WORD | ID | STRING;
+word: WORD | ID | STRING | S_REQUIRED_MARK;
 
 param: PARAM_MARK paramId;
 

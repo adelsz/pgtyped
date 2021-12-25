@@ -6,16 +6,17 @@ import {
   getBooksByAuthorName,
   insertBooks,
   updateBooks,
-  updateBooksCustom
+  updateBooksCustom,
+  updateBooksRankNotNull,
 } from './books/books.queries';
 import { getAllComments } from './comments/comments.queries';
 import {
   insertNotification,
-  insertNotifications
+  insertNotifications,
 } from './notifications/notifications';
 import {
   sendNotifications,
-  thresholdFrogs
+  thresholdFrogs,
 } from './notifications/notifications.queries';
 
 // tslint:disable:no-console
@@ -43,7 +44,7 @@ async function main() {
           authorId: 1,
           name: 'A Brief History of Time: From the Big Bang to Black Holes',
           rank: 1,
-          categories: ["novel", "science-fiction"]
+          categories: ['novel', 'science-fiction'],
         },
       ],
     },
@@ -51,12 +52,20 @@ async function main() {
   );
   console.log(`Inserted book ID: ${insertedBookId}`);
 
-  const {0: insertedBook} = await findBookById.run({id: insertedBookId}, client);
-  expect(insertedBook.categories).toEqual(["novel", "science-fiction"]);
+  const { 0: insertedBook } = await findBookById.run(
+    { id: insertedBookId },
+    client,
+  );
+  expect(insertedBook.categories).toEqual(['novel', 'science-fiction']);
 
   await updateBooks.run({ id: 2, rank: 12, name: 'Another title' }, client);
 
   await updateBooksCustom.run({ id: 2, rank: 13 }, client);
+
+  await updateBooksRankNotNull.run(
+    { id: 2, rank: 12, name: 'Another title' },
+    client,
+  );
 
   const books = await getBooksByAuthorName.run(
     {

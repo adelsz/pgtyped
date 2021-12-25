@@ -26,6 +26,39 @@ test('(SQL) no params', () => {
   expect(mappingResult).toEqual(expectedResult);
 });
 
+test('(SQL) two scalar params, one forced as non-null', () => {
+  const query = `
+  /*
+    @name UpdateBooksRankNotNull
+  */
+  UPDATE books
+  SET
+      rank = :rank!,
+      name = :name
+  WHERE id = :id!;`;
+
+  const fileAST = parseSQLQuery(query);
+  const parameters = {
+    rank: 123,
+    name: 'name',
+    id: 'id',
+  };
+
+  const expectedInterpolationResult = {
+    query:
+      'UPDATE books\n  SET\n      rank = $1,\n      name = $2\n  WHERE id = $3',
+    mapping: [],
+    bindings: [123, 'name', 'id'],
+  };
+
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
+    parameters,
+  );
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+});
+
 test('(SQL) two scalar params', () => {
   const query = `
   /* @name selectSomeUsers */

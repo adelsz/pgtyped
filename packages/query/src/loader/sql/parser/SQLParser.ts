@@ -335,7 +335,7 @@ export class SQLParser extends Parser {
 			this.state = 82;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SQLParser.ID) | (1 << SQLParser.OPEN_COMMENT) | (1 << SQLParser.WORD) | (1 << SQLParser.STRING) | (1 << SQLParser.PARAM_MARK))) !== 0)) {
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SQLParser.ID) | (1 << SQLParser.OPEN_COMMENT) | (1 << SQLParser.S_REQUIRED_MARK) | (1 << SQLParser.WORD) | (1 << SQLParser.STRING) | (1 << SQLParser.PARAM_MARK))) !== 0)) {
 				{
 				this.state = 80;
 				this._errHandler.sync(this);
@@ -353,6 +353,7 @@ export class SQLParser extends Parser {
 					}
 					break;
 				case SQLParser.ID:
+				case SQLParser.S_REQUIRED_MARK:
 				case SQLParser.WORD:
 				case SQLParser.STRING:
 					{
@@ -394,7 +395,7 @@ export class SQLParser extends Parser {
 			{
 			this.state = 85;
 			_la = this._input.LA(1);
-			if (!((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SQLParser.ID) | (1 << SQLParser.WORD) | (1 << SQLParser.STRING))) !== 0))) {
+			if (!((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SQLParser.ID) | (1 << SQLParser.S_REQUIRED_MARK) | (1 << SQLParser.WORD) | (1 << SQLParser.STRING))) !== 0))) {
 			this._errHandler.recoverInline(this);
 			} else {
 				if (this._input.LA(1) === Token.EOF) {
@@ -451,7 +452,6 @@ export class SQLParser extends Parser {
 	public paramId(): ParamIdContext {
 		let _localctx: ParamIdContext = new ParamIdContext(this._ctx, this.state);
 		this.enterRule(_localctx, 16, SQLParser.RULE_paramId);
-		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
@@ -459,14 +459,14 @@ export class SQLParser extends Parser {
 			this.match(SQLParser.ID);
 			this.state = 92;
 			this._errHandler.sync(this);
-			_la = this._input.LA(1);
-			if (_la === SQLParser.S_REQUIRED_MARK) {
+			switch ( this.interpreter.adaptivePredict(this._input, 6, this._ctx) ) {
+			case 1:
 				{
 				this.state = 91;
 				this.match(SQLParser.S_REQUIRED_MARK);
 				}
+				break;
 			}
-
 			}
 		}
 		catch (re) {
@@ -837,7 +837,7 @@ export class SQLParser extends Parser {
 		"\x03\x11\x03\x12\x03\x12\x05\x12\x89\n\x12\x03\x13\x03\x13\x03\x14\x03" +
 		"\x14\x03\x14\x03F\x02\x02\x15\x02\x02\x04\x02\x06\x02\b\x02\n\x02\f\x02" +
 		"\x0E\x02\x10\x02\x12\x02\x14\x02\x16\x02\x18\x02\x1A\x02\x1C\x02\x1E\x02" +
-		" \x02\"\x02$\x02&\x02\x02\x04\x03\x02\x0E\x0E\x05\x02\x03\x03\x06\x06" +
+		" \x02\"\x02$\x02&\x02\x02\x04\x03\x02\x0E\x0E\x05\x02\x03\x03\x05\x06" +
 		"\t\t\x02\x88\x02/\x03\x02\x02\x02\x045\x03\x02\x02\x02\x068\x03\x02\x02" +
 		"\x02\bB\x03\x02\x02\x02\nK\x03\x02\x02\x02\fN\x03\x02\x02\x02\x0EW\x03" +
 		"\x02\x02\x02\x10Y\x03\x02\x02\x02\x12\\\x03\x02\x02\x02\x14`\x03\x02\x02" +
@@ -1145,6 +1145,7 @@ export class WordContext extends ParserRuleContext {
 	public WORD(): TerminalNode | undefined { return this.tryGetToken(SQLParser.WORD, 0); }
 	public ID(): TerminalNode | undefined { return this.tryGetToken(SQLParser.ID, 0); }
 	public STRING(): TerminalNode | undefined { return this.tryGetToken(SQLParser.STRING, 0); }
+	public S_REQUIRED_MARK(): TerminalNode | undefined { return this.tryGetToken(SQLParser.S_REQUIRED_MARK, 0); }
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);
 	}
