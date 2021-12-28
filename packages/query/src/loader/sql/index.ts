@@ -3,15 +3,15 @@ import { CharStreams, CommonTokenStream } from 'antlr4ts';
 import { ParseTreeWalker } from 'antlr4ts/tree/ParseTreeWalker';
 import { SQLLexer } from './parser/SQLLexer';
 import {
+  HintedColumnAliasNameContext,
   IgnoredCommentContext,
   KeyContext,
   ParamIdContext,
   ParamNameContext,
   QueryNameContext,
-  SpreadTransformContext,
   SQLParser,
-  StatementBodyContext,
-} from './parser/SQLParser';
+  StatementBodyContext
+} from "./parser/SQLParser";
 import { Logger, ParseEvent, ParseEventType, ParseWarningType } from './logger';
 import { Interval } from 'antlr4ts/misc';
 
@@ -61,8 +61,14 @@ interface Statement {
   body: string;
 }
 
+export interface HintedColumnAlias {
+  nullable: boolean | undefined;
+  aliasHintLocation: { a: number; b: number };
+}
+
 export interface Query {
   name: string;
+  hintedColumnAliases: Record<string, HintedColumnAlias>;
   params: Param[];
   statement: Statement;
   usedParamSet: { [paramName: string]: true };
@@ -110,6 +116,7 @@ class ParseListener implements SQLParserListener {
   enterQueryName(ctx: QueryNameContext) {
     this.currentQuery = {
       name: ctx.text,
+      hintedColumnAliases: {},
       params: [],
       usedParamSet: {},
     };
@@ -247,6 +254,21 @@ class ParseListener implements SQLParserListener {
       reference.required = reference.required || required;
       reference.codeRefs.used.push(useLoc);
     }
+  }
+
+  enterHintedColumnAliasName(ctx: HintedColumnAliasNameContext) {
+    assert(this.currentQuery.hintedColumnAliases);
+
+    const alias = ctx.ID();
+    const nullable = ctx.S_OPTIONAL_MARK() ? true : ctx.S_REQUIRED_MARK() ? false : undefined;
+    const aliasHintLocation = {
+      a: alias.symbol.startIndex,
+      b: alias.symbol.stopIndex + 1,
+    };
+    this.currentQuery.hintedColumnAliases[alias.text] = ({
+      nullable,
+      aliasHintLocation,
+    });
   }
 }
 

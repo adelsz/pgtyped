@@ -389,17 +389,25 @@ export async function getTypes(
       ...acc,
       [attid]: {
         columnName: attname,
-        nullable: attnotnull !== 't',
+        nullable:
+          queryData.hintedColumnAliases[attname]?.nullable ??
+          attnotnull !== 't',
       },
     }),
     {},
   );
 
-  const returnTypes = fields.map((f) => ({
-    ...attrMap[`${f.tableOID}:${f.columnAttrNumber}`],
-    returnName: f.name,
-    type: typeMap[f.typeOID],
-  }));
+  const returnTypes = fields.map((f) => {
+    const attributeProps = attrMap[`${f.tableOID}:${f.columnAttrNumber}`];
+    return {
+      ...attributeProps,
+      nullable:
+        attributeProps?.nullable ??
+        queryData.hintedColumnAliases[f.name]?.nullable,
+      returnName: f.name,
+      type: typeMap[f.typeOID],
+    };
+  });
 
   const paramMetadata = {
     params: params.map(({ oid }) => typeMap[oid]),

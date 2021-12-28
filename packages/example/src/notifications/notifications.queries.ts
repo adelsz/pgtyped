@@ -25,7 +25,7 @@ export interface ISendNotificationsQuery {
   result: ISendNotificationsResult;
 }
 
-const sendNotificationsIR: any = {"name":"SendNotifications","params":[{"name":"notifications","codeRefs":{"defined":{"a":38,"b":50,"line":3,"col":9},"used":[{"a":150,"b":162,"line":6,"col":8}]},"transform":{"type":"pick_array_spread","keys":[{"name":"user_id","required":true},{"name":"payload","required":true},{"name":"type","required":true}]},"required":false}],"usedParamSet":{"notifications":true},"statement":{"body":"INSERT INTO notifications (user_id, payload, type)\nVALUES :notifications RETURNING id as notification_id","loc":{"a":91,"b":194,"line":5,"col":0}}};
+const sendNotificationsIR: any = {"name":"SendNotifications","hintedColumnAliases":{},"params":[{"name":"notifications","codeRefs":{"defined":{"a":38,"b":50,"line":3,"col":9},"used":[{"a":150,"b":162,"line":6,"col":8}]},"transform":{"type":"pick_array_spread","keys":[{"name":"user_id","required":true},{"name":"payload","required":true},{"name":"type","required":true}]},"required":false}],"usedParamSet":{"notifications":true},"statement":{"body":"INSERT INTO notifications (user_id, payload, type)\nVALUES :notifications RETURNING id as notification_id","loc":{"a":91,"b":194,"line":5,"col":0}}};
 
 /**
  * Query generated from SQL:
@@ -56,7 +56,7 @@ export interface IGetNotificationsQuery {
   result: IGetNotificationsResult;
 }
 
-const getNotificationsIR: any = {"name":"GetNotifications","params":[{"name":"userId","required":false,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":275,"b":280,"line":11,"col":18}]}}],"usedParamSet":{"userId":true},"statement":{"body":"SELECT *\n  FROM notifications\n WHERE user_id = :userId","loc":{"a":227,"b":280,"line":9,"col":0}}};
+const getNotificationsIR: any = {"name":"GetNotifications","hintedColumnAliases":{},"params":[{"name":"userId","required":false,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":275,"b":280,"line":11,"col":18}]}}],"usedParamSet":{"userId":true},"statement":{"body":"SELECT *\n  FROM notifications\n WHERE user_id = :userId","loc":{"a":227,"b":280,"line":9,"col":0}}};
 
 /**
  * Query generated from SQL:
@@ -87,7 +87,7 @@ export interface IThresholdFrogsQuery {
   result: IThresholdFrogsResult;
 }
 
-const thresholdFrogsIR: any = {"name":"ThresholdFrogs","params":[{"name":"numFrogs","required":true,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":458,"b":466,"line":20,"col":46}]}}],"usedParamSet":{"numFrogs":true},"statement":{"body":"SELECT u.user_name, n.payload, n.type\nFROM notifications n\nINNER JOIN users u on n.user_id = u.id\nWHERE CAST (n.payload->'num_frogs' AS int) > :numFrogs!","loc":{"a":314,"b":466,"line":17,"col":0}}};
+const thresholdFrogsIR: any = {"name":"ThresholdFrogs","hintedColumnAliases":{},"params":[{"name":"numFrogs","required":true,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":458,"b":466,"line":20,"col":46}]}}],"usedParamSet":{"numFrogs":true},"statement":{"body":"SELECT u.user_name, n.payload, n.type\nFROM notifications n\nINNER JOIN users u on n.user_id = u.id\nWHERE CAST (n.payload->'num_frogs' AS int) > :numFrogs!","loc":{"a":314,"b":466,"line":17,"col":0}}};
 
 /**
  * Query generated from SQL:

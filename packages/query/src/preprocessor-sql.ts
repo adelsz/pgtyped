@@ -20,8 +20,19 @@ export const processSQLQueryAST = (
   const paramMapping: QueryParam[] = [];
   const usedParams = query.params.filter((p) => p.name in query.usedParamSet);
   const { a: statementStart } = query.statement.loc;
-  let i = 1;
   const intervals: { a: number; b: number; sub: string }[] = [];
+
+  for (const [aliasName, { aliasHintLocation }] of Object.entries(
+    query.hintedColumnAliases,
+  )) {
+    intervals.push({
+      a: aliasHintLocation.a - statementStart,
+      b: aliasHintLocation.b - statementStart,
+      sub: aliasName,
+    });
+  }
+
+  let i = 1;
   for (const usedParam of usedParams) {
     const paramLocs = usedParam.codeRefs.used.map(({ a, b }) => ({
       a: a - statementStart - 1,
@@ -174,6 +185,7 @@ export const processSQLQueryAST = (
   return {
     mapping: paramMapping,
     query: flatStr,
+    hintedColumnAliases: query.hintedColumnAliases,
     bindings,
   };
 };

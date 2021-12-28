@@ -14,6 +14,7 @@ test('(SQL) no params', () => {
     query: 'SELECT id, name FROM users',
     mapping: [],
     bindings: [],
+    hintedColumnAliases: {},
   };
 
   const interpolationResult = processSQLQueryAST(
@@ -49,6 +50,7 @@ test('(SQL) two scalar params, one forced as non-null', () => {
       'UPDATE books\n  SET\n      rank = $1,\n      name = $2\n  WHERE id = $3',
     mapping: [],
     bindings: [123, 'name', 'id'],
+    hintedColumnAliases: {},
   };
 
   const interpolationResult = processSQLQueryAST(
@@ -74,6 +76,7 @@ test('(SQL) two scalar params', () => {
     query: 'SELECT id, name from users where id = $1 and age > $2',
     mapping: [],
     bindings: ['123', 12],
+    hintedColumnAliases: {},
   };
 
   const expectedMappingResult = {
@@ -93,6 +96,7 @@ test('(SQL) two scalar params', () => {
       },
     ],
     bindings: [],
+    hintedColumnAliases: {},
   };
 
   const interpolationResult = processSQLQueryAST(
@@ -119,6 +123,7 @@ test('(SQL) one param used twice', () => {
     query: 'SELECT id, name from users where id = $1 or parent_id = $1',
     mapping: [],
     bindings: ['123'],
+    hintedColumnAliases: {},
   };
 
   const expectedMappingResult = {
@@ -132,6 +137,7 @@ test('(SQL) one param used twice', () => {
       },
     ],
     bindings: [],
+    hintedColumnAliases: {},
   };
 
   const interpolationResult = processSQLQueryAST(
@@ -161,6 +167,7 @@ test('(SQL) array param', () => {
     query: 'SELECT FROM users WHERE age in ($1,$2,$3)',
     bindings: [23, 27, 50],
     mapping: [],
+    hintedColumnAliases: {},
   };
 
   const expectedMappingResult = {
@@ -174,6 +181,7 @@ test('(SQL) array param', () => {
         assignedIndex: 1,
       },
     ],
+    hintedColumnAliases: {},
   };
 
   const interpolationResult = processSQLQueryAST(
@@ -203,6 +211,7 @@ test('(SQL) array param used twice', () => {
     query: 'SELECT FROM users WHERE age in ($1,$2,$3) or age in ($1,$2,$3)',
     bindings: [23, 27, 50],
     mapping: [],
+    hintedColumnAliases: {},
   };
 
   const expectedMappingResult = {
@@ -216,6 +225,7 @@ test('(SQL) array param used twice', () => {
         assignedIndex: 1,
       },
     ],
+    hintedColumnAliases: {},
   };
 
   const interpolationResult = processSQLQueryAST(
@@ -246,6 +256,7 @@ test('(SQL) array and scalar param', () => {
     query: 'SELECT FROM users WHERE age in ($1,$2,$3) and id = $4',
     bindings: [23, 27, 50, 'some-id'],
     mapping: [],
+    hintedColumnAliases: {},
   };
 
   const expectedMappingResult = {
@@ -265,6 +276,7 @@ test('(SQL) array and scalar param', () => {
         assignedIndex: 2,
       },
     ],
+    hintedColumnAliases: {},
   };
 
   const interpolationResult = processSQLQueryAST(
@@ -294,6 +306,7 @@ test('(SQL) pick param', () => {
     query: 'INSERT INTO users (name, age) VALUES ($1,$2) RETURNING id',
     bindings: ['Bob', 12],
     mapping: [],
+    hintedColumnAliases: {},
   };
 
   const expectedMappingResult = {
@@ -319,6 +332,7 @@ test('(SQL) pick param', () => {
         },
       },
     ],
+    hintedColumnAliases: {},
   };
 
   const interpolationResult = processSQLQueryAST(
@@ -348,6 +362,7 @@ test('(SQL) pick param used twice', () => {
     query: 'INSERT INTO users (name, age) VALUES ($1,$2), ($1,$2) RETURNING id',
     bindings: ['Bob', 12],
     mapping: [],
+    hintedColumnAliases: {},
   };
 
   const expectedMappingResult = {
@@ -373,6 +388,7 @@ test('(SQL) pick param used twice', () => {
         },
       },
     ],
+    hintedColumnAliases: {},
   };
 
   const interpolationResult = processSQLQueryAST(
@@ -405,6 +421,7 @@ test('(SQL) pickSpread param', () => {
     query: 'INSERT INTO users (name, age) VALUES ($1,$2),($3,$4) RETURNING id',
     bindings: ['Bob', 12, 'Tom', 22],
     mapping: [],
+    hintedColumnAliases: {},
   };
 
   const expectedMapping = [
@@ -432,6 +449,7 @@ test('(SQL) pickSpread param', () => {
     query: 'INSERT INTO users (name, age) VALUES ($1,$2) RETURNING id',
     bindings: [],
     mapping: expectedMapping,
+    hintedColumnAliases: {},
   };
 
   const interpolationResult = processSQLQueryAST(
@@ -465,6 +483,7 @@ test('(SQL) pickSpread param used twice', () => {
       'INSERT INTO users (name, age) VALUES ($1,$2),($3,$4), ($1,$2),($3,$4) RETURNING id',
     bindings: ['Bob', 12, 'Tom', 22],
     mapping: [],
+    hintedColumnAliases: {},
   };
 
   const expectedMapping = [
@@ -492,6 +511,7 @@ test('(SQL) pickSpread param used twice', () => {
     query: 'INSERT INTO users (name, age) VALUES ($1,$2), ($1,$2) RETURNING id',
     bindings: [],
     mapping: expectedMapping,
+    hintedColumnAliases: {},
   };
 
   const interpolationResult = processSQLQueryAST(
@@ -518,6 +538,7 @@ test('(SQL) scalar param required and optional', () => {
     query: 'SELECT id, name from users where id = $1 and user_id = $1',
     mapping: [],
     bindings: ['123'],
+    hintedColumnAliases: {},
   };
 
   const expectedMappingResult = {
@@ -531,6 +552,7 @@ test('(SQL) scalar param required and optional', () => {
       },
     ],
     bindings: [],
+    hintedColumnAliases: {},
   };
 
   const interpolationResult = processSQLQueryAST(
@@ -560,6 +582,7 @@ test('(SQL) pick param required', () => {
     query: 'INSERT INTO users (name, age) VALUES ($1,$2) RETURNING id',
     bindings: ['Bob', 12],
     mapping: [],
+    hintedColumnAliases: {},
   };
 
   const expectedMappingResult = {
@@ -585,6 +608,7 @@ test('(SQL) pick param required', () => {
         },
       },
     ],
+    hintedColumnAliases: {},
   };
 
   const interpolationResult = processSQLQueryAST(
@@ -614,6 +638,7 @@ test('(SQL) array param required', () => {
     query: 'SELECT FROM users WHERE age in ($1,$2,$3)',
     bindings: [23, 27, 50],
     mapping: [],
+    hintedColumnAliases: {},
   };
 
   const expectedMappingResult = {
@@ -627,6 +652,210 @@ test('(SQL) array param required', () => {
         assignedIndex: 1,
       },
     ],
+    hintedColumnAliases: {},
+  };
+
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
+    parameters,
+  );
+  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+  expect(mappingResult).toEqual(expectedMappingResult);
+});
+
+test('(SQL) select non-nullability hint', () => {
+  const query = `
+  /* @name countFromTable */
+  SELECT count(*) AS "count!" FROM table;`;
+  const fileAST = parseSQLQuery(query);
+  const parameters = {};
+
+  const expectedInterpolationResult = {
+    query: 'SELECT count(*) AS "count" FROM table',
+    bindings: [],
+    mapping: [],
+    hintedColumnAliases: {
+      count: {
+        nullable: false,
+        aliasHintLocation: {
+          a: 52,
+          b: 57,
+        },
+      },
+    },
+  };
+
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
+    parameters,
+  );
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+});
+
+test('(SQL) select non-nullability hint complexer query', () => {
+  const query = `
+  /* @name selectUsersAndEmails */
+  SELECT u.id, (SELECT id from user_emails where user_id = u.id) as "email!" from users u`;
+  const fileAST = parseSQLQuery(query);
+  const parameters = {};
+
+  const expectedInterpolationResult = {
+    query:
+      'SELECT u.id, (SELECT id from user_emails where user_id = u.id) as "email" from users u',
+    bindings: [],
+    mapping: [],
+    hintedColumnAliases: {
+      email: {
+        nullable: false,
+        aliasHintLocation: {
+          a: 105,
+          b: 110,
+        },
+      },
+    },
+  };
+
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
+    parameters,
+  );
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+});
+
+test('(SQL) select nullability hint', () => {
+  const query = `
+  /* @name selectUsersAndNames */
+  SELECT id, name AS "name?" FROM users LEFT JOIN names USING (id);`;
+  const fileAST = parseSQLQuery(query);
+  const parameters = {};
+
+  const expectedInterpolationResult = {
+    query: 'SELECT id, name AS "name" FROM users LEFT JOIN names USING (id)',
+    bindings: [],
+    mapping: [],
+    hintedColumnAliases: {
+      name: {
+        nullable: true,
+        aliasHintLocation: {
+          a: 57,
+          b: 61,
+        },
+      },
+    },
+  };
+
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
+    parameters,
+  );
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+});
+
+test('(SQL) select non-nullability hint with parameter', () => {
+  const query = `
+  /* @name getUserTotalScores */
+  SELECT coalesce(sum(score), 0) AS "total_score!" FROM users WHERE id = :id!;`;
+  const fileAST = parseSQLQuery(query);
+  const parameters = { id: 'id' };
+
+  const expectedInterpolationResult = {
+    query:
+      'SELECT coalesce(sum(score), 0) AS "total_score" FROM users WHERE id = $1',
+    bindings: ['id'],
+    mapping: [],
+    hintedColumnAliases: {
+      total_score: {
+        nullable: false,
+        aliasHintLocation: {
+          a: 71,
+          b: 82,
+        },
+      },
+    },
+  };
+
+  const interpolationResult = processSQLQueryAST(
+    fileAST.queries[0],
+    parameters,
+  );
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+});
+
+test('(SQL) pickSpread param with non-null counting rows', () => {
+  const query = `
+  /*
+    @name insertUsers
+    @param users -> ((name, age)...)
+  */
+  WITH rows AS (INSERT INTO users (name, age) VALUES :users RETURNING 1) SELECT count(*) AS "count!" FROM rows;`;
+  const fileAST = parseSQLQuery(query);
+
+  const parameters = {
+    users: [
+      { name: 'Bob', age: 12 },
+      { name: 'Tom', age: 22 },
+    ],
+  };
+
+  const expectedInterpolationResult = {
+    query:
+      'WITH rows AS (INSERT INTO users (name, age) VALUES ($1,$2),($3,$4) RETURNING 1) SELECT' +
+      ' count(*) AS "count" FROM rows',
+    bindings: ['Bob', 12, 'Tom', 22],
+    mapping: [],
+    hintedColumnAliases: {
+      count: {
+        aliasHintLocation: {
+          a: 163,
+          b: 168,
+        },
+        nullable: false,
+      },
+    },
+  };
+
+  const expectedMapping = [
+    {
+      name: 'users',
+      type: ParamTransform.PickSpread,
+      dict: {
+        name: {
+          name: 'name',
+          type: ParamTransform.Scalar,
+          required: false,
+          assignedIndex: 1,
+        },
+        age: {
+          name: 'age',
+          type: ParamTransform.Scalar,
+          required: false,
+          assignedIndex: 2,
+        },
+      },
+    },
+  ];
+
+  const expectedMappingResult = {
+    query:
+      'WITH rows AS (INSERT INTO users (name, age) VALUES ($1,$2) RETURNING 1) SELECT count(*) AS' +
+      ' "count" FROM rows',
+    bindings: [],
+    mapping: expectedMapping,
+    hintedColumnAliases: {
+      count: {
+        aliasHintLocation: {
+          a: 163,
+          b: 168,
+        },
+        nullable: false,
+      },
+    },
   };
 
   const interpolationResult = processSQLQueryAST(

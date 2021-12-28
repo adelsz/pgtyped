@@ -10,6 +10,7 @@ import { IgnoredCommentContext } from "./SQLParser";
 import { StatementContext } from "./SQLParser";
 import { StatementBodyContext } from "./SQLParser";
 import { WordContext } from "./SQLParser";
+import { HintedColumnAliasNameContext } from "./SQLParser";
 import { ParamContext } from "./SQLParser";
 import { ParamIdContext } from "./SQLParser";
 import { NameTagContext } from "./SQLParser";
@@ -105,6 +106,17 @@ export interface SQLParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitWord?: (ctx: WordContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SQLParser.hintedColumnAliasName`.
+	 * @param ctx the parse tree
+	 */
+	enterHintedColumnAliasName?: (ctx: HintedColumnAliasNameContext) => void;
+	/**
+	 * Exit a parse tree produced by `SQLParser.hintedColumnAliasName`.
+	 * @param ctx the parse tree
+	 */
+	exitHintedColumnAliasName?: (ctx: HintedColumnAliasNameContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `SQLParser.param`.

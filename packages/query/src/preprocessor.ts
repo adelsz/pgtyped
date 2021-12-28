@@ -1,3 +1,5 @@
+import { HintedColumnAlias } from './loader/sql';
+
 export type Scalar = string | number | null;
 
 export enum ParamTransform {
@@ -44,6 +46,7 @@ export type QueryParam =
 
 export interface IInterpolatedQuery {
   query: string;
+  hintedColumnAliases: Record<string, HintedColumnAlias>;
   mapping: QueryParam[];
   bindings: Scalar[];
 }

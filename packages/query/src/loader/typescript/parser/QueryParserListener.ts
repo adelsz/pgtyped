@@ -14,6 +14,7 @@ import { ArrayParamContext } from "./QueryParser";
 import { ScalarParamNameContext } from "./QueryParser";
 import { ParamNameContext } from "./QueryParser";
 import { PickKeyContext } from "./QueryParser";
+import { HintedColumnAliasNameContext } from "./QueryParser";
 
 
 /**
@@ -141,5 +142,16 @@ export interface QueryParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitPickKey?: (ctx: PickKeyContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `QueryParser.hintedColumnAliasName`.
+	 * @param ctx the parse tree
+	 */
+	enterHintedColumnAliasName?: (ctx: HintedColumnAliasNameContext) => void;
+	/**
+	 * Exit a parse tree produced by `QueryParser.hintedColumnAliasName`.
+	 * @param ctx the parse tree
+	 */
+	exitHintedColumnAliasName?: (ctx: HintedColumnAliasNameContext) => void;
 }
 

@@ -14,6 +14,7 @@ tokens { ID }
 fragment QUOT: '\'';
 fragment ID: [a-zA-Z_][a-zA-Z_0-9]*;
 
+AS: ('as' | 'AS');
 SID: ID -> type(ID);
 SINGULAR_PARAM_MARK: '$';
 PLURAL_PARAM_MARK: '$$';
@@ -22,7 +23,9 @@ OB: '(';
 CB: ')';
 WORD: [a-zA-Z_0-9]+;
 REQUIRED_MARK: '!';
-SPECIAL: [\-+*/<>=~@#%^&|`?${}.[\]":]+;
+OPTIONAL_MARK: '?';
+DOUBLE_QUOTE: '"';
+SPECIAL: [\-+*/<>=~@#%^&|`${}.[\]:]+;
 EOF_STATEMENT: ';';
 WSL     : [ \t\r\n]+ -> skip;
 // parse strings and recognize escaped quotes

@@ -29,17 +29,20 @@ import { QueryParserVisitor } from "./QueryParserVisitor";
 
 export class QueryParser extends Parser {
 	public static readonly ID = 1;
-	public static readonly SINGULAR_PARAM_MARK = 2;
-	public static readonly PLURAL_PARAM_MARK = 3;
-	public static readonly COMMA = 4;
-	public static readonly OB = 5;
-	public static readonly CB = 6;
-	public static readonly WORD = 7;
-	public static readonly REQUIRED_MARK = 8;
-	public static readonly SPECIAL = 9;
-	public static readonly EOF_STATEMENT = 10;
-	public static readonly WSL = 11;
-	public static readonly STRING = 12;
+	public static readonly AS = 2;
+	public static readonly SINGULAR_PARAM_MARK = 3;
+	public static readonly PLURAL_PARAM_MARK = 4;
+	public static readonly COMMA = 5;
+	public static readonly OB = 6;
+	public static readonly CB = 7;
+	public static readonly WORD = 8;
+	public static readonly REQUIRED_MARK = 9;
+	public static readonly OPTIONAL_MARK = 10;
+	public static readonly DOUBLE_QUOTE = 11;
+	public static readonly SPECIAL = 12;
+	public static readonly EOF_STATEMENT = 13;
+	public static readonly WSL = 14;
+	public static readonly STRING = 15;
 	public static readonly RULE_input = 0;
 	public static readonly RULE_query = 1;
 	public static readonly RULE_param = 2;
@@ -51,20 +54,21 @@ export class QueryParser extends Parser {
 	public static readonly RULE_scalarParamName = 8;
 	public static readonly RULE_paramName = 9;
 	public static readonly RULE_pickKey = 10;
+	public static readonly RULE_hintedColumnAliasName = 11;
 	// tslint:disable:no-trailing-whitespace
 	public static readonly ruleNames: string[] = [
 		"input", "query", "param", "ignored", "scalarParam", "pickParam", "arrayPickParam", 
-		"arrayParam", "scalarParamName", "paramName", "pickKey",
+		"arrayParam", "scalarParamName", "paramName", "pickKey", "hintedColumnAliasName",
 	];
 
 	private static readonly _LITERAL_NAMES: Array<string | undefined> = [
-		undefined, undefined, "'$'", "'$$'", "','", "'('", "')'", undefined, "'!'", 
-		undefined, "';'",
+		undefined, undefined, undefined, "'$'", "'$$'", "','", "'('", "')'", undefined, 
+		"'!'", "'?'", "'\"'", undefined, "';'",
 	];
 	private static readonly _SYMBOLIC_NAMES: Array<string | undefined> = [
-		undefined, "ID", "SINGULAR_PARAM_MARK", "PLURAL_PARAM_MARK", "COMMA", 
-		"OB", "CB", "WORD", "REQUIRED_MARK", "SPECIAL", "EOF_STATEMENT", "WSL", 
-		"STRING",
+		undefined, "ID", "AS", "SINGULAR_PARAM_MARK", "PLURAL_PARAM_MARK", "COMMA", 
+		"OB", "CB", "WORD", "REQUIRED_MARK", "OPTIONAL_MARK", "DOUBLE_QUOTE", 
+		"SPECIAL", "EOF_STATEMENT", "WSL", "STRING",
 	];
 	public static readonly VOCABULARY: Vocabulary = new VocabularyImpl(QueryParser._LITERAL_NAMES, QueryParser._SYMBOLIC_NAMES, []);
 
@@ -100,19 +104,19 @@ export class QueryParser extends Parser {
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 22;
-			this.query();
 			this.state = 24;
+			this.query();
+			this.state = 26;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if (_la === QueryParser.EOF_STATEMENT) {
 				{
-				this.state = 23;
+				this.state = 25;
 				this.match(QueryParser.EOF_STATEMENT);
 				}
 			}
 
-			this.state = 26;
+			this.state = 28;
 			this.match(QueryParser.EOF);
 			}
 		}
@@ -138,45 +142,39 @@ export class QueryParser extends Parser {
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 29;
+			this.state = 30;
+			this.ignored();
+			this.state = 36;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			do {
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << QueryParser.ID) | (1 << QueryParser.AS) | (1 << QueryParser.SINGULAR_PARAM_MARK) | (1 << QueryParser.PLURAL_PARAM_MARK) | (1 << QueryParser.COMMA) | (1 << QueryParser.OB) | (1 << QueryParser.CB) | (1 << QueryParser.WORD) | (1 << QueryParser.REQUIRED_MARK) | (1 << QueryParser.OPTIONAL_MARK) | (1 << QueryParser.DOUBLE_QUOTE) | (1 << QueryParser.SPECIAL) | (1 << QueryParser.STRING))) !== 0)) {
 				{
-				{
-				this.state = 28;
-				this.ignored();
-				}
-				}
-				this.state = 31;
+				this.state = 34;
 				this._errHandler.sync(this);
-				_la = this._input.LA(1);
-			} while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << QueryParser.ID) | (1 << QueryParser.COMMA) | (1 << QueryParser.OB) | (1 << QueryParser.CB) | (1 << QueryParser.WORD) | (1 << QueryParser.REQUIRED_MARK) | (1 << QueryParser.SPECIAL) | (1 << QueryParser.STRING))) !== 0));
-			this.state = 42;
-			this._errHandler.sync(this);
-			_la = this._input.LA(1);
-			while (_la === QueryParser.SINGULAR_PARAM_MARK || _la === QueryParser.PLURAL_PARAM_MARK) {
-				{
-				{
-				this.state = 33;
-				this.param();
-				this.state = 37;
-				this._errHandler.sync(this);
-				_la = this._input.LA(1);
-				while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << QueryParser.ID) | (1 << QueryParser.COMMA) | (1 << QueryParser.OB) | (1 << QueryParser.CB) | (1 << QueryParser.WORD) | (1 << QueryParser.REQUIRED_MARK) | (1 << QueryParser.SPECIAL) | (1 << QueryParser.STRING))) !== 0)) {
+				switch ( this.interpreter.adaptivePredict(this._input, 1, this._ctx) ) {
+				case 1:
 					{
+					this.state = 31;
+					this.param();
+					}
+					break;
+
+				case 2:
 					{
-					this.state = 34;
+					this.state = 32;
+					this.hintedColumnAliasName();
+					}
+					break;
+
+				case 3:
+					{
+					this.state = 33;
 					this.ignored();
 					}
-					}
-					this.state = 39;
-					this._errHandler.sync(this);
-					_la = this._input.LA(1);
+					break;
 				}
 				}
-				}
-				this.state = 44;
+				this.state = 38;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
 			}
@@ -201,13 +199,13 @@ export class QueryParser extends Parser {
 		let _localctx: ParamContext = new ParamContext(this._ctx, this.state);
 		this.enterRule(_localctx, 4, QueryParser.RULE_param);
 		try {
-			this.state = 49;
+			this.state = 43;
 			this._errHandler.sync(this);
-			switch ( this.interpreter.adaptivePredict(this._input, 4, this._ctx) ) {
+			switch ( this.interpreter.adaptivePredict(this._input, 3, this._ctx) ) {
 			case 1:
 				this.enterOuterAlt(_localctx, 1);
 				{
-				this.state = 45;
+				this.state = 39;
 				this.pickParam();
 				}
 				break;
@@ -215,7 +213,7 @@ export class QueryParser extends Parser {
 			case 2:
 				this.enterOuterAlt(_localctx, 2);
 				{
-				this.state = 46;
+				this.state = 40;
 				this.arrayPickParam();
 				}
 				break;
@@ -223,7 +221,7 @@ export class QueryParser extends Parser {
 			case 3:
 				this.enterOuterAlt(_localctx, 3);
 				{
-				this.state = 47;
+				this.state = 41;
 				this.scalarParam();
 				}
 				break;
@@ -231,7 +229,7 @@ export class QueryParser extends Parser {
 			case 4:
 				this.enterOuterAlt(_localctx, 4);
 				{
-				this.state = 48;
+				this.state = 42;
 				this.arrayParam();
 				}
 				break;
@@ -257,39 +255,20 @@ export class QueryParser extends Parser {
 		this.enterRule(_localctx, 6, QueryParser.RULE_ignored);
 		let _la: number;
 		try {
-			let _alt: number;
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 52;
-			this._errHandler.sync(this);
-			_alt = 1;
-			do {
-				switch (_alt) {
-				case 1:
-					{
-					{
-					this.state = 51;
-					_la = this._input.LA(1);
-					if (!((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << QueryParser.ID) | (1 << QueryParser.COMMA) | (1 << QueryParser.OB) | (1 << QueryParser.CB) | (1 << QueryParser.WORD) | (1 << QueryParser.REQUIRED_MARK) | (1 << QueryParser.SPECIAL) | (1 << QueryParser.STRING))) !== 0))) {
-					this._errHandler.recoverInline(this);
-					} else {
-						if (this._input.LA(1) === Token.EOF) {
-							this.matchedEOF = true;
-						}
-
-						this._errHandler.reportMatch(this);
-						this.consume();
-					}
-					}
-					}
-					break;
-				default:
-					throw new NoViableAltException(this);
+			this.state = 45;
+			_la = this._input.LA(1);
+			if (!((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << QueryParser.ID) | (1 << QueryParser.AS) | (1 << QueryParser.COMMA) | (1 << QueryParser.OB) | (1 << QueryParser.CB) | (1 << QueryParser.WORD) | (1 << QueryParser.REQUIRED_MARK) | (1 << QueryParser.OPTIONAL_MARK) | (1 << QueryParser.DOUBLE_QUOTE) | (1 << QueryParser.SPECIAL) | (1 << QueryParser.STRING))) !== 0))) {
+			this._errHandler.recoverInline(this);
+			} else {
+				if (this._input.LA(1) === Token.EOF) {
+					this.matchedEOF = true;
 				}
-				this.state = 54;
-				this._errHandler.sync(this);
-				_alt = this.interpreter.adaptivePredict(this._input, 5, this._ctx);
-			} while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER);
+
+				this._errHandler.reportMatch(this);
+				this.consume();
+			}
 			}
 		}
 		catch (re) {
@@ -313,9 +292,9 @@ export class QueryParser extends Parser {
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 56;
+			this.state = 47;
 			this.match(QueryParser.SINGULAR_PARAM_MARK);
-			this.state = 57;
+			this.state = 48;
 			this.scalarParamName();
 			}
 		}
@@ -342,43 +321,43 @@ export class QueryParser extends Parser {
 			let _alt: number;
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 59;
+			this.state = 50;
 			this.match(QueryParser.SINGULAR_PARAM_MARK);
-			this.state = 60;
+			this.state = 51;
 			this.paramName();
-			this.state = 61;
+			this.state = 52;
 			this.match(QueryParser.OB);
-			this.state = 62;
+			this.state = 53;
 			this.pickKey();
-			this.state = 67;
+			this.state = 58;
 			this._errHandler.sync(this);
-			_alt = this.interpreter.adaptivePredict(this._input, 6, this._ctx);
+			_alt = this.interpreter.adaptivePredict(this._input, 4, this._ctx);
 			while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
 				if (_alt === 1) {
 					{
 					{
-					this.state = 63;
+					this.state = 54;
 					this.match(QueryParser.COMMA);
-					this.state = 64;
+					this.state = 55;
 					this.pickKey();
 					}
 					}
 				}
-				this.state = 69;
+				this.state = 60;
 				this._errHandler.sync(this);
-				_alt = this.interpreter.adaptivePredict(this._input, 6, this._ctx);
+				_alt = this.interpreter.adaptivePredict(this._input, 4, this._ctx);
 			}
-			this.state = 71;
+			this.state = 62;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if (_la === QueryParser.COMMA) {
 				{
-				this.state = 70;
+				this.state = 61;
 				this.match(QueryParser.COMMA);
 				}
 			}
 
-			this.state = 73;
+			this.state = 64;
 			this.match(QueryParser.CB);
 			}
 		}
@@ -405,43 +384,43 @@ export class QueryParser extends Parser {
 			let _alt: number;
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 75;
+			this.state = 66;
 			this.match(QueryParser.PLURAL_PARAM_MARK);
-			this.state = 76;
+			this.state = 67;
 			this.paramName();
-			this.state = 77;
+			this.state = 68;
 			this.match(QueryParser.OB);
-			this.state = 78;
+			this.state = 69;
 			this.pickKey();
-			this.state = 83;
+			this.state = 74;
 			this._errHandler.sync(this);
-			_alt = this.interpreter.adaptivePredict(this._input, 8, this._ctx);
+			_alt = this.interpreter.adaptivePredict(this._input, 6, this._ctx);
 			while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
 				if (_alt === 1) {
 					{
 					{
-					this.state = 79;
+					this.state = 70;
 					this.match(QueryParser.COMMA);
-					this.state = 80;
+					this.state = 71;
 					this.pickKey();
 					}
 					}
 				}
-				this.state = 85;
+				this.state = 76;
 				this._errHandler.sync(this);
-				_alt = this.interpreter.adaptivePredict(this._input, 8, this._ctx);
+				_alt = this.interpreter.adaptivePredict(this._input, 6, this._ctx);
 			}
-			this.state = 87;
+			this.state = 78;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if (_la === QueryParser.COMMA) {
 				{
-				this.state = 86;
+				this.state = 77;
 				this.match(QueryParser.COMMA);
 				}
 			}
 
-			this.state = 89;
+			this.state = 80;
 			this.match(QueryParser.CB);
 			}
 		}
@@ -466,9 +445,9 @@ export class QueryParser extends Parser {
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 91;
+			this.state = 82;
 			this.match(QueryParser.PLURAL_PARAM_MARK);
-			this.state = 92;
+			this.state = 83;
 			this.scalarParamName();
 			}
 		}
@@ -493,14 +472,14 @@ export class QueryParser extends Parser {
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 94;
+			this.state = 85;
 			this.match(QueryParser.ID);
-			this.state = 96;
+			this.state = 87;
 			this._errHandler.sync(this);
-			switch ( this.interpreter.adaptivePredict(this._input, 10, this._ctx) ) {
+			switch ( this.interpreter.adaptivePredict(this._input, 8, this._ctx) ) {
 			case 1:
 				{
-				this.state = 95;
+				this.state = 86;
 				this.match(QueryParser.REQUIRED_MARK);
 				}
 				break;
@@ -528,7 +507,7 @@ export class QueryParser extends Parser {
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 98;
+			this.state = 89;
 			this.match(QueryParser.ID);
 			}
 		}
@@ -554,14 +533,14 @@ export class QueryParser extends Parser {
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 100;
+			this.state = 91;
 			this.match(QueryParser.ID);
-			this.state = 102;
+			this.state = 93;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if (_la === QueryParser.REQUIRED_MARK) {
 				{
-				this.state = 101;
+				this.state = 92;
 				this.match(QueryParser.REQUIRED_MARK);
 				}
 			}
@@ -582,50 +561,92 @@ export class QueryParser extends Parser {
 		}
 		return _localctx;
 	}
+	// @RuleVersion(0)
+	public hintedColumnAliasName(): HintedColumnAliasNameContext {
+		let _localctx: HintedColumnAliasNameContext = new HintedColumnAliasNameContext(this._ctx, this.state);
+		this.enterRule(_localctx, 22, QueryParser.RULE_hintedColumnAliasName);
+		let _la: number;
+		try {
+			this.enterOuterAlt(_localctx, 1);
+			{
+			this.state = 95;
+			this.match(QueryParser.AS);
+			this.state = 96;
+			this.match(QueryParser.DOUBLE_QUOTE);
+			this.state = 97;
+			this.match(QueryParser.ID);
+			this.state = 98;
+			_la = this._input.LA(1);
+			if (!(_la === QueryParser.REQUIRED_MARK || _la === QueryParser.OPTIONAL_MARK)) {
+			this._errHandler.recoverInline(this);
+			} else {
+				if (this._input.LA(1) === Token.EOF) {
+					this.matchedEOF = true;
+				}
+
+				this._errHandler.reportMatch(this);
+				this.consume();
+			}
+			this.state = 99;
+			this.match(QueryParser.DOUBLE_QUOTE);
+			}
+		}
+		catch (re) {
+			if (re instanceof RecognitionException) {
+				_localctx.exception = re;
+				this._errHandler.reportError(this, re);
+				this._errHandler.recover(this, re);
+			} else {
+				throw re;
+			}
+		}
+		finally {
+			this.exitRule();
+		}
+		return _localctx;
+	}
 
 	public static readonly _serializedATN: string =
-		"\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03\x0Ek\x04\x02" +
+		"\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03\x11h\x04\x02" +
 		"\t\x02\x04\x03\t\x03\x04\x04\t\x04\x04\x05\t\x05\x04\x06\t\x06\x04\x07" +
-		"\t\x07\x04\b\t\b\x04\t\t\t\x04\n\t\n\x04\v\t\v\x04\f\t\f\x03\x02\x03\x02" +
-		"\x05\x02\x1B\n\x02\x03\x02\x03\x02\x03\x03\x06\x03 \n\x03\r\x03\x0E\x03" +
-		"!\x03\x03\x03\x03\x07\x03&\n\x03\f\x03\x0E\x03)\v\x03\x07\x03+\n\x03\f" +
-		"\x03\x0E\x03.\v\x03\x03\x04\x03\x04\x03\x04\x03\x04\x05\x044\n\x04\x03" +
-		"\x05\x06\x057\n\x05\r\x05\x0E\x058\x03\x06\x03\x06\x03\x06\x03\x07\x03" +
-		"\x07\x03\x07\x03\x07\x03\x07\x03\x07\x07\x07D\n\x07\f\x07\x0E\x07G\v\x07" +
-		"\x03\x07\x05\x07J\n\x07\x03\x07\x03\x07\x03\b\x03\b\x03\b\x03\b\x03\b" +
-		"\x03\b\x07\bT\n\b\f\b\x0E\bW\v\b\x03\b\x05\bZ\n\b\x03\b\x03\b\x03\t\x03" +
-		"\t\x03\t\x03\n\x03\n\x05\nc\n\n\x03\v\x03\v\x03\f\x03\f\x05\fi\n\f\x03" +
-		"\f\x02\x02\x02\r\x02\x02\x04\x02\x06\x02\b\x02\n\x02\f\x02\x0E\x02\x10" +
-		"\x02\x12\x02\x14\x02\x16\x02\x02\x03\x05\x02\x03\x03\x06\v\x0E\x0E\x02" +
-		"m\x02\x18\x03\x02\x02\x02\x04\x1F\x03\x02\x02\x02\x063\x03\x02\x02\x02" +
-		"\b6\x03\x02\x02\x02\n:\x03\x02\x02\x02\f=\x03\x02\x02\x02\x0EM\x03\x02" +
-		"\x02\x02\x10]\x03\x02\x02\x02\x12`\x03\x02\x02\x02\x14d\x03\x02\x02\x02" +
-		"\x16f\x03\x02\x02\x02\x18\x1A\x05\x04\x03\x02\x19\x1B\x07\f\x02\x02\x1A" +
-		"\x19\x03\x02\x02\x02\x1A\x1B\x03\x02\x02\x02\x1B\x1C\x03\x02\x02\x02\x1C" +
-		"\x1D\x07\x02\x02\x03\x1D\x03\x03\x02\x02\x02\x1E \x05\b\x05\x02\x1F\x1E" +
-		"\x03\x02\x02\x02 !\x03\x02\x02\x02!\x1F\x03\x02\x02\x02!\"\x03\x02\x02" +
-		"\x02\",\x03\x02\x02\x02#\'\x05\x06\x04\x02$&\x05\b\x05\x02%$\x03\x02\x02" +
-		"\x02&)\x03\x02\x02\x02\'%\x03\x02\x02\x02\'(\x03\x02\x02\x02(+\x03\x02" +
-		"\x02\x02)\'\x03\x02\x02\x02*#\x03\x02\x02\x02+.\x03\x02\x02\x02,*\x03" +
-		"\x02\x02\x02,-\x03\x02\x02\x02-\x05\x03\x02\x02\x02.,\x03\x02\x02\x02" +
-		"/4\x05\f\x07\x0204\x05\x0E\b\x0214\x05\n\x06\x0224\x05\x10\t\x023/\x03" +
-		"\x02\x02\x0230\x03\x02\x02\x0231\x03\x02\x02\x0232\x03\x02\x02\x024\x07" +
-		"\x03\x02\x02\x0257\t\x02\x02\x0265\x03\x02\x02\x0278\x03\x02\x02\x028" +
-		"6\x03\x02\x02\x0289\x03\x02\x02\x029\t\x03\x02\x02\x02:;\x07\x04\x02\x02" +
-		";<\x05\x12\n\x02<\v\x03\x02\x02\x02=>\x07\x04\x02\x02>?\x05\x14\v\x02" +
-		"?@\x07\x07\x02\x02@E\x05\x16\f\x02AB\x07\x06\x02\x02BD\x05\x16\f\x02C" +
-		"A\x03\x02\x02\x02DG\x03\x02\x02\x02EC\x03\x02\x02\x02EF\x03\x02\x02\x02" +
-		"FI\x03\x02\x02\x02GE\x03\x02\x02\x02HJ\x07\x06\x02\x02IH\x03\x02\x02\x02" +
-		"IJ\x03\x02\x02\x02JK\x03\x02\x02\x02KL\x07\b\x02\x02L\r\x03\x02\x02\x02" +
-		"MN\x07\x05\x02\x02NO\x05\x14\v\x02OP\x07\x07\x02\x02PU\x05\x16\f\x02Q" +
-		"R\x07\x06\x02\x02RT\x05\x16\f\x02SQ\x03\x02\x02\x02TW\x03\x02\x02\x02" +
-		"US\x03\x02\x02\x02UV\x03\x02\x02\x02VY\x03\x02\x02\x02WU\x03\x02\x02\x02" +
-		"XZ\x07\x06\x02\x02YX\x03\x02\x02\x02YZ\x03\x02\x02\x02Z[\x03\x02\x02\x02" +
-		"[\\\x07\b\x02\x02\\\x0F\x03\x02\x02\x02]^\x07\x05\x02\x02^_\x05\x12\n" +
-		"\x02_\x11\x03\x02\x02\x02`b\x07\x03\x02\x02ac\x07\n\x02\x02ba\x03\x02" +
-		"\x02\x02bc\x03\x02\x02\x02c\x13\x03\x02\x02\x02de\x07\x03\x02\x02e\x15" +
-		"\x03\x02\x02\x02fh\x07\x03\x02\x02gi\x07\n\x02\x02hg\x03\x02\x02\x02h" +
-		"i\x03\x02\x02\x02i\x17\x03\x02\x02\x02\x0E\x1A!\',38EIUYbh";
+		"\t\x07\x04\b\t\b\x04\t\t\t\x04\n\t\n\x04\v\t\v\x04\f\t\f\x04\r\t\r\x03" +
+		"\x02\x03\x02\x05\x02\x1D\n\x02\x03\x02\x03\x02\x03\x03\x03\x03\x03\x03" +
+		"\x03\x03\x07\x03%\n\x03\f\x03\x0E\x03(\v\x03\x03\x04\x03\x04\x03\x04\x03" +
+		"\x04\x05\x04.\n\x04\x03\x05\x03\x05\x03\x06\x03\x06\x03\x06\x03\x07\x03" +
+		"\x07\x03\x07\x03\x07\x03\x07\x03\x07\x07\x07;\n\x07\f\x07\x0E\x07>\v\x07" +
+		"\x03\x07\x05\x07A\n\x07\x03\x07\x03\x07\x03\b\x03\b\x03\b\x03\b\x03\b" +
+		"\x03\b\x07\bK\n\b\f\b\x0E\bN\v\b\x03\b\x05\bQ\n\b\x03\b\x03\b\x03\t\x03" +
+		"\t\x03\t\x03\n\x03\n\x05\nZ\n\n\x03\v\x03\v\x03\f\x03\f\x05\f`\n\f\x03" +
+		"\r\x03\r\x03\r\x03\r\x03\r\x03\r\x03\r\x02\x02\x02\x0E\x02\x02\x04\x02" +
+		"\x06\x02\b\x02\n\x02\f\x02\x0E\x02\x10\x02\x12\x02\x14\x02\x16\x02\x18" +
+		"\x02\x02\x04\x05\x02\x03\x04\x07\x0E\x11\x11\x03\x02\v\f\x02h\x02\x1A" +
+		"\x03\x02\x02\x02\x04 \x03\x02\x02\x02\x06-\x03\x02\x02\x02\b/\x03\x02" +
+		"\x02\x02\n1\x03\x02\x02\x02\f4\x03\x02\x02\x02\x0ED\x03\x02\x02\x02\x10" +
+		"T\x03\x02\x02\x02\x12W\x03\x02\x02\x02\x14[\x03\x02\x02\x02\x16]\x03\x02" +
+		"\x02\x02\x18a\x03\x02\x02\x02\x1A\x1C\x05\x04\x03\x02\x1B\x1D\x07\x0F" +
+		"\x02\x02\x1C\x1B\x03\x02\x02\x02\x1C\x1D\x03\x02\x02\x02\x1D\x1E\x03\x02" +
+		"\x02\x02\x1E\x1F\x07\x02\x02\x03\x1F\x03\x03\x02\x02\x02 &\x05\b\x05\x02" +
+		"!%\x05\x06\x04\x02\"%\x05\x18\r\x02#%\x05\b\x05\x02$!\x03\x02\x02\x02" +
+		"$\"\x03\x02\x02\x02$#\x03\x02\x02\x02%(\x03\x02\x02\x02&$\x03\x02\x02" +
+		"\x02&\'\x03\x02\x02\x02\'\x05\x03\x02\x02\x02(&\x03\x02\x02\x02).\x05" +
+		"\f\x07\x02*.\x05\x0E\b\x02+.\x05\n\x06\x02,.\x05\x10\t\x02-)\x03\x02\x02" +
+		"\x02-*\x03\x02\x02\x02-+\x03\x02\x02\x02-,\x03\x02\x02\x02.\x07\x03\x02" +
+		"\x02\x02/0\t\x02\x02\x020\t\x03\x02\x02\x0212\x07\x05\x02\x0223\x05\x12" +
+		"\n\x023\v\x03\x02\x02\x0245\x07\x05\x02\x0256\x05\x14\v\x0267\x07\b\x02" +
+		"\x027<\x05\x16\f\x0289\x07\x07\x02\x029;\x05\x16\f\x02:8\x03\x02\x02\x02" +
+		";>\x03\x02\x02\x02<:\x03\x02\x02\x02<=\x03\x02\x02\x02=@\x03\x02\x02\x02" +
+		"><\x03\x02\x02\x02?A\x07\x07\x02\x02@?\x03\x02\x02\x02@A\x03\x02\x02\x02" +
+		"AB\x03\x02\x02\x02BC\x07\t\x02\x02C\r\x03\x02\x02\x02DE\x07\x06\x02\x02" +
+		"EF\x05\x14\v\x02FG\x07\b\x02\x02GL\x05\x16\f\x02HI\x07\x07\x02\x02IK\x05" +
+		"\x16\f\x02JH\x03\x02\x02\x02KN\x03\x02\x02\x02LJ\x03\x02\x02\x02LM\x03" +
+		"\x02\x02\x02MP\x03\x02\x02\x02NL\x03\x02\x02\x02OQ\x07\x07\x02\x02PO\x03" +
+		"\x02\x02\x02PQ\x03\x02\x02\x02QR\x03\x02\x02\x02RS\x07\t\x02\x02S\x0F" +
+		"\x03\x02\x02\x02TU\x07\x06\x02\x02UV\x05\x12\n\x02V\x11\x03\x02\x02\x02" +
+		"WY\x07\x03\x02\x02XZ\x07\v\x02\x02YX\x03\x02\x02\x02YZ\x03\x02\x02\x02" +
+		"Z\x13\x03\x02\x02\x02[\\\x07\x03\x02\x02\\\x15\x03\x02\x02\x02]_\x07\x03" +
+		"\x02\x02^`\x07\v\x02\x02_^\x03\x02\x02\x02_`\x03\x02\x02\x02`\x17\x03" +
+		"\x02\x02\x02ab\x07\x04\x02\x02bc\x07\r\x02\x02cd\x07\x03\x02\x02de\t\x03" +
+		"\x02\x02ef\x07\r\x02\x02f\x19\x03\x02\x02\x02\f\x1C$&-<@LPY_";
 	public static __ATN: ATN;
 	public static get _ATN(): ATN {
 		if (!QueryParser.__ATN) {
@@ -688,6 +709,15 @@ export class QueryContext extends ParserRuleContext {
 			return this.getRuleContexts(ParamContext);
 		} else {
 			return this.getRuleContext(i, ParamContext);
+		}
+	}
+	public hintedColumnAliasName(): HintedColumnAliasNameContext[];
+	public hintedColumnAliasName(i: number): HintedColumnAliasNameContext;
+	public hintedColumnAliasName(i?: number): HintedColumnAliasNameContext | HintedColumnAliasNameContext[] {
+		if (i === undefined) {
+			return this.getRuleContexts(HintedColumnAliasNameContext);
+		} else {
+			return this.getRuleContext(i, HintedColumnAliasNameContext);
 		}
 	}
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
@@ -760,78 +790,17 @@ export class ParamContext extends ParserRuleContext {
 
 
 export class IgnoredContext extends ParserRuleContext {
-	public ID(): TerminalNode[];
-	public ID(i: number): TerminalNode;
-	public ID(i?: number): TerminalNode | TerminalNode[] {
-		if (i === undefined) {
-			return this.getTokens(QueryParser.ID);
-		} else {
-			return this.getToken(QueryParser.ID, i);
-		}
-	}
-	public WORD(): TerminalNode[];
-	public WORD(i: number): TerminalNode;
-	public WORD(i?: number): TerminalNode | TerminalNode[] {
-		if (i === undefined) {
-			return this.getTokens(QueryParser.WORD);
-		} else {
-			return this.getToken(QueryParser.WORD, i);
-		}
-	}
-	public STRING(): TerminalNode[];
-	public STRING(i: number): TerminalNode;
-	public STRING(i?: number): TerminalNode | TerminalNode[] {
-		if (i === undefined) {
-			return this.getTokens(QueryParser.STRING);
-		} else {
-			return this.getToken(QueryParser.STRING, i);
-		}
-	}
-	public COMMA(): TerminalNode[];
-	public COMMA(i: number): TerminalNode;
-	public COMMA(i?: number): TerminalNode | TerminalNode[] {
-		if (i === undefined) {
-			return this.getTokens(QueryParser.COMMA);
-		} else {
-			return this.getToken(QueryParser.COMMA, i);
-		}
-	}
-	public OB(): TerminalNode[];
-	public OB(i: number): TerminalNode;
-	public OB(i?: number): TerminalNode | TerminalNode[] {
-		if (i === undefined) {
-			return this.getTokens(QueryParser.OB);
-		} else {
-			return this.getToken(QueryParser.OB, i);
-		}
-	}
-	public CB(): TerminalNode[];
-	public CB(i: number): TerminalNode;
-	public CB(i?: number): TerminalNode | TerminalNode[] {
-		if (i === undefined) {
-			return this.getTokens(QueryParser.CB);
-		} else {
-			return this.getToken(QueryParser.CB, i);
-		}
-	}
-	public SPECIAL(): TerminalNode[];
-	public SPECIAL(i: number): TerminalNode;
-	public SPECIAL(i?: number): TerminalNode | TerminalNode[] {
-		if (i === undefined) {
-			return this.getTokens(QueryParser.SPECIAL);
-		} else {
-			return this.getToken(QueryParser.SPECIAL, i);
-		}
-	}
-	public REQUIRED_MARK(): TerminalNode[];
-	public REQUIRED_MARK(i: number): TerminalNode;
-	public REQUIRED_MARK(i?: number): TerminalNode | TerminalNode[] {
-		if (i === undefined) {
-			return this.getTokens(QueryParser.REQUIRED_MARK);
-		} else {
-			return this.getToken(QueryParser.REQUIRED_MARK, i);
-		}
-	}
+	public ID(): TerminalNode | undefined { return this.tryGetToken(QueryParser.ID, 0); }
+	public WORD(): TerminalNode | undefined { return this.tryGetToken(QueryParser.WORD, 0); }
+	public STRING(): TerminalNode | undefined { return this.tryGetToken(QueryParser.STRING, 0); }
+	public COMMA(): TerminalNode | undefined { return this.tryGetToken(QueryParser.COMMA, 0); }
+	public OB(): TerminalNode | undefined { return this.tryGetToken(QueryParser.OB, 0); }
+	public CB(): TerminalNode | undefined { return this.tryGetToken(QueryParser.CB, 0); }
+	public SPECIAL(): TerminalNode | undefined { return this.tryGetToken(QueryParser.SPECIAL, 0); }
+	public REQUIRED_MARK(): TerminalNode | undefined { return this.tryGetToken(QueryParser.REQUIRED_MARK, 0); }
+	public OPTIONAL_MARK(): TerminalNode | undefined { return this.tryGetToken(QueryParser.OPTIONAL_MARK, 0); }
+	public AS(): TerminalNode | undefined { return this.tryGetToken(QueryParser.AS, 0); }
+	public DOUBLE_QUOTE(): TerminalNode | undefined { return this.tryGetToken(QueryParser.DOUBLE_QUOTE, 0); }
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);
 	}
@@ -1117,6 +1086,48 @@ export class PickKeyContext extends ParserRuleContext {
 	public accept<Result>(visitor: QueryParserVisitor<Result>): Result {
 		if (visitor.visitPickKey) {
 			return visitor.visitPickKey(this);
+		} else {
+			return visitor.visitChildren(this);
+		}
+	}
+}
+
+
+export class HintedColumnAliasNameContext extends ParserRuleContext {
+	public AS(): TerminalNode { return this.getToken(QueryParser.AS, 0); }
+	public DOUBLE_QUOTE(): TerminalNode[];
+	public DOUBLE_QUOTE(i: number): TerminalNode;
+	public DOUBLE_QUOTE(i?: number): TerminalNode | TerminalNode[] {
+		if (i === undefined) {
+			return this.getTokens(QueryParser.DOUBLE_QUOTE);
+		} else {
+			return this.getToken(QueryParser.DOUBLE_QUOTE, i);
+		}
+	}
+	public ID(): TerminalNode { return this.getToken(QueryParser.ID, 0); }
+	public REQUIRED_MARK(): TerminalNode | undefined { return this.tryGetToken(QueryParser.REQUIRED_MARK, 0); }
+	public OPTIONAL_MARK(): TerminalNode | undefined { return this.tryGetToken(QueryParser.OPTIONAL_MARK, 0); }
+	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
+		super(parent, invokingState);
+	}
+	// @Override
+	public get ruleIndex(): number { return QueryParser.RULE_hintedColumnAliasName; }
+	// @Override
+	public enterRule(listener: QueryParserListener): void {
+		if (listener.enterHintedColumnAliasName) {
+			listener.enterHintedColumnAliasName(this);
+		}
+	}
+	// @Override
+	public exitRule(listener: QueryParserListener): void {
+		if (listener.exitHintedColumnAliasName) {
+			listener.exitHintedColumnAliasName(this);
+		}
+	}
+	// @Override
+	public accept<Result>(visitor: QueryParserVisitor<Result>): Result {
+		if (visitor.visitHintedColumnAliasName) {
+			return visitor.visitHintedColumnAliasName(this);
 		} else {
 			return visitor.visitChildren(this);
 		}

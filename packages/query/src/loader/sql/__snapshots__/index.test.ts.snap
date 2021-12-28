@@ -5,6 +5,7 @@ Object {
   "events": Array [],
   "queries": Array [
     Object {
+      "hintedColumnAliases": Object {},
       "name": "GetBooksByAuthorName",
       "params": Array [
         Object {
@@ -49,6 +50,7 @@ Object {
   "events": Array [],
   "queries": Array [
     Object {
+      "hintedColumnAliases": Object {},
       "name": "GetAllUsers",
       "params": Array [],
       "statement": Object {
@@ -71,6 +73,7 @@ Object {
   "events": Array [],
   "queries": Array [
     Object {
+      "hintedColumnAliases": Object {},
       "name": "UpdateBooks",
       "params": Array [
         Object {
@@ -151,6 +154,7 @@ Object {
   "events": Array [],
   "queries": Array [
     Object {
+      "hintedColumnAliases": Object {},
       "name": "GetAllUsers",
       "params": Array [],
       "statement": Object {
@@ -173,6 +177,7 @@ Object {
   "events": Array [],
   "queries": Array [
     Object {
+      "hintedColumnAliases": Object {},
       "name": "GetAllUsers",
       "params": Array [],
       "statement": Object {
@@ -195,6 +200,7 @@ Object {
   "events": Array [],
   "queries": Array [
     Object {
+      "hintedColumnAliases": Object {},
       "name": "CreateCustomer",
       "params": Array [
         Object {
@@ -258,6 +264,7 @@ Object {
   "events": Array [],
   "queries": Array [
     Object {
+      "hintedColumnAliases": Object {},
       "name": "GetUserById",
       "params": Array [
         Object {
@@ -300,6 +307,7 @@ Object {
   "events": Array [],
   "queries": Array [
     Object {
+      "hintedColumnAliases": Object {},
       "name": "CreateCustomer",
       "params": Array [
         Object {
@@ -369,6 +377,7 @@ Object {
   "events": Array [],
   "queries": Array [
     Object {
+      "hintedColumnAliases": Object {},
       "name": "GetUserById",
       "params": Array [
         Object {
@@ -417,6 +426,7 @@ Object {
   "events": Array [],
   "queries": Array [
     Object {
+      "hintedColumnAliases": Object {},
       "name": "GetAllUsers",
       "params": Array [
         Object {
@@ -486,6 +496,7 @@ Object {
   ],
   "queries": Array [
     Object {
+      "hintedColumnAliases": Object {},
       "name": "GetAllUsers",
       "params": Array [
         Object {

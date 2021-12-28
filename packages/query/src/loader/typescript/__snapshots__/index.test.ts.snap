@@ -5,6 +5,7 @@ Object {
   "events": Array [],
   "queries": Array [
     Object {
+      "hintedColumnAliases": Object {},
       "name": "query",
       "params": Array [],
       "text": "select id, name, age from users",
@@ -18,6 +19,7 @@ Object {
   "events": Array [],
   "queries": Array [
     Object {
+      "hintedColumnAliases": Object {},
       "name": "query",
       "params": Array [],
       "text": "select id, name, age from users",

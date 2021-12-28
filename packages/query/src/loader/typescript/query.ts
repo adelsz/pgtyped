@@ -4,13 +4,14 @@ import { ParseTreeWalker } from 'antlr4ts/tree/ParseTreeWalker';
 import { QueryLexer } from './parser/QueryLexer';
 import {
   ArrayParamContext,
+  HintedColumnAliasNameContext,
   ParamContext,
   ParamNameContext,
   PickKeyContext,
   QueryContext,
   QueryParser,
-  ScalarParamNameContext,
-} from './parser/QueryParser';
+  ScalarParamNameContext
+} from "./parser/QueryParser";
 import { Logger, ParseEvent } from '../sql/logger';
 import { Interval } from 'antlr4ts/misc';
 
@@ -52,9 +53,15 @@ interface CodeInterval {
   col: number;
 }
 
+export interface HintedColumnAlias {
+  nullable: boolean | undefined;
+  aliasHintLocation: { a: number; b: number };
+}
+
 export interface Query {
   name: string;
   params: Param[];
+  hintedColumnAliases: Record<string, HintedColumnAlias>;
   text: string;
 }
 
@@ -84,6 +91,7 @@ class ParseListener implements QueryParserListener {
     this.query = {
       name: this.query.name,
       text,
+      hintedColumnAliases: {},
       params: [],
     };
   }
@@ -152,6 +160,21 @@ class ParseListener implements QueryParserListener {
     const name = ctx.ID().text;
 
     this.currentSelection.keys!.push({ name, required });
+  }
+
+  enterHintedColumnAliasName(ctx: HintedColumnAliasNameContext) {
+    assert(this.query.hintedColumnAliases);
+
+    const alias = ctx.ID();
+    const nullable = ctx.OPTIONAL_MARK() ? true : ctx.REQUIRED_MARK() ? false : undefined;
+    const aliasHintLocation = {
+      a: alias.symbol.startIndex,
+      b: alias.symbol.stopIndex + 1,
+    };
+    this.query.hintedColumnAliases[alias.text] = ({
+      nullable,
+      aliasHintLocation,
+    });
   }
 }
 
