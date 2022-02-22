@@ -7,7 +7,7 @@ export {
 } from './preprocessor';
 
 export { processTSQueryAST } from './preprocessor-ts';
-export { processSQLQueryAST } from './preprocessor-sql';
+export { processSQLQueryIR } from './preprocessor-sql';
 
 export { AsyncQueue } from '@pgtyped/wire';
 
@@ -19,7 +19,9 @@ export {
 export {
   default as parseSQLFile,
   SQLQueryAST,
+  SQLQueryIR,
   prettyPrintEvents,
+  queryASTToIR,
 } from './loader/sql';
 
 export { default as sql, TaggedQuery, PreparedQuery } from './tag';

@@ -5,8 +5,10 @@ import {
   parseTypeScriptFile,
   prettyPrintEvents,
   processTSQueryAST,
-  processSQLQueryAST,
+  processSQLQueryIR,
+  queryASTToIR,
   SQLQueryAST,
+  SQLQueryIR,
   TSQueryAST,
 } from '@pgtyped/query';
 import { camelCase } from 'camel-case';
@@ -62,7 +64,7 @@ export async function queryToTypeDeclarations(
     queryData = processTSQueryAST(parsedQuery.ast);
   } else {
     queryName = pascalCase(parsedQuery.ast.name);
-    queryData = processSQLQueryAST(parsedQuery.ast);
+    queryData = processSQLQueryIR(queryASTToIR(parsedQuery.ast));
   }
 
   const typeData = await getTypes(queryData, connection);
@@ -194,6 +196,7 @@ type ITypedQuery =
       query: {
         name: string;
         ast: SQLQueryAST;
+        ir: SQLQueryIR;
         paramTypeAlias: string;
         returnTypeAlias: string;
       };
@@ -235,6 +238,7 @@ async function generateTypedecsFromFile(
         query: {
           name: camelCase(sqlQueryAST.name),
           ast: sqlQueryAST,
+          ir: queryASTToIR(sqlQueryAST),
           paramTypeAlias: `I${pascalCase(sqlQueryAST.name)}Params`,
           returnTypeAlias: `I${pascalCase(sqlQueryAST.name)}Result`,
         },
@@ -310,7 +314,7 @@ export async function generateDeclarationFile(
       .join('\n');
     declarationFileContents += `const ${
       typeDec.query.name
-    }IR: any = ${JSON.stringify(typeDec.query.ast)};\n\n`;
+    }IR: any = ${JSON.stringify(typeDec.query.ir)};\n\n`;
     declarationFileContents +=
       `/**\n` +
       ` * Query generated from SQL:\n` +

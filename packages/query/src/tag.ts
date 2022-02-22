@@ -1,6 +1,6 @@
 import { processTSQueryAST } from './preprocessor-ts';
-import { processSQLQueryAST } from './preprocessor-sql';
-import { Query as QueryAST } from './loader/sql';
+import { processSQLQueryIR } from './preprocessor-sql';
+import { QueryIR } from './loader/sql';
 import { parseTSQuery, TSQueryAST } from './loader/typescript';
 
 export interface IDatabaseConnection {
@@ -48,13 +48,13 @@ export class PreparedQuery<TParamType, TResultType> {
     dbConnection: IDatabaseConnection,
   ) => Promise<Array<TResultType>>;
 
-  private readonly query: QueryAST;
+  private readonly queryIR: QueryIR;
 
-  constructor(query: QueryAST) {
-    this.query = query;
+  constructor(queryIR: QueryIR) {
+    this.queryIR = queryIR;
     this.run = async (params, connection) => {
-      const { query: processedQuery, bindings } = processSQLQueryAST(
-        this.query,
+      const { query: processedQuery, bindings } = processSQLQueryIR(
+        this.queryIR,
         params as any,
       );
       const result = await connection.query(processedQuery, bindings);
