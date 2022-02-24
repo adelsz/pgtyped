@@ -29,25 +29,26 @@ import { SQLParserVisitor } from "./SQLParserVisitor";
 
 export class SQLParser extends Parser {
 	public static readonly ID = 1;
-	public static readonly OPEN_COMMENT = 2;
-	public static readonly S_REQUIRED_MARK = 3;
-	public static readonly WORD = 4;
-	public static readonly EOF_STATEMENT = 5;
-	public static readonly WSL = 6;
-	public static readonly STRING = 7;
-	public static readonly PARAM_MARK = 8;
-	public static readonly WS = 9;
-	public static readonly TRANSFORM_ARROW = 10;
-	public static readonly SPREAD = 11;
-	public static readonly NAME_TAG = 12;
-	public static readonly TYPE_TAG = 13;
-	public static readonly OB = 14;
-	public static readonly CB = 15;
-	public static readonly COMMA = 16;
-	public static readonly C_REQUIRED_MARK = 17;
-	public static readonly ANY = 18;
-	public static readonly CLOSE_COMMENT = 19;
-	public static readonly CAST = 20;
+	public static readonly LINE_COMMENT = 2;
+	public static readonly OPEN_COMMENT = 3;
+	public static readonly S_REQUIRED_MARK = 4;
+	public static readonly WORD = 5;
+	public static readonly EOF_STATEMENT = 6;
+	public static readonly WSL = 7;
+	public static readonly STRING = 8;
+	public static readonly PARAM_MARK = 9;
+	public static readonly WS = 10;
+	public static readonly TRANSFORM_ARROW = 11;
+	public static readonly SPREAD = 12;
+	public static readonly NAME_TAG = 13;
+	public static readonly TYPE_TAG = 14;
+	public static readonly OB = 15;
+	public static readonly CB = 16;
+	public static readonly COMMA = 17;
+	public static readonly C_REQUIRED_MARK = 18;
+	public static readonly ANY = 19;
+	public static readonly CLOSE_COMMENT = 20;
+	public static readonly CAST = 21;
 	public static readonly RULE_input = 0;
 	public static readonly RULE_query = 1;
 	public static readonly RULE_queryDef = 2;
@@ -76,15 +77,15 @@ export class SQLParser extends Parser {
 	];
 
 	private static readonly _LITERAL_NAMES: Array<string | undefined> = [
-		undefined, undefined, "'/*'", undefined, undefined, "';'", undefined, 
-		undefined, "':'", undefined, "'->'", "'...'", "'@name'", "'@param'", "'('", 
-		"')'", "','", undefined, undefined, "'*/'", "'::'",
+		undefined, undefined, undefined, "'/*'", undefined, undefined, "';'", 
+		undefined, undefined, "':'", undefined, "'->'", "'...'", "'@name'", "'@param'", 
+		"'('", "')'", "','", undefined, undefined, "'*/'", "'::'",
 	];
 	private static readonly _SYMBOLIC_NAMES: Array<string | undefined> = [
-		undefined, "ID", "OPEN_COMMENT", "S_REQUIRED_MARK", "WORD", "EOF_STATEMENT", 
-		"WSL", "STRING", "PARAM_MARK", "WS", "TRANSFORM_ARROW", "SPREAD", "NAME_TAG", 
-		"TYPE_TAG", "OB", "CB", "COMMA", "C_REQUIRED_MARK", "ANY", "CLOSE_COMMENT", 
-		"CAST",
+		undefined, "ID", "LINE_COMMENT", "OPEN_COMMENT", "S_REQUIRED_MARK", "WORD", 
+		"EOF_STATEMENT", "WSL", "STRING", "PARAM_MARK", "WS", "TRANSFORM_ARROW", 
+		"SPREAD", "NAME_TAG", "TYPE_TAG", "OB", "CB", "COMMA", "C_REQUIRED_MARK", 
+		"ANY", "CLOSE_COMMENT", "CAST",
 	];
 	public static readonly VOCABULARY: Vocabulary = new VocabularyImpl(SQLParser._LITERAL_NAMES, SQLParser._SYMBOLIC_NAMES, []);
 
@@ -121,28 +122,28 @@ export class SQLParser extends Parser {
 			let _alt: number;
 			this.enterOuterAlt(_localctx, 1);
 			{
+			this.state = 41;
+			this._errHandler.sync(this);
+			_alt = this.interpreter.adaptivePredict(this._input, 0, this._ctx);
+			while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
+				if (_alt === 1) {
+					{
+					{
+					this.state = 38;
+					this.ignoredComment();
+					}
+					}
+				}
+				this.state = 43;
+				this._errHandler.sync(this);
+				_alt = this.interpreter.adaptivePredict(this._input, 0, this._ctx);
+			}
 			this.state = 45;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			do {
 				{
 				{
-				this.state = 41;
-				this._errHandler.sync(this);
-				_alt = this.interpreter.adaptivePredict(this._input, 0, this._ctx);
-				while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
-					if (_alt === 1) {
-						{
-						{
-						this.state = 38;
-						this.ignoredComment();
-						}
-						}
-					}
-					this.state = 43;
-					this._errHandler.sync(this);
-					_alt = this.interpreter.adaptivePredict(this._input, 0, this._ctx);
-				}
 				this.state = 44;
 				this.query();
 				}
@@ -246,36 +247,33 @@ export class SQLParser extends Parser {
 		this.enterRule(_localctx, 6, SQLParser.RULE_ignoredComment);
 		let _la: number;
 		try {
-			let _alt: number;
 			this.enterOuterAlt(_localctx, 1);
 			{
 			this.state = 64;
 			this.match(SQLParser.OPEN_COMMENT);
 			this.state = 68;
 			this._errHandler.sync(this);
-			_alt = this.interpreter.adaptivePredict(this._input, 3, this._ctx);
-			while (_alt !== 1 && _alt !== ATN.INVALID_ALT_NUMBER) {
-				if (_alt === 1 + 1) {
-					{
-					{
-					this.state = 65;
-					_la = this._input.LA(1);
-					if (_la <= 0 || (_la === SQLParser.NAME_TAG)) {
-					this._errHandler.recoverInline(this);
-					} else {
-						if (this._input.LA(1) === Token.EOF) {
-							this.matchedEOF = true;
-						}
+			_la = this._input.LA(1);
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SQLParser.ID) | (1 << SQLParser.LINE_COMMENT) | (1 << SQLParser.OPEN_COMMENT) | (1 << SQLParser.S_REQUIRED_MARK) | (1 << SQLParser.WORD) | (1 << SQLParser.EOF_STATEMENT) | (1 << SQLParser.WSL) | (1 << SQLParser.STRING) | (1 << SQLParser.PARAM_MARK) | (1 << SQLParser.WS) | (1 << SQLParser.TRANSFORM_ARROW) | (1 << SQLParser.SPREAD) | (1 << SQLParser.NAME_TAG) | (1 << SQLParser.TYPE_TAG) | (1 << SQLParser.OB) | (1 << SQLParser.CB) | (1 << SQLParser.COMMA) | (1 << SQLParser.C_REQUIRED_MARK) | (1 << SQLParser.ANY) | (1 << SQLParser.CAST))) !== 0)) {
+				{
+				{
+				this.state = 65;
+				_la = this._input.LA(1);
+				if (_la <= 0 || (_la === SQLParser.CLOSE_COMMENT)) {
+				this._errHandler.recoverInline(this);
+				} else {
+					if (this._input.LA(1) === Token.EOF) {
+						this.matchedEOF = true;
+					}
 
-						this._errHandler.reportMatch(this);
-						this.consume();
-					}
-					}
-					}
+					this._errHandler.reportMatch(this);
+					this.consume();
+				}
+				}
 				}
 				this.state = 70;
 				this._errHandler.sync(this);
-				_alt = this.interpreter.adaptivePredict(this._input, 3, this._ctx);
+				_la = this._input.LA(1);
 			}
 			this.state = 71;
 			this.match(SQLParser.CLOSE_COMMENT);
@@ -330,16 +328,20 @@ export class SQLParser extends Parser {
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 76;
-			this.word();
 			this.state = 82;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SQLParser.ID) | (1 << SQLParser.OPEN_COMMENT) | (1 << SQLParser.S_REQUIRED_MARK) | (1 << SQLParser.WORD) | (1 << SQLParser.STRING) | (1 << SQLParser.PARAM_MARK))) !== 0)) {
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SQLParser.ID) | (1 << SQLParser.LINE_COMMENT) | (1 << SQLParser.OPEN_COMMENT) | (1 << SQLParser.S_REQUIRED_MARK) | (1 << SQLParser.WORD) | (1 << SQLParser.STRING) | (1 << SQLParser.PARAM_MARK))) !== 0)) {
 				{
 				this.state = 80;
 				this._errHandler.sync(this);
 				switch (this._input.LA(1)) {
+				case SQLParser.LINE_COMMENT:
+					{
+					this.state = 76;
+					this.match(SQLParser.LINE_COMMENT);
+					}
+					break;
 				case SQLParser.OPEN_COMMENT:
 					{
 					this.state = 77;
@@ -820,7 +822,7 @@ export class SQLParser extends Parser {
 	}
 
 	public static readonly _serializedATN: string =
-		"\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03\x16\x8F\x04\x02" +
+		"\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03\x17\x8F\x04\x02" +
 		"\t\x02\x04\x03\t\x03\x04\x04\t\x04\x04\x05\t\x05\x04\x06\t\x06\x04\x07" +
 		"\t\x07\x04\b\t\b\x04\t\t\t\x04\n\t\n\x04\v\t\v\x04\f\t\f\x04\r\t\r\x04" +
 		"\x0E\t\x0E\x04\x0F\t\x0F\x04\x10\t\x10\x04\x11\t\x11\x04\x12\t\x12\x04" +
@@ -835,46 +837,46 @@ export class SQLParser extends Parser {
 		"\x0F\x03\x10\x03\x10\x03\x10\x03\x10\x07\x10x\n\x10\f\x10\x0E\x10{\v\x10" +
 		"\x03\x10\x05\x10~\n\x10\x03\x10\x03\x10\x03\x11\x03\x11\x03\x11\x03\x11" +
 		"\x03\x11\x03\x12\x03\x12\x05\x12\x89\n\x12\x03\x13\x03\x13\x03\x14\x03" +
-		"\x14\x03\x14\x03F\x02\x02\x15\x02\x02\x04\x02\x06\x02\b\x02\n\x02\f\x02" +
+		"\x14\x03\x14\x02\x02\x02\x15\x02\x02\x04\x02\x06\x02\b\x02\n\x02\f\x02" +
 		"\x0E\x02\x10\x02\x12\x02\x14\x02\x16\x02\x18\x02\x1A\x02\x1C\x02\x1E\x02" +
-		" \x02\"\x02$\x02&\x02\x02\x04\x03\x02\x0E\x0E\x05\x02\x03\x03\x05\x06" +
-		"\t\t\x02\x88\x02/\x03\x02\x02\x02\x045\x03\x02\x02\x02\x068\x03\x02\x02" +
-		"\x02\bB\x03\x02\x02\x02\nK\x03\x02\x02\x02\fN\x03\x02\x02\x02\x0EW\x03" +
+		" \x02\"\x02$\x02&\x02\x02\x04\x03\x02\x16\x16\x05\x02\x03\x03\x06\x07" +
+		"\n\n\x02\x89\x02+\x03\x02\x02\x02\x045\x03\x02\x02\x02\x068\x03\x02\x02" +
+		"\x02\bB\x03\x02\x02\x02\nK\x03\x02\x02\x02\fT\x03\x02\x02\x02\x0EW\x03" +
 		"\x02\x02\x02\x10Y\x03\x02\x02\x02\x12\\\x03\x02\x02\x02\x14`\x03\x02\x02" +
 		"\x02\x16c\x03\x02\x02\x02\x18g\x03\x02\x02\x02\x1Am\x03\x02\x02\x02\x1C" +
 		"o\x03\x02\x02\x02\x1Es\x03\x02\x02\x02 \x81\x03\x02\x02\x02\"\x86\x03" +
 		"\x02\x02\x02$\x8A\x03\x02\x02\x02&\x8C\x03\x02\x02\x02(*\x05\b\x05\x02" +
 		")(\x03\x02\x02\x02*-\x03\x02\x02\x02+)\x03\x02\x02\x02+,\x03\x02\x02\x02" +
-		",.\x03\x02\x02\x02-+\x03\x02\x02\x02.0\x05\x04\x03\x02/+\x03\x02\x02\x02" +
+		",/\x03\x02\x02\x02-+\x03\x02\x02\x02.0\x05\x04\x03\x02/.\x03\x02\x02\x02" +
 		"01\x03\x02\x02\x021/\x03\x02\x02\x0212\x03\x02\x02\x0223\x03\x02\x02\x02" +
 		"34\x07\x02\x02\x034\x03\x03\x02\x02\x0256\x05\x06\x04\x0267\x05\n\x06" +
-		"\x027\x05\x03\x02\x02\x0289\x07\x04\x02\x029=\x05\x14\v\x02:<\x05\x16" +
+		"\x027\x05\x03\x02\x02\x0289\x07\x05\x02\x029=\x05\x14\v\x02:<\x05\x16" +
 		"\f\x02;:\x03\x02\x02\x02<?\x03\x02\x02\x02=;\x03\x02\x02\x02=>\x03\x02" +
-		"\x02\x02>@\x03\x02\x02\x02?=\x03\x02\x02\x02@A\x07\x15\x02\x02A\x07\x03" +
-		"\x02\x02\x02BF\x07\x04\x02\x02CE\n\x02\x02\x02DC\x03\x02\x02\x02EH\x03" +
-		"\x02\x02\x02FG\x03\x02\x02\x02FD\x03\x02\x02\x02GI\x03\x02\x02\x02HF\x03" +
-		"\x02\x02\x02IJ\x07\x15\x02\x02J\t\x03\x02\x02\x02KL\x05\f\x07\x02LM\x07" +
-		"\x07\x02\x02M\v\x03\x02\x02\x02NT\x05\x0E\b\x02OS\x05\b\x05\x02PS\x05" +
-		"\x10\t\x02QS\x05\x0E\b\x02RO\x03\x02\x02\x02RP\x03\x02\x02\x02RQ\x03\x02" +
-		"\x02\x02SV\x03\x02\x02\x02TR\x03\x02\x02\x02TU\x03\x02\x02\x02U\r\x03" +
-		"\x02\x02\x02VT\x03\x02\x02\x02WX\t\x03\x02\x02X\x0F\x03\x02\x02\x02YZ" +
-		"\x07\n\x02\x02Z[\x05\x12\n\x02[\x11\x03\x02\x02\x02\\^\x07\x03\x02\x02" +
-		"]_\x07\x05\x02\x02^]\x03\x02\x02\x02^_\x03\x02\x02\x02_\x13\x03\x02\x02" +
-		"\x02`a\x07\x0E\x02\x02ab\x05$\x13\x02b\x15\x03\x02\x02\x02cd\x07\x0F\x02" +
-		"\x02de\x05&\x14\x02ef\x05\x18\r\x02f\x17\x03\x02\x02\x02gh\x07\f\x02\x02" +
-		"hi\x05\x1A\x0E\x02i\x19\x03\x02\x02\x02jn\x05\x1C\x0F\x02kn\x05\x1E\x10" +
-		"\x02ln\x05 \x11\x02mj\x03\x02\x02\x02mk\x03\x02\x02\x02ml\x03\x02\x02" +
-		"\x02n\x1B\x03\x02\x02\x02op\x07\x10\x02\x02pq\x07\r\x02\x02qr\x07\x11" +
-		"\x02\x02r\x1D\x03\x02\x02\x02st\x07\x10\x02\x02ty\x05\"\x12\x02uv\x07" +
-		"\x12\x02\x02vx\x05\"\x12\x02wu\x03\x02\x02\x02x{\x03\x02\x02\x02yw\x03" +
-		"\x02\x02\x02yz\x03\x02\x02\x02z}\x03\x02\x02\x02{y\x03\x02\x02\x02|~\x07" +
-		"\x12\x02\x02}|\x03\x02\x02\x02}~\x03\x02\x02\x02~\x7F\x03\x02\x02\x02" +
-		"\x7F\x80\x07\x11\x02\x02\x80\x1F\x03\x02\x02\x02\x81\x82\x07\x10\x02\x02" +
-		"\x82\x83\x05\x1E\x10\x02\x83\x84\x07\r\x02\x02\x84\x85\x07\x11\x02\x02" +
-		"\x85!\x03\x02\x02\x02\x86\x88\x07\x03\x02\x02\x87\x89\x07\x13\x02\x02" +
-		"\x88\x87\x03\x02\x02\x02\x88\x89\x03\x02\x02\x02\x89#\x03\x02\x02\x02" +
-		"\x8A\x8B\x07\x03\x02\x02\x8B%\x03\x02\x02\x02\x8C\x8D\x07\x03\x02\x02" +
-		"\x8D\'\x03\x02\x02\x02\r+1=FRT^my}\x88";
+		"\x02\x02>@\x03\x02\x02\x02?=\x03\x02\x02\x02@A\x07\x16\x02\x02A\x07\x03" +
+		"\x02\x02\x02BF\x07\x05\x02\x02CE\n\x02\x02\x02DC\x03\x02\x02\x02EH\x03" +
+		"\x02\x02\x02FD\x03\x02\x02\x02FG\x03\x02\x02\x02GI\x03\x02\x02\x02HF\x03" +
+		"\x02\x02\x02IJ\x07\x16\x02\x02J\t\x03\x02\x02\x02KL\x05\f\x07\x02LM\x07" +
+		"\b\x02\x02M\v\x03\x02\x02\x02NS\x07\x04\x02\x02OS\x05\b\x05\x02PS\x05" +
+		"\x10\t\x02QS\x05\x0E\b\x02RN\x03\x02\x02\x02RO\x03\x02\x02\x02RP\x03\x02" +
+		"\x02\x02RQ\x03\x02\x02\x02SV\x03\x02\x02\x02TR\x03\x02\x02\x02TU\x03\x02" +
+		"\x02\x02U\r\x03\x02\x02\x02VT\x03\x02\x02\x02WX\t\x03\x02\x02X\x0F\x03" +
+		"\x02\x02\x02YZ\x07\v\x02\x02Z[\x05\x12\n\x02[\x11\x03\x02\x02\x02\\^\x07" +
+		"\x03\x02\x02]_\x07\x06\x02\x02^]\x03\x02\x02\x02^_\x03\x02\x02\x02_\x13" +
+		"\x03\x02\x02\x02`a\x07\x0F\x02\x02ab\x05$\x13\x02b\x15\x03\x02\x02\x02" +
+		"cd\x07\x10\x02\x02de\x05&\x14\x02ef\x05\x18\r\x02f\x17\x03\x02\x02\x02" +
+		"gh\x07\r\x02\x02hi\x05\x1A\x0E\x02i\x19\x03\x02\x02\x02jn\x05\x1C\x0F" +
+		"\x02kn\x05\x1E\x10\x02ln\x05 \x11\x02mj\x03\x02\x02\x02mk\x03\x02\x02" +
+		"\x02ml\x03\x02\x02\x02n\x1B\x03\x02\x02\x02op\x07\x11\x02\x02pq\x07\x0E" +
+		"\x02\x02qr\x07\x12\x02\x02r\x1D\x03\x02\x02\x02st\x07\x11\x02\x02ty\x05" +
+		"\"\x12\x02uv\x07\x13\x02\x02vx\x05\"\x12\x02wu\x03\x02\x02\x02x{\x03\x02" +
+		"\x02\x02yw\x03\x02\x02\x02yz\x03\x02\x02\x02z}\x03\x02\x02\x02{y\x03\x02" +
+		"\x02\x02|~\x07\x13\x02\x02}|\x03\x02\x02\x02}~\x03\x02\x02\x02~\x7F\x03" +
+		"\x02\x02\x02\x7F\x80\x07\x12\x02\x02\x80\x1F\x03\x02\x02\x02\x81\x82\x07" +
+		"\x11\x02\x02\x82\x83\x05\x1E\x10\x02\x83\x84\x07\x0E\x02\x02\x84\x85\x07" +
+		"\x12\x02\x02\x85!\x03\x02\x02\x02\x86\x88\x07\x03\x02\x02\x87\x89\x07" +
+		"\x14\x02\x02\x88\x87\x03\x02\x02\x02\x88\x89\x03\x02\x02\x02\x89#\x03" +
+		"\x02\x02\x02\x8A\x8B\x07\x03\x02\x02\x8B%\x03\x02\x02\x02\x8C\x8D\x07" +
+		"\x03\x02\x02\x8D\'\x03\x02\x02\x02\r+1=FRT^my}\x88";
 	public static __ATN: ATN;
 	public static get _ATN(): ATN {
 		if (!SQLParser.__ATN) {
@@ -888,15 +890,6 @@ export class SQLParser extends Parser {
 
 export class InputContext extends ParserRuleContext {
 	public EOF(): TerminalNode { return this.getToken(SQLParser.EOF, 0); }
-	public query(): QueryContext[];
-	public query(i: number): QueryContext;
-	public query(i?: number): QueryContext | QueryContext[] {
-		if (i === undefined) {
-			return this.getRuleContexts(QueryContext);
-		} else {
-			return this.getRuleContext(i, QueryContext);
-		}
-	}
 	public ignoredComment(): IgnoredCommentContext[];
 	public ignoredComment(i: number): IgnoredCommentContext;
 	public ignoredComment(i?: number): IgnoredCommentContext | IgnoredCommentContext[] {
@@ -904,6 +897,15 @@ export class InputContext extends ParserRuleContext {
 			return this.getRuleContexts(IgnoredCommentContext);
 		} else {
 			return this.getRuleContext(i, IgnoredCommentContext);
+		}
+	}
+	public query(): QueryContext[];
+	public query(i: number): QueryContext;
+	public query(i?: number): QueryContext | QueryContext[] {
+		if (i === undefined) {
+			return this.getRuleContexts(QueryContext);
+		} else {
+			return this.getRuleContext(i, QueryContext);
 		}
 	}
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
@@ -1014,14 +1016,13 @@ export class QueryDefContext extends ParserRuleContext {
 
 export class IgnoredCommentContext extends ParserRuleContext {
 	public OPEN_COMMENT(): TerminalNode { return this.getToken(SQLParser.OPEN_COMMENT, 0); }
-	public CLOSE_COMMENT(): TerminalNode { return this.getToken(SQLParser.CLOSE_COMMENT, 0); }
-	public NAME_TAG(): TerminalNode[];
-	public NAME_TAG(i: number): TerminalNode;
-	public NAME_TAG(i?: number): TerminalNode | TerminalNode[] {
+	public CLOSE_COMMENT(): TerminalNode[];
+	public CLOSE_COMMENT(i: number): TerminalNode;
+	public CLOSE_COMMENT(i?: number): TerminalNode | TerminalNode[] {
 		if (i === undefined) {
-			return this.getTokens(SQLParser.NAME_TAG);
+			return this.getTokens(SQLParser.CLOSE_COMMENT);
 		} else {
-			return this.getToken(SQLParser.NAME_TAG, i);
+			return this.getToken(SQLParser.CLOSE_COMMENT, i);
 		}
 	}
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
@@ -1086,13 +1087,13 @@ export class StatementContext extends ParserRuleContext {
 
 
 export class StatementBodyContext extends ParserRuleContext {
-	public word(): WordContext[];
-	public word(i: number): WordContext;
-	public word(i?: number): WordContext | WordContext[] {
+	public LINE_COMMENT(): TerminalNode[];
+	public LINE_COMMENT(i: number): TerminalNode;
+	public LINE_COMMENT(i?: number): TerminalNode | TerminalNode[] {
 		if (i === undefined) {
-			return this.getRuleContexts(WordContext);
+			return this.getTokens(SQLParser.LINE_COMMENT);
 		} else {
-			return this.getRuleContext(i, WordContext);
+			return this.getToken(SQLParser.LINE_COMMENT, i);
 		}
 	}
 	public ignoredComment(): IgnoredCommentContext[];
@@ -1111,6 +1112,15 @@ export class StatementBodyContext extends ParserRuleContext {
 			return this.getRuleContexts(ParamContext);
 		} else {
 			return this.getRuleContext(i, ParamContext);
+		}
+	}
+	public word(): WordContext[];
+	public word(i: number): WordContext;
+	public word(i?: number): WordContext | WordContext[] {
+		if (i === undefined) {
+			return this.getRuleContexts(WordContext);
+		} else {
+			return this.getRuleContext(i, WordContext);
 		}
 	}
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {

@@ -14,6 +14,7 @@ tokens { ID }
 fragment QUOT: '\'';
 fragment ID: [a-zA-Z_][a-zA-Z_0-9]*;
 
+LINE_COMMENT: '--' ~[\r\n]* '\r'? '\n';
 OPEN_COMMENT: '/*' -> mode(COMMENT);
 SID: ID -> type(ID);
 S_REQUIRED_MARK: '!';

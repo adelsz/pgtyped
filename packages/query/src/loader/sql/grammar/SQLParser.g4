@@ -3,7 +3,7 @@ parser grammar SQLParser;
 options { tokenVocab = SQLLexer; }
 
 input
-    : (ignoredComment* query)+ EOF
+    : ignoredComment* query+ EOF
     ;
 
 query
@@ -12,13 +12,14 @@ query
 
 queryDef: OPEN_COMMENT nameTag paramTag* CLOSE_COMMENT;
 
-ignoredComment: OPEN_COMMENT (~NAME_TAG)*? CLOSE_COMMENT;
+ignoredComment
+    : OPEN_COMMENT (~CLOSE_COMMENT)* CLOSE_COMMENT;
 
 statement
     : statementBody EOF_STATEMENT;
 
 statementBody
-    : word (ignoredComment | param | word)*;
+    : (LINE_COMMENT | ignoredComment | param | word)*;
 
 word: WORD | ID | STRING | S_REQUIRED_MARK;
 
