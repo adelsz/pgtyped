@@ -94,12 +94,48 @@ test('Postgres cast operator is correctly parsed', () => {
   expect(parseTree).toMatchSnapshot();
 });
 
-test('Ignore inline comments in queries', () => {
+test('Ignore multi-line comments in queries', () => {
   const text = `
   /* @name UpdateBooks */
   UPDATE books
-  /* ignored comment */
+  /* ignored comment foo: bar's */
   SET name = :name, rank = :rank WHERE id = :id;
+`;
+  const parseTree = parse(text);
+  expect(parseTree).toMatchSnapshot();
+});
+
+test('Ignore params in inline single-line comments in queries', () => {
+  const text = `
+  /* @name UpdateBooks */
+  UPDATE books
+  -- ignored comment foo: bar's
+  SET name = :name, rank = :rank WHERE id = :id;
+`;
+  const parseTree = parse(text);
+  expect(parseTree).toMatchSnapshot();
+});
+
+test('Include inline single-line comments in statement body', () => {
+  const text = `
+  /* @name UpdateBooks */
+  -- Inline comment 1
+  UPDATE books
+  -- Inline comment 2:
+  SET name = :name, rank = :rank WHERE id = :id
+  -- Inline comment 3
+  ;
+`;
+  const parseTree = parse(text);
+  expect(parseTree).toMatchSnapshot();
+});
+
+test('Comment starts in strings are ignored', () => {
+  const text = `
+  /* @name UpdateBooks */
+  UPDATE books
+  SET name = '-- /*', rank = :rank WHERE id = :id
+  ;
 `;
   const parseTree = parse(text);
   expect(parseTree).toMatchSnapshot();
