@@ -23,12 +23,12 @@
   "dependencies": {
     "@pgtyped/cli": "^0.13.0",
     "@pgtyped/query": "^0.13.0",
-    "@types/pg": "8.6.3",
-    "expect": "27.4.2",
-    "pg": "8.7.1",
+    "@types/pg": "8.6.4",
+    "expect": "27.5.1",
+    "pg": "8.7.3",
     "typescript": "3.8.3"
   },
   "devDependencies": {
-    "ts-node": "10.4.0"
+    "ts-node": "10.6.0"
   }
 }
