@@ -14,7 +14,6 @@ test('(TS) name parameter interpolation', () => {
     query: 'SELECT id, name from users where id = $1 and age > $2',
     mapping: [],
     bindings: ['123', 12],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query, parameters);
@@ -42,7 +41,6 @@ test('(TS) pick parameter interpolation (multiline)', () => {
     VALUES ($1, $2, $3)`,
     mapping: [],
     bindings: [{ num_frogs: 1002 }, 1, 'reminder'],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query, parameters as any);
@@ -72,7 +70,6 @@ test('(TS) pick array parameter interpolation (multiline)', () => {
     VALUES ($1, $2, $3)`,
     mapping: [],
     bindings: [{ num_frogs: 1002 }, 1, 'reminder'],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query, parameters as any);
@@ -91,7 +88,6 @@ test('(TS) scalar param used twice', () => {
     query: 'SELECT id, name from users where id = $1 and parent_id = $1',
     mapping: [],
     bindings: ['123'],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query, parameters);
@@ -109,7 +105,6 @@ test('(TS) name parameter mapping', () => {
       'SELECT id, name from users where id = $1 and age > $2 and parent_id = $1',
     mapping: [],
     bindings: ['1234-1235', 33],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query, {
@@ -148,7 +143,6 @@ test('(TS) single value list parameter interpolation', () => {
       },
     ],
     bindings: [],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query);
@@ -174,7 +168,6 @@ test('(TS) single value list parameter interpolation twice', () => {
       'INSERT INTO users (name, age) VALUES ($1, $2) BOGUS ($1, $3) RETURNING id',
     mapping: [],
     bindings: ['Bob', 12, '1234-123-1233'],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query, parameters);
@@ -205,7 +198,6 @@ test('(TS) multiple value list (array) parameter mapping', () => {
       },
     ],
     bindings: [],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query);
@@ -226,7 +218,6 @@ test('(TS) multiple value list (array) parameter interpolation', () => {
       'SELECT FROM users where age in ($1, $2, $3) or parent_age in ($1, $2, $3)',
     bindings: [23, 27, 50],
     mapping: [],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query, parameters);
@@ -262,7 +253,6 @@ test('(TS) multiple value list parameter mapping', () => {
         },
       },
     ],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query);
@@ -298,7 +288,6 @@ test('(TS) multiple value list parameter mapping twice', () => {
         },
       },
     ],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query);
@@ -323,7 +312,6 @@ test('(TS) multiple value list parameter interpolation', () => {
       'INSERT INTO users (name, age) VALUES ($1, $2), ($3, $4) RETURNING id',
     bindings: ['Bob', 12, 'Tom', 22],
     mapping: [],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query, parameters);
@@ -348,7 +336,6 @@ test('(TS) multiple value list parameter interpolation twice', () => {
       'INSERT INTO users (name, age) VALUES ($1, $2), ($3, $4), ($5, $6), ($7, $8) RETURNING id',
     bindings: ['Bob', 12, 'Tom', 22, 'Bob', 12, 'Tom', 22],
     mapping: [],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query, parameters);
@@ -364,7 +351,6 @@ test('(TS) query with no params', () => {
     query: `UPDATE notifications SET payload = '{"a": "b"}'::jsonb`,
     bindings: [],
     mapping: [],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query);
@@ -380,7 +366,6 @@ test('(TS) query with empty spread params', () => {
     query: `SELECT * FROM users WHERE id IN ()`,
     bindings: [],
     mapping: [],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query, { ids: [] });
@@ -396,7 +381,6 @@ test('(TS) query with empty spread params', () => {
     query: `INSERT INTO data.action_log (id, name) VALUES ()`,
     bindings: [],
     mapping: [],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query, { params: [] });
@@ -412,7 +396,6 @@ test('(TS) query with underscores in key names and param names', () => {
     query: `INSERT INTO data.action_log (_id, _name) VALUES ($1, $2)`,
     bindings: ['one', 'two'],
     mapping: [],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query, {
@@ -492,7 +475,6 @@ test('(TS) all kinds mapping ', () => {
         },
       },
     ],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query);
@@ -515,120 +497,8 @@ test('(TS) required spread', () => {
         assignedIndex: [1],
       },
     ],
-    hintedColumnAliases: {},
   };
 
   const result = processTSQueryAST(parsedQuery.query);
-  expect(result).toEqual(expectedResult);
-});
-
-test('(TS) select nullability hint', () => {
-  const query = `SELECT count(*) AS "count!" FROM table`;
-  const parsedQuery = parseTSQuery(query);
-  const parameters = {};
-
-  const expectedResult = {
-    query: 'SELECT count(*) AS "count" FROM table',
-    mapping: [],
-    bindings: [],
-    hintedColumnAliases: {
-      count: {
-        nullable: false,
-        aliasHintLocation: {
-          a: 20,
-          b: 25,
-        },
-      },
-    },
-  };
-
-  const result = processTSQueryAST(parsedQuery.query, parameters);
-
-  expect(result).toEqual(expectedResult);
-});
-
-test('(TS) select non-nullability hint complexer query', () => {
-  const query = `SELECT u.id, (SELECT id from user_emails where user_id = u.id) as "email!" from users u`;
-  const parsedQuery = parseTSQuery(query);
-  const parameters = {};
-
-  const expectedResult = {
-    query:
-      'SELECT u.id, (SELECT id from user_emails where user_id = u.id) as "email" from users u',
-    mapping: [],
-    bindings: [],
-    hintedColumnAliases: {
-      email: {
-        nullable: false,
-        aliasHintLocation: {
-          a: 67,
-          b: 72,
-        },
-      },
-    },
-  };
-
-  const result = processTSQueryAST(parsedQuery.query, parameters);
-
-  expect(result).toEqual(expectedResult);
-});
-
-test('(TS) select nullability hint', () => {
-  const query = `SELECT id, name AS "name?" FROM users LEFT JOIN names USING (id)`;
-  const parsedQuery = parseTSQuery(query);
-  const parameters = {};
-
-  const expectedResult = {
-    query: 'SELECT id, name AS "name" FROM users LEFT JOIN names USING (id)',
-    mapping: [],
-    bindings: [],
-    hintedColumnAliases: {
-      name: {
-        nullable: true,
-        aliasHintLocation: {
-          a: 20,
-          b: 24,
-        },
-      },
-    },
-  };
-
-  const result = processTSQueryAST(parsedQuery.query, parameters);
-
-  expect(result).toEqual(expectedResult);
-});
-
-test('(TS) multiple value list parameter interpolation with non-null counting rows', () => {
-  const query =
-    'WITH rows AS (INSERT INTO users (name, age) VALUES $$users(name, age) RETURNING 1) SELECT count(*) AS "count!"' +
-    ' FROM rows';
-  const parsedQuery = parseTSQuery(query);
-
-  const parameters = {
-    users: [
-      { name: 'Bob', age: 12 },
-      { name: 'Tom', age: 22 },
-    ],
-  };
-
-  const expectedResult = {
-    query:
-      'WITH rows AS (INSERT INTO users (name, age) VALUES ($1, $2), ($3, $4) RETURNING 1) SELECT' +
-      ' count(*) AS "count" FROM rows',
-    bindings: ['Bob', 12, 'Tom', 22],
-    mapping: [],
-    hintedColumnAliases: {
-      count: {
-        aliasHintLocation: {
-          a: 103,
-          b: 108,
-        },
-        nullable: false,
-      },
-    },
-  };
-
-  const result = processTSQueryAST(parsedQuery.query, parameters);
-
   expect(result).toEqual(expectedResult);
 });

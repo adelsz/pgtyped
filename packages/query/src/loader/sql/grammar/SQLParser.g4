@@ -18,11 +18,9 @@ statement
     : statementBody EOF_STATEMENT;
 
 statementBody
-    : word (ignoredComment | hintedColumnAliasName | param | word)*;
+    : word (ignoredComment | param | word)*;
 
-word: WORD | ID | STRING | S_REQUIRED_MARK | S_OPTIONAL_MARK | DOUBLE_QUOTE | AS;
-
-hintedColumnAliasName: AS DOUBLE_QUOTE ID (S_REQUIRED_MARK | S_OPTIONAL_MARK) DOUBLE_QUOTE;
+word: WORD | ID | STRING | S_REQUIRED_MARK;
 
 param: PARAM_MARK paramId;
 

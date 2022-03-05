@@ -10,7 +10,6 @@ import { IgnoredCommentContext } from "./SQLParser";
 import { StatementContext } from "./SQLParser";
 import { StatementBodyContext } from "./SQLParser";
 import { WordContext } from "./SQLParser";
-import { HintedColumnAliasNameContext } from "./SQLParser";
 import { ParamContext } from "./SQLParser";
 import { ParamIdContext } from "./SQLParser";
 import { NameTagContext } from "./SQLParser";
@@ -81,13 +80,6 @@ export interface SQLParserVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitWord?: (ctx: WordContext) => Result;
-
-	/**
-	 * Visit a parse tree produced by `SQLParser.hintedColumnAliasName`.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	visitHintedColumnAliasName?: (ctx: HintedColumnAliasNameContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SQLParser.param`.

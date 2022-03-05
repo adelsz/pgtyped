@@ -4,7 +4,6 @@ exports[`array param 1`] = `
 Object {
   "events": Array [],
   "query": Object {
-    "hintedColumnAliases": Object {},
     "name": "query",
     "params": Array [
       Object {
@@ -30,7 +29,6 @@ exports[`array spread param 1`] = `
 Object {
   "events": Array [],
   "query": Object {
-    "hintedColumnAliases": Object {},
     "name": "query",
     "params": Array [
       Object {
@@ -70,7 +68,6 @@ exports[`pick param 1`] = `
 Object {
   "events": Array [],
   "query": Object {
-    "hintedColumnAliases": Object {},
     "name": "query",
     "params": Array [
       Object {
@@ -105,7 +102,6 @@ exports[`scalar param 1`] = `
 Object {
   "events": Array [],
   "query": Object {
-    "hintedColumnAliases": Object {},
     "name": "query",
     "params": Array [
       Object {

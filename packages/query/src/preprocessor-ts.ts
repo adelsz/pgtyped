@@ -205,17 +205,6 @@ export const processTSQueryAST = (
   const baseMap: { [param: string]: QueryParam } = {};
   let i = 0;
   const intervals: { a: number; b: number; sub: string }[] = [];
-
-  for (const [aliasName, { aliasHintLocation }] of Object.entries(
-    query.hintedColumnAliases,
-  )) {
-    intervals.push({
-      a: aliasHintLocation.a,
-      b: aliasHintLocation.b,
-      sub: aliasName,
-    });
-  }
-
   for (const param of query.params) {
     let sub: string;
     let paramBindings: Scalar[] = [];
@@ -274,7 +263,6 @@ export const processTSQueryAST = (
   return {
     mapping: parameters ? [] : Object.values(baseMap),
     query: flatStr,
-    hintedColumnAliases: query.hintedColumnAliases,
     bindings,
   };
 };
