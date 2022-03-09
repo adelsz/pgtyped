@@ -36,6 +36,7 @@ describe('query-to-interface translation', () => {
             columnName: 'payload',
             type: 'json',
             nullable: false,
+            comment: 'Notification contents @type {Notification}',
           },
           {
             returnName: 'type',
@@ -80,6 +81,7 @@ export interface IGetNotificationsParams {
 
 /** 'GetNotifications' return type */
 export interface IGetNotificationsResult {
+  /** Notification contents @type {Notification} */
   payload: Json;
   type: PayloadType;
 }
