@@ -154,6 +154,7 @@ export interface IQueryTypes {
     columnName: string;
     type: MappableType;
     nullable?: boolean;
+    comment?: string;
   }>;
 }
 
@@ -164,17 +165,19 @@ export interface IParseError {
   position?: string;
 }
 
+interface TypeField {
+  name: string;
+  tableOID: number;
+  columnAttrNumber: number;
+  typeOID: number;
+  typeSize: number;
+  typeModifier: number;
+  formatCode: number;
+}
+
 type TypeData =
   | {
-      fields: Array<{
-        name: string;
-        tableOID: number;
-        columnAttrNumber: number;
-        typeOID: number;
-        typeSize: number;
-        typeModifier: number;
-        formatCode: number;
-      }>;
+      fields: Array<TypeField>;
       params: Array<{ oid: number }>;
     }
   | IParseError;
@@ -345,6 +348,40 @@ OR pt.oid IN (SELECT typelem FROM pg_type ptn WHERE ptn.oid IN (${concatenatedTy
   );
 }
 
+interface ColumnComment {
+  tableOID: number;
+  columnAttrNumber: number;
+  comment: string;
+}
+
+async function getComments(
+  fields: TypeField[],
+  queue: AsyncQueue,
+): Promise<ColumnComment[]> {
+  const columnFields = fields.filter((f) => f.columnAttrNumber > 0);
+  if (columnFields.length === 0) {
+    return [];
+  }
+
+  const matchers = columnFields.map(
+    (f) => `(objoid=${f.tableOID} and objsubid=${f.columnAttrNumber})`,
+  );
+  const selection = matchers.join(' or ');
+
+  const descriptionRows = await runQuery(
+    `SELECT
+      objoid, objsubid, description
+     FROM pg_description WHERE ${selection};`,
+    queue,
+  );
+
+  return descriptionRows.map((row) => ({
+    tableOID: Number(row[0]),
+    columnAttrNumber: Number(row[1]),
+    comment: row[2],
+  }));
+}
+
 export async function getTypes(
   queryData: IInterpolatedQuery,
   queue: AsyncQueue,
@@ -360,6 +397,7 @@ export async function getTypes(
   const returnTypesOIDs = fields.map((f) => f.typeOID);
   const usedTypesOIDs = paramTypeOIDs.concat(returnTypesOIDs);
   const typeRows = await runTypesCatalogQuery(usedTypesOIDs, queue);
+  const commentRows = await getComments(fields, queue);
   const typeMap = reduceTypeRows(typeRows);
 
   const attrMatcher = ({
@@ -395,8 +433,17 @@ export async function getTypes(
     {},
   );
 
+  const getAttid = (col: Pick<TypeField, 'tableOID' | 'columnAttrNumber'>) =>
+    `${col.tableOID}:${col.columnAttrNumber}`;
+
+  const commentMap: { [attid: string]: string | undefined } = {};
+  for (const c of commentRows) {
+    commentMap[`${c.tableOID}:${c.columnAttrNumber}`] = c.comment;
+  }
+
   const returnTypes = fields.map((f) => ({
-    ...attrMap[`${f.tableOID}:${f.columnAttrNumber}`],
+    ...attrMap[getAttid(f)],
+    ...(commentMap[getAttid(f)] ? { comment: commentMap[getAttid(f)] } : {}),
     returnName: f.name,
     type: typeMap[f.typeOID],
   }));
