@@ -27,6 +27,10 @@ const interfaceGen = (interfaceName: string, contents: string) =>
 ${contents}
 }\n\n`;
 
+export function escapeComment(comment: string) {
+  return comment.replace(/\*\//g, '*\\/');
+}
+
 export const generateInterface = (interfaceName: string, fields: IField[]) => {
   const sortedFields = fields
     .slice()
@@ -34,7 +38,7 @@ export const generateInterface = (interfaceName: string, fields: IField[]) => {
   const contents = sortedFields
     .map(
       ({ fieldName, fieldType, comment }) =>
-        (comment ? `  /** ${comment} */\n` : '') +
+        (comment ? `  /** ${escapeComment(comment)} */\n` : '') +
         `  ${fieldName}: ${fieldType};`,
     )
     .join('\n');
