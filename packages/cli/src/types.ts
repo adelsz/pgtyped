@@ -17,11 +17,11 @@ const Void: Type = { name: 'undefined' };
 const Json: Type = {
   name: 'Json',
   definition:
-    'null | boolean | number | string | Json[] | { [key: string]: Json }',
+    'null | boolean | number | string | readonly Json[] | { readonly [key: string]: Json }',
 };
 const getArray = (baseType: Type): Type => ({
   name: `${baseType.name}Array`,
-  definition: `(${baseType.definition ?? baseType.name})[]`,
+  definition: `readonly (${baseType.definition ?? baseType.name})[]`,
 });
 
 export const DefaultTypeMapping = Object.freeze({

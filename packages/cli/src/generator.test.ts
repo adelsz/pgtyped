@@ -70,7 +70,7 @@ describe('query-to-interface translation', () => {
 
 export type PayloadType = 'dynamite' | 'message';
 
-export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
+export type Json = null | boolean | number | string | readonly Json[] | { readonly [key: string]: Json };\n`;
 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
@@ -301,7 +301,7 @@ export interface IDeleteUsersQuery {
 
 export type PayloadType = 'dynamite' | 'message';
 
-export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
+export type Json = null | boolean | number | string | readonly Json[] | { readonly [key: string]: Json };\n`;
 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
@@ -377,7 +377,7 @@ export interface IGetNotificationsQuery {
 
 export type PayloadType = 'dynamite' | 'message';
 
-export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
+export type Json = null | boolean | number | string | readonly Json[] | { readonly [key: string]: Json };\n`;
 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
@@ -449,7 +449,7 @@ export interface IGetNotificationsQuery {
 
 export type PayloadType = 'dynamite' | 'message';
 
-export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
+export type Json = null | boolean | number | string | readonly Json[] | { readonly [key: string]: Json };\n`;
 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */

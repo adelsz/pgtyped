@@ -3,11 +3,11 @@ import { PreparedQuery } from '@pgtyped/query';
 
 export type category = 'novel' | 'science-fiction' | 'thriller';
 
-export type categoryArray = (category)[];
+export type categoryArray = readonly (category)[];
 
-export type numberArray = (number)[];
+export type numberArray = readonly (number)[];
 
-export type stringArray = (string)[];
+export type stringArray = readonly (string)[];
 
 /** 'FindBookById' parameters type */
 export interface IFindBookByIdParams {

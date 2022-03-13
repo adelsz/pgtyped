@@ -3,7 +3,7 @@ import { PreparedQuery } from '@pgtyped/query';
 
 export type notification_type = 'deadline' | 'notification' | 'reminder';
 
-export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
+export type Json = null | boolean | number | string | readonly Json[] | { readonly [key: string]: Json };
 
 /** 'SendNotifications' parameters type */
 export interface ISendNotificationsParams {

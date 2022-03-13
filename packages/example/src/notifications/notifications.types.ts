@@ -1,7 +1,7 @@
 /** Types generated for queries found in "src/notifications/notifications.ts" */
 export type notification_type = 'deadline' | 'notification' | 'reminder';
 
-export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
+export type Json = null | boolean | number | string | readonly Json[] | { readonly [key: string]: Json };
 
 /** 'InsertNotifications' parameters type */
 export interface IInsertNotificationsParams {
