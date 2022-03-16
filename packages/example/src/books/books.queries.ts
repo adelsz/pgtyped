@@ -29,7 +29,7 @@ export interface IFindBookByIdQuery {
   result: IFindBookByIdResult;
 }
 
-const findBookByIdIR: any = {"name":"FindBookById","params":[{"name":"id","required":false,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":57,"b":58,"line":2,"col":32}]}}],"usedParamSet":{"id":true},"statement":{"body":"SELECT * FROM books WHERE id = :id","loc":{"a":25,"b":58,"line":2,"col":0}}};
+const findBookByIdIR: any = {"usedParamSet":{"id":true},"params":[{"name":"id","required":false,"transform":{"type":"scalar"},"locs":[{"a":31,"b":33}]}],"statement":"SELECT * FROM books WHERE id = :id"};
 
 /**
  * Query generated from SQL:
@@ -61,7 +61,7 @@ export interface IInsertBooksQuery {
   result: IInsertBooksResult;
 }
 
-const insertBooksIR: any = {"name":"InsertBooks","params":[{"name":"books","codeRefs":{"defined":{"a":95,"b":99,"line":7,"col":9},"used":[{"a":212,"b":216,"line":10,"col":8}]},"transform":{"type":"pick_array_spread","keys":[{"name":"rank","required":true},{"name":"name","required":true},{"name":"authorId","required":true},{"name":"categories","required":false}]},"required":false}],"usedParamSet":{"books":true},"statement":{"body":"INSERT INTO books (rank, name, author_id, categories)\nVALUES :books RETURNING id as book_id","loc":{"a":150,"b":240,"line":9,"col":0}}};
+const insertBooksIR: any = {"usedParamSet":{"books":true},"params":[{"name":"books","required":false,"transform":{"type":"pick_array_spread","keys":[{"name":"rank","required":true},{"name":"name","required":true},{"name":"authorId","required":true},{"name":"categories","required":false}]},"locs":[{"a":61,"b":66}]}],"statement":"INSERT INTO books (rank, name, author_id, categories)\nVALUES :books RETURNING id as book_id"};
 
 /**
  * Query generated from SQL:
@@ -88,7 +88,7 @@ export interface IUpdateBooksCustomQuery {
   result: IUpdateBooksCustomResult;
 }
 
-const updateBooksCustomIR: any = {"name":"UpdateBooksCustom","params":[{"name":"rank","required":false,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":326,"b":329,"line":18,"col":20},{"a":372,"b":375,"line":19,"col":23}]}},{"name":"id","required":true,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":438,"b":440,"line":23,"col":12}]}}],"usedParamSet":{"rank":true,"id":true},"statement":{"body":"UPDATE books\nSET\n    rank = (\n        CASE WHEN (:rank::int IS NOT NULL)\n                 THEN :rank\n             ELSE rank\n            END\n        )\nWHERE id = :id!","loc":{"a":276,"b":440,"line":15,"col":0}}};
+const updateBooksCustomIR: any = {"usedParamSet":{"rank":true,"id":true},"params":[{"name":"rank","required":false,"transform":{"type":"scalar"},"locs":[{"a":49,"b":53},{"a":95,"b":99}]},{"name":"id","required":true,"transform":{"type":"scalar"},"locs":[{"a":161,"b":164}]}],"statement":"UPDATE books\nSET\n    rank = (\n        CASE WHEN (:rank::int IS NOT NULL)\n                 THEN :rank\n             ELSE rank\n            END\n        )\nWHERE id = :id!"};
 
 /**
  * Query generated from SQL:
@@ -123,7 +123,7 @@ export interface IUpdateBooksQuery {
   result: IUpdateBooksResult;
 }
 
-const updateBooksIR: any = {"name":"UpdateBooks","params":[{"name":"name","required":false,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":521,"b":524,"line":31,"col":12}]}},{"name":"rank","required":false,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":539,"b":542,"line":32,"col":12}]}},{"name":"id","required":true,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":556,"b":558,"line":33,"col":12}]}}],"usedParamSet":{"name":true,"rank":true,"id":true},"statement":{"body":"UPDATE books\n                     \nSET\n    name = :name,\n    rank = :rank\nWHERE id = :id!","loc":{"a":470,"b":558,"line":28,"col":0}}};
+const updateBooksIR: any = {"usedParamSet":{"name":true,"rank":true,"id":true},"params":[{"name":"name","required":false,"transform":{"type":"scalar"},"locs":[{"a":50,"b":54}]},{"name":"rank","required":false,"transform":{"type":"scalar"},"locs":[{"a":68,"b":72}]},{"name":"id","required":true,"transform":{"type":"scalar"},"locs":[{"a":85,"b":88}]}],"statement":"UPDATE books\n                     \nSET\n    name = :name,\n    rank = :rank\nWHERE id = :id!"};
 
 /**
  * Query generated from SQL:
@@ -155,7 +155,7 @@ export interface IUpdateBooksRankNotNullQuery {
   result: IUpdateBooksRankNotNullResult;
 }
 
-const updateBooksRankNotNullIR: any = {"name":"UpdateBooksRankNotNull","params":[{"name":"rank","required":true,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":628,"b":632,"line":40,"col":12}]}},{"name":"name","required":false,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":647,"b":650,"line":41,"col":12}]}},{"name":"id","required":true,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":664,"b":666,"line":42,"col":12}]}}],"usedParamSet":{"rank":true,"name":true,"id":true},"statement":{"body":"UPDATE books\nSET\n    rank = :rank!,\n    name = :name\nWHERE id = :id!","loc":{"a":599,"b":666,"line":38,"col":0}}};
+const updateBooksRankNotNullIR: any = {"usedParamSet":{"rank":true,"name":true,"id":true},"params":[{"name":"rank","required":true,"transform":{"type":"scalar"},"locs":[{"a":28,"b":33}]},{"name":"name","required":false,"transform":{"type":"scalar"},"locs":[{"a":47,"b":51}]},{"name":"id","required":true,"transform":{"type":"scalar"},"locs":[{"a":64,"b":67}]}],"statement":"UPDATE books\nSET\n    rank = :rank!,\n    name = :name\nWHERE id = :id!"};
 
 /**
  * Query generated from SQL:
@@ -190,7 +190,7 @@ export interface IGetBooksByAuthorNameQuery {
   result: IGetBooksByAuthorNameResult;
 }
 
-const getBooksByAuthorNameIR: any = {"name":"GetBooksByAuthorName","params":[{"name":"authorName","required":true,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":814,"b":824,"line":47,"col":44}]}}],"usedParamSet":{"authorName":true},"statement":{"body":"SELECT b.* FROM books b\nINNER JOIN authors a ON a.id = b.author_id\nWHERE a.first_name || ' ' || a.last_name = :authorName!","loc":{"a":703,"b":824,"line":45,"col":0}}};
+const getBooksByAuthorNameIR: any = {"usedParamSet":{"authorName":true},"params":[{"name":"authorName","required":true,"transform":{"type":"scalar"},"locs":[{"a":110,"b":121}]}],"statement":"SELECT b.* FROM books b\nINNER JOIN authors a ON a.id = b.author_id\nWHERE a.first_name || ' ' || a.last_name = :authorName!"};
 
 /**
  * Query generated from SQL:
@@ -220,7 +220,7 @@ export interface IAggregateEmailsAndTestQuery {
   result: IAggregateEmailsAndTestResult;
 }
 
-const aggregateEmailsAndTestIR: any = {"name":"AggregateEmailsAndTest","params":[{"name":"testAges","required":false,"transform":{"type":"scalar"},"codeRefs":{"used":[{"a":916,"b":923,"line":50,"col":53}]}}],"usedParamSet":{"testAges":true},"statement":{"body":"SELECT array_agg(email) as emails, array_agg(age) = :testAges as ageTest FROM users","loc":{"a":863,"b":945,"line":50,"col":0}}};
+const aggregateEmailsAndTestIR: any = {"usedParamSet":{"testAges":true},"params":[{"name":"testAges","required":false,"transform":{"type":"scalar"},"locs":[{"a":52,"b":60}]}],"statement":"SELECT array_agg(email) as emails, array_agg(age) = :testAges as ageTest FROM users"};
 
 /**
  * Query generated from SQL:
