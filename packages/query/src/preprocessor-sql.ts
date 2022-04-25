@@ -1,4 +1,4 @@
-import { assert, SQLQueryAST, TransformType } from './loader/sql';
+import { assert, SQLQueryIR, TransformType } from './loader/sql';
 import {
   IInterpolatedQuery,
   INestedParameters,
@@ -12,22 +12,18 @@ import {
 } from './preprocessor';
 
 /* Processes query AST formed by new parser from pure SQL files */
-export const processSQLQueryAST = (
-  query: SQLQueryAST,
+export const processSQLQueryIR = (
+  queryIR: SQLQueryIR,
   passedParams?: IQueryParameters,
 ): IInterpolatedQuery => {
   const bindings: Scalar[] = [];
   const paramMapping: QueryParam[] = [];
-  const usedParams = query.params.filter((p) => p.name in query.usedParamSet);
-  const { a: statementStart } = query.statement.loc;
+  const usedParams = queryIR.params.filter(
+    (p) => p.name in queryIR.usedParamSet,
+  );
   let i = 1;
   const intervals: { a: number; b: number; sub: string }[] = [];
   for (const usedParam of usedParams) {
-    const paramLocs = usedParam.codeRefs.used.map(({ a, b }) => ({
-      a: a - statementStart - 1,
-      b: b - statementStart,
-    }));
-
     // Handle spread transform
     if (usedParam.transform.type === TransformType.ArraySpread) {
       let sub: string;
@@ -49,9 +45,9 @@ export const processSQLQueryAST = (
         } as IScalarArrayParam);
         sub = `$${idx}`;
       }
-      paramLocs.forEach((pl) =>
+      usedParam.locs.forEach((loc) =>
         intervals.push({
-          ...pl,
+          ...loc,
           sub: `(${sub})`,
         }),
       );
@@ -90,9 +86,9 @@ export const processSQLQueryAST = (
         });
       }
 
-      paramLocs.forEach((pl) =>
+      usedParam.locs.forEach((loc) =>
         intervals.push({
-          ...pl,
+          ...loc,
           sub: `(${sub})`,
         }),
       );
@@ -140,9 +136,9 @@ export const processSQLQueryAST = (
         });
       }
 
-      paramLocs.forEach((pl) =>
+      usedParam.locs.forEach((loc) =>
         intervals.push({
-          ...pl,
+          ...loc,
           sub: `(${sub})`,
         }),
       );
@@ -163,14 +159,14 @@ export const processSQLQueryAST = (
       } as IScalarParam);
     }
 
-    paramLocs.forEach((pl) =>
+    usedParam.locs.forEach((loc) =>
       intervals.push({
-        ...pl,
+        ...loc,
         sub: `$${assignedIndex}`,
       }),
     );
   }
-  const flatStr = replaceIntervals(query.statement.body, intervals);
+  const flatStr = replaceIntervals(queryIR.statement, intervals);
   return {
     mapping: paramMapping,
     query: flatStr,
