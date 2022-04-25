@@ -1,13 +1,10 @@
 import nun from 'nunjucks';
 import path from 'path';
-import fs from 'fs';
+import fs from 'fs-extra';
 import JestWorker from 'jest-worker';
-import { promisify } from 'util';
 import { generateDeclarationFile } from './generator';
 import { AsyncQueue, startup } from '@pgtyped/query';
 import { ParsedConfig, TransformConfig } from './config';
-
-const writeFile = promisify(fs.writeFile);
 
 const connection = new AsyncQueue();
 let config: ParsedConfig;
@@ -45,11 +42,16 @@ export async function processFile(
     config,
   );
   if (typeDecs.length > 0) {
-    await writeFile(decsFileName, declarationFileContents);
-    return {
-      typeDecsLength: typeDecs.length,
-      relativePath: path.relative(process.cwd(), decsFileName),
-    };
+    const oldDeclarationFileContents = (await fs.pathExists(decsFileName))
+      ? await fs.readFile(decsFileName, { encoding: 'utf-8' })
+      : null;
+    if (oldDeclarationFileContents !== declarationFileContents) {
+      await fs.outputFile(decsFileName, declarationFileContents);
+      return {
+        typeDecsLength: typeDecs.length,
+        relativePath: path.relative(process.cwd(), decsFileName),
+      };
+    }
   }
 }
 

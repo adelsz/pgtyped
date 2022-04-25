@@ -2,12 +2,22 @@
   "extends": ["config:base"],
   "packageRules": [
     {
-      "packagePatterns": ["*"],
+      "matchPackagePatterns": ["*"],
+      "schedule": ["every weekend"],
+      "automerge": true,
+      "automergeType": "branch",
       "minor": {
         "groupName": "all non-major dependencies",
         "groupSlug": "all-minor-patch"
-      },
-      "excludePackageNames": ["antlr4ts", "antlr4ts-cli", "typescript"]
+      }
+    },
+    {
+      "matchPackageNames": ["antlr4ts", "antlr4ts-cli", "typescript"],
+      "enabled": false
+    },
+    {
+      "matchPackagePrefixes": ["@docusaurus"],
+      "enabled": false
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped/wire",
-  "version": "0.9.0",
+  "version": "0.13.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "license": "MIT",
@@ -14,7 +14,10 @@
     "watch": "tsc --declaration --watch --preserveWatchOutput"
   },
   "jest": {
-    "testRegex": "(/tests/.*|(\\.|/)test)\\.tsx?$",
+    "roots": [
+      "src"
+    ],
+    "testRegex": "\\.test\\.tsx?$",
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     }
@@ -22,5 +25,8 @@
   "dependencies": {
     "@types/debug": "^4.1.4",
     "debug": "^4.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "16.11.27"
   }
 }

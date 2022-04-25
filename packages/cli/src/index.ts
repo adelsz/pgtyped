@@ -4,22 +4,17 @@ import { AsyncQueue, startup } from '@pgtyped/query';
 import JestWorker from 'jest-worker';
 import chokidar from 'chokidar';
 import glob from 'glob';
-import minimist from 'minimist';
 import nun from 'nunjucks';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import { parseConfig, ParsedConfig, TransformConfig } from './config';
 import { debug } from './util';
 import { WorkerInterface, processFile } from './worker';
-
-const args = minimist(process.argv.slice(2));
-
-nun.configure({ autoescape: false });
+import path from 'path';
 
 // tslint:disable:no-console
-const helpMessage = `PostgreSQL type generator flags:
-  -w --watch     Watch mode
-  -f --file      File (overrides src directory in config, incompatible with watch mode)
-  -h --help      Display this message
-  -c             Config file (required)`;
+
+nun.configure({ autoescape: false });
 
 export enum ProcessingMode {
   SQL = 'sql-file',
@@ -54,6 +49,7 @@ class FileProcessor {
     this.workQueue.push(
       ...job.files.map(async (fileName) => {
         try {
+          fileName = path.relative(process.cwd(), fileName);
           const result = await this.worker.processFile(fileName, job.transform);
           if (result) {
             console.log(
@@ -61,9 +57,13 @@ class FileProcessor {
             );
           }
         } catch (err) {
-          console.log(
-            `Error processing file: ${err.stack || JSON.stringify(err)}`,
-          );
+          if (err instanceof Error) {
+            console.log(
+              `Error processing file: ${err.stack || JSON.stringify(err)}`,
+            );
+          } else {
+            console.log(`Error processing file: ${JSON.stringify(err)}`);
+          }
           if (this.config.failOnError) {
             await this.worker.end();
             process.exit(1);
@@ -132,12 +132,44 @@ async function main(
 }
 
 if (require.main === module) {
-  if (args.h || args.help) {
-    console.log(helpMessage);
-    process.exit(0);
-  }
+  const args = yargs(hideBin(process.argv))
+    .version()
+    .env()
+    .options({
+      config: {
+        alias: 'c',
+        type: 'string',
+        description: 'Config file path',
+        demandOption: true,
+      },
+      watch: {
+        alias: 'w',
+        description: 'Watch mode',
+        type: 'boolean',
+      },
+      uri: {
+        type: 'string',
+        description: 'DB connection URI (overrides config)',
+      },
+      file: {
+        alias: 'f',
+        type: 'string',
+        conflicts: 'watch',
+        description:
+          'File path (process single file, incompatible with --watch)',
+      },
+    })
+    .epilogue(
+      'For more information, find our manual at https://pgtyped.vercel.app/',
+    )
+    .parseSync();
 
-  const { c: configPath, w: isWatchMode, f: fileOverride } = args;
+  const {
+    watch: isWatchMode,
+    file: fileOverride,
+    config: configPath,
+    uri: connectionUri,
+  } = args;
 
   if (typeof configPath !== 'string') {
     console.log('Config file required. See help -h for details.\nExiting.');
@@ -150,13 +182,13 @@ if (require.main === module) {
   }
 
   try {
-    const config = parseConfig(configPath);
-    main(config, isWatchMode, fileOverride).catch((e) =>
+    const config = parseConfig(configPath, connectionUri);
+    main(config, isWatchMode || false, fileOverride).catch((e) =>
       debug('error in main: %o', e.message),
     );
   } catch (e) {
     console.error('Failed to parse config file:');
-    console.error(e.message);
+    console.error((e as any).message);
     process.exit();
   }
 }

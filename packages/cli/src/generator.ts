@@ -5,8 +5,10 @@ import {
   parseTypeScriptFile,
   prettyPrintEvents,
   processTSQueryAST,
-  processSQLQueryAST,
+  processSQLQueryIR,
+  queryASTToIR,
   SQLQueryAST,
+  SQLQueryIR,
   TSQueryAST,
 } from '@pgtyped/query';
 import { camelCase } from 'camel-case';
@@ -14,6 +16,7 @@ import { pascalCase } from 'pascal-case';
 import { ProcessingMode } from './index';
 import { DefaultTypeMapping, TypeAllocator } from './types';
 import { ParsedConfig } from './config';
+import path from 'path';
 
 export interface IField {
   fieldName: string;
@@ -26,7 +29,10 @@ ${contents}
 }\n\n`;
 
 export const generateInterface = (interfaceName: string, fields: IField[]) => {
-  const contents = fields
+  const sortedFields = fields
+    .slice()
+    .sort((a, b) => a.fieldName.localeCompare(b.fieldName));
+  const contents = sortedFields
     .map(({ fieldName, fieldType }) => `  ${fieldName}: ${fieldType};`)
     .join('\n');
   return interfaceGen(interfaceName, contents);
@@ -58,10 +64,10 @@ export async function queryToTypeDeclarations(
     queryData = processTSQueryAST(parsedQuery.ast);
   } else {
     queryName = pascalCase(parsedQuery.ast.name);
-    queryData = processSQLQueryAST(parsedQuery.ast);
+    queryData = processSQLQueryIR(queryASTToIR(parsedQuery.ast));
   }
 
-  const typeData = await getTypes(queryData, queryName, connection);
+  const typeData = await getTypes(queryData, connection);
   const interfaceName = pascalCase(queryName);
 
   if ('errorCode' in typeData) {
@@ -112,23 +118,28 @@ export async function queryToTypeDeclarations(
           : param.assignedIndex;
       const pgTypeName = params[assignedIndex - 1];
       let tsTypeName = types.use(pgTypeName);
-      tsTypeName += ' | null | void';
+
+      if (!param.required) {
+        tsTypeName += ' | null | void';
+      }
 
       paramFieldTypes.push({
         fieldName: param.name,
-        fieldType: isArray ? `Array<${tsTypeName}>` : tsTypeName,
+        fieldType: isArray ? `readonly (${tsTypeName})[]` : tsTypeName,
       });
     } else {
       const isArray = param.type === ParamTransform.PickSpread;
       let fieldType = Object.values(param.dict)
         .map((p) => {
           const paramType = types.use(params[p.assignedIndex - 1]);
-          return `    ${p.name}: ${paramType} | null | void`;
+          return p.required
+            ? `    ${p.name}: ${paramType}`
+            : `    ${p.name}: ${paramType} | null | void`;
         })
         .join(',\n');
       fieldType = `{\n${fieldType}\n  }`;
       if (isArray) {
-        fieldType = `Array<${fieldType}>`;
+        fieldType = `readonly (${fieldType})[]`;
       }
       paramFieldTypes.push({
         fieldName: param.name,
@@ -185,6 +196,7 @@ type ITypedQuery =
       query: {
         name: string;
         ast: SQLQueryAST;
+        ir: SQLQueryIR;
         paramTypeAlias: string;
         returnTypeAlias: string;
       };
@@ -204,7 +216,7 @@ async function generateTypedecsFromFile(
   const { queries, events } =
     mode === 'ts'
       ? parseTypeScriptFile(contents, fileName)
-      : parseSQLFile(contents, fileName);
+      : parseSQLFile(contents);
   if (events.length > 0) {
     prettyPrintEvents(contents, events);
     if (events.find((e) => 'critical' in e)) {
@@ -226,6 +238,7 @@ async function generateTypedecsFromFile(
         query: {
           name: camelCase(sqlQueryAST.name),
           ast: sqlQueryAST,
+          ir: queryASTToIR(sqlQueryAST),
           paramTypeAlias: `I${pascalCase(sqlQueryAST.name)}Params`,
           returnTypeAlias: `I${pascalCase(sqlQueryAST.name)}Result`,
         },
@@ -277,8 +290,17 @@ export async function generateDeclarationFile(
     types,
     config,
   );
+
+  // file paths in generated files must be stable across platforms
+  // https://github.com/adelsz/pgtyped/issues/230
+  const isWindowsPath = path.sep === '\\';
+  // always emit POSIX paths
+  const stableFilePath = isWindowsPath
+    ? fileName.replace(/\\/g, '/')
+    : fileName;
+
   let declarationFileContents = '';
-  declarationFileContents += `/** Types generated for queries found in "${fileName}" */\n`;
+  declarationFileContents += `/** Types generated for queries found in "${stableFilePath}" */\n`;
   declarationFileContents += types.declaration();
   declarationFileContents += '\n';
   for (const typeDec of typeDecs) {
@@ -292,7 +314,7 @@ export async function generateDeclarationFile(
       .join('\n');
     declarationFileContents += `const ${
       typeDec.query.name
-    }IR: any = ${JSON.stringify(typeDec.query.ast)};\n\n`;
+    }IR: any = ${JSON.stringify(typeDec.query.ir)};\n\n`;
     declarationFileContents +=
       `/**\n` +
       ` * Query generated from SQL:\n` +

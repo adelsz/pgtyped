@@ -1,5 +1,5 @@
-import parseSQLQuery from './loader/sql';
-import { processSQLQueryAST } from './preprocessor-sql';
+import parseSQLQuery, { queryASTToIR } from './loader/sql';
+import { processSQLQueryIR } from './preprocessor-sql';
 import { ParamTransform } from './preprocessor';
 
 test('(SQL) no params', () => {
@@ -16,14 +16,43 @@ test('(SQL) no params', () => {
     bindings: [],
   };
 
-  const interpolationResult = processSQLQueryAST(
-    fileAST.queries[0],
-    parameters,
-  );
-  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+  const interpolationResult = processSQLQueryIR(queryIR, parameters);
+  const mappingResult = processSQLQueryIR(queryIR);
 
   expect(interpolationResult).toEqual(expectedResult);
   expect(mappingResult).toEqual(expectedResult);
+});
+
+test('(SQL) two scalar params, one forced as non-null', () => {
+  const query = `
+  /*
+    @name UpdateBooksRankNotNull
+  */
+  UPDATE books
+  SET
+      rank = :rank!,
+      name = :name
+  WHERE id = :id!;`;
+
+  const fileAST = parseSQLQuery(query);
+  const parameters = {
+    rank: 123,
+    name: 'name',
+    id: 'id',
+  };
+
+  const expectedInterpolationResult = {
+    query:
+      'UPDATE books\n  SET\n      rank = $1,\n      name = $2\n  WHERE id = $3',
+    mapping: [],
+    bindings: [123, 'name', 'id'],
+  };
+
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+  const interpolationResult = processSQLQueryIR(queryIR, parameters);
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
 });
 
 test('(SQL) two scalar params', () => {
@@ -49,22 +78,22 @@ test('(SQL) two scalar params', () => {
       {
         assignedIndex: 1,
         name: 'id',
+        required: false,
         type: ParamTransform.Scalar,
       },
       {
         assignedIndex: 2,
         name: 'age',
+        required: false,
         type: ParamTransform.Scalar,
       },
     ],
     bindings: [],
   };
 
-  const interpolationResult = processSQLQueryAST(
-    fileAST.queries[0],
-    parameters,
-  );
-  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+  const interpolationResult = processSQLQueryIR(queryIR, parameters);
+  const mappingResult = processSQLQueryIR(queryIR);
 
   expect(interpolationResult).toEqual(expectedInterpolationResult);
   expect(mappingResult).toEqual(expectedMappingResult);
@@ -92,17 +121,16 @@ test('(SQL) one param used twice', () => {
       {
         assignedIndex: 1,
         name: 'id',
+        required: false,
         type: ParamTransform.Scalar,
       },
     ],
     bindings: [],
   };
 
-  const interpolationResult = processSQLQueryAST(
-    fileAST.queries[0],
-    parameters,
-  );
-  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+  const interpolationResult = processSQLQueryIR(queryIR, parameters);
+  const mappingResult = processSQLQueryIR(queryIR);
 
   expect(interpolationResult).toEqual(expectedInterpolationResult);
   expect(mappingResult).toEqual(expectedMappingResult);
@@ -134,16 +162,15 @@ test('(SQL) array param', () => {
       {
         name: 'ages',
         type: ParamTransform.Spread,
+        required: false,
         assignedIndex: 1,
       },
     ],
   };
 
-  const interpolationResult = processSQLQueryAST(
-    fileAST.queries[0],
-    parameters,
-  );
-  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+  const interpolationResult = processSQLQueryIR(queryIR, parameters);
+  const mappingResult = processSQLQueryIR(queryIR);
 
   expect(interpolationResult).toEqual(expectedInterpolationResult);
   expect(mappingResult).toEqual(expectedMappingResult);
@@ -174,17 +201,16 @@ test('(SQL) array param used twice', () => {
     mapping: [
       {
         name: 'ages',
+        required: false,
         type: ParamTransform.Spread,
         assignedIndex: 1,
       },
     ],
   };
 
-  const interpolationResult = processSQLQueryAST(
-    fileAST.queries[0],
-    parameters,
-  );
-  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+  const interpolationResult = processSQLQueryIR(queryIR, parameters);
+  const mappingResult = processSQLQueryIR(queryIR);
 
   expect(interpolationResult).toEqual(expectedInterpolationResult);
   expect(mappingResult).toEqual(expectedMappingResult);
@@ -217,21 +243,21 @@ test('(SQL) array and scalar param', () => {
       {
         name: 'ages',
         type: ParamTransform.Spread,
+        required: false,
         assignedIndex: 1,
       },
       {
         name: 'userId',
         type: ParamTransform.Scalar,
+        required: false,
         assignedIndex: 2,
       },
     ],
   };
 
-  const interpolationResult = processSQLQueryAST(
-    fileAST.queries[0],
-    parameters,
-  );
-  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+  const interpolationResult = processSQLQueryIR(queryIR, parameters);
+  const mappingResult = processSQLQueryIR(queryIR);
 
   expect(interpolationResult).toEqual(expectedInterpolationResult);
   expect(mappingResult).toEqual(expectedMappingResult);
@@ -268,24 +294,24 @@ test('(SQL) pick param', () => {
             assignedIndex: 1,
             name: 'name',
             type: ParamTransform.Scalar,
+            required: false,
           },
           age: {
             assignedIndex: 2,
             name: 'age',
             type: ParamTransform.Scalar,
+            required: false,
           },
         },
       },
     ],
   };
 
-  const interpolationResult = processSQLQueryAST(
-    fileAST.queries[0],
-    parameters,
-  );
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+  const interpolationResult = processSQLQueryIR(queryIR, parameters);
   expect(interpolationResult).toEqual(expectedInterpolationResult);
 
-  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
+  const mappingResult = processSQLQueryIR(queryIR);
   expect(mappingResult).toEqual(expectedMappingResult);
 });
 
@@ -320,24 +346,24 @@ test('(SQL) pick param used twice', () => {
             assignedIndex: 1,
             name: 'name',
             type: ParamTransform.Scalar,
+            required: false,
           },
           age: {
             assignedIndex: 2,
             name: 'age',
             type: ParamTransform.Scalar,
+            required: false,
           },
         },
       },
     ],
   };
 
-  const interpolationResult = processSQLQueryAST(
-    fileAST.queries[0],
-    parameters,
-  );
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+  const interpolationResult = processSQLQueryIR(queryIR, parameters);
   expect(interpolationResult).toEqual(expectedInterpolationResult);
 
-  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
+  const mappingResult = processSQLQueryIR(queryIR);
   expect(mappingResult).toEqual(expectedMappingResult);
 });
 
@@ -371,11 +397,13 @@ test('(SQL) pickSpread param', () => {
         name: {
           name: 'name',
           type: ParamTransform.Scalar,
+          required: false,
           assignedIndex: 1,
         },
         age: {
           name: 'age',
           type: ParamTransform.Scalar,
+          required: false,
           assignedIndex: 2,
         },
       },
@@ -388,11 +416,9 @@ test('(SQL) pickSpread param', () => {
     mapping: expectedMapping,
   };
 
-  const interpolationResult = processSQLQueryAST(
-    fileAST.queries[0],
-    parameters,
-  );
-  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+  const interpolationResult = processSQLQueryIR(queryIR, parameters);
+  const mappingResult = processSQLQueryIR(queryIR);
 
   expect(interpolationResult).toEqual(expectedInterpolationResult);
   expect(mappingResult).toEqual(expectedMappingResult);
@@ -429,11 +455,13 @@ test('(SQL) pickSpread param used twice', () => {
         name: {
           name: 'name',
           type: ParamTransform.Scalar,
+          required: false,
           assignedIndex: 1,
         },
         age: {
           name: 'age',
           type: ParamTransform.Scalar,
+          required: false,
           assignedIndex: 2,
         },
       },
@@ -446,11 +474,138 @@ test('(SQL) pickSpread param used twice', () => {
     mapping: expectedMapping,
   };
 
-  const interpolationResult = processSQLQueryAST(
-    fileAST.queries[0],
-    parameters,
-  );
-  const mappingResult = processSQLQueryAST(fileAST.queries[0]);
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+  const interpolationResult = processSQLQueryIR(queryIR, parameters);
+  const mappingResult = processSQLQueryIR(queryIR);
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+  expect(mappingResult).toEqual(expectedMappingResult);
+});
+
+test('(SQL) scalar param required and optional', () => {
+  const query = `
+  /* @name selectSomeUsers */
+  SELECT id, name from users where id = :id! and user_id = :id;`;
+
+  const fileAST = parseSQLQuery(query);
+  const parameters = {
+    id: '123',
+  };
+
+  const expectedInterpolationResult = {
+    query: 'SELECT id, name from users where id = $1 and user_id = $1',
+    mapping: [],
+    bindings: ['123'],
+  };
+
+  const expectedMappingResult = {
+    query: 'SELECT id, name from users where id = $1 and user_id = $1',
+    mapping: [
+      {
+        assignedIndex: 1,
+        name: 'id',
+        required: true,
+        type: ParamTransform.Scalar,
+      },
+    ],
+    bindings: [],
+  };
+
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+  const interpolationResult = processSQLQueryIR(queryIR, parameters);
+  const mappingResult = processSQLQueryIR(queryIR);
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+  expect(mappingResult).toEqual(expectedMappingResult);
+});
+
+test('(SQL) pick param required', () => {
+  const query = `
+  /*
+    @name insertUsers
+    @param user -> (name!, age)
+  */
+  INSERT INTO users (name, age) VALUES :user RETURNING id;`;
+  const fileAST = parseSQLQuery(query);
+
+  const parameters = {
+    user: { name: 'Bob', age: 12 },
+  };
+
+  const expectedInterpolationResult = {
+    query: 'INSERT INTO users (name, age) VALUES ($1,$2) RETURNING id',
+    bindings: ['Bob', 12],
+    mapping: [],
+  };
+
+  const expectedMappingResult = {
+    query: 'INSERT INTO users (name, age) VALUES ($1,$2) RETURNING id',
+    bindings: [],
+    mapping: [
+      {
+        name: 'user',
+        type: ParamTransform.Pick,
+        dict: {
+          name: {
+            assignedIndex: 1,
+            name: 'name',
+            type: ParamTransform.Scalar,
+            required: true,
+          },
+          age: {
+            assignedIndex: 2,
+            name: 'age',
+            type: ParamTransform.Scalar,
+            required: false,
+          },
+        },
+      },
+    ],
+  };
+
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+  const interpolationResult = processSQLQueryIR(queryIR, parameters);
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+
+  const mappingResult = processSQLQueryIR(queryIR);
+  expect(mappingResult).toEqual(expectedMappingResult);
+});
+
+test('(SQL) array param required', () => {
+  const query = `
+  /*
+    @name selectSomeUsers
+    @param ages -> (...)
+  */
+  SELECT FROM users WHERE age in :ages!;`;
+  const fileAST = parseSQLQuery(query);
+
+  const parameters = {
+    ages: [23, 27, 50],
+  };
+
+  const expectedInterpolationResult = {
+    query: 'SELECT FROM users WHERE age in ($1,$2,$3)',
+    bindings: [23, 27, 50],
+    mapping: [],
+  };
+
+  const expectedMappingResult = {
+    query: 'SELECT FROM users WHERE age in ($1)',
+    bindings: [],
+    mapping: [
+      {
+        name: 'ages',
+        type: ParamTransform.Spread,
+        required: true,
+        assignedIndex: 1,
+      },
+    ],
+  };
+
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+  const interpolationResult = processSQLQueryIR(queryIR, parameters);
+  const mappingResult = processSQLQueryIR(queryIR);
 
   expect(interpolationResult).toEqual(expectedInterpolationResult);
   expect(mappingResult).toEqual(expectedMappingResult);

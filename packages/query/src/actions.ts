@@ -1,8 +1,13 @@
 import { AsyncQueue, messages, PreparedObjectType } from '@pgtyped/wire';
 import crypto from 'crypto';
 import debugBase from 'debug';
-
+import * as tls from 'tls';
 import { IInterpolatedQuery, QueryParam } from './preprocessor';
+import {
+  checkServerFinalMessage,
+  createClientSASLContinueResponse,
+  createInitialSASLResponse,
+} from './sasl-helpers';
 import { DatabaseTypeKind, isEnum, MappableType } from './type';
 
 const debugQuery = debugBase('client:query');
@@ -28,6 +33,7 @@ export async function startup(
     port: number;
     user: string;
     dbName: string;
+    ssl?: tls.ConnectionOptions | boolean;
   },
   queue: AsyncQueue,
 ) {
@@ -43,25 +49,69 @@ export async function startup(
       messages.readyForQuery,
       messages.authenticationCleartextPassword,
       messages.authenticationMD5Password,
+      messages.authenticationSASL,
     );
     if ('trxStatus' in result) {
       // No auth required
       return;
     }
     if (!options.password) {
-      throw new Error('password required for MD5 hash auth');
+      throw new Error('password required for hash auth');
     }
     let password = options.password;
-    if ('salt' in result) {
-      // if MD5 auth scheme
+    if ('SASLMechanisms' in result) {
+      if (result.SASLMechanisms?.indexOf('SCRAM-SHA-256') === -1) {
+        throw new Error(
+          'SASL: Only mechanism SCRAM-SHA-256 is currently supported',
+        );
+      }
+
+      const { clientNonce, response: initialSASLResponse } =
+        createInitialSASLResponse();
+      await queue.send(messages.SASLInitialResponse, {
+        mechanism: 'SCRAM-SHA-256',
+        responseLength: Buffer.byteLength(initialSASLResponse),
+        response: initialSASLResponse,
+      });
+
+      const SASLContinueResult = await queue.reply(
+        messages.AuthenticationSASLContinue,
+      );
+
+      const { response: SASLContinueResponse, calculatedServerSignature } =
+        createClientSASLContinueResponse(
+          password,
+          clientNonce,
+          SASLContinueResult.SASLData,
+        );
+
+      await queue.send(messages.SASLResponse, {
+        response: SASLContinueResponse,
+      });
+
+      const finalMessage = await queue.multiMessageReply(
+        messages.authenticationSASLFinal,
+        messages.authenticationOk,
+        messages.parameterStatus,
+        messages.backendKeyData,
+        messages.readyForQuery,
+      );
+
+      const finalSASL = finalMessage.AuthenticationSASLFinal;
+      if ('SASLData' in finalSASL) {
+        checkServerFinalMessage(finalSASL.SASLData, calculatedServerSignature);
+      } else {
+        throw new Error('SASL: No final SASL data returned');
+      }
+    } else if ('salt' in result) {
       password = generateHash(options.user, password, result.salt);
+      await queue.send(messages.passwordMessage, { password });
+      await queue.reply(messages.authenticationOk);
+      await queue.reply(messages.readyForQuery);
     }
-    await queue.send(messages.passwordMessage, { password });
-    await queue.reply(messages.authenticationOk);
-    await queue.reply(messages.readyForQuery);
   } catch (e) {
     // tslint:disable-next-line:no-console
-    console.error(`Connection failed: ${e.message}`);
+    console.error(`Connection failed: ${(e as any).message}`);
     process.exit(1);
   }
 }
@@ -137,7 +187,6 @@ type TypeData =
  */
 export async function getTypeData(
   query: string,
-  name: string,
   queue: AsyncQueue,
 ): Promise<TypeData> {
   const uniqueName = crypto.createHash('md5').update(query).digest('hex');
@@ -189,22 +238,41 @@ export async function getTypeData(
   return { params, fields };
 }
 
+enum TypeCategory {
+  ARRAY = 'A',
+  BOOLEAN = 'B',
+  COMPOSITE = 'C',
+  DATE_TIME = 'D',
+  ENUM = 'E',
+  GEOMETRIC = 'G',
+  NETWORK_ADDRESS = 'I',
+  NUMERIC = 'N',
+  PSEUDO = 'P',
+  STRING = 'S',
+  TIMESPAN = 'T',
+  USERDEFINED = 'U',
+  BITSTRING = 'V',
+  UNKNOWN = 'X',
+}
+
 interface TypeRow {
   oid: string;
   typeName: string;
   typeKind: string;
   enumLabel: string;
+  typeCategory?: TypeCategory;
+  elementTypeOid?: string;
 }
 
 // Aggregate rows from database types catalog into MappableTypes
 export function reduceTypeRows(
   typeRows: TypeRow[],
 ): Record<string, MappableType> {
-  return typeRows.reduce((typeMap, { oid, typeName, typeKind, enumLabel }) => {
-    // Attempt to merge any partially defined types
-    const typ = typeMap[oid] ?? typeName;
+  const enumTypes = typeRows
+    .filter((r) => r.typeKind === DatabaseTypeKind.Enum)
+    .reduce((typeMap, { oid, typeName, enumLabel }) => {
+      const typ = typeMap[oid] ?? typeName;
 
-    if (typeKind === DatabaseTypeKind.Enum && enumLabel) {
       // We should get one row per enum value
       return {
         ...typeMap,
@@ -214,10 +282,34 @@ export function reduceTypeRows(
           enumValues: [...(isEnum(typ) ? typ.enumValues : []), enumLabel],
         },
       };
-    }
+    }, {} as Record<string, MappableType>);
+  return typeRows.reduce(
+    (typeMap, { oid, typeName, typeCategory, elementTypeOid }) => {
+      // Attempt to merge any partially defined types
+      const typ = typeMap[oid] ?? typeName;
 
-    return { ...typeMap, [oid]: typ };
-  }, {} as Record<string, MappableType>);
+      if (oid in enumTypes) {
+        return { ...typeMap, [oid]: enumTypes[oid] };
+      }
+
+      if (
+        typeCategory === TypeCategory.ARRAY &&
+        elementTypeOid &&
+        elementTypeOid in enumTypes
+      ) {
+        return {
+          ...typeMap,
+          [oid]: {
+            name: typeName,
+            elementType: enumTypes[elementTypeOid],
+          },
+        };
+      }
+
+      return { ...typeMap, [oid]: typ };
+    },
+    {} as Record<string, MappableType>,
+  );
 }
 
 // TODO: self-host
@@ -227,32 +319,37 @@ async function runTypesCatalogQuery(
 ): Promise<TypeRow[]> {
   let rows: any[];
   if (typeOIDs.length > 0) {
+    const concatenatedTypeOids = typeOIDs.join(',');
     rows = await runQuery(
       `
-SELECT pt.oid, pt.typname, pt.typtype, pe.enumlabel
+SELECT pt.oid, pt.typname, pt.typtype, pe.enumlabel, pt.typelem, pt.typcategory
 FROM pg_type pt
 LEFT JOIN pg_enum pe ON pt.oid = pe.enumtypid
-WHERE pt.oid IN (${typeOIDs.join(',')});
+WHERE pt.oid IN (${concatenatedTypeOids})
+OR pt.oid IN (SELECT typelem FROM pg_type ptn WHERE ptn.oid IN (${concatenatedTypeOids}));
 `,
       queue,
     );
   } else {
     rows = [];
   }
-  return rows.map(([oid, typeName, typeKind, enumLabel]) => ({
-    oid,
-    typeName,
-    typeKind,
-    enumLabel,
-  }));
+  return rows.map(
+    ([oid, typeName, typeKind, enumLabel, elementTypeOid, typeCategory]) => ({
+      oid,
+      typeName,
+      typeKind,
+      enumLabel,
+      elementTypeOid,
+      typeCategory,
+    }),
+  );
 }
 
 export async function getTypes(
   queryData: IInterpolatedQuery,
-  name: string,
   queue: AsyncQueue,
 ): Promise<IQueryTypes | IParseError> {
-  const typeData = await getTypeData(queryData.query, name, queue);
+  const typeData = await getTypeData(queryData.query, queue);
   if ('errorCode' in typeData) {
     return typeData;
   }

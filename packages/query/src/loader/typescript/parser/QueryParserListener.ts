@@ -1,16 +1,17 @@
-// Generated from src/loader/typescript/grammar/QueryParser.g4 by ANTLR 4.7.3-SNAPSHOT
+// Generated from src/loader/typescript/grammar/QueryParser.g4 by ANTLR 4.9.0-SNAPSHOT
 
 
 import { ParseTreeListener } from "antlr4ts/tree/ParseTreeListener";
 
 import { InputContext } from "./QueryParser";
 import { QueryContext } from "./QueryParser";
-import { IgnoredContext } from "./QueryParser";
 import { ParamContext } from "./QueryParser";
+import { IgnoredContext } from "./QueryParser";
 import { ScalarParamContext } from "./QueryParser";
 import { PickParamContext } from "./QueryParser";
 import { ArrayPickParamContext } from "./QueryParser";
 import { ArrayParamContext } from "./QueryParser";
+import { ScalarParamNameContext } from "./QueryParser";
 import { ParamNameContext } from "./QueryParser";
 import { PickKeyContext } from "./QueryParser";
 
@@ -43,17 +44,6 @@ export interface QueryParserListener extends ParseTreeListener {
 	exitQuery?: (ctx: QueryContext) => void;
 
 	/**
-	 * Enter a parse tree produced by `QueryParser.ignored`.
-	 * @param ctx the parse tree
-	 */
-	enterIgnored?: (ctx: IgnoredContext) => void;
-	/**
-	 * Exit a parse tree produced by `QueryParser.ignored`.
-	 * @param ctx the parse tree
-	 */
-	exitIgnored?: (ctx: IgnoredContext) => void;
-
-	/**
 	 * Enter a parse tree produced by `QueryParser.param`.
 	 * @param ctx the parse tree
 	 */
@@ -63,6 +53,17 @@ export interface QueryParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitParam?: (ctx: ParamContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `QueryParser.ignored`.
+	 * @param ctx the parse tree
+	 */
+	enterIgnored?: (ctx: IgnoredContext) => void;
+	/**
+	 * Exit a parse tree produced by `QueryParser.ignored`.
+	 * @param ctx the parse tree
+	 */
+	exitIgnored?: (ctx: IgnoredContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `QueryParser.scalarParam`.
@@ -107,6 +108,17 @@ export interface QueryParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitArrayParam?: (ctx: ArrayParamContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `QueryParser.scalarParamName`.
+	 * @param ctx the parse tree
+	 */
+	enterScalarParamName?: (ctx: ScalarParamNameContext) => void;
+	/**
+	 * Exit a parse tree produced by `QueryParser.scalarParamName`.
+	 * @param ctx the parse tree
+	 */
+	exitScalarParamName?: (ctx: ScalarParamNameContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `QueryParser.paramName`.

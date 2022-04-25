@@ -50,7 +50,7 @@ This generated query can be imported and executed as follows:
 
 ```ts title="index.ts" {13}
 import { Client } from 'pg';
-import { findBookById } from './src/books/queries.sql';
+import { findBookById } from './src/books/queries';
 
 export const client = new Client({
   host: 'localhost',

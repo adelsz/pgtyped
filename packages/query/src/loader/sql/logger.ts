@@ -52,7 +52,6 @@ function styleIntervals(
   intervals.sort((x, y) => x.a - y.a);
   let offset = 0;
   let colored = '';
-  let i = 0;
   for (const interval of intervals) {
     const a = str.slice(0, interval.a + offset);
     const b = str.slice(interval.a + offset, interval.b + offset + 1);
@@ -60,7 +59,6 @@ function styleIntervals(
     colored = a + interval.style(b) + c;
     offset += colored.length - str.length;
     str = colored;
-    i++;
   }
   return colored;
 }
@@ -114,23 +112,18 @@ export function prettyPrintEvents(text: string, parseEvents: ParseEvent[]) {
 
 export class Logger implements ANTLRErrorListener<any> {
   public parseEvents: ParseEvent[] = [];
-  private text: string;
-
-  constructor(text: string) {
-    this.text = text;
-  }
 
   logEvent(event: ParseEvent) {
     this.parseEvents.push(event);
   }
 
   syntaxError(
-    recognizer: any,
+    _recognizer: any,
     symbol: any,
     line: number,
     col: number,
     msg: string,
-    e: RecognitionException | undefined,
+    _e: RecognitionException | undefined,
   ) {
     this.logEvent({
       type: ParseEventType.Error,

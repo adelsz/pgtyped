@@ -4,6 +4,8 @@ import * as Either from 'fp-ts/lib/Either';
 import { join, isAbsolute } from 'path';
 import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
+import tls from 'tls';
+import parseDatabaseUri, { DatabaseConfig } from 'ts-parse-database-url';
 
 const transformCodecProps = {
   include: t.string,
@@ -31,6 +33,7 @@ const configParser = t.type({
   srcDir: t.string,
   failOnError: t.union([t.boolean, t.undefined]),
   camelCaseColumnNames: t.union([t.boolean, t.undefined]),
+  dbUrl: t.union([t.string, t.undefined]),
   db: t.union([
     t.type({
       host: t.union([t.string, t.undefined]),
@@ -38,6 +41,7 @@ const configParser = t.type({
       port: t.union([t.number, t.undefined]),
       user: t.union([t.string, t.undefined]),
       dbName: t.union([t.string, t.undefined]),
+      ssl: t.union([t.UnknownRecord, t.boolean, t.undefined]),
     }),
     t.undefined,
   ]),
@@ -52,6 +56,7 @@ export interface ParsedConfig {
     password: string | undefined;
     dbName: string;
     port: number;
+    ssl?: tls.ConnectionOptions | boolean;
   };
   failOnError: boolean;
   camelCaseColumnNames: boolean;
@@ -70,9 +75,29 @@ function merge<T>(base: T, ...overrides: Partial<T>[]): T {
   );
 }
 
-export function parseConfig(path: string): ParsedConfig {
+function convertParsedURLToDBConfig({
+  host,
+  password,
+  user,
+  port,
+  database,
+}: DatabaseConfig) {
+  return {
+    host,
+    password,
+    user,
+    port,
+    dbName: database,
+  };
+}
+
+export function parseConfig(
+  path: string,
+  argConnectionUri?: string,
+): ParsedConfig {
   const fullPath = isAbsolute(path) ? path : join(process.cwd(), path);
   const configObject = require(fullPath);
+
   const result = configParser.decode(configObject);
   if (Either.isLeft(result)) {
     const message = reporter(result);
@@ -93,15 +118,24 @@ export function parseConfig(path: string): ParsedConfig {
     password: process.env.PGPASSWORD,
     dbName: process.env.PGDATABASE,
     port: process.env.PGPORT ? Number(process.env.PGPORT) : undefined,
+    uri: process.env.PGURI,
   };
 
   const {
     db = defaultDBConfig,
+    dbUrl: configDbUri,
     transforms,
     srcDir,
     failOnError,
     camelCaseColumnNames,
   } = configObject as IConfig;
+
+  // CLI connectionUri flag takes precedence over the env and config one
+  const dbUri = argConnectionUri || envDBConfig.uri || configDbUri;
+
+  const urlDBConfig = dbUri
+    ? convertParsedURLToDBConfig(parseDatabaseUri(dbUri))
+    : {};
 
   if (transforms.some((tr) => !!tr.emitFileName)) {
     // tslint:disable:no-console
@@ -110,7 +144,7 @@ export function parseConfig(path: string): ParsedConfig {
     );
   }
 
-  const finalDBConfig = merge(defaultDBConfig, db, envDBConfig);
+  const finalDBConfig = merge(defaultDBConfig, db, envDBConfig, urlDBConfig);
 
   return {
     db: finalDBConfig,

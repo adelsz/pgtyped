@@ -1,4 +1,4 @@
-// Generated from src/loader/typescript/grammar/QueryParser.g4 by ANTLR 4.7.3-SNAPSHOT
+// Generated from src/loader/typescript/grammar/QueryParser.g4 by ANTLR 4.9.0-SNAPSHOT
 
 
 import { ATN } from "antlr4ts/atn/ATN";
@@ -35,33 +35,36 @@ export class QueryParser extends Parser {
 	public static readonly OB = 5;
 	public static readonly CB = 6;
 	public static readonly WORD = 7;
-	public static readonly SPECIAL = 8;
-	public static readonly EOF_STATEMENT = 9;
-	public static readonly WSL = 10;
-	public static readonly STRING = 11;
+	public static readonly REQUIRED_MARK = 8;
+	public static readonly SPECIAL = 9;
+	public static readonly EOF_STATEMENT = 10;
+	public static readonly WSL = 11;
+	public static readonly STRING = 12;
 	public static readonly RULE_input = 0;
 	public static readonly RULE_query = 1;
-	public static readonly RULE_ignored = 2;
-	public static readonly RULE_param = 3;
+	public static readonly RULE_param = 2;
+	public static readonly RULE_ignored = 3;
 	public static readonly RULE_scalarParam = 4;
 	public static readonly RULE_pickParam = 5;
 	public static readonly RULE_arrayPickParam = 6;
 	public static readonly RULE_arrayParam = 7;
-	public static readonly RULE_paramName = 8;
-	public static readonly RULE_pickKey = 9;
+	public static readonly RULE_scalarParamName = 8;
+	public static readonly RULE_paramName = 9;
+	public static readonly RULE_pickKey = 10;
 	// tslint:disable:no-trailing-whitespace
 	public static readonly ruleNames: string[] = [
-		"input", "query", "ignored", "param", "scalarParam", "pickParam", "arrayPickParam", 
-		"arrayParam", "paramName", "pickKey",
+		"input", "query", "param", "ignored", "scalarParam", "pickParam", "arrayPickParam", 
+		"arrayParam", "scalarParamName", "paramName", "pickKey",
 	];
 
 	private static readonly _LITERAL_NAMES: Array<string | undefined> = [
-		undefined, undefined, "'$'", "'$$'", "','", "'('", "')'", undefined, undefined, 
-		"';'",
+		undefined, undefined, "'$'", "'$$'", "','", "'('", "')'", undefined, "'!'", 
+		undefined, "';'",
 	];
 	private static readonly _SYMBOLIC_NAMES: Array<string | undefined> = [
 		undefined, "ID", "SINGULAR_PARAM_MARK", "PLURAL_PARAM_MARK", "COMMA", 
-		"OB", "CB", "WORD", "SPECIAL", "EOF_STATEMENT", "WSL", "STRING",
+		"OB", "CB", "WORD", "REQUIRED_MARK", "SPECIAL", "EOF_STATEMENT", "WSL", 
+		"STRING",
 	];
 	public static readonly VOCABULARY: Vocabulary = new VocabularyImpl(QueryParser._LITERAL_NAMES, QueryParser._SYMBOLIC_NAMES, []);
 
@@ -81,6 +84,10 @@ export class QueryParser extends Parser {
 	// @Override
 	public get serializedATN(): string { return QueryParser._serializedATN; }
 
+	protected createFailedPredicateException(predicate?: string, message?: string): FailedPredicateException {
+		return new FailedPredicateException(this, predicate, message);
+	}
+
 	constructor(input: TokenStream) {
 		super(input);
 		this._interp = new ParserATNSimulator(QueryParser._ATN, this);
@@ -93,19 +100,19 @@ export class QueryParser extends Parser {
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 20;
-			this.query();
 			this.state = 22;
+			this.query();
+			this.state = 24;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if (_la === QueryParser.EOF_STATEMENT) {
 				{
-				this.state = 21;
+				this.state = 23;
 				this.match(QueryParser.EOF_STATEMENT);
 				}
 			}
 
-			this.state = 24;
+			this.state = 26;
 			this.match(QueryParser.EOF);
 			}
 		}
@@ -131,103 +138,48 @@ export class QueryParser extends Parser {
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 27;
+			this.state = 29;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			do {
 				{
 				{
-				this.state = 26;
+				this.state = 28;
 				this.ignored();
 				}
 				}
-				this.state = 29;
+				this.state = 31;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
-			} while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << QueryParser.ID) | (1 << QueryParser.COMMA) | (1 << QueryParser.OB) | (1 << QueryParser.CB) | (1 << QueryParser.WORD) | (1 << QueryParser.SPECIAL) | (1 << QueryParser.STRING))) !== 0));
-			this.state = 40;
+			} while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << QueryParser.ID) | (1 << QueryParser.COMMA) | (1 << QueryParser.OB) | (1 << QueryParser.CB) | (1 << QueryParser.WORD) | (1 << QueryParser.REQUIRED_MARK) | (1 << QueryParser.SPECIAL) | (1 << QueryParser.STRING))) !== 0));
+			this.state = 42;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			while (_la === QueryParser.SINGULAR_PARAM_MARK || _la === QueryParser.PLURAL_PARAM_MARK) {
 				{
 				{
-				this.state = 31;
+				this.state = 33;
 				this.param();
-				this.state = 35;
+				this.state = 37;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
-				while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << QueryParser.ID) | (1 << QueryParser.COMMA) | (1 << QueryParser.OB) | (1 << QueryParser.CB) | (1 << QueryParser.WORD) | (1 << QueryParser.SPECIAL) | (1 << QueryParser.STRING))) !== 0)) {
+				while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << QueryParser.ID) | (1 << QueryParser.COMMA) | (1 << QueryParser.OB) | (1 << QueryParser.CB) | (1 << QueryParser.WORD) | (1 << QueryParser.REQUIRED_MARK) | (1 << QueryParser.SPECIAL) | (1 << QueryParser.STRING))) !== 0)) {
 					{
 					{
-					this.state = 32;
+					this.state = 34;
 					this.ignored();
 					}
 					}
-					this.state = 37;
+					this.state = 39;
 					this._errHandler.sync(this);
 					_la = this._input.LA(1);
 				}
 				}
 				}
-				this.state = 42;
+				this.state = 44;
 				this._errHandler.sync(this);
 				_la = this._input.LA(1);
 			}
-			}
-		}
-		catch (re) {
-			if (re instanceof RecognitionException) {
-				_localctx.exception = re;
-				this._errHandler.reportError(this, re);
-				this._errHandler.recover(this, re);
-			} else {
-				throw re;
-			}
-		}
-		finally {
-			this.exitRule();
-		}
-		return _localctx;
-	}
-	// @RuleVersion(0)
-	public ignored(): IgnoredContext {
-		let _localctx: IgnoredContext = new IgnoredContext(this._ctx, this.state);
-		this.enterRule(_localctx, 4, QueryParser.RULE_ignored);
-		let _la: number;
-		try {
-			let _alt: number;
-			this.enterOuterAlt(_localctx, 1);
-			{
-			this.state = 44;
-			this._errHandler.sync(this);
-			_alt = 1;
-			do {
-				switch (_alt) {
-				case 1:
-					{
-					{
-					this.state = 43;
-					_la = this._input.LA(1);
-					if (!((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << QueryParser.ID) | (1 << QueryParser.COMMA) | (1 << QueryParser.OB) | (1 << QueryParser.CB) | (1 << QueryParser.WORD) | (1 << QueryParser.SPECIAL) | (1 << QueryParser.STRING))) !== 0))) {
-					this._errHandler.recoverInline(this);
-					} else {
-						if (this._input.LA(1) === Token.EOF) {
-							this.matchedEOF = true;
-						}
-
-						this._errHandler.reportMatch(this);
-						this.consume();
-					}
-					}
-					}
-					break;
-				default:
-					throw new NoViableAltException(this);
-				}
-				this.state = 46;
-				this._errHandler.sync(this);
-				_alt = this.interpreter.adaptivePredict(this._input, 4, this._ctx);
-			} while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER);
 			}
 		}
 		catch (re) {
@@ -247,15 +199,15 @@ export class QueryParser extends Parser {
 	// @RuleVersion(0)
 	public param(): ParamContext {
 		let _localctx: ParamContext = new ParamContext(this._ctx, this.state);
-		this.enterRule(_localctx, 6, QueryParser.RULE_param);
+		this.enterRule(_localctx, 4, QueryParser.RULE_param);
 		try {
-			this.state = 52;
+			this.state = 49;
 			this._errHandler.sync(this);
-			switch ( this.interpreter.adaptivePredict(this._input, 5, this._ctx) ) {
+			switch ( this.interpreter.adaptivePredict(this._input, 4, this._ctx) ) {
 			case 1:
 				this.enterOuterAlt(_localctx, 1);
 				{
-				this.state = 48;
+				this.state = 45;
 				this.pickParam();
 				}
 				break;
@@ -263,7 +215,7 @@ export class QueryParser extends Parser {
 			case 2:
 				this.enterOuterAlt(_localctx, 2);
 				{
-				this.state = 49;
+				this.state = 46;
 				this.arrayPickParam();
 				}
 				break;
@@ -271,7 +223,7 @@ export class QueryParser extends Parser {
 			case 3:
 				this.enterOuterAlt(_localctx, 3);
 				{
-				this.state = 50;
+				this.state = 47;
 				this.scalarParam();
 				}
 				break;
@@ -279,10 +231,65 @@ export class QueryParser extends Parser {
 			case 4:
 				this.enterOuterAlt(_localctx, 4);
 				{
-				this.state = 51;
+				this.state = 48;
 				this.arrayParam();
 				}
 				break;
+			}
+		}
+		catch (re) {
+			if (re instanceof RecognitionException) {
+				_localctx.exception = re;
+				this._errHandler.reportError(this, re);
+				this._errHandler.recover(this, re);
+			} else {
+				throw re;
+			}
+		}
+		finally {
+			this.exitRule();
+		}
+		return _localctx;
+	}
+	// @RuleVersion(0)
+	public ignored(): IgnoredContext {
+		let _localctx: IgnoredContext = new IgnoredContext(this._ctx, this.state);
+		this.enterRule(_localctx, 6, QueryParser.RULE_ignored);
+		let _la: number;
+		try {
+			let _alt: number;
+			this.enterOuterAlt(_localctx, 1);
+			{
+			this.state = 52;
+			this._errHandler.sync(this);
+			_alt = 1;
+			do {
+				switch (_alt) {
+				case 1:
+					{
+					{
+					this.state = 51;
+					_la = this._input.LA(1);
+					if (!((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << QueryParser.ID) | (1 << QueryParser.COMMA) | (1 << QueryParser.OB) | (1 << QueryParser.CB) | (1 << QueryParser.WORD) | (1 << QueryParser.REQUIRED_MARK) | (1 << QueryParser.SPECIAL) | (1 << QueryParser.STRING))) !== 0))) {
+					this._errHandler.recoverInline(this);
+					} else {
+						if (this._input.LA(1) === Token.EOF) {
+							this.matchedEOF = true;
+						}
+
+						this._errHandler.reportMatch(this);
+						this.consume();
+					}
+					}
+					}
+					break;
+				default:
+					throw new NoViableAltException(this);
+				}
+				this.state = 54;
+				this._errHandler.sync(this);
+				_alt = this.interpreter.adaptivePredict(this._input, 5, this._ctx);
+			} while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER);
 			}
 		}
 		catch (re) {
@@ -306,10 +313,10 @@ export class QueryParser extends Parser {
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 54;
+			this.state = 56;
 			this.match(QueryParser.SINGULAR_PARAM_MARK);
-			this.state = 55;
-			this.paramName();
+			this.state = 57;
+			this.scalarParamName();
 			}
 		}
 		catch (re) {
@@ -335,43 +342,43 @@ export class QueryParser extends Parser {
 			let _alt: number;
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 57;
-			this.match(QueryParser.SINGULAR_PARAM_MARK);
-			this.state = 58;
-			this.paramName();
 			this.state = 59;
-			this.match(QueryParser.OB);
+			this.match(QueryParser.SINGULAR_PARAM_MARK);
 			this.state = 60;
+			this.paramName();
+			this.state = 61;
+			this.match(QueryParser.OB);
+			this.state = 62;
 			this.pickKey();
-			this.state = 65;
+			this.state = 67;
 			this._errHandler.sync(this);
 			_alt = this.interpreter.adaptivePredict(this._input, 6, this._ctx);
 			while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
 				if (_alt === 1) {
 					{
 					{
-					this.state = 61;
+					this.state = 63;
 					this.match(QueryParser.COMMA);
-					this.state = 62;
+					this.state = 64;
 					this.pickKey();
 					}
 					}
 				}
-				this.state = 67;
+				this.state = 69;
 				this._errHandler.sync(this);
 				_alt = this.interpreter.adaptivePredict(this._input, 6, this._ctx);
 			}
-			this.state = 69;
+			this.state = 71;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if (_la === QueryParser.COMMA) {
 				{
-				this.state = 68;
+				this.state = 70;
 				this.match(QueryParser.COMMA);
 				}
 			}
 
-			this.state = 71;
+			this.state = 73;
 			this.match(QueryParser.CB);
 			}
 		}
@@ -398,43 +405,43 @@ export class QueryParser extends Parser {
 			let _alt: number;
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 73;
-			this.match(QueryParser.PLURAL_PARAM_MARK);
-			this.state = 74;
-			this.paramName();
 			this.state = 75;
-			this.match(QueryParser.OB);
+			this.match(QueryParser.PLURAL_PARAM_MARK);
 			this.state = 76;
+			this.paramName();
+			this.state = 77;
+			this.match(QueryParser.OB);
+			this.state = 78;
 			this.pickKey();
-			this.state = 81;
+			this.state = 83;
 			this._errHandler.sync(this);
 			_alt = this.interpreter.adaptivePredict(this._input, 8, this._ctx);
 			while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
 				if (_alt === 1) {
 					{
 					{
-					this.state = 77;
+					this.state = 79;
 					this.match(QueryParser.COMMA);
-					this.state = 78;
+					this.state = 80;
 					this.pickKey();
 					}
 					}
 				}
-				this.state = 83;
+				this.state = 85;
 				this._errHandler.sync(this);
 				_alt = this.interpreter.adaptivePredict(this._input, 8, this._ctx);
 			}
-			this.state = 85;
+			this.state = 87;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			if (_la === QueryParser.COMMA) {
 				{
-				this.state = 84;
+				this.state = 86;
 				this.match(QueryParser.COMMA);
 				}
 			}
 
-			this.state = 87;
+			this.state = 89;
 			this.match(QueryParser.CB);
 			}
 		}
@@ -459,10 +466,45 @@ export class QueryParser extends Parser {
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 89;
+			this.state = 91;
 			this.match(QueryParser.PLURAL_PARAM_MARK);
-			this.state = 90;
-			this.paramName();
+			this.state = 92;
+			this.scalarParamName();
+			}
+		}
+		catch (re) {
+			if (re instanceof RecognitionException) {
+				_localctx.exception = re;
+				this._errHandler.reportError(this, re);
+				this._errHandler.recover(this, re);
+			} else {
+				throw re;
+			}
+		}
+		finally {
+			this.exitRule();
+		}
+		return _localctx;
+	}
+	// @RuleVersion(0)
+	public scalarParamName(): ScalarParamNameContext {
+		let _localctx: ScalarParamNameContext = new ScalarParamNameContext(this._ctx, this.state);
+		this.enterRule(_localctx, 16, QueryParser.RULE_scalarParamName);
+		try {
+			this.enterOuterAlt(_localctx, 1);
+			{
+			this.state = 94;
+			this.match(QueryParser.ID);
+			this.state = 96;
+			this._errHandler.sync(this);
+			switch ( this.interpreter.adaptivePredict(this._input, 10, this._ctx) ) {
+			case 1:
+				{
+				this.state = 95;
+				this.match(QueryParser.REQUIRED_MARK);
+				}
+				break;
+			}
 			}
 		}
 		catch (re) {
@@ -482,11 +524,11 @@ export class QueryParser extends Parser {
 	// @RuleVersion(0)
 	public paramName(): ParamNameContext {
 		let _localctx: ParamNameContext = new ParamNameContext(this._ctx, this.state);
-		this.enterRule(_localctx, 16, QueryParser.RULE_paramName);
+		this.enterRule(_localctx, 18, QueryParser.RULE_paramName);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 92;
+			this.state = 98;
 			this.match(QueryParser.ID);
 			}
 		}
@@ -507,12 +549,23 @@ export class QueryParser extends Parser {
 	// @RuleVersion(0)
 	public pickKey(): PickKeyContext {
 		let _localctx: PickKeyContext = new PickKeyContext(this._ctx, this.state);
-		this.enterRule(_localctx, 18, QueryParser.RULE_pickKey);
+		this.enterRule(_localctx, 20, QueryParser.RULE_pickKey);
+		let _la: number;
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 94;
+			this.state = 100;
 			this.match(QueryParser.ID);
+			this.state = 102;
+			this._errHandler.sync(this);
+			_la = this._input.LA(1);
+			if (_la === QueryParser.REQUIRED_MARK) {
+				{
+				this.state = 101;
+				this.match(QueryParser.REQUIRED_MARK);
+				}
+			}
+
 			}
 		}
 		catch (re) {
@@ -531,45 +584,48 @@ export class QueryParser extends Parser {
 	}
 
 	public static readonly _serializedATN: string =
-		"\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03\rc\x04\x02\t" +
-		"\x02\x04\x03\t\x03\x04\x04\t\x04\x04\x05\t\x05\x04\x06\t\x06\x04\x07\t" +
-		"\x07\x04\b\t\b\x04\t\t\t\x04\n\t\n\x04\v\t\v\x03\x02\x03\x02\x05\x02\x19" +
-		"\n\x02\x03\x02\x03\x02\x03\x03\x06\x03\x1E\n\x03\r\x03\x0E\x03\x1F\x03" +
-		"\x03\x03\x03\x07\x03$\n\x03\f\x03\x0E\x03\'\v\x03\x07\x03)\n\x03\f\x03" +
-		"\x0E\x03,\v\x03\x03\x04\x06\x04/\n\x04\r\x04\x0E\x040\x03\x05\x03\x05" +
-		"\x03\x05\x03\x05\x05\x057\n\x05\x03\x06\x03\x06\x03\x06\x03\x07\x03\x07" +
-		"\x03\x07\x03\x07\x03\x07\x03\x07\x07\x07B\n\x07\f\x07\x0E\x07E\v\x07\x03" +
-		"\x07\x05\x07H\n\x07\x03\x07\x03\x07\x03\b\x03\b\x03\b\x03\b\x03\b\x03" +
-		"\b\x07\bR\n\b\f\b\x0E\bU\v\b\x03\b\x05\bX\n\b\x03\b\x03\b\x03\t\x03\t" +
-		"\x03\t\x03\n\x03\n\x03\v\x03\v\x03\v\x02\x02\x02\f\x02\x02\x04\x02\x06" +
-		"\x02\b\x02\n\x02\f\x02\x0E\x02\x10\x02\x12\x02\x14\x02\x02\x03\x05\x02" +
-		"\x03\x03\x06\n\r\r\x02d\x02\x16\x03\x02\x02\x02\x04\x1D\x03\x02\x02\x02" +
-		"\x06.\x03\x02\x02\x02\b6\x03\x02\x02\x02\n8\x03\x02\x02\x02\f;\x03\x02" +
-		"\x02\x02\x0EK\x03\x02\x02\x02\x10[\x03\x02\x02\x02\x12^\x03\x02\x02\x02" +
-		"\x14`\x03\x02\x02\x02\x16\x18\x05\x04\x03\x02\x17\x19\x07\v\x02\x02\x18" +
-		"\x17\x03\x02\x02\x02\x18\x19\x03\x02\x02\x02\x19\x1A\x03\x02\x02\x02\x1A" +
-		"\x1B\x07\x02\x02\x03\x1B\x03\x03\x02\x02\x02\x1C\x1E\x05\x06\x04\x02\x1D" +
-		"\x1C\x03\x02\x02\x02\x1E\x1F\x03\x02\x02\x02\x1F\x1D\x03\x02\x02\x02\x1F" +
-		" \x03\x02\x02\x02 *\x03\x02\x02\x02!%\x05\b\x05\x02\"$\x05\x06\x04\x02" +
-		"#\"\x03\x02\x02\x02$\'\x03\x02\x02\x02%#\x03\x02\x02\x02%&\x03\x02\x02" +
-		"\x02&)\x03\x02\x02\x02\'%\x03\x02\x02\x02(!\x03\x02\x02\x02),\x03\x02" +
-		"\x02\x02*(\x03\x02\x02\x02*+\x03\x02\x02\x02+\x05\x03\x02\x02\x02,*\x03" +
-		"\x02\x02\x02-/\t\x02\x02\x02.-\x03\x02\x02\x02/0\x03\x02\x02\x020.\x03" +
-		"\x02\x02\x0201\x03\x02\x02\x021\x07\x03\x02\x02\x0227\x05\f\x07\x0237" +
-		"\x05\x0E\b\x0247\x05\n\x06\x0257\x05\x10\t\x0262\x03\x02\x02\x0263\x03" +
-		"\x02\x02\x0264\x03\x02\x02\x0265\x03\x02\x02\x027\t\x03\x02\x02\x0289" +
-		"\x07\x04\x02\x029:\x05\x12\n\x02:\v\x03\x02\x02\x02;<\x07\x04\x02\x02" +
-		"<=\x05\x12\n\x02=>\x07\x07\x02\x02>C\x05\x14\v\x02?@\x07\x06\x02\x02@" +
-		"B\x05\x14\v\x02A?\x03\x02\x02\x02BE\x03\x02\x02\x02CA\x03\x02\x02\x02" +
-		"CD\x03\x02\x02\x02DG\x03\x02\x02\x02EC\x03\x02\x02\x02FH\x07\x06\x02\x02" +
-		"GF\x03\x02\x02\x02GH\x03\x02\x02\x02HI\x03\x02\x02\x02IJ\x07\b\x02\x02" +
-		"J\r\x03\x02\x02\x02KL\x07\x05\x02\x02LM\x05\x12\n\x02MN\x07\x07\x02\x02" +
-		"NS\x05\x14\v\x02OP\x07\x06\x02\x02PR\x05\x14\v\x02QO\x03\x02\x02\x02R" +
-		"U\x03\x02\x02\x02SQ\x03\x02\x02\x02ST\x03\x02\x02\x02TW\x03\x02\x02\x02" +
-		"US\x03\x02\x02\x02VX\x07\x06\x02\x02WV\x03\x02\x02\x02WX\x03\x02\x02\x02" +
-		"XY\x03\x02\x02\x02YZ\x07\b\x02\x02Z\x0F\x03\x02\x02\x02[\\\x07\x05\x02" +
-		"\x02\\]\x05\x12\n\x02]\x11\x03\x02\x02\x02^_\x07\x03\x02\x02_\x13\x03" +
-		"\x02\x02\x02`a\x07\x03\x02\x02a\x15\x03\x02\x02\x02\f\x18\x1F%*06CGSW";
+		"\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03\x0Ek\x04\x02" +
+		"\t\x02\x04\x03\t\x03\x04\x04\t\x04\x04\x05\t\x05\x04\x06\t\x06\x04\x07" +
+		"\t\x07\x04\b\t\b\x04\t\t\t\x04\n\t\n\x04\v\t\v\x04\f\t\f\x03\x02\x03\x02" +
+		"\x05\x02\x1B\n\x02\x03\x02\x03\x02\x03\x03\x06\x03 \n\x03\r\x03\x0E\x03" +
+		"!\x03\x03\x03\x03\x07\x03&\n\x03\f\x03\x0E\x03)\v\x03\x07\x03+\n\x03\f" +
+		"\x03\x0E\x03.\v\x03\x03\x04\x03\x04\x03\x04\x03\x04\x05\x044\n\x04\x03" +
+		"\x05\x06\x057\n\x05\r\x05\x0E\x058\x03\x06\x03\x06\x03\x06\x03\x07\x03" +
+		"\x07\x03\x07\x03\x07\x03\x07\x03\x07\x07\x07D\n\x07\f\x07\x0E\x07G\v\x07" +
+		"\x03\x07\x05\x07J\n\x07\x03\x07\x03\x07\x03\b\x03\b\x03\b\x03\b\x03\b" +
+		"\x03\b\x07\bT\n\b\f\b\x0E\bW\v\b\x03\b\x05\bZ\n\b\x03\b\x03\b\x03\t\x03" +
+		"\t\x03\t\x03\n\x03\n\x05\nc\n\n\x03\v\x03\v\x03\f\x03\f\x05\fi\n\f\x03" +
+		"\f\x02\x02\x02\r\x02\x02\x04\x02\x06\x02\b\x02\n\x02\f\x02\x0E\x02\x10" +
+		"\x02\x12\x02\x14\x02\x16\x02\x02\x03\x05\x02\x03\x03\x06\v\x0E\x0E\x02" +
+		"m\x02\x18\x03\x02\x02\x02\x04\x1F\x03\x02\x02\x02\x063\x03\x02\x02\x02" +
+		"\b6\x03\x02\x02\x02\n:\x03\x02\x02\x02\f=\x03\x02\x02\x02\x0EM\x03\x02" +
+		"\x02\x02\x10]\x03\x02\x02\x02\x12`\x03\x02\x02\x02\x14d\x03\x02\x02\x02" +
+		"\x16f\x03\x02\x02\x02\x18\x1A\x05\x04\x03\x02\x19\x1B\x07\f\x02\x02\x1A" +
+		"\x19\x03\x02\x02\x02\x1A\x1B\x03\x02\x02\x02\x1B\x1C\x03\x02\x02\x02\x1C" +
+		"\x1D\x07\x02\x02\x03\x1D\x03\x03\x02\x02\x02\x1E \x05\b\x05\x02\x1F\x1E" +
+		"\x03\x02\x02\x02 !\x03\x02\x02\x02!\x1F\x03\x02\x02\x02!\"\x03\x02\x02" +
+		"\x02\",\x03\x02\x02\x02#\'\x05\x06\x04\x02$&\x05\b\x05\x02%$\x03\x02\x02" +
+		"\x02&)\x03\x02\x02\x02\'%\x03\x02\x02\x02\'(\x03\x02\x02\x02(+\x03\x02" +
+		"\x02\x02)\'\x03\x02\x02\x02*#\x03\x02\x02\x02+.\x03\x02\x02\x02,*\x03" +
+		"\x02\x02\x02,-\x03\x02\x02\x02-\x05\x03\x02\x02\x02.,\x03\x02\x02\x02" +
+		"/4\x05\f\x07\x0204\x05\x0E\b\x0214\x05\n\x06\x0224\x05\x10\t\x023/\x03" +
+		"\x02\x02\x0230\x03\x02\x02\x0231\x03\x02\x02\x0232\x03\x02\x02\x024\x07" +
+		"\x03\x02\x02\x0257\t\x02\x02\x0265\x03\x02\x02\x0278\x03\x02\x02\x028" +
+		"6\x03\x02\x02\x0289\x03\x02\x02\x029\t\x03\x02\x02\x02:;\x07\x04\x02\x02" +
+		";<\x05\x12\n\x02<\v\x03\x02\x02\x02=>\x07\x04\x02\x02>?\x05\x14\v\x02" +
+		"?@\x07\x07\x02\x02@E\x05\x16\f\x02AB\x07\x06\x02\x02BD\x05\x16\f\x02C" +
+		"A\x03\x02\x02\x02DG\x03\x02\x02\x02EC\x03\x02\x02\x02EF\x03\x02\x02\x02" +
+		"FI\x03\x02\x02\x02GE\x03\x02\x02\x02HJ\x07\x06\x02\x02IH\x03\x02\x02\x02" +
+		"IJ\x03\x02\x02\x02JK\x03\x02\x02\x02KL\x07\b\x02\x02L\r\x03\x02\x02\x02" +
+		"MN\x07\x05\x02\x02NO\x05\x14\v\x02OP\x07\x07\x02\x02PU\x05\x16\f\x02Q" +
+		"R\x07\x06\x02\x02RT\x05\x16\f\x02SQ\x03\x02\x02\x02TW\x03\x02\x02\x02" +
+		"US\x03\x02\x02\x02UV\x03\x02\x02\x02VY\x03\x02\x02\x02WU\x03\x02\x02\x02" +
+		"XZ\x07\x06\x02\x02YX\x03\x02\x02\x02YZ\x03\x02\x02\x02Z[\x03\x02\x02\x02" +
+		"[\\\x07\b\x02\x02\\\x0F\x03\x02\x02\x02]^\x07\x05\x02\x02^_\x05\x12\n" +
+		"\x02_\x11\x03\x02\x02\x02`b\x07\x03\x02\x02ac\x07\n\x02\x02ba\x03\x02" +
+		"\x02\x02bc\x03\x02\x02\x02c\x13\x03\x02\x02\x02de\x07\x03\x02\x02e\x15" +
+		"\x03\x02\x02\x02fh\x07\x03\x02\x02gi\x07\n\x02\x02hg\x03\x02\x02\x02h" +
+		"i\x03\x02\x02\x02i\x17\x03\x02\x02\x02\x0E\x1A!\',38EIUYbh";
 	public static __ATN: ATN;
 	public static get _ATN(): ATN {
 		if (!QueryParser.__ATN) {
@@ -662,6 +718,47 @@ export class QueryContext extends ParserRuleContext {
 }
 
 
+export class ParamContext extends ParserRuleContext {
+	public pickParam(): PickParamContext | undefined {
+		return this.tryGetRuleContext(0, PickParamContext);
+	}
+	public arrayPickParam(): ArrayPickParamContext | undefined {
+		return this.tryGetRuleContext(0, ArrayPickParamContext);
+	}
+	public scalarParam(): ScalarParamContext | undefined {
+		return this.tryGetRuleContext(0, ScalarParamContext);
+	}
+	public arrayParam(): ArrayParamContext | undefined {
+		return this.tryGetRuleContext(0, ArrayParamContext);
+	}
+	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
+		super(parent, invokingState);
+	}
+	// @Override
+	public get ruleIndex(): number { return QueryParser.RULE_param; }
+	// @Override
+	public enterRule(listener: QueryParserListener): void {
+		if (listener.enterParam) {
+			listener.enterParam(this);
+		}
+	}
+	// @Override
+	public exitRule(listener: QueryParserListener): void {
+		if (listener.exitParam) {
+			listener.exitParam(this);
+		}
+	}
+	// @Override
+	public accept<Result>(visitor: QueryParserVisitor<Result>): Result {
+		if (visitor.visitParam) {
+			return visitor.visitParam(this);
+		} else {
+			return visitor.visitChildren(this);
+		}
+	}
+}
+
+
 export class IgnoredContext extends ParserRuleContext {
 	public ID(): TerminalNode[];
 	public ID(i: number): TerminalNode;
@@ -726,6 +823,15 @@ export class IgnoredContext extends ParserRuleContext {
 			return this.getToken(QueryParser.SPECIAL, i);
 		}
 	}
+	public REQUIRED_MARK(): TerminalNode[];
+	public REQUIRED_MARK(i: number): TerminalNode;
+	public REQUIRED_MARK(i?: number): TerminalNode | TerminalNode[] {
+		if (i === undefined) {
+			return this.getTokens(QueryParser.REQUIRED_MARK);
+		} else {
+			return this.getToken(QueryParser.REQUIRED_MARK, i);
+		}
+	}
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);
 	}
@@ -754,51 +860,10 @@ export class IgnoredContext extends ParserRuleContext {
 }
 
 
-export class ParamContext extends ParserRuleContext {
-	public pickParam(): PickParamContext | undefined {
-		return this.tryGetRuleContext(0, PickParamContext);
-	}
-	public arrayPickParam(): ArrayPickParamContext | undefined {
-		return this.tryGetRuleContext(0, ArrayPickParamContext);
-	}
-	public scalarParam(): ScalarParamContext | undefined {
-		return this.tryGetRuleContext(0, ScalarParamContext);
-	}
-	public arrayParam(): ArrayParamContext | undefined {
-		return this.tryGetRuleContext(0, ArrayParamContext);
-	}
-	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
-		super(parent, invokingState);
-	}
-	// @Override
-	public get ruleIndex(): number { return QueryParser.RULE_param; }
-	// @Override
-	public enterRule(listener: QueryParserListener): void {
-		if (listener.enterParam) {
-			listener.enterParam(this);
-		}
-	}
-	// @Override
-	public exitRule(listener: QueryParserListener): void {
-		if (listener.exitParam) {
-			listener.exitParam(this);
-		}
-	}
-	// @Override
-	public accept<Result>(visitor: QueryParserVisitor<Result>): Result {
-		if (visitor.visitParam) {
-			return visitor.visitParam(this);
-		} else {
-			return visitor.visitChildren(this);
-		}
-	}
-}
-
-
 export class ScalarParamContext extends ParserRuleContext {
 	public SINGULAR_PARAM_MARK(): TerminalNode { return this.getToken(QueryParser.SINGULAR_PARAM_MARK, 0); }
-	public paramName(): ParamNameContext {
-		return this.getRuleContext(0, ParamNameContext);
+	public scalarParamName(): ScalarParamNameContext {
+		return this.getRuleContext(0, ScalarParamNameContext);
 	}
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);
@@ -936,8 +1001,8 @@ export class ArrayPickParamContext extends ParserRuleContext {
 
 export class ArrayParamContext extends ParserRuleContext {
 	public PLURAL_PARAM_MARK(): TerminalNode { return this.getToken(QueryParser.PLURAL_PARAM_MARK, 0); }
-	public paramName(): ParamNameContext {
-		return this.getRuleContext(0, ParamNameContext);
+	public scalarParamName(): ScalarParamNameContext {
+		return this.getRuleContext(0, ScalarParamNameContext);
 	}
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);
@@ -960,6 +1025,37 @@ export class ArrayParamContext extends ParserRuleContext {
 	public accept<Result>(visitor: QueryParserVisitor<Result>): Result {
 		if (visitor.visitArrayParam) {
 			return visitor.visitArrayParam(this);
+		} else {
+			return visitor.visitChildren(this);
+		}
+	}
+}
+
+
+export class ScalarParamNameContext extends ParserRuleContext {
+	public ID(): TerminalNode { return this.getToken(QueryParser.ID, 0); }
+	public REQUIRED_MARK(): TerminalNode | undefined { return this.tryGetToken(QueryParser.REQUIRED_MARK, 0); }
+	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
+		super(parent, invokingState);
+	}
+	// @Override
+	public get ruleIndex(): number { return QueryParser.RULE_scalarParamName; }
+	// @Override
+	public enterRule(listener: QueryParserListener): void {
+		if (listener.enterScalarParamName) {
+			listener.enterScalarParamName(this);
+		}
+	}
+	// @Override
+	public exitRule(listener: QueryParserListener): void {
+		if (listener.exitScalarParamName) {
+			listener.exitScalarParamName(this);
+		}
+	}
+	// @Override
+	public accept<Result>(visitor: QueryParserVisitor<Result>): Result {
+		if (visitor.visitScalarParamName) {
+			return visitor.visitScalarParamName(this);
 		} else {
 			return visitor.visitChildren(this);
 		}
@@ -999,6 +1095,7 @@ export class ParamNameContext extends ParserRuleContext {
 
 export class PickKeyContext extends ParserRuleContext {
 	public ID(): TerminalNode { return this.getToken(QueryParser.ID, 0); }
+	public REQUIRED_MARK(): TerminalNode | undefined { return this.tryGetToken(QueryParser.REQUIRED_MARK, 0); }
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);
 	}

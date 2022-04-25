@@ -48,9 +48,10 @@ describe('query-to-interface translation', () => {
           params: ['uuid'],
           mapping: [
             {
-              name: 'id',
+              name: 'userId',
               type: queryModule.ParamTransform.Scalar,
               assignedIndex: 1,
+              required: false,
             },
           ],
         },
@@ -67,14 +68,14 @@ describe('query-to-interface translation', () => {
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
 
-export type PayloadType = 'message' | 'dynamite';
+export type PayloadType = 'dynamite' | 'message';
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
-  id: string | null | void;
+  userId: string | null | void;
 }
 
 /** 'GetNotifications' return type */
@@ -114,16 +115,19 @@ export interface IGetNotificationsQuery {
                 payload: {
                   name: 'payload',
                   assignedIndex: 1,
+                  required: false,
                   type: queryModule.ParamTransform.Scalar,
                 },
                 user_id: {
                   name: 'user_id',
                   assignedIndex: 2,
+                  required: false,
                   type: queryModule.ParamTransform.Scalar,
                 },
                 type: {
                   name: 'type',
                   assignedIndex: 3,
+                  required: false,
                   type: queryModule.ParamTransform.Scalar,
                 },
               },
@@ -139,7 +143,26 @@ export interface IGetNotificationsQuery {
         types,
         {} as ParsedConfig,
       );
-      expect(result).toMatchSnapshot();
+      const expected = `/** 'InsertNotifications' parameters type */
+export interface IInsertNotificationsParams {
+  notification: {
+    payload: Json | null | void,
+    user_id: string | null | void,
+    type: string | null | void
+  };
+}
+
+/** 'InsertNotifications' return type */
+export type IInsertNotificationsResult = void;
+
+/** 'InsertNotifications' query type */
+export interface IInsertNotificationsQuery {
+  params: IInsertNotificationsParams;
+  result: IInsertNotificationsResult;
+}
+
+`;
+      expect(result).toEqual(expected);
     });
 
     test(`DeleteUsers by UUID (${mode})`, async () => {
@@ -172,17 +195,25 @@ export interface IGetNotificationsQuery {
           },
         ],
         paramMetadata: {
-          params: ['uuid', 'text'],
+          params: ['text', 'uuid', 'text'],
           mapping: [
-            {
-              name: 'id',
-              type: queryModule.ParamTransform.Scalar,
-              assignedIndex: 1,
-            },
             {
               name: 'userName',
               type: queryModule.ParamTransform.Scalar,
+              required: false,
+              assignedIndex: 1,
+            },
+            {
+              name: 'userId',
+              type: queryModule.ParamTransform.Scalar,
+              required: false,
               assignedIndex: 2,
+            },
+            {
+              name: 'userNote',
+              type: queryModule.ParamTransform.Scalar,
+              required: false,
+              assignedIndex: 3,
             },
           ],
         },
@@ -197,15 +228,16 @@ export interface IGetNotificationsQuery {
       );
       const expected = `/** 'DeleteUsers' parameters type */
 export interface IDeleteUsersParams {
-  id: string | null | void;
+  userId: string | null | void;
   userName: string | null | void;
+  userNote: string | null | void;
 }
 
 /** 'DeleteUsers' return type */
 export interface IDeleteUsersResult {
+  bote: string | null;
   id: string;
   name: string;
-  bote: string | null;
 }
 
 /** 'DeleteUsers' query type */
@@ -247,8 +279,9 @@ export interface IDeleteUsersQuery {
           params: ['uuid'],
           mapping: [
             {
-              name: 'id',
+              name: 'userId',
               type: queryModule.ParamTransform.Scalar,
+              required: false,
               assignedIndex: 1,
             },
           ],
@@ -266,14 +299,90 @@ export interface IDeleteUsersQuery {
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
 
-export type PayloadType = 'message' | 'dynamite';
+export type PayloadType = 'dynamite' | 'message';
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
-  id: string | null | void;
+  userId: string | null | void;
+}
+
+/** 'GetNotifications' return type */
+export interface IGetNotificationsResult {
+  payloadCamelCase: Json;
+  typeCamelCase: PayloadType;
+}
+
+/** 'GetNotifications' query type */
+export interface IGetNotificationsQuery {
+  params: IGetNotificationsParams;
+  result: IGetNotificationsResult;
+}\n\n`;
+      expect(result).toEqual(expected);
+    });
+
+    test(`readonly array params (${mode})`, async () => {
+      const queryStringSQL = `
+    /*
+      @name GetNotifications
+      @param userIds -> (...)
+    */
+    SELECT payload, type FROM notifications WHERE id in :userIds
+    `;
+      const queryStringTS = `
+      const getNotifications = sql\`SELECT payload, type FROM notifications WHERE id in $userIds\`;
+      `;
+      const queryString =
+        mode === ProcessingMode.SQL ? queryStringSQL : queryStringTS;
+      const mockTypes: IQueryTypes = {
+        returnTypes: [
+          {
+            returnName: 'payload_camel_case',
+            columnName: 'payload',
+            type: 'json',
+            nullable: false,
+          },
+          {
+            returnName: 'type_camel_case',
+            columnName: 'type',
+            type: { name: 'PayloadType', enumValues: ['message', 'dynamite'] },
+            nullable: false,
+          },
+        ],
+        paramMetadata: {
+          params: ['uuid'],
+          mapping: [
+            {
+              name: 'userIds',
+              type: queryModule.ParamTransform.Spread,
+              assignedIndex: 1,
+              required: false,
+            },
+          ],
+        },
+      };
+      getTypesMocked.mockResolvedValue(mockTypes);
+      const types = new TypeAllocator(DefaultTypeMapping);
+      // Test out imports
+      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
+      const result = await queryToTypeDeclarations(
+        parsedQuery(mode, queryString),
+        null,
+        types,
+        { camelCaseColumnNames: true } as ParsedConfig,
+      );
+      const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
+
+export type PayloadType = 'dynamite' | 'message';
+
+export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
+
+      expect(types.declaration()).toEqual(expectedTypes);
+      const expected = `/** 'GetNotifications' parameters type */
+export interface IGetNotificationsParams {
+  userIds: readonly (string | null | void)[];
 }
 
 /** 'GetNotifications' return type */
@@ -318,8 +427,9 @@ export interface IGetNotificationsQuery {
           params: ['uuid'],
           mapping: [
             {
-              name: 'id',
+              name: 'userId',
               type: queryModule.ParamTransform.Scalar,
+              required: false,
               assignedIndex: 1,
             },
           ],
@@ -337,14 +447,14 @@ export interface IGetNotificationsQuery {
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
 
-export type PayloadType = 'message' | 'dynamite';
+export type PayloadType = 'dynamite' | 'message';
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
-  id: string | null | void;
+  userId: string | null | void;
 }
 
 /** 'GetNotifications' return type */
@@ -365,8 +475,8 @@ export interface IGetNotificationsQuery {
 
 test('interface generation', () => {
   const expected = `export interface User {
-  name: string;
   age: number;
+  name: string;
 }
 
 `;

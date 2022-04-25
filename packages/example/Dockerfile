@@ -1,4 +1,4 @@
-FROM node:13-alpine
+FROM node:17-alpine
 
 RUN apk add --update --no-cache postgresql-client
 

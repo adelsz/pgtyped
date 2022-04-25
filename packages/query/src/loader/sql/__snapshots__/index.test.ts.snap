@@ -19,6 +19,7 @@ Object {
             ],
           },
           "name": "authorName",
+          "required": false,
           "transform": Object {
             "type": "scalar",
           },
@@ -37,6 +38,67 @@ Object {
       },
       "usedParamSet": Object {
         "authorName": true,
+      },
+    },
+  ],
+}
+`;
+
+exports[`Comment starts in strings are ignored 1`] = `
+Object {
+  "events": Array [],
+  "queries": Array [
+    Object {
+      "name": "UpdateBooks",
+      "params": Array [
+        Object {
+          "codeRefs": Object {
+            "used": Array [
+              Object {
+                "a": 72,
+                "b": 75,
+                "col": 30,
+                "line": 4,
+              },
+            ],
+          },
+          "name": "rank",
+          "required": false,
+          "transform": Object {
+            "type": "scalar",
+          },
+        },
+        Object {
+          "codeRefs": Object {
+            "used": Array [
+              Object {
+                "a": 89,
+                "b": 90,
+                "col": 47,
+                "line": 4,
+              },
+            ],
+          },
+          "name": "id",
+          "required": false,
+          "transform": Object {
+            "type": "scalar",
+          },
+        },
+      ],
+      "statement": Object {
+        "body": "UPDATE books
+  SET name = '-- /*', rank = :rank WHERE id = :id",
+        "loc": Object {
+          "a": 29,
+          "b": 90,
+          "col": 2,
+          "line": 3,
+        },
+      },
+      "usedParamSet": Object {
+        "id": true,
+        "rank": true,
       },
     },
   ],
@@ -65,7 +127,7 @@ Object {
 }
 `;
 
-exports[`Ignore inline comments in queries 1`] = `
+exports[`Ignore multi-line comments in queries 1`] = `
 Object {
   "events": Array [],
   "queries": Array [
@@ -76,14 +138,15 @@ Object {
           "codeRefs": Object {
             "used": Array [
               Object {
-                "a": 80,
-                "b": 83,
+                "a": 91,
+                "b": 94,
                 "col": 14,
                 "line": 5,
               },
             ],
           },
           "name": "name",
+          "required": false,
           "transform": Object {
             "type": "scalar",
           },
@@ -92,14 +155,15 @@ Object {
           "codeRefs": Object {
             "used": Array [
               Object {
-                "a": 94,
-                "b": 97,
+                "a": 105,
+                "b": 108,
                 "col": 28,
                 "line": 5,
               },
             ],
           },
           "name": "rank",
+          "required": false,
           "transform": Object {
             "type": "scalar",
           },
@@ -108,14 +172,15 @@ Object {
           "codeRefs": Object {
             "used": Array [
               Object {
-                "a": 111,
-                "b": 112,
+                "a": 122,
+                "b": 123,
                 "col": 45,
                 "line": 5,
               },
             ],
           },
           "name": "id",
+          "required": false,
           "transform": Object {
             "type": "scalar",
           },
@@ -123,11 +188,174 @@ Object {
       ],
       "statement": Object {
         "body": "UPDATE books
-                       
+                                  
   SET name = :name, rank = :rank WHERE id = :id",
         "loc": Object {
           "a": 29,
-          "b": 112,
+          "b": 123,
+          "col": 2,
+          "line": 3,
+        },
+      },
+      "usedParamSet": Object {
+        "id": true,
+        "name": true,
+        "rank": true,
+      },
+    },
+  ],
+}
+`;
+
+exports[`Ignore params in inline single-line comments in queries 1`] = `
+Object {
+  "events": Array [],
+  "queries": Array [
+    Object {
+      "name": "UpdateBooks",
+      "params": Array [
+        Object {
+          "codeRefs": Object {
+            "used": Array [
+              Object {
+                "a": 88,
+                "b": 91,
+                "col": 14,
+                "line": 5,
+              },
+            ],
+          },
+          "name": "name",
+          "required": false,
+          "transform": Object {
+            "type": "scalar",
+          },
+        },
+        Object {
+          "codeRefs": Object {
+            "used": Array [
+              Object {
+                "a": 102,
+                "b": 105,
+                "col": 28,
+                "line": 5,
+              },
+            ],
+          },
+          "name": "rank",
+          "required": false,
+          "transform": Object {
+            "type": "scalar",
+          },
+        },
+        Object {
+          "codeRefs": Object {
+            "used": Array [
+              Object {
+                "a": 119,
+                "b": 120,
+                "col": 45,
+                "line": 5,
+              },
+            ],
+          },
+          "name": "id",
+          "required": false,
+          "transform": Object {
+            "type": "scalar",
+          },
+        },
+      ],
+      "statement": Object {
+        "body": "UPDATE books
+  -- ignored comment foo: bar's
+  SET name = :name, rank = :rank WHERE id = :id",
+        "loc": Object {
+          "a": 29,
+          "b": 120,
+          "col": 2,
+          "line": 3,
+        },
+      },
+      "usedParamSet": Object {
+        "id": true,
+        "name": true,
+        "rank": true,
+      },
+    },
+  ],
+}
+`;
+
+exports[`Include inline single-line comments in statement body 1`] = `
+Object {
+  "events": Array [],
+  "queries": Array [
+    Object {
+      "name": "UpdateBooks",
+      "params": Array [
+        Object {
+          "codeRefs": Object {
+            "used": Array [
+              Object {
+                "a": 101,
+                "b": 104,
+                "col": 14,
+                "line": 6,
+              },
+            ],
+          },
+          "name": "name",
+          "required": false,
+          "transform": Object {
+            "type": "scalar",
+          },
+        },
+        Object {
+          "codeRefs": Object {
+            "used": Array [
+              Object {
+                "a": 115,
+                "b": 118,
+                "col": 28,
+                "line": 6,
+              },
+            ],
+          },
+          "name": "rank",
+          "required": false,
+          "transform": Object {
+            "type": "scalar",
+          },
+        },
+        Object {
+          "codeRefs": Object {
+            "used": Array [
+              Object {
+                "a": 132,
+                "b": 133,
+                "col": 45,
+                "line": 6,
+              },
+            ],
+          },
+          "name": "id",
+          "required": false,
+          "transform": Object {
+            "type": "scalar",
+          },
+        },
+      ],
+      "statement": Object {
+        "body": "-- Inline comment 1
+  UPDATE books
+  -- Inline comment 2:
+  SET name = :name, rank = :rank WHERE id = :id
+  -- Inline comment 3
+",
+        "loc": Object {
+          "a": 29,
+          "b": 156,
           "col": 2,
           "line": 3,
         },
@@ -211,11 +439,21 @@ Object {
             ],
           },
           "name": "customers",
+          "required": false,
           "transform": Object {
             "keys": Array [
-              "customerName",
-              "contactName",
-              "address",
+              Object {
+                "name": "customerName",
+                "required": false,
+              },
+              Object {
+                "name": "contactName",
+                "required": false,
+              },
+              Object {
+                "name": "address",
+                "required": false,
+              },
             ],
             "type": "pick_tuple",
           },
@@ -258,6 +496,7 @@ Object {
             ],
           },
           "name": "userId",
+          "required": false,
           "transform": Object {
             "type": "scalar",
           },
@@ -311,11 +550,21 @@ Object {
             ],
           },
           "name": "customers",
+          "required": false,
           "transform": Object {
             "keys": Array [
-              "customerName",
-              "contactName",
-              "address",
+              Object {
+                "name": "customerName",
+                "required": false,
+              },
+              Object {
+                "name": "contactName",
+                "required": false,
+              },
+              Object {
+                "name": "address",
+                "required": false,
+              },
             ],
             "type": "pick_tuple",
           },
@@ -364,6 +613,7 @@ Object {
             ],
           },
           "name": "userId",
+          "required": false,
           "transform": Object {
             "type": "scalar",
           },
@@ -405,6 +655,7 @@ Object {
             ],
           },
           "name": "name",
+          "required": false,
           "transform": Object {
             "type": "scalar",
           },
@@ -489,8 +740,14 @@ Object {
           "name": "users",
           "transform": Object {
             "keys": Array [
-              "name",
-              "time",
+              Object {
+                "name": "name",
+                "required": false,
+              },
+              Object {
+                "name": "time",
+                "required": false,
+              },
             ],
             "type": "pick_array_spread",
           },

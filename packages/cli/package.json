@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped/cli",
-  "version": "0.9.0",
+  "version": "0.13.0",
   "main": "lib/index.js",
   "license": "MIT",
   "publishConfig": {
@@ -19,32 +19,36 @@
     "roots": [
       "src"
     ],
+    "testRegex": "\\.test\\.tsx?$",
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     }
   },
   "dependencies": {
-    "@pgtyped/query": "^0.9.0",
+    "@pgtyped/query": "^0.13.0",
     "@types/nunjucks": "^3.1.3",
     "camel-case": "^4.1.1",
     "chalk": "^4.0.0",
     "chokidar": "^3.3.1",
     "debug": "^4.1.1",
     "fp-ts": "^2.5.3",
-    "glob": "^7.1.6",
+    "fs-extra": "^10.0.0",
+    "glob": "^8.0.0",
     "io-ts": "^2.1.2",
     "io-ts-reporters": "^1.0.0",
     "jest-worker": "^26.3.0",
-    "minimist": "^1.2.5",
-    "nunjucks": "3.2.2",
-    "pascal-case": "^3.1.1"
+    "nunjucks": "3.2.3",
+    "pascal-case": "^3.1.1",
+    "ts-parse-database-url": "^1.0.3",
+    "yargs": "^17.0.1"
   },
   "devDependencies": {
-    "@types/debug": "4.1.5",
-    "@types/glob": "7.1.3",
-    "@types/minimist": "1.2.1"
+    "@types/debug": "4.1.7",
+    "@types/fs-extra": "9.0.12",
+    "@types/glob": "7.2.0",
+    "@types/yargs": "17.0.10"
   },
   "peerDependencies": {
-    "typescript": "^3.1"
+    "typescript": "3.1 - 4"
   }
 }

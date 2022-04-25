@@ -1,6 +1,6 @@
 <img width="340" height="150" align="right" src="https://raw.githubusercontent.com/adelsz/pgtyped/master/header.png">
 
-# [PgTyped](https://pgtyped.now.sh/)
+# [PgTyped](https://pgtyped.vercel.app/)
 
 ![Version](https://img.shields.io/github/v/release/adelsz/pgtyped)
 [![Actions Status](https://github.com/adelsz/pgtyped/workflows/CI/badge.svg)](https://github.com/adelsz/pgtyped/actions)
@@ -62,7 +62,7 @@ export interface IFindBookByIdResult {
 
 /**
  * Query generated from SQL:
- * SELECT * FROM books WHERE id = :commentId
+ * SELECT * FROM books WHERE id = :bookId
  */
 export const findBookById = new PreparedQuery<
   IFindBookByIdParams,
@@ -101,11 +101,11 @@ main();
 
 ### Resources
 
-1. [Configuring Pgtyped](https://pgtyped.now.sh/docs/cli)
-2. [Writing queries in SQL files](https://pgtyped.now.sh/docs/sql-file-intro)
-3. [Advanced queries and parameter expansions in SQL files](https://pgtyped.now.sh/docs/sql-file)
-4. [Writing queries in TS files](https://pgtyped.now.sh/docs/ts-file-intro)
-5. [Advanced queries and parameter expansions in TS files](https://pgtyped.now.sh/docs/ts-file)
+1. [Configuring Pgtyped](https://pgtyped.vercel.app/docs/cli)
+2. [Writing queries in SQL files](https://pgtyped.vercel.app/docs/sql-file-intro)
+3. [Advanced queries and parameter expansions in SQL files](https://pgtyped.vercel.app/docs/sql-file)
+4. [Writing queries in TS files](https://pgtyped.vercel.app/docs/ts-file-intro)
+5. [Advanced queries and parameter expansions in TS files](https://pgtyped.vercel.app/docs/ts-file)
 
 ### Project state:
 

@@ -3,7 +3,7 @@ version: '3.1'
 services:
 
   db:
-    image: postgres:12-alpine
+    image: postgres:14-alpine
     restart: always
     environment:
       POSTGRES_USER: postgres
@@ -26,11 +26,11 @@ services:
     restart: on-failure
     depends_on:
       - db
-    command: npx pgtyped -c config.json
+    command: npx pgtyped --config config.json
 
   watch:
     <<: *build
-    command: npx pgtyped -w -c config.json
+    command: npx pgtyped --watch --config config.json
 
   test:
     <<: *build

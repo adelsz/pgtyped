@@ -2,6 +2,7 @@
 import {
   isAlias,
   isEnum,
+  isEnumArray,
   isImport,
   MappableType,
   Type,
@@ -37,8 +38,8 @@ export const DefaultTypeMapping = Object.freeze({
   float4: Number,
   float: Number,
   float8: Number,
-  numeric: Number,
-  decimal: Number,
+  numeric: String,
+  decimal: String,
 
   // Serial types
   smallserial: Number,
@@ -52,6 +53,7 @@ export const DefaultTypeMapping = Object.freeze({
   char: String,
   bpchar: String,
   citext: String,
+  name: String,
 
   // Bool types
   bit: Boolean, // TODO: better bit array support
@@ -73,7 +75,8 @@ export const DefaultTypeMapping = Object.freeze({
   macaddr8: String,
 
   // Extra types
-  money: Number,
+  money: String,
+  tsvector: String,
   void: Void,
 
   // JSON types
@@ -82,6 +85,9 @@ export const DefaultTypeMapping = Object.freeze({
 
   // Bytes
   bytea: Bytes,
+
+  // Postgis types
+  point: getArray(Number),
 });
 
 export type BuiltinTypes = keyof typeof DefaultTypeMapping;
@@ -93,7 +99,7 @@ export function TypeMapping(overrides?: Partial<TypeMapping>): TypeMapping {
 }
 
 function declareImport([...names]: Set<string>, from: string): string {
-  return `import { ${names.join(', ')} } from '${from}';\n`;
+  return `import { ${names.sort().join(', ')} } from '${from}';\n`;
 }
 
 function declareAlias(name: string, definition: string): string {
@@ -101,13 +107,7 @@ function declareAlias(name: string, definition: string): string {
 }
 
 function declareStringUnion(name: string, values: string[]) {
-  return declareAlias(name, values.map((v) => `'${v}'`).join(' | '));
-}
-
-function declareEnum(name: string, values: string[]) {
-  return `export const enum ${name} {\n${values
-    .map((v) => `  ${v} = '${v}',`)
-    .join('\n')}\n}\n`;
+  return declareAlias(name, values.sort().map((v) => `'${v}'`).join(' | '));
 }
 
 /** Wraps a TypeMapping to track which types have been used, to accumulate errors,
@@ -154,12 +154,18 @@ export class TypeAllocator {
               `Postgres type '${typeNameOrType}' is not supported by mapping`,
             ),
           );
-          return 'never';
+          return 'unknown';
         }
         typ = this.mapping[typeNameOrType];
       }
     } else {
-      typ = typeNameOrType;
+      if (isEnumArray(typeNameOrType)) {
+        typ = getArray(typeNameOrType.elementType);
+        // make sure the element type is used so it appears in the declaration
+        this.use(typeNameOrType.elementType);
+      } else {
+        typ = typeNameOrType;
+      }
     }
 
     // Track type on first occurrence
@@ -179,17 +185,20 @@ export class TypeAllocator {
   declaration(): string {
     const imports = Object.entries(this.imports)
       .map(([from, names]) => declareImport(names, from))
+      .sort()
       .join('\n');
 
     // Declare database enums as string unions to maintain assignability of their values between query files
     const enums = Object.values(this.types)
       .filter(isEnum)
       .map((t) => declareStringUnion(t.name, t.enumValues))
+      .sort()
       .join('\n');
 
     const aliases = Object.values(this.types)
       .filter(isAlias)
       .map((t) => declareAlias(t.name, t.definition))
+      .sort()
       .join('\n');
 
     return [imports, enums, aliases].filter((s) => s).join('\n');

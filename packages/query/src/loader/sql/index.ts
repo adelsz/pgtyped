@@ -8,6 +8,7 @@ import {
   ParamIdContext,
   ParamNameContext,
   QueryNameContext,
+  SpreadTransformContext,
   SQLParser,
   StatementBodyContext,
 } from './parser/SQLParser';
@@ -21,27 +22,32 @@ export enum TransformType {
   PickArraySpread = 'pick_array_spread',
 }
 
+export interface ParamKey {
+  name: string;
+  required: boolean;
+}
+
 export type ParamTransform =
   | {
       type: TransformType.Scalar;
     }
   | {
-      type:
-        | TransformType.PickTuple
-        | TransformType.ArraySpread
-        | TransformType.PickArraySpread;
-      keys: string[];
+      type: TransformType.ArraySpread;
+    }
+  | {
+      type: TransformType.PickTuple | TransformType.PickArraySpread;
+      keys: ParamKey[];
     };
 
 export interface Param {
   name: string;
   transform: ParamTransform;
+  required: boolean;
   codeRefs: {
     defined?: CodeInterval;
     used: CodeInterval[];
   };
 }
-
 interface CodeInterval {
   a: number;
   b: number;
@@ -54,15 +60,30 @@ interface Statement {
   body: string;
 }
 
-export interface Query {
+export interface QueryAST {
   name: string;
   params: Param[];
   statement: Statement;
   usedParamSet: { [paramName: string]: true };
 }
 
+export interface ParamIR {
+  name: string;
+  transform: ParamTransform;
+  required: boolean;
+  locs: {
+    a: number;
+    b: number;
+  }[];
+}
+export interface QueryIR {
+  params: ParamIR[];
+  statement: string;
+  usedParamSet: QueryAST['usedParamSet'];
+}
+
 interface ParseTree {
-  queries: Query[];
+  queries: QueryAST[];
 }
 
 export function assert(condition: any): asserts condition {
@@ -74,7 +95,7 @@ export function assert(condition: any): asserts condition {
 class ParseListener implements SQLParserListener {
   logger: Logger;
   public parseTree: ParseTree = { queries: [] };
-  private currentQuery: Partial<Query> = {};
+  private currentQuery: Partial<QueryAST> = {};
   private currentParam: Partial<Param> = {};
   private currentTransform: Partial<ParamTransform> = {};
 
@@ -83,7 +104,7 @@ class ParseListener implements SQLParserListener {
   }
 
   exitQuery() {
-    const currentQuery = this.currentQuery as Query;
+    const currentQuery = this.currentQuery as QueryAST;
     currentQuery.params.forEach((p) => {
       const paramUsed = p.name in currentQuery.usedParamSet;
       if (!paramUsed) {
@@ -162,7 +183,11 @@ class ParseListener implements SQLParserListener {
 
   enterKey(ctx: KeyContext) {
     assert('keys' in this.currentTransform && this.currentTransform.keys);
-    this.currentTransform.keys.push(ctx.text);
+
+    const required = !!ctx.C_REQUIRED_MARK();
+    const name = ctx.ID().text;
+
+    this.currentTransform.keys.push({ name, required });
   }
 
   enterStatementBody(ctx: StatementBodyContext) {
@@ -196,7 +221,7 @@ class ParseListener implements SQLParserListener {
     const b = ctx.stop!.stopIndex - statement.loc.a + 1;
     const body = statement.body;
     assert(b);
-    const [partA, ignored, partB] = [
+    const [partA, , partB] = [
       body.slice(0, a),
       body.slice(a, b),
       body.slice(b),
@@ -206,40 +231,43 @@ class ParseListener implements SQLParserListener {
   }
 
   enterParamId(ctx: ParamIdContext) {
-    const paramName = ctx.text;
     assert(this.currentQuery.params);
     assert(this.currentQuery.usedParamSet);
+
+    const paramName = ctx.ID().text;
+    const required = !!ctx.S_REQUIRED_MARK();
+
     this.currentQuery.usedParamSet[paramName] = true;
     const reference = this.currentQuery.params.find(
       (p) => p.name === paramName,
     );
     const useLoc = {
       a: ctx.start.startIndex,
-      b: ctx.start.stopIndex,
+      b: ctx.stop?.stopIndex ?? ctx.start.stopIndex,
       line: ctx.start.line,
       col: ctx.start.charPositionInLine,
     };
+
     if (!reference) {
       this.currentQuery.params.push({
         name: paramName,
+        required,
         transform: { type: TransformType.Scalar },
         codeRefs: {
           used: [useLoc],
         },
       });
     } else {
+      reference.required = reference.required || required;
       reference.codeRefs.used.push(useLoc);
     }
   }
 }
 
-export type SQLParseResult = { queries: Query[]; events: ParseEvent[] };
+export type SQLParseResult = { queries: QueryAST[]; events: ParseEvent[] };
 
-function parseText(
-  text: string,
-  fileName: string = 'undefined.sql',
-): SQLParseResult {
-  const logger = new Logger(text);
+function parseText(text: string): SQLParseResult {
+  const logger = new Logger();
   const inputStream = CharStreams.fromString(text);
   const lexer = new SQLLexer(inputStream);
   lexer.removeErrorListeners();
@@ -259,6 +287,25 @@ function parseText(
   };
 }
 
+export function queryASTToIR(query: SQLQueryAST): SQLQueryIR {
+  const { a: statementStart } = query.statement.loc;
+
+  return {
+    usedParamSet: query.usedParamSet,
+    params: query.params.map((param) => ({
+      name: param.name,
+      required: param.required,
+      transform: param.transform,
+      locs: param.codeRefs.used.map((codeRef) => ({
+        a: codeRef.a - statementStart - 1,
+        b: codeRef.b - statementStart,
+      })),
+    })),
+    statement: query.statement.body,
+  };
+}
+
 export { prettyPrintEvents } from './logger';
-export type SQLQueryAST = Query;
+export type SQLQueryAST = QueryAST;
+export type SQLQueryIR = QueryIR;
 export default parseText;

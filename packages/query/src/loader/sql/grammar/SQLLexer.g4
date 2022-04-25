@@ -14,10 +14,12 @@ tokens { ID }
 fragment QUOT: '\'';
 fragment ID: [a-zA-Z_][a-zA-Z_0-9]*;
 
+LINE_COMMENT: '--' ~[\r\n]* '\r'? '\n';
 OPEN_COMMENT: '/*' -> mode(COMMENT);
 SID: ID -> type(ID);
+S_REQUIRED_MARK: '!';
 WORD: [a-zA-Z_0-9]+;
-SPECIAL: [\-+*/<>=~!@#%^&|`?$(){},.[\]"]+ -> type(WORD);
+SPECIAL: [\-+*/<>=~@#%^&|`?$(){},.[\]"]+ -> type(WORD);
 EOF_STATEMENT: ';';
 WSL     : [ \t\r\n]+ -> skip;
 // parse strings and recognize escaped quotes
@@ -35,5 +37,6 @@ TYPE_TAG  :  '@param';
 OB: '(';
 CB: ')';
 COMMA: ',';
+C_REQUIRED_MARK: '!';
 ANY: .+?;
 CLOSE_COMMENT: '*/' -> mode(DEFAULT_MODE);

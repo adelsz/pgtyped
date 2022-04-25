@@ -3,15 +3,15 @@ import { PreparedQuery } from '@pgtyped/query';
 
 /** 'GetAllComments' parameters type */
 export interface IGetAllCommentsParams {
-  id: number | null | void;
+  id: number;
 }
 
 /** 'GetAllComments' return type */
 export interface IGetAllCommentsResult {
+  body: string | null;
+  book_id: number | null;
   id: number;
   user_id: number | null;
-  book_id: number | null;
-  body: string | null;
 }
 
 /** 'GetAllComments' query type */
@@ -20,23 +20,53 @@ export interface IGetAllCommentsQuery {
   result: IGetAllCommentsResult;
 }
 
-const getAllCommentsIR: any = {"name":"GetAllComments","params":[{"name":"id","transform":{"type":"scalar"},"codeRefs":{"used":[{"a":101,"b":102,"line":3,"col":40},{"a":118,"b":119,"line":3,"col":57}]}}],"usedParamSet":{"id":true},"statement":{"body":"SELECT * FROM book_comments WHERE id = :id or user_id = :id","loc":{"a":61,"b":119,"line":3,"col":0}}};
+const getAllCommentsIR: any = {"usedParamSet":{"id":true},"params":[{"name":"id","required":true,"transform":{"type":"scalar"},"locs":[{"a":39,"b":42},{"a":57,"b":59}]}],"statement":"SELECT * FROM book_comments WHERE id = :id! OR user_id = :id                                      "};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT * FROM book_comments WHERE id = :id or user_id = :id
+ * SELECT * FROM book_comments WHERE id = :id! OR user_id = :id                                      
  * ```
  */
 export const getAllComments = new PreparedQuery<IGetAllCommentsParams,IGetAllCommentsResult>(getAllCommentsIR);
 
 
+/** 'GetAllCommentsByIds' parameters type */
+export interface IGetAllCommentsByIdsParams {
+  ids: readonly (number)[];
+}
+
+/** 'GetAllCommentsByIds' return type */
+export interface IGetAllCommentsByIdsResult {
+  body: string | null;
+  book_id: number | null;
+  id: number;
+  user_id: number | null;
+}
+
+/** 'GetAllCommentsByIds' query type */
+export interface IGetAllCommentsByIdsQuery {
+  params: IGetAllCommentsByIdsParams;
+  result: IGetAllCommentsByIdsResult;
+}
+
+const getAllCommentsByIdsIR: any = {"usedParamSet":{"ids":true},"params":[{"name":"ids","required":true,"transform":{"type":"array_spread"},"locs":[{"a":40,"b":43},{"a":55,"b":59}]}],"statement":"SELECT * FROM book_comments WHERE id in :ids AND id in :ids!"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT * FROM book_comments WHERE id in :ids AND id in :ids!
+ * ```
+ */
+export const getAllCommentsByIds = new PreparedQuery<IGetAllCommentsByIdsParams,IGetAllCommentsByIdsResult>(getAllCommentsByIdsIR);
+
+
 /** 'InsertComment' parameters type */
 export interface IInsertCommentParams {
-  comments: Array<{
-    userId: number | null | void,
-    commentBody: string | null | void
-  }>;
+  comments: readonly ({
+    userId: number,
+    commentBody: string
+  })[];
 }
 
 /** 'InsertComment' return type */
@@ -48,7 +78,7 @@ export interface IInsertCommentQuery {
   result: IInsertCommentResult;
 }
 
-const insertCommentIR: any = {"name":"InsertComment","params":[{"name":"comments","codeRefs":{"defined":{"a":157,"b":164,"line":7,"col":9},"used":[{"a":249,"b":256,"line":10,"col":8}]},"transform":{"type":"pick_array_spread","keys":["userId","commentBody"]}}],"usedParamSet":{"comments":true},"statement":{"body":"INSERT INTO book_comments (user_id, body)\nVALUES :comments","loc":{"a":199,"b":256,"line":9,"col":0}}};
+const insertCommentIR: any = {"usedParamSet":{"comments":true},"params":[{"name":"comments","required":false,"transform":{"type":"pick_array_spread","keys":[{"name":"userId","required":true},{"name":"commentBody","required":true}]},"locs":[{"a":49,"b":57}]}],"statement":"INSERT INTO book_comments (user_id, body)\nVALUES :comments"};
 
 /**
  * Query generated from SQL:
