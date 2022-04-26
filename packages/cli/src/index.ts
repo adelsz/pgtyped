@@ -43,6 +43,8 @@ class FileProcessor {
         }
       },
     }) as WorkerInterface;
+    this.worker.getStdout().pipe(process.stdout);
+    this.worker.getStderr().pipe(process.stderr);
   }
 
   public push(job: TransformJob) {
