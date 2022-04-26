@@ -36,6 +36,7 @@
     "glob": "^8.0.0",
     "io-ts": "^2.1.2",
     "io-ts-reporters": "^1.0.0",
+    "jest-worker": "^26.3.0",
     "nunjucks": "3.2.3",
     "pascal-case": "^3.1.1",
     "ts-parse-database-url": "^1.0.3",
