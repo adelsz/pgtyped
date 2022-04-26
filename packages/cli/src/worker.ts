@@ -17,13 +17,11 @@ export async function setup(c: ParsedConfig) {
 export async function processFile(
   fileName: string,
   transform: TransformConfig,
-): Promise<
-  | {
-      typeDecsLength: number;
-      relativePath: string;
-    }
-  | undefined
-> {
+): Promise<{
+  skipped: boolean;
+  typeDecsLength: number;
+  relativePath: string;
+}> {
   const ppath = path.parse(fileName);
   let decsFileName;
   if (transform.emitTemplate) {
@@ -41,6 +39,7 @@ export async function processFile(
     void 0,
     config,
   );
+  const relativePath = path.relative(process.cwd(), decsFileName);
   if (typeDecs.length > 0) {
     const oldDeclarationFileContents = (await fs.pathExists(decsFileName))
       ? await fs.readFile(decsFileName, { encoding: 'utf-8' })
@@ -48,11 +47,17 @@ export async function processFile(
     if (oldDeclarationFileContents !== declarationFileContents) {
       await fs.outputFile(decsFileName, declarationFileContents);
       return {
+        skipped: false,
         typeDecsLength: typeDecs.length,
-        relativePath: path.relative(process.cwd(), decsFileName),
+        relativePath,
       };
     }
   }
+  return {
+    skipped: true,
+    typeDecsLength: 0,
+    relativePath,
+  };
 }
 
 export interface WorkerInterface extends JestWorker {

@@ -52,8 +52,13 @@ class FileProcessor {
       ...job.files.map(async (fileName) => {
         try {
           fileName = path.relative(process.cwd(), fileName);
+          console.log(`Processing ${fileName}`);
           const result = await this.worker.processFile(fileName, job.transform);
-          if (result) {
+          if (result.skipped) {
+            console.log(
+              `Skipped ${fileName}: no changes or no queries detected`,
+            );
+          } else {
             console.log(
               `Saved ${result.typeDecsLength} query types from ${fileName} to ${result.relativePath}`,
             );
