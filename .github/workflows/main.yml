@@ -11,9 +11,16 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['17', '16', '14', '12']
     steps:
-      - uses: actions/checkout@v1
-      - run: npm ci
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
       - name: Bootstrap packages
         run: npx lerna bootstrap && npm run build
       - name: Run tests
