@@ -3,7 +3,7 @@ parser grammar SQLParser;
 options { tokenVocab = SQLLexer; }
 
 input
-    : ignoredComment* query+ EOF
+    : (ignoredComment* query)+ EOF
     ;
 
 query

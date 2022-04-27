@@ -122,28 +122,28 @@ export class SQLParser extends Parser {
 			let _alt: number;
 			this.enterOuterAlt(_localctx, 1);
 			{
-			this.state = 41;
-			this._errHandler.sync(this);
-			_alt = this.interpreter.adaptivePredict(this._input, 0, this._ctx);
-			while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
-				if (_alt === 1) {
-					{
-					{
-					this.state = 38;
-					this.ignoredComment();
-					}
-					}
-				}
-				this.state = 43;
-				this._errHandler.sync(this);
-				_alt = this.interpreter.adaptivePredict(this._input, 0, this._ctx);
-			}
 			this.state = 45;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
 			do {
 				{
 				{
+				this.state = 41;
+				this._errHandler.sync(this);
+				_alt = this.interpreter.adaptivePredict(this._input, 0, this._ctx);
+				while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
+					if (_alt === 1) {
+						{
+						{
+						this.state = 38;
+						this.ignoredComment();
+						}
+						}
+					}
+					this.state = 43;
+					this._errHandler.sync(this);
+					_alt = this.interpreter.adaptivePredict(this._input, 0, this._ctx);
+				}
 				this.state = 44;
 				this.query();
 				}
@@ -840,14 +840,14 @@ export class SQLParser extends Parser {
 		"\x14\x03\x14\x02\x02\x02\x15\x02\x02\x04\x02\x06\x02\b\x02\n\x02\f\x02" +
 		"\x0E\x02\x10\x02\x12\x02\x14\x02\x16\x02\x18\x02\x1A\x02\x1C\x02\x1E\x02" +
 		" \x02\"\x02$\x02&\x02\x02\x04\x03\x02\x16\x16\x05\x02\x03\x03\x06\x07" +
-		"\n\n\x02\x89\x02+\x03\x02\x02\x02\x045\x03\x02\x02\x02\x068\x03\x02\x02" +
+		"\n\n\x02\x89\x02/\x03\x02\x02\x02\x045\x03\x02\x02\x02\x068\x03\x02\x02" +
 		"\x02\bB\x03\x02\x02\x02\nK\x03\x02\x02\x02\fT\x03\x02\x02\x02\x0EW\x03" +
 		"\x02\x02\x02\x10Y\x03\x02\x02\x02\x12\\\x03\x02\x02\x02\x14`\x03\x02\x02" +
 		"\x02\x16c\x03\x02\x02\x02\x18g\x03\x02\x02\x02\x1Am\x03\x02\x02\x02\x1C" +
 		"o\x03\x02\x02\x02\x1Es\x03\x02\x02\x02 \x81\x03\x02\x02\x02\"\x86\x03" +
 		"\x02\x02\x02$\x8A\x03\x02\x02\x02&\x8C\x03\x02\x02\x02(*\x05\b\x05\x02" +
 		")(\x03\x02\x02\x02*-\x03\x02\x02\x02+)\x03\x02\x02\x02+,\x03\x02\x02\x02" +
-		",/\x03\x02\x02\x02-+\x03\x02\x02\x02.0\x05\x04\x03\x02/.\x03\x02\x02\x02" +
+		",.\x03\x02\x02\x02-+\x03\x02\x02\x02.0\x05\x04\x03\x02/+\x03\x02\x02\x02" +
 		"01\x03\x02\x02\x021/\x03\x02\x02\x0212\x03\x02\x02\x0223\x03\x02\x02\x02" +
 		"34\x07\x02\x02\x034\x03\x03\x02\x02\x0256\x05\x06\x04\x0267\x05\n\x06" +
 		"\x027\x05\x03\x02\x02\x0289\x07\x05\x02\x029=\x05\x14\v\x02:<\x05\x16" +
@@ -890,15 +890,6 @@ export class SQLParser extends Parser {
 
 export class InputContext extends ParserRuleContext {
 	public EOF(): TerminalNode { return this.getToken(SQLParser.EOF, 0); }
-	public ignoredComment(): IgnoredCommentContext[];
-	public ignoredComment(i: number): IgnoredCommentContext;
-	public ignoredComment(i?: number): IgnoredCommentContext | IgnoredCommentContext[] {
-		if (i === undefined) {
-			return this.getRuleContexts(IgnoredCommentContext);
-		} else {
-			return this.getRuleContext(i, IgnoredCommentContext);
-		}
-	}
 	public query(): QueryContext[];
 	public query(i: number): QueryContext;
 	public query(i?: number): QueryContext | QueryContext[] {
@@ -906,6 +897,15 @@ export class InputContext extends ParserRuleContext {
 			return this.getRuleContexts(QueryContext);
 		} else {
 			return this.getRuleContext(i, QueryContext);
+		}
+	}
+	public ignoredComment(): IgnoredCommentContext[];
+	public ignoredComment(i: number): IgnoredCommentContext;
+	public ignoredComment(i?: number): IgnoredCommentContext | IgnoredCommentContext[] {
+		if (i === undefined) {
+			return this.getRuleContexts(IgnoredCommentContext);
+		} else {
+			return this.getRuleContext(i, IgnoredCommentContext);
 		}
 	}
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {

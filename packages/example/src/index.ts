@@ -56,7 +56,7 @@ async function main() {
     { id: insertedBookId },
     client,
   );
-  expect(insertedBook.categories).toEqual(['novel', 'science-fiction']);
+  expect(insertedBook.categories).toEqual("{novel,science-fiction}");
 
   await updateBooks.run({ id: 2, rank: 12, name: 'Another title' }, client);
 

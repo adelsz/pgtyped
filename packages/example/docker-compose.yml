@@ -26,7 +26,7 @@ services:
     restart: on-failure
     depends_on:
       - db
-    command: npx pgtyped --config config.json
+    command: node /app/packages/cli/lib/index.js --config config.json
 
   watch:
     <<: *build
