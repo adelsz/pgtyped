@@ -7,6 +7,7 @@ export interface IGetUsersWithCommentsParams {
 
 /** 'GetUsersWithComments' return type */
 export interface IGetUsersWithCommentsResult {
+  /** Age (in years) */
   age: number | null;
   email: string;
   first_name: string | null;

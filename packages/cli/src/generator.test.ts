@@ -1,7 +1,11 @@
 import * as queryModule from '@pgtyped/query';
 import { parseSQLFile, parseTypeScriptFile } from '@pgtyped/query';
 import { IQueryTypes } from '@pgtyped/query/lib/actions';
-import { generateInterface, queryToTypeDeclarations } from './generator';
+import {
+  escapeComment,
+  generateInterface,
+  queryToTypeDeclarations,
+} from './generator';
 import { ProcessingMode } from './index';
 import { DefaultTypeMapping, TypeAllocator } from './types';
 import { ParsedConfig } from './config';
@@ -36,6 +40,7 @@ describe('query-to-interface translation', () => {
             columnName: 'payload',
             type: 'json',
             nullable: false,
+            comment: 'Notification contents @type {Notification}',
           },
           {
             returnName: 'type',
@@ -80,6 +85,7 @@ export interface IGetNotificationsParams {
 
 /** 'GetNotifications' return type */
 export interface IGetNotificationsResult {
+  /** Notification contents @type {Notification} */
   payload: Json;
   type: PayloadType;
 }
@@ -471,6 +477,16 @@ export interface IGetNotificationsQuery {
       expect(result).toEqual(expected);
     });
   });
+});
+
+test('comment escaping', () => {
+  expect(escapeComment('simple comment')).toEqual('simple comment');
+  expect(escapeComment('nested /* comment */')).toEqual(
+    'nested /* comment *\\/',
+  );
+  expect(escapeComment('nested /* nested /* comment */ */')).toEqual(
+    'nested /* nested /* comment *\\/ *\\/',
+  );
 });
 
 test('interface generation', () => {
