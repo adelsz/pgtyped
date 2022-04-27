@@ -9,7 +9,7 @@
     "watch": "lerna run --parallel watch",
     "lint": "tslint --project tsconfig.json -t verbose",
     "lint!": "npm run lint -- --fix",
-    "test": "npm run lint && lerna run test"
+    "test": "npm run lint && lerna run --stream test"
   },
   "devDependencies": {
     "@types/jest": "27.4.1",

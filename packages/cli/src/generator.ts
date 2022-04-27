@@ -21,6 +21,7 @@ import path from 'path';
 export interface IField {
   fieldName: string;
   fieldType: string;
+  comment?: string;
 }
 
 const interfaceGen = (interfaceName: string, contents: string) =>
@@ -28,12 +29,20 @@ const interfaceGen = (interfaceName: string, contents: string) =>
 ${contents}
 }\n\n`;
 
+export function escapeComment(comment: string) {
+  return comment.replace(/\*\//g, '*\\/');
+}
+
 export const generateInterface = (interfaceName: string, fields: IField[]) => {
   const sortedFields = fields
     .slice()
     .sort((a, b) => a.fieldName.localeCompare(b.fieldName));
   const contents = sortedFields
-    .map(({ fieldName, fieldType }) => `  ${fieldName}: ${fieldType};`)
+    .map(
+      ({ fieldName, fieldType, comment }) =>
+        (comment ? `  /** ${escapeComment(comment)} */\n` : '') +
+        `  ${fieldName}: ${fieldType};`,
+    )
     .join('\n');
   return interfaceGen(interfaceName, contents);
 };
@@ -91,7 +100,7 @@ export async function queryToTypeDeclarations(
   const returnFieldTypes: IField[] = [];
   const paramFieldTypes: IField[] = [];
 
-  returnTypes.forEach(({ returnName, type, nullable }) => {
+  returnTypes.forEach(({ returnName, type, nullable, comment }) => {
     let tsTypeName = types.use(type);
     if (nullable || nullable == null) {
       tsTypeName += ' | null';
@@ -102,6 +111,7 @@ export async function queryToTypeDeclarations(
         ? camelCase(returnName)
         : returnName,
       fieldType: tsTypeName,
+      comment,
     });
   });
 

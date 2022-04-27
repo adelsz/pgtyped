@@ -8,6 +8,8 @@ CREATE TABLE users (
   registration_date DATE NOT NULL DEFAULT CURRENT_DATE
 );
 
+COMMENT ON COLUMN users.age IS 'Age (in years)';
+
 CREATE TYPE notification_type AS ENUM ('notification', 'reminder', 'deadline');
 CREATE TYPE category AS ENUM ('thriller', 'science-fiction', 'novel');
 

@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 
 import { AsyncQueue, startup } from '@pgtyped/query';
+import JestWorker from 'jest-worker';
 import chokidar from 'chokidar';
-import fs from 'fs-extra';
 import glob from 'glob';
 import nun from 'nunjucks';
-import path from 'path';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { parseConfig, ParsedConfig, TransformConfig } from './config';
-import { generateDeclarationFile } from './generator';
 import { debug } from './util';
+import { WorkerInterface, processFile } from './worker';
+import path from 'path';
 
 // tslint:disable:no-console
 
@@ -27,93 +27,58 @@ interface TransformJob {
 }
 
 class FileProcessor {
-  public emptyQueue: Promise<void>;
-  private jobQueue: TransformJob[] = [];
-  private activePromise: Promise<void> | null = null;
+  private readonly worker: WorkerInterface;
+  public readonly workQueue: Promise<unknown>[] = [];
 
-  constructor(private connection: any, private config: ParsedConfig) {
-    this.connection = connection;
-    this.emptyQueue = new Promise((resolve) => {
-      this.resolveDone = resolve;
-    });
+  constructor(private readonly config: ParsedConfig) {
+    this.worker = new JestWorker(require.resolve('./worker'), {
+      exposedMethods: ['processFile'],
+      setupArgs: [this.config],
+      computeWorkerKey: (method, fileName): string | null => {
+        switch (method) {
+          case processFile.name:
+            return fileName as string;
+          default:
+            return null;
+        }
+      },
+    }) as WorkerInterface;
+    this.worker.getStdout().pipe(process.stdout);
+    this.worker.getStderr().pipe(process.stderr);
   }
 
   public push(job: TransformJob) {
-    this.jobQueue.push(job);
-    if (!this.activePromise) {
-      this.processQueue();
-    }
-  }
-
-  private resolveDone: () => void = () => undefined;
-
-  private onFileProcessed = () => {
-    this.activePromise = null;
-    this.processQueue();
-  };
-
-  private onFileProcessingError = (err: any) => {
-    console.log(`Error processing file: ${err.stack || JSON.stringify(err)}`);
-    if (this.config.failOnError) {
-      process.exit(1);
-    }
-  };
-
-  private async processJob(connection: any, job: TransformJob) {
-    for (let fileName of job.files) {
-      fileName = path.relative(process.cwd(), fileName);
-      console.log(`Processing ${fileName}`);
-      const ppath = path.parse(fileName);
-      let decsFileName;
-      if (job.transform.emitTemplate) {
-        decsFileName = nun.renderString(job.transform.emitTemplate, ppath);
-      } else {
-        const suffix = job.transform.mode === 'ts' ? 'types.ts' : 'ts';
-        decsFileName = path.resolve(ppath.dir, `${ppath.name}.${suffix}`);
-      }
-      const contents = fs.readFileSync(fileName).toString();
-      const { declarationFileContents, typeDecs } =
-        await generateDeclarationFile(
-          contents,
-          fileName,
-          connection,
-          job.transform.mode,
-          void 0,
-          this.config,
-        );
-      if (typeDecs.length > 0) {
-        const oldDeclarationFileContents = (await fs.pathExists(decsFileName))
-          ? await fs.readFile(decsFileName, { encoding: 'utf-8' })
-          : null;
-        if (oldDeclarationFileContents !== declarationFileContents) {
-          await fs.outputFile(decsFileName, declarationFileContents);
-          console.log(
-            `Saved ${typeDecs.length} query types to ${path.relative(
-              process.cwd(),
-              decsFileName,
-            )}`,
-          );
+    this.workQueue.push(
+      ...job.files.map(async (fileName) => {
+        try {
+          fileName = path.relative(process.cwd(), fileName);
+          console.log(`Processing ${fileName}`);
+          const result = await this.worker.processFile(fileName, job.transform);
+          if (result.skipped) {
+            console.log(
+              `Skipped ${fileName}: no changes or no queries detected`,
+            );
+          } else {
+            console.log(
+              `Saved ${result.typeDecsLength} query types from ${fileName} to ${result.relativePath}`,
+            );
+          }
+        } catch (err) {
+          if (err instanceof Error) {
+            console.log(
+              `Error processing file: ${err.stack || JSON.stringify(err)}`,
+            );
+          } else {
+            console.log(`Error processing file: ${JSON.stringify(err)}`);
+          }
+          if (this.config.failOnError) {
+            await this.worker.end();
+            process.exit(1);
+          }
         }
-      }
-    }
+      }),
+    );
   }
-
-  private processQueue = () => {
-    if (this.activePromise) {
-      this.activePromise
-        .then(this.onFileProcessed)
-        .catch(this.onFileProcessingError);
-      return;
-    }
-    const nextJob = this.jobQueue.pop();
-    if (nextJob) {
-      this.activePromise = this.processJob(this.connection, nextJob)
-        .then(this.onFileProcessed)
-        .catch(this.onFileProcessingError);
-    } else {
-      this.resolveDone();
-    }
-  };
 }
 
 async function main(
@@ -127,7 +92,7 @@ async function main(
 
   debug('connected to database %o', config.db.dbName);
 
-  const fileProcessor = new FileProcessor(connection, config);
+  const fileProcessor = new FileProcessor(config);
   let fileOverrideUsed = false;
   for (const transform of config.transforms) {
     const pattern = `${config.srcDir}/**/${transform.include}`;
@@ -168,7 +133,7 @@ async function main(
     );
   }
   if (!isWatchMode) {
-    await fileProcessor.emptyQueue;
+    await Promise.all(fileProcessor.workQueue);
     process.exit(0);
   }
 }
