@@ -290,6 +290,9 @@ function parseText(text: string): SQLParseResult {
 export function queryASTToIR(query: SQLQueryAST): SQLQueryIR {
   const { a: statementStart } = query.statement.loc;
 
+  // standardize line endings across platforms https://github.com/adelsz/pgtyped/issues/390
+  const statement = query.statement.body.replace(/\r\n/g, " \n");
+
   return {
     usedParamSet: query.usedParamSet,
     params: query.params.map((param) => ({
@@ -301,7 +304,7 @@ export function queryASTToIR(query: SQLQueryAST): SQLQueryIR {
         b: codeRef.b - statementStart,
       })),
     })),
-    statement: query.statement.body,
+    statement,
   };
 }
 

@@ -24,6 +24,21 @@ test('(SQL) no params', () => {
   expect(mappingResult).toEqual(expectedResult);
 });
 
+test('(SQL) cr+lf line breaks should be replaced by space+lf', () => {
+  const query = `/* @name selectSomeUsers */\r\nSELECT id, name\r\nFROM users\r\nWHERE id = :id;`;
+
+  const fileAST = parseSQLQuery(query);
+  const parameters = {};
+
+  const expectedResult = {
+    statement: 'SELECT id, name \nFROM users \nWHERE id = :id',
+  };
+
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+
+  expect(queryIR).toBe(expectedResult);
+});
+
 test('(SQL) two scalar params, one forced as non-null', () => {
   const query = `
   /*
