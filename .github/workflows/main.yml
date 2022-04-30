@@ -26,3 +26,5 @@ jobs:
         run: npx lerna bootstrap && npm run build
       - name: Run tests
         run: npm test
+        env:
+          NODE_VERSION: ${{ matrix.node-version }}
