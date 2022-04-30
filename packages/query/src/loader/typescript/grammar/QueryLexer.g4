@@ -22,7 +22,7 @@ OB: '(';
 CB: ')';
 WORD: [a-zA-Z_0-9]+;
 REQUIRED_MARK: '!';
-SPECIAL: [\-+*/<>=~@#%^&|`?${}.[\]":]+;
+SPECIAL: [\-+*/<>=~@#%^&|`?{}.[\]":]+;
 EOF_STATEMENT: ';';
 WSL     : [ \t\r\n]+ -> skip;
 // parse strings and recognize escaped quotes
