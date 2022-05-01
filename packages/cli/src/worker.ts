@@ -30,7 +30,10 @@ export async function processFile(
     const suffix = transform.mode === 'ts' ? 'types.ts' : 'ts';
     decsFileName = path.resolve(ppath.dir, `${ppath.name}.${suffix}`);
   }
-  const contents = fs.readFileSync(fileName).toString();
+
+  // last part fixes https://github.com/adelsz/pgtyped/issues/390
+  const contents = fs.readFileSync(fileName).toString().replace(/\r\n/g, '\n');
+
   const { declarationFileContents, typeDecs } = await generateDeclarationFile(
     contents,
     fileName,
