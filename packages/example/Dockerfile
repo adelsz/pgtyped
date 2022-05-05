@@ -1,4 +1,6 @@
-FROM node:17-alpine
+ARG NODE_IMAGE=node:18-alpine
+
+FROM $NODE_IMAGE
 
 RUN apk add --update --no-cache postgresql-client
 

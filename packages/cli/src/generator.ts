@@ -5,8 +5,10 @@ import {
   parseTypeScriptFile,
   prettyPrintEvents,
   processTSQueryAST,
-  processSQLQueryAST,
+  processSQLQueryIR,
+  queryASTToIR,
   SQLQueryAST,
+  SQLQueryIR,
   TSQueryAST,
 } from '@pgtyped/query';
 import { camelCase } from 'camel-case';
@@ -19,6 +21,7 @@ import path from 'path';
 export interface IField {
   fieldName: string;
   fieldType: string;
+  comment?: string;
 }
 
 const interfaceGen = (interfaceName: string, contents: string) =>
@@ -26,12 +29,20 @@ const interfaceGen = (interfaceName: string, contents: string) =>
 ${contents}
 }\n\n`;
 
+export function escapeComment(comment: string) {
+  return comment.replace(/\*\//g, '*\\/');
+}
+
 export const generateInterface = (interfaceName: string, fields: IField[]) => {
   const sortedFields = fields
     .slice()
     .sort((a, b) => a.fieldName.localeCompare(b.fieldName));
   const contents = sortedFields
-    .map(({ fieldName, fieldType }) => `  ${fieldName}: ${fieldType};`)
+    .map(
+      ({ fieldName, fieldType, comment }) =>
+        (comment ? `  /** ${escapeComment(comment)} */\n` : '') +
+        `  ${fieldName}: ${fieldType};`,
+    )
     .join('\n');
   return interfaceGen(interfaceName, contents);
 };
@@ -62,7 +73,7 @@ export async function queryToTypeDeclarations(
     queryData = processTSQueryAST(parsedQuery.ast);
   } else {
     queryName = pascalCase(parsedQuery.ast.name);
-    queryData = processSQLQueryAST(parsedQuery.ast);
+    queryData = processSQLQueryIR(queryASTToIR(parsedQuery.ast));
   }
 
   const typeData = await getTypes(queryData, connection);
@@ -89,7 +100,7 @@ export async function queryToTypeDeclarations(
   const returnFieldTypes: IField[] = [];
   const paramFieldTypes: IField[] = [];
 
-  returnTypes.forEach(({ returnName, type, nullable }) => {
+  returnTypes.forEach(({ returnName, type, nullable, comment }) => {
     let tsTypeName = types.use(type);
     if (nullable || nullable == null) {
       tsTypeName += ' | null';
@@ -100,6 +111,7 @@ export async function queryToTypeDeclarations(
         ? camelCase(returnName)
         : returnName,
       fieldType: tsTypeName,
+      comment,
     });
   });
 
@@ -194,6 +206,7 @@ type ITypedQuery =
       query: {
         name: string;
         ast: SQLQueryAST;
+        ir: SQLQueryIR;
         paramTypeAlias: string;
         returnTypeAlias: string;
       };
@@ -235,6 +248,7 @@ async function generateTypedecsFromFile(
         query: {
           name: camelCase(sqlQueryAST.name),
           ast: sqlQueryAST,
+          ir: queryASTToIR(sqlQueryAST),
           paramTypeAlias: `I${pascalCase(sqlQueryAST.name)}Params`,
           returnTypeAlias: `I${pascalCase(sqlQueryAST.name)}Result`,
         },
@@ -310,7 +324,7 @@ export async function generateDeclarationFile(
       .join('\n');
     declarationFileContents += `const ${
       typeDec.query.name
-    }IR: any = ${JSON.stringify(typeDec.query.ast)};\n\n`;
+    }IR: any = ${JSON.stringify(typeDec.query.ir)};\n\n`;
     declarationFileContents +=
       `/**\n` +
       ` * Query generated from SQL:\n` +

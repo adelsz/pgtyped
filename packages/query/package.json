@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped/query",
-  "version": "0.13.0",
+  "version": "1.0.0-alpha.1",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "license": "MIT",
@@ -25,7 +25,7 @@
     }
   },
   "dependencies": {
-    "@pgtyped/wire": "^0.13.0",
+    "@pgtyped/wire": "^1.0.0-alpha.1",
     "@types/chalk": "^2.2.0",
     "@types/debug": "^4.1.4",
     "antlr4ts": "0.5.0-alpha.4",

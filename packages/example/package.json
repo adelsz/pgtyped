@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped/example",
-  "version": "0.13.0",
+  "version": "1.0.0-alpha.1",
   "description": "A package demonstrating how pgtyped works.",
   "author": "Adel Salakh",
   "private": true,
@@ -14,21 +14,21 @@
     "lib"
   ],
   "scripts": {
-    "test": "docker-compose run test; docker-compose down",
+    "test": "docker-compose run build && docker-compose run test",
     "typegen": "pgtyped -c config.json",
     "build": "tsc --declaration",
     "watch": "tsc --declaration --watch --preserveWatchOutput",
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@pgtyped/cli": "^0.13.0",
-    "@pgtyped/query": "^0.13.0",
-    "@types/pg": "8.6.4",
+    "@pgtyped/cli": "^1.0.0-alpha.1",
+    "@pgtyped/query": "^1.0.0-alpha.1",
+    "@types/pg": "8.6.5",
     "expect": "27.5.1",
     "pg": "8.7.3",
     "typescript": "3.8.3"
   },
   "devDependencies": {
-    "ts-node": "10.6.0"
+    "ts-node": "10.7.0"
   }
 }

@@ -76,6 +76,7 @@ export const DefaultTypeMapping = Object.freeze({
 
   // Extra types
   money: String,
+  tsvector: String,
   void: Void,
 
   // JSON types

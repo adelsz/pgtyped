@@ -48,7 +48,6 @@ export interface Param {
     used: CodeInterval[];
   };
 }
-
 interface CodeInterval {
   a: number;
   b: number;
@@ -61,15 +60,30 @@ interface Statement {
   body: string;
 }
 
-export interface Query {
+export interface QueryAST {
   name: string;
   params: Param[];
   statement: Statement;
   usedParamSet: { [paramName: string]: true };
 }
 
+export interface ParamIR {
+  name: string;
+  transform: ParamTransform;
+  required: boolean;
+  locs: {
+    a: number;
+    b: number;
+  }[];
+}
+export interface QueryIR {
+  params: ParamIR[];
+  statement: string;
+  usedParamSet: QueryAST['usedParamSet'];
+}
+
 interface ParseTree {
-  queries: Query[];
+  queries: QueryAST[];
 }
 
 export function assert(condition: any): asserts condition {
@@ -81,7 +95,7 @@ export function assert(condition: any): asserts condition {
 class ParseListener implements SQLParserListener {
   logger: Logger;
   public parseTree: ParseTree = { queries: [] };
-  private currentQuery: Partial<Query> = {};
+  private currentQuery: Partial<QueryAST> = {};
   private currentParam: Partial<Param> = {};
   private currentTransform: Partial<ParamTransform> = {};
 
@@ -90,7 +104,7 @@ class ParseListener implements SQLParserListener {
   }
 
   exitQuery() {
-    const currentQuery = this.currentQuery as Query;
+    const currentQuery = this.currentQuery as QueryAST;
     currentQuery.params.forEach((p) => {
       const paramUsed = p.name in currentQuery.usedParamSet;
       if (!paramUsed) {
@@ -250,7 +264,7 @@ class ParseListener implements SQLParserListener {
   }
 }
 
-export type SQLParseResult = { queries: Query[]; events: ParseEvent[] };
+export type SQLParseResult = { queries: QueryAST[]; events: ParseEvent[] };
 
 function parseText(text: string): SQLParseResult {
   const logger = new Logger();
@@ -273,6 +287,25 @@ function parseText(text: string): SQLParseResult {
   };
 }
 
+export function queryASTToIR(query: SQLQueryAST): SQLQueryIR {
+  const { a: statementStart } = query.statement.loc;
+
+  return {
+    usedParamSet: query.usedParamSet,
+    params: query.params.map((param) => ({
+      name: param.name,
+      required: param.required,
+      transform: param.transform,
+      locs: param.codeRefs.used.map((codeRef) => ({
+        a: codeRef.a - statementStart - 1,
+        b: codeRef.b - statementStart,
+      })),
+    })),
+    statement: query.statement.body,
+  };
+}
+
 export { prettyPrintEvents } from './logger';
-export type SQLQueryAST = Query;
+export type SQLQueryAST = QueryAST;
+export type SQLQueryIR = QueryIR;
 export default parseText;
