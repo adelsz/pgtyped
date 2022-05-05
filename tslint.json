@@ -14,7 +14,8 @@
     "array-type": false,
     "max-line-length": false,
     "max-classes-per-file": false,
-    "no-unused-variable": true
+    "no-unused-variable": true,
+    "forin": false
   },
   "rulesDirectory": [],
   "linterOptions": {

@@ -4,8 +4,8 @@ import {
   parseSQLFile,
   parseTypeScriptFile,
   prettyPrintEvents,
-  processTSQueryAST,
   processSQLQueryIR,
+  processTSQueryAST,
   queryASTToIR,
   SQLQueryAST,
   SQLQueryIR,
@@ -13,10 +13,10 @@ import {
 } from '@pgtyped/query';
 import { camelCase } from 'camel-case';
 import { pascalCase } from 'pascal-case';
+import path from 'path';
+import { ParsedConfig } from './config';
 import { ProcessingMode } from './index';
 import { DefaultTypeMapping, TypeAllocator } from './types';
-import { ParsedConfig } from './config';
-import path from 'path';
 
 export interface IField {
   fieldName: string;
@@ -102,8 +102,17 @@ export async function queryToTypeDeclarations(
 
   returnTypes.forEach(({ returnName, type, nullable, comment }) => {
     let tsTypeName = types.use(type);
-    if (nullable || nullable == null) {
+
+    const lastCharacter = returnName.at(-1); // Checking for type hints
+    if (
+      lastCharacter !== '!' &&
+      (nullable || nullable == null || lastCharacter === '?')
+    ) {
       tsTypeName += ' | null';
+    }
+
+    if (lastCharacter === '!' || lastCharacter === '?') {
+      returnName = returnName.slice(0, -1);
     }
 
     returnFieldTypes.push({

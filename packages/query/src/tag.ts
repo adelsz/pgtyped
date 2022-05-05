@@ -1,10 +1,23 @@
-import { processTSQueryAST } from './preprocessor-ts';
-import { processSQLQueryIR } from './preprocessor-sql';
 import { QueryIR } from './loader/sql';
 import { parseTSQuery, TSQueryAST } from './loader/typescript';
+import { processSQLQueryIR } from './preprocessor-sql';
+import { processTSQueryAST } from './preprocessor-ts';
 
 export interface IDatabaseConnection {
   query: (query: string, bindings: any[]) => Promise<{ rows: any[] }>;
+}
+
+function mapQueryResultRows(rows: any[]): any[] {
+  for (const row of rows) {
+    for (const column in row) {
+      const isHintedColumn = column.at(-1) === '!' || column.at(-1) === '?';
+      if (isHintedColumn) {
+        row[column.slice(0, -1)] = row[column];
+        delete row[column];
+      }
+    }
+  }
+  return rows;
 }
 
 /* Used for SQL-in-TS */
@@ -24,7 +37,7 @@ export class TaggedQuery<TTypePair extends { params: any; result: any }> {
         params as any,
       );
       const result = await connection.query(processedQuery, bindings);
-      return result.rows;
+      return mapQueryResultRows(result.rows);
     };
   }
 }
@@ -58,7 +71,7 @@ export class PreparedQuery<TParamType, TResultType> {
         params as any,
       );
       const result = await connection.query(processedQuery, bindings);
-      return result.rows;
+      return mapQueryResultRows(result.rows);
     };
   }
 }

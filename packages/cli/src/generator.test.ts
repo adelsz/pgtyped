@@ -1,6 +1,7 @@
 import * as queryModule from '@pgtyped/query';
 import { parseSQLFile, parseTypeScriptFile } from '@pgtyped/query';
 import { IQueryTypes } from '@pgtyped/query/lib/actions';
+import { ParsedConfig } from './config';
 import {
   escapeComment,
   generateInterface,
@@ -8,7 +9,6 @@ import {
 } from './generator';
 import { ProcessingMode } from './index';
 import { DefaultTypeMapping, TypeAllocator } from './types';
-import { ParsedConfig } from './config';
 
 const getTypesMocked = jest.spyOn(queryModule, 'getTypes').mockName('getTypes');
 
@@ -467,6 +467,78 @@ export interface IGetNotificationsParams {
 export interface IGetNotificationsResult {
   payload: Json | null;
   type: PayloadType;
+}
+
+/** 'GetNotifications' query type */
+export interface IGetNotificationsQuery {
+  params: IGetNotificationsParams;
+  result: IGetNotificationsResult;
+}\n\n`;
+      expect(result).toEqual(expected);
+    });
+
+    test(`Columns with nullability hints (${mode})`, async () => {
+      const queryStringSQL = `
+    /* @name GetNotifications */
+    SELECT payload as "payload!", type as "type?" FROM notifications WHERE id = :userId;
+    `;
+      const queryStringTS = `
+      const getNotifications = sql\`SELECT payload as "payload!", type FROM notifications WHERE id = $userId\`;
+      `;
+      const queryString =
+        mode === ProcessingMode.SQL ? queryStringSQL : queryStringTS;
+      const mockTypes: IQueryTypes = {
+        returnTypes: [
+          {
+            returnName: 'payload!',
+            columnName: 'payload!',
+            type: 'json',
+          },
+          {
+            returnName: 'type?',
+            columnName: 'type?',
+            type: { name: 'PayloadType', enumValues: ['message', 'dynamite'] },
+            nullable: false,
+          },
+        ],
+        paramMetadata: {
+          params: ['uuid'],
+          mapping: [
+            {
+              name: 'userId',
+              type: queryModule.ParamTransform.Scalar,
+              required: false,
+              assignedIndex: 1,
+            },
+          ],
+        },
+      };
+      getTypesMocked.mockResolvedValue(mockTypes);
+      const types = new TypeAllocator(DefaultTypeMapping);
+      // Test out imports
+      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
+      const result = await queryToTypeDeclarations(
+        parsedQuery(mode, queryString),
+        null,
+        types,
+        {} as ParsedConfig,
+      );
+      const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
+
+export type PayloadType = 'dynamite' | 'message';
+
+export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
+
+      expect(types.declaration()).toEqual(expectedTypes);
+      const expected = `/** 'GetNotifications' parameters type */
+export interface IGetNotificationsParams {
+  userId: string | null | void;
+}
+
+/** 'GetNotifications' return type */
+export interface IGetNotificationsResult {
+  payload: Json;
+  type: PayloadType | null;
 }
 
 /** 'GetNotifications' query type */
