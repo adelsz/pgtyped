@@ -10,7 +10,8 @@ export interface IDatabaseConnection {
 function mapQueryResultRows(rows: any[]): any[] {
   for (const row of rows) {
     for (const column in row) {
-      const isHintedColumn = column.at(-1) === '!' || column.at(-1) === '?';
+      const lastCharacter = column[column.length - 1];
+      const isHintedColumn = lastCharacter === '!' || lastCharacter === '?';
       if (isHintedColumn) {
         row[column.slice(0, -1)] = row[column];
         delete row[column];

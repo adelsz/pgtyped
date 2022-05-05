@@ -103,7 +103,7 @@ export async function queryToTypeDeclarations(
   returnTypes.forEach(({ returnName, type, nullable, comment }) => {
     let tsTypeName = types.use(type);
 
-    const lastCharacter = returnName.at(-1); // Checking for type hints
+    const lastCharacter = returnName[returnName.length - 1]; // Checking for type hints
     if (
       lastCharacter !== '!' &&
       (nullable || nullable == null || lastCharacter === '?')
