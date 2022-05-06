@@ -211,7 +211,7 @@ export interface IAggregateEmailsAndTestParams {
 /** 'AggregateEmailsAndTest' return type */
 export interface IAggregateEmailsAndTestResult {
   agetest: boolean | null;
-  emails: stringArray | null;
+  emails: stringArray;
 }
 
 /** 'AggregateEmailsAndTest' query type */
@@ -220,12 +220,12 @@ export interface IAggregateEmailsAndTestQuery {
   result: IAggregateEmailsAndTestResult;
 }
 
-const aggregateEmailsAndTestIR: any = {"usedParamSet":{"testAges":true},"params":[{"name":"testAges","required":false,"transform":{"type":"scalar"},"locs":[{"a":52,"b":60}]}],"statement":"SELECT array_agg(email) as emails, array_agg(age) = :testAges as ageTest FROM users"};
+const aggregateEmailsAndTestIR: any = {"usedParamSet":{"testAges":true},"params":[{"name":"testAges","required":false,"transform":{"type":"scalar"},"locs":[{"a":55,"b":63}]}],"statement":"SELECT array_agg(email) as \"emails!\", array_agg(age) = :testAges as ageTest FROM users"};
 
 /**
  * Query generated from SQL:
  * ```
- * SELECT array_agg(email) as emails, array_agg(age) = :testAges as ageTest FROM users
+ * SELECT array_agg(email) as "emails!", array_agg(age) = :testAges as ageTest FROM users
  * ```
  */
 export const aggregateEmailsAndTest = new PreparedQuery<IAggregateEmailsAndTestParams,IAggregateEmailsAndTestResult>(aggregateEmailsAndTestIR);

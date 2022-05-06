@@ -1,10 +1,29 @@
-import { processTSQueryAST } from './preprocessor-ts';
-import { processSQLQueryIR } from './preprocessor-sql';
 import { QueryIR } from './loader/sql';
 import { parseTSQuery, TSQueryAST } from './loader/typescript';
+import { processSQLQueryIR } from './preprocessor-sql';
+import { processTSQueryAST } from './preprocessor-ts';
 
 export interface IDatabaseConnection {
   query: (query: string, bindings: any[]) => Promise<{ rows: any[] }>;
+}
+
+/** Check for column modifier suffixes (exclamation and question marks). */
+function isHintedColumn(columnName: string): boolean {
+  const lastCharacter = columnName[columnName.length - 1];
+  return lastCharacter === '!' || lastCharacter === '?';
+}
+
+function mapQueryResultRows(rows: any[]): any[] {
+  for (const row of rows) {
+    for (const columnName in row) {
+      if (isHintedColumn(columnName)) {
+        const newColumnNameWithoutSuffix = columnName.slice(0, -1);
+        row[newColumnNameWithoutSuffix] = row[columnName];
+        delete row[columnName];
+      }
+    }
+  }
+  return rows;
 }
 
 /* Used for SQL-in-TS */
@@ -24,7 +43,7 @@ export class TaggedQuery<TTypePair extends { params: any; result: any }> {
         params as any,
       );
       const result = await connection.query(processedQuery, bindings);
-      return result.rows;
+      return mapQueryResultRows(result.rows);
     };
   }
 }
@@ -58,7 +77,7 @@ export class PreparedQuery<TParamType, TResultType> {
         params as any,
       );
       const result = await connection.query(processedQuery, bindings);
-      return result.rows;
+      return mapQueryResultRows(result.rows);
     };
   }
 }

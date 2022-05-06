@@ -28,6 +28,7 @@ PgTyped has a number of requirements for SQL file contents:
 4. Queries can contain parameters. Parameters should start with a colon, ex. `:paramName`.
 5. Annotations can include param expansions if needed using the `@param` tag.
 6. Parameters can be forced to be not nullable using an exclamation mark `:paramName!`.
+7. Nullability on output columns for output columns can be specified using column aliases such as `AS "name?"` or `AS "name!"`.
 
 ## Parameter expansions
 
@@ -155,7 +156,7 @@ insertUsers.run(parameters, connection);
 INSERT INTO users (name, age) VALUES ($1, $2), ($3, $4) RETURNING id;
 ```
 
-### Enforcing non-nullability
+### Enforcing non-nullability for parameters
 
 Sometimes you might want to force pgTyped to use a non-nullable type for a nullable parameter.
 This can be done using the exclamation mark modifier `:paramName!`.
@@ -177,6 +178,32 @@ export interface IGetAllCommentsParams {
 
 export interface IGetAllCommentsStrictParams {
   id: number;
+}
+```
+
+## Enforcing (non)-nullability on output columns
+Sometimes you might want to force pgTyped to use a (non-)nullable type for an output column as Postgres limits how much
+information can be automatically discovered. This can be the case with materialized views and function calls for
+example.   
+You can enforce nullability on output columns by aliasing the column by using `AS "name?"` to make it nullable or
+`AS "name!"` to enforce non-nullability.
+
+#### Example:
+
+```sql title="Query definition:"
+/* @name GetTotalUserScores */
+SELECT coalesce(sum(score), 0) AS "total_score!" FROM users WHERE id = :id!;
+/* @name GetUsersAndTheirNames */
+SELECT id, name AS "name?" FROM users LEFT JOIN names USING (id);
+```
+
+```ts title="Resulting code:"
+export interface IGetTotalUserScoresResult {
+  total_score: number;
+}
+export interface IGetUsersAndTheirNamesResult {
+  id: number;
+  name: string | null;
 }
 ```
 
