@@ -7,14 +7,18 @@ export interface IDatabaseConnection {
   query: (query: string, bindings: any[]) => Promise<{ rows: any[] }>;
 }
 
+/** Removes column modifier suffixes (exclamation and question marks).*/
+function mapColumnName(columnName: string): string {
+  const lastCharacter = columnName[columnName.length - 1];
+  const isHintedColumn = lastCharacter === '!' || lastCharacter === '?';
+  return isHintedColumn ? columnName.slice(0, -1) : columnName;
+}
 function mapQueryResultRows(rows: any[]): any[] {
   for (const row of rows) {
-    for (const column in row) {
-      const lastCharacter = column[column.length - 1];
-      const isHintedColumn = lastCharacter === '!' || lastCharacter === '?';
+    for (const columnName in row) {
       if (isHintedColumn) {
-        row[column.slice(0, -1)] = row[column];
-        delete row[column];
+        row[mapColumnName(columnName)] = row[columnName];
+        delete row[columnName];
       }
     }
   }

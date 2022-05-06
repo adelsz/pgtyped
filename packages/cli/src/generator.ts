@@ -104,14 +104,15 @@ export async function queryToTypeDeclarations(
     let tsTypeName = types.use(type);
 
     const lastCharacter = returnName[returnName.length - 1]; // Checking for type hints
+    const addNullability = lastCharacter === '?';
+    const removeNullability = lastCharacter === '!';
     if (
-      lastCharacter !== '!' &&
-      (nullable || nullable == null || lastCharacter === '?')
+      (addNullability || nullable || nullable == null) && !removeNullability
     ) {
       tsTypeName += ' | null';
     }
 
-    if (lastCharacter === '!' || lastCharacter === '?') {
+    if (addNullability || removeNullability) {
       returnName = returnName.slice(0, -1);
     }
 
