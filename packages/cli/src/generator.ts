@@ -107,7 +107,8 @@ export async function queryToTypeDeclarations(
     const addNullability = lastCharacter === '?';
     const removeNullability = lastCharacter === '!';
     if (
-      (addNullability || nullable || nullable == null) && !removeNullability
+      (addNullability || nullable || nullable == null) &&
+      !removeNullability
     ) {
       tsTypeName += ' | null';
     }
