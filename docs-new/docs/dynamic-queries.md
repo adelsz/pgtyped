@@ -16,8 +16,8 @@ Here is an example of a query with optional `age` and `name` filters:
 ```sql
 /* @name GetUsers */
 SELECT * FROM users
-WHERE (:name :: TEXT IS NULL OR name = :name :: TEXT)
-  AND (:age_gt :: INTEGER IS NULL OR age > :age_gt :: INTEGER);
+WHERE (:name :: TEXT IS NULL OR name = :name)
+  AND (:age_gt :: INTEGER IS NULL OR age > :age_gt);
 ```
 
 ### Dynamic `ORDER BY` sorting
