@@ -12,7 +12,7 @@
     "test": "npm run lint && lerna run --stream test"
   },
   "devDependencies": {
-    "@types/jest": "27.5.1",
+    "@types/jest": "27.5.2",
     "@types/node": "16.11.36",
     "jest": "27.5.1",
     "lerna": "5.0.0",
