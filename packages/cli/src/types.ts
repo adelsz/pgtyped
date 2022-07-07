@@ -141,6 +141,8 @@ export class TypeAllocator {
         // type wrapper
         if (this.isMappedType(arrayValueType)) {
           typ = getArray(this.mapping[arrayValueType]);
+          // make sure the element type is used so it appears in the declaration
+          this.use(this.mapping[arrayValueType]);
         }
       }
 
