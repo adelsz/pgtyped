@@ -17,8 +17,8 @@ describe('TypeAllocator', () => {
     // The definition of `JsonArray` depends on the definition of `Json`, so we
     // expect both to be included
     expect(types.types).toMatchObject({
-      'Json': expect.objectContaining({ name: 'Json' }),
-      'JsonArray': expect.objectContaining({ name: 'JsonArray' }),
+      Json: expect.objectContaining({ name: 'Json' }),
+      JsonArray: expect.objectContaining({ name: 'JsonArray' }),
     });
   });
 });
