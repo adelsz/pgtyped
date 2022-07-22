@@ -12,7 +12,5 @@
     }
   ],
   "srcDir": "./src/",
-  "db": {
-    "dbUrl": "postgres://postgres:password@db/postgres"
-  }
+  "dbUrl": "postgres://postgres:password@localhost/postgres"
 }
