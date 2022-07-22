@@ -47,6 +47,10 @@ class FileProcessor {
     this.worker.getStderr().pipe(process.stderr);
   }
 
+  public async shutdown() {
+    await this.worker.end();
+  }
+
   public push(job: TransformJob) {
     this.workQueue.push(
       ...job.files.map(async (fileName) => {
@@ -134,6 +138,7 @@ async function main(
   }
   if (!isWatchMode) {
     await Promise.all(fileProcessor.workQueue);
+    await fileProcessor.shutdown();
     process.exit(0);
   }
 }
