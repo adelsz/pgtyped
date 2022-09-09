@@ -180,14 +180,20 @@ export async function queryToTypeDeclarations(
   const returnTypesInterface =
     `/** '${queryName}' return type */\n` +
     (returnFieldTypes.length > 0
-      ? generateInterface(`${interfacePrefix}${interfaceName}Result`, returnFieldTypes)
+      ? generateInterface(
+          `${interfacePrefix}${interfaceName}Result`,
+          returnFieldTypes,
+        )
       : generateTypeAlias(resultInterfaceName, 'void'));
 
   const paramInterfaceName = `${interfacePrefix}${interfaceName}Params`;
   const paramTypesInterface =
     `/** '${queryName}' parameters type */\n` +
     (paramFieldTypes.length > 0
-      ? generateInterface(`${interfacePrefix}${interfaceName}Params`, paramFieldTypes)
+      ? generateInterface(
+          `${interfacePrefix}${interfaceName}Params`,
+          paramFieldTypes,
+        )
       : generateTypeAlias(paramInterfaceName, 'void'));
 
   const typePairInterface =
@@ -262,8 +268,12 @@ async function generateTypedecsFromFile(
           name: camelCase(sqlQueryAST.name),
           ast: sqlQueryAST,
           ir: queryASTToIR(sqlQueryAST),
-          paramTypeAlias: `${interfacePrefix}${pascalCase(sqlQueryAST.name)}Params`,
-          returnTypeAlias: `${interfacePrefix}${pascalCase(sqlQueryAST.name)}Result`,
+          paramTypeAlias: `${interfacePrefix}${pascalCase(
+            sqlQueryAST.name,
+          )}Params`,
+          returnTypeAlias: `${interfacePrefix}${pascalCase(
+            sqlQueryAST.name,
+          )}Result`,
         },
         fileName,
         typeDeclaration: result,
