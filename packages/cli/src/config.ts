@@ -33,6 +33,7 @@ const configParser = t.type({
   srcDir: t.string,
   failOnError: t.union([t.boolean, t.undefined]),
   camelCaseColumnNames: t.union([t.boolean, t.undefined]),
+  hungarianNotation: t.union([t.boolean, t.undefined]),
   dbUrl: t.union([t.string, t.undefined]),
   db: t.union([
     t.type({
@@ -60,6 +61,7 @@ export interface ParsedConfig {
   };
   failOnError: boolean;
   camelCaseColumnNames: boolean;
+  hungarianNotation: boolean;
   transforms: IConfig['transforms'];
   srcDir: IConfig['srcDir'];
 }
@@ -128,6 +130,7 @@ export function parseConfig(
     srcDir,
     failOnError,
     camelCaseColumnNames,
+    hungarianNotation,
   } = configObject as IConfig;
 
   // CLI connectionUri flag takes precedence over the env and config one
@@ -152,5 +155,6 @@ export function parseConfig(
     srcDir,
     failOnError: failOnError ?? false,
     camelCaseColumnNames: camelCaseColumnNames ?? false,
+    hungarianNotation: hungarianNotation ?? true,
   };
 }

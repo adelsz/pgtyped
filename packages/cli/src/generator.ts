@@ -78,16 +78,17 @@ export async function queryToTypeDeclarations(
 
   const typeData = await getTypes(queryData, connection);
   const interfaceName = pascalCase(queryName);
+  const interfacePrefix = config.hungarianNotation ? 'I' : '';
 
   if ('errorCode' in typeData) {
     // tslint:disable-next-line:no-console
     console.error('Error in query. Details: %o', typeData);
     const returnInterface = generateTypeAlias(
-      `I${interfaceName}Result`,
+      `${interfacePrefix}${interfaceName}Result`,
       'never',
     );
     const paramInterface = generateTypeAlias(
-      `I${interfaceName}Params`,
+      `${interfacePrefix}${interfaceName}Params`,
       'never',
     );
     const resultErrorComment = `/** Query '${queryName}' is invalid, so its result is assigned type 'never' */\n`;
@@ -175,23 +176,29 @@ export async function queryToTypeDeclarations(
   // tslint:disable-next-line:no-console
   types.errors.forEach((err) => console.log(err));
 
-  const resultInterfaceName = `I${interfaceName}Result`;
+  const resultInterfaceName = `${interfacePrefix}${interfaceName}Result`;
   const returnTypesInterface =
     `/** '${queryName}' return type */\n` +
     (returnFieldTypes.length > 0
-      ? generateInterface(`I${interfaceName}Result`, returnFieldTypes)
+      ? generateInterface(
+          `${interfacePrefix}${interfaceName}Result`,
+          returnFieldTypes,
+        )
       : generateTypeAlias(resultInterfaceName, 'void'));
 
-  const paramInterfaceName = `I${interfaceName}Params`;
+  const paramInterfaceName = `${interfacePrefix}${interfaceName}Params`;
   const paramTypesInterface =
     `/** '${queryName}' parameters type */\n` +
     (paramFieldTypes.length > 0
-      ? generateInterface(`I${interfaceName}Params`, paramFieldTypes)
+      ? generateInterface(
+          `${interfacePrefix}${interfaceName}Params`,
+          paramFieldTypes,
+        )
       : generateTypeAlias(paramInterfaceName, 'void'));
 
   const typePairInterface =
     `/** '${queryName}' query type */\n` +
-    generateInterface(`I${interfaceName}Query`, [
+    generateInterface(`${interfacePrefix}${interfaceName}Query`, [
       { fieldName: 'params', fieldType: paramInterfaceName },
       { fieldName: 'result', fieldType: resultInterfaceName },
     ]);
@@ -233,6 +240,7 @@ async function generateTypedecsFromFile(
   config: ParsedConfig,
 ): Promise<ITypedQuery[]> {
   const results: ITypedQuery[] = [];
+  const interfacePrefix = config.hungarianNotation ? 'I' : '';
 
   const { queries, events } =
     mode === 'ts'
@@ -260,8 +268,12 @@ async function generateTypedecsFromFile(
           name: camelCase(sqlQueryAST.name),
           ast: sqlQueryAST,
           ir: queryASTToIR(sqlQueryAST),
-          paramTypeAlias: `I${pascalCase(sqlQueryAST.name)}Params`,
-          returnTypeAlias: `I${pascalCase(sqlQueryAST.name)}Result`,
+          paramTypeAlias: `${interfacePrefix}${pascalCase(
+            sqlQueryAST.name,
+          )}Params`,
+          returnTypeAlias: `${interfacePrefix}${pascalCase(
+            sqlQueryAST.name,
+          )}Result`,
         },
         fileName,
         typeDeclaration: result,

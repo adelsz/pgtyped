@@ -12,6 +12,8 @@ import { DefaultTypeMapping, TypeAllocator } from './types';
 
 const getTypesMocked = jest.spyOn(queryModule, 'getTypes').mockName('getTypes');
 
+const partialConfig = { hungarianNotation: true } as ParsedConfig;
+
 function parsedQuery(
   mode: ProcessingMode,
   queryString: string,
@@ -69,7 +71,7 @@ describe('query-to-interface translation', () => {
         parsedQuery(mode, queryString),
         null,
         types,
-        {} as ParsedConfig,
+        partialConfig,
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
 
@@ -147,7 +149,7 @@ export interface IGetNotificationsQuery {
         parsedQuery(mode, queryString),
         null,
         types,
-        {} as ParsedConfig,
+        partialConfig,
       );
       const expected = `/** 'InsertNotifications' parameters type */
 export interface IInsertNotificationsParams {
@@ -230,7 +232,7 @@ export interface IInsertNotificationsQuery {
         parsedQuery(mode, queryString),
         null,
         types,
-        {} as ParsedConfig,
+        partialConfig,
       );
       const expected = `/** 'DeleteUsers' parameters type */
 export interface IDeleteUsersParams {
@@ -301,7 +303,7 @@ export interface IDeleteUsersQuery {
         parsedQuery(mode, queryString),
         null,
         types,
-        { camelCaseColumnNames: true } as ParsedConfig,
+        { camelCaseColumnNames: true, hungarianNotation: true } as ParsedConfig,
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
 
@@ -377,7 +379,7 @@ export interface IGetNotificationsQuery {
         parsedQuery(mode, queryString),
         null,
         types,
-        { camelCaseColumnNames: true } as ParsedConfig,
+        { camelCaseColumnNames: true, hungarianNotation: true } as ParsedConfig,
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
 
@@ -449,7 +451,7 @@ export interface IGetNotificationsQuery {
         parsedQuery(mode, queryString),
         null,
         types,
-        {} as ParsedConfig,
+        partialConfig,
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
 
@@ -521,7 +523,7 @@ export interface IGetNotificationsQuery {
         parsedQuery(mode, queryString),
         null,
         types,
-        {} as ParsedConfig,
+        partialConfig,
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
 
