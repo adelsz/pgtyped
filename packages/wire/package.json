@@ -4,6 +4,11 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adelsz/pgtyped.git"
+  },
+  "homepage": "https://github.com/adelsz/pgtyped",
   "publishConfig": {
     "access": "public"
   },
