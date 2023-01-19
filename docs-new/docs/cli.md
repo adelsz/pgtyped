@@ -65,6 +65,9 @@ These variables will override values provided in `config.json`.
     "host": "127.0.0.1", // DB host (optional)
     "port": 5432, // DB port (optional)
     "ssl": false // Whether or not to connect to DB with SSL (optional)
+  },
+  "typesOverrides": {
+    "date": "string" // Override default Postgres => TypeScript mapping
   }
 }
 ```
