@@ -39,7 +39,6 @@ export async function processFile(
     fileName,
     connection,
     transform.mode,
-    void 0,
     config,
   );
   const relativePath = path.relative(process.cwd(), decsFileName);
