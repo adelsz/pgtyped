@@ -1,6 +1,8 @@
 /* @name FindBookById */
 SELECT * FROM books WHERE id = :id;
 
+/* @name FindBookUnicode */
+SELECT * FROM books WHERE name = 'שקל';
 
 /*
   @name InsertBooks
