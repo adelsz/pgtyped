@@ -49,8 +49,7 @@ export const byte4 = (): Buffer => null as any;
 export const byteN = (buf: Buffer): Buffer => null as any;
 
 export const cString = (str: string): Buffer => {
-  const buf = Buffer.alloc(str.length + 1, 0);
-  buf.write(str);
+  const buf = Buffer.concat([Buffer.from(str, 'utf8'), Buffer.from([0])]);
   return buf;
 };
 

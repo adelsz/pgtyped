@@ -2,6 +2,7 @@ import expect from 'expect';
 import { Client } from 'pg';
 import {
   aggregateEmailsAndTest,
+  findBookUnicode,
   findBookById,
   getBooksByAuthorName,
   insertBooks,
@@ -33,6 +34,8 @@ export const client = new Client(dbConfig);
 
 async function main() {
   await client.connect();
+
+  await findBookUnicode.run(undefined, client);
 
   const comments = await getAllComments.run({ id: 1 }, client);
   console.log(`Comments: ${JSON.stringify(comments)}`);

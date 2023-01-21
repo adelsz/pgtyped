@@ -40,6 +40,35 @@ const findBookByIdIR: any = {"usedParamSet":{"id":true},"params":[{"name":"id","
 export const findBookById = new PreparedQuery<IFindBookByIdParams,IFindBookByIdResult>(findBookByIdIR);
 
 
+/** 'FindBookUnicode' parameters type */
+export type IFindBookUnicodeParams = void;
+
+/** 'FindBookUnicode' return type */
+export interface IFindBookUnicodeResult {
+  author_id: number | null;
+  categories: categoryArray | null;
+  id: number;
+  name: string | null;
+  rank: number | null;
+}
+
+/** 'FindBookUnicode' query type */
+export interface IFindBookUnicodeQuery {
+  params: IFindBookUnicodeParams;
+  result: IFindBookUnicodeResult;
+}
+
+const findBookUnicodeIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT * FROM books WHERE name = 'שקל'"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT * FROM books WHERE name = 'שקל'
+ * ```
+ */
+export const findBookUnicode = new PreparedQuery<IFindBookUnicodeParams,IFindBookUnicodeResult>(findBookUnicodeIR);
+
+
 /** 'InsertBooks' parameters type */
 export interface IInsertBooksParams {
   books: readonly ({
