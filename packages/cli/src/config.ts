@@ -6,6 +6,7 @@ import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
 import tls from 'tls';
 import parseDatabaseUri, { DatabaseConfig } from 'ts-parse-database-url';
+import { TypeMapping } from './types';
 
 const transformCodecProps = {
   include: t.string,
@@ -46,6 +47,7 @@ const configParser = t.type({
     }),
     t.undefined,
   ]),
+  typesOverrides: t.union([t.record(t.string, t.string), t.undefined]),
 });
 
 export type IConfig = typeof configParser._O;
@@ -64,6 +66,7 @@ export interface ParsedConfig {
   hungarianNotation: boolean;
   transforms: IConfig['transforms'];
   srcDir: IConfig['srcDir'];
+  typesOverrides: Partial<TypeMapping>;
 }
 
 function merge<T>(base: T, ...overrides: Partial<T>[]): T {
@@ -131,6 +134,7 @@ export function parseConfig(
     failOnError,
     camelCaseColumnNames,
     hungarianNotation,
+    typesOverrides,
   } = configObject as IConfig;
 
   // CLI connectionUri flag takes precedence over the env and config one
@@ -149,6 +153,12 @@ export function parseConfig(
 
   const finalDBConfig = merge(defaultDBConfig, db, urlDBConfig, envDBConfig);
 
+  const parsedTypesOverrides: Partial<TypeMapping> = {};
+
+  for (const [builtIn, mappedTo] of Object.entries(typesOverrides ?? {})) {
+    parsedTypesOverrides[builtIn] = { name: mappedTo };
+  }
+
   return {
     db: finalDBConfig,
     transforms,
@@ -156,5 +166,6 @@ export function parseConfig(
     failOnError: failOnError ?? false,
     camelCaseColumnNames: camelCaseColumnNames ?? false,
     hungarianNotation: hungarianNotation ?? true,
+    typesOverrides: parsedTypesOverrides,
   };
 }

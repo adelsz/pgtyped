@@ -16,7 +16,7 @@ import { pascalCase } from 'pascal-case';
 import path from 'path';
 import { ParsedConfig } from './config';
 import { ProcessingMode } from './index';
-import { DefaultTypeMapping, TypeAllocator } from './types';
+import { TypeAllocator, TypeMapping } from './types';
 
 export interface IField {
   fieldName: string;
@@ -236,7 +236,7 @@ async function generateTypedecsFromFile(
   fileName: string,
   connection: any,
   mode: 'ts' | 'sql',
-  types: TypeAllocator = new TypeAllocator(DefaultTypeMapping),
+  types: TypeAllocator,
   config: ParsedConfig,
 ): Promise<ITypedQuery[]> {
   const results: ITypedQuery[] = [];
@@ -309,9 +309,10 @@ export async function generateDeclarationFile(
   fileName: string,
   connection: any,
   mode: 'ts' | 'sql',
-  types: TypeAllocator = new TypeAllocator(DefaultTypeMapping),
   config: ParsedConfig,
 ): Promise<{ typeDecs: ITypedQuery[]; declarationFileContents: string }> {
+  const types = new TypeAllocator(TypeMapping(config.typesOverrides));
+
   if (mode === 'sql') {
     types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
   }
