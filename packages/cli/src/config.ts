@@ -147,7 +147,7 @@ export function parseConfig(
     );
   }
 
-  const finalDBConfig = merge(defaultDBConfig, db, envDBConfig, urlDBConfig);
+  const finalDBConfig = merge(defaultDBConfig, db, urlDBConfig, envDBConfig);
 
   return {
     db: finalDBConfig,
