@@ -11,11 +11,14 @@
     "lint!": "npm run lint -- --fix",
     "test": "npm run lint && lerna run --stream test"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
     "@types/jest": "27.5.2",
-    "@types/node": "18.11.18",
+    "@types/node": "^18.11.18",
     "jest": "27.5.1",
-    "lerna": "5.1.8",
+    "lerna": "^6.4.1",
     "prettier": "2.6.2",
     "ts-jest": "27.1.5",
     "ts-node": "10.8.2",

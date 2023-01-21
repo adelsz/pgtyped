@@ -30,7 +30,7 @@
     }
   },
   "dependencies": {
-    "@pgtyped/query": "^1.0.1",
+    "@pgtyped/query": "*",
     "@types/nunjucks": "^3.1.3",
     "camel-case": "^4.1.1",
     "chalk": "^4.0.0",
@@ -39,8 +39,8 @@
     "fp-ts": "^2.5.3",
     "fs-extra": "^11.0.0",
     "glob": "^8.0.0",
-    "io-ts": "^2.1.2",
-    "io-ts-reporters": "^1.0.0",
+    "io-ts": "^2.2.20",
+    "io-ts-reporters": "^2.0.1",
     "jest-worker": "^26.3.0",
     "nunjucks": "3.2.3",
     "pascal-case": "^3.1.1",
@@ -52,8 +52,5 @@
     "@types/fs-extra": "11.0.1",
     "@types/glob": "8.0.0",
     "@types/yargs": "17.0.19"
-  },
-  "peerDependencies": {
-    "typescript": "3.1 - 4"
   }
 }
