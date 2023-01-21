@@ -29,7 +29,7 @@ services:
     restart: on-failure
     depends_on:
       - db
-    command: node --version && node /app/packages/cli/lib/index.js --config config.json
+    command: node /app/packages/cli/lib/index.js --config config.json
 
   watch:
     <<: *build
