@@ -51,6 +51,6 @@
     "@types/debug": "4.1.7",
     "@types/fs-extra": "11.0.1",
     "@types/glob": "8.0.1",
-    "@types/yargs": "17.0.19"
+    "@types/yargs": "17.0.20"
   }
 }
