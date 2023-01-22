@@ -27,6 +27,10 @@
     "testRegex": "\\.test\\.tsx?$",
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
+    },
+    "snapshotFormat": {
+      "escapeString": true,
+      "printBasicPrototype": true
     }
   },
   "dependencies": {
