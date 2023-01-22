@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped/wire",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "license": "MIT",
@@ -27,9 +27,9 @@
       "^.+\\.tsx?$": "ts-jest"
     },
     "snapshotFormat": {
-       "escapeString": true,
-       "printBasicPrototype": true
-     }
+      "escapeString": true,
+      "printBasicPrototype": true
+    }
   },
   "dependencies": {
     "debug": "^4.1.1"
