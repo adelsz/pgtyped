@@ -2,7 +2,7 @@ import {
   checkServerFinalMessage,
   createClientSASLContinueResponse,
   createInitialSASLResponse,
-} from './sasl-helpers';
+} from './sasl-helpers.js';
 
 test('createInitialSASLResponse', () => {
   const { clientNonce, response } = createInitialSASLResponse();

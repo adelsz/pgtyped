@@ -18,6 +18,7 @@ No need to map or translate your DB schema to TypeScript, PgTyped automatically 
 4. Useful parameter interpolation helpers for arrays and objects.
 5. No need to define your DB schema in TypeScript, your running DB is the live source of type data.
 6. Prevents SQL injections by not doing explicit parameter substitution. Instead, queries and parameters are sent separately to the DB driver, allowing parameter substitution to be safely done by the PostgreSQL server.
+7. Native ESM support. Runtime dependencies also support CommonJS.
 
 ### Documentation
 
@@ -25,7 +26,7 @@ Visit our new documentation page at [https://pgtyped.now.sh/](https://pgtyped.no
 
 ### Getting started
 
-1. `npm install @pgtyped/cli @pgtyped/query typescript` (typescript is a required peer dependency for pgtyped)
+1. `npm install @pgtyped/cli @pgtyped/runtime typescript` (typescript is a required peer dependency for pgtyped)
 2. Create a PgTyped `config.json` file.
 3. Run `npx pgtyped -w -c config.json` to start PgTyped in watch mode.
 

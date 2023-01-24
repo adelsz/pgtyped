@@ -8,7 +8,7 @@ PgTyped also supports parsing queries from TS files.
 Such queries must be tagged with an `sql` template literal, like this:
 
 ```ts
-import { sql } from '@pgtyped/query';
+import { sql } from '@pgtyped/runtime';
 
 const getUsersWithComments = sql`
   SELECT u.* FROM users u
@@ -21,7 +21,7 @@ PgTyped will then scan your project for such `sql` tags and generate types for e
 Once the type files have been generated you can import them to type your query:
 
 ```ts
-import { sql } from '@pgtyped/query';
+import { sql } from '@pgtyped/runtime';
 import { IGetUsersWithCommentsQuery } from './sample.types';
 
 const getUsersWithComments = sql<IGetUsersWithCommentsQuery>`

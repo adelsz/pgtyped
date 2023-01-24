@@ -1,22 +1,29 @@
 import {
-  getTypes,
-  ParamTransform,
+  processSQLQueryIR,
+  processTSQueryAST,
+  ParameterTransform,
+} from '@pgtyped/runtime';
+
+import {
   parseSQLFile,
   parseTypeScriptFile,
   prettyPrintEvents,
-  processSQLQueryIR,
-  processTSQueryAST,
   queryASTToIR,
   SQLQueryAST,
   SQLQueryIR,
   TSQueryAST,
-} from '@pgtyped/query';
+} from '@pgtyped/parser';
+import { getTypes, TypeSource } from '@pgtyped/query';
 import { camelCase } from 'camel-case';
 import { pascalCase } from 'pascal-case';
 import path from 'path';
-import { ParsedConfig } from './config';
-import { ProcessingMode } from './index';
-import { TypeAllocator, TypeMapping } from './types';
+import { ParsedConfig } from './config.js';
+import { TypeAllocator, TypeMapping } from './types.js';
+
+export enum ProcessingMode {
+  SQL = 'sql-file',
+  TS = 'query-file',
+}
 
 export interface IField {
   fieldName: string;
@@ -62,7 +69,7 @@ type ParsedQuery =
 
 export async function queryToTypeDeclarations(
   parsedQuery: ParsedQuery,
-  connection: any,
+  typeSource: TypeSource,
   types: TypeAllocator,
   config: ParsedConfig,
 ): Promise<string> {
@@ -76,7 +83,7 @@ export async function queryToTypeDeclarations(
     queryData = processSQLQueryIR(queryASTToIR(parsedQuery.ast));
   }
 
-  const typeData = await getTypes(queryData, connection);
+  const typeData = await typeSource(queryData);
   const interfaceName = pascalCase(queryName);
   const interfacePrefix = config.hungarianNotation ? 'I' : '';
 
@@ -130,10 +137,10 @@ export async function queryToTypeDeclarations(
   const { params } = paramMetadata;
   for (const param of paramMetadata.mapping) {
     if (
-      param.type === ParamTransform.Scalar ||
-      param.type === ParamTransform.Spread
+      param.type === ParameterTransform.Scalar ||
+      param.type === ParameterTransform.Spread
     ) {
-      const isArray = param.type === ParamTransform.Spread;
+      const isArray = param.type === ParameterTransform.Spread;
       const assignedIndex =
         param.assignedIndex instanceof Array
           ? param.assignedIndex[0]
@@ -150,7 +157,7 @@ export async function queryToTypeDeclarations(
         fieldType: isArray ? `readonly (${tsTypeName})[]` : tsTypeName,
       });
     } else {
-      const isArray = param.type === ParamTransform.PickSpread;
+      const isArray = param.type === ParameterTransform.PickSpread;
       let fieldType = Object.values(param.dict)
         .map((p) => {
           const paramType = types.use(params[p.assignedIndex - 1]);
@@ -241,6 +248,7 @@ async function generateTypedecsFromFile(
 ): Promise<ITypedQuery[]> {
   const results: ITypedQuery[] = [];
   const interfacePrefix = config.hungarianNotation ? 'I' : '';
+  const typeSource: TypeSource = (query) => getTypes(query, connection);
 
   const { queries, events } =
     mode === 'ts'
@@ -258,7 +266,7 @@ async function generateTypedecsFromFile(
       const sqlQueryAST = queryAST as SQLQueryAST;
       const result = await queryToTypeDeclarations(
         { ast: sqlQueryAST, mode: ProcessingMode.SQL },
-        connection,
+        typeSource,
         types,
         config,
       );
@@ -285,7 +293,7 @@ async function generateTypedecsFromFile(
           ast: tsQueryAST,
           mode: ProcessingMode.TS,
         },
-        connection,
+        typeSource,
         types,
         config,
       );
@@ -314,7 +322,7 @@ export async function generateDeclarationFile(
   const types = new TypeAllocator(TypeMapping(config.typesOverrides));
 
   if (mode === 'sql') {
-    types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
+    types.use({ name: 'PreparedQuery', from: '@pgtyped/runtime' });
   }
   const typeDecs = await generateTypedecsFromFile(
     contents,

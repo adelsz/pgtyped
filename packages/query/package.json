@@ -1,8 +1,21 @@
 {
   "name": "@pgtyped/query",
   "version": "1.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    }
+  },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "engines": {
+    "node": ">=14.16"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -13,38 +26,19 @@
     "access": "public"
   },
   "scripts": {
-    "test": "jest",
-    "build": "tsc --declaration",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "build": "tsc",
     "check": "tsc --noEmit",
-    "watch": "tsc --declaration --watch --preserveWatchOutput",
-    "parsegen-sql": "antlr4ts -visitor -Xexact-output-dir -o src/loader/sql/parser src/loader/sql/grammar/*.g4",
-    "parsegen-ts": "antlr4ts -visitor -Xexact-output-dir -o src/loader/typescript/parser src/loader/typescript/grammar/*.g4"
-  },
-  "jest": {
-    "roots": [
-      "src"
-    ],
-    "testRegex": "\\.test\\.tsx?$",
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "snapshotFormat": {
-      "escapeString": true,
-      "printBasicPrototype": true
-    }
+    "watch": "tsc --watch --preserveWatchOutput"
   },
   "dependencies": {
+    "@pgtyped/runtime": "^1.1.0",
     "@pgtyped/wire": "^1.1.0",
-    "@types/chalk": "^2.2.0",
-    "@types/debug": "^4.1.4",
-    "antlr4ts": "0.5.0-alpha.4",
     "chalk": "^4.1.0",
     "debug": "^4.1.1"
   },
   "devDependencies": {
-    "antlr4ts-cli": "0.5.0-alpha.4"
-  },
-  "peerDependencies": {
-    "typescript": "3.1 - 4"
+    "@types/chalk": "^2.2.0",
+    "@types/debug": "^4.1.4"
   }
 }

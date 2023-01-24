@@ -9,12 +9,12 @@ import {
   int32,
   sumSize,
   notNullTerminatedString,
-} from './helpers';
+} from './helpers.js';
 import {
   IClientMessage,
   IServerMessage,
   messages as pgMessages,
-} from './messages';
+} from './messages.js';
 
 export const parseSimpleType = (
   type: any,

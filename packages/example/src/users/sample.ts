@@ -1,5 +1,5 @@
-import { sql } from '@pgtyped/query';
-import { IGetUsersWithCommentsQuery } from './sample.types';
+import { sql } from '@pgtyped/runtime';
+import { IGetUsersWithCommentsQuery } from './sample.types.js';
 import { Client } from 'pg';
 
 export async function getUsersWithComment(

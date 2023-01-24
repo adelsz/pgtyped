@@ -1,9 +1,9 @@
-import { sql } from '@pgtyped/query';
+import { sql } from '@pgtyped/runtime';
 import {
   IInsertNotificationQuery,
   IInsertNotificationsQuery,
   IGetAllNotificationsQuery,
-} from './notifications.types';
+} from './notifications.types.js';
 
 // Table order is (user_id, payload, type)
 export const insertNotifications = sql<IInsertNotificationsQuery>`

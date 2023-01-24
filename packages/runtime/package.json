@@ -1,0 +1,49 @@
+{
+  "name": "@pgtyped/runtime",
+  "version": "1.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js",
+      "require": "./lib/index.cjs",
+      "default": "./lib/index.js"
+    }
+  },
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "engines": {
+    "node": ">=14.16"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adelsz/pgtyped.git"
+  },
+  "homepage": "https://github.com/adelsz/pgtyped",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "build:cjs": "esbuild --bundle --sourcemap --platform=node --target=node14 src/index.ts --minify --external:chalk --external:typescript --external:antlr4ts --outfile=lib/index.cjs",
+    "build": "tsc && npm run build:cjs",
+    "check": "tsc --noEmit",
+    "watch": "tsc --watch --preserveWatchOutput"
+  },
+  "dependencies": {
+    "@pgtyped/parser": "^1.1.0",
+    "chalk": "^4.1.0",
+    "debug": "^4.1.1"
+  },
+  "devDependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/debug": "^4.1.4",
+    "esbuild": "^0.17.4"
+  },
+  "peerDependencies": {
+    "typescript": "3.1 - 4"
+  }
+}

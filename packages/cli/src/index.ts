@@ -1,25 +1,21 @@
 #!/usr/bin/env node
 
-import { AsyncQueue, startup } from '@pgtyped/query';
-import JestWorker from 'jest-worker';
+import { startup } from '@pgtyped/query';
+import { AsyncQueue } from '@pgtyped/wire';
 import chokidar from 'chokidar';
 import glob from 'glob';
 import nun from 'nunjucks';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { parseConfig, ParsedConfig, TransformConfig } from './config';
-import { debug } from './util';
-import { WorkerInterface, processFile } from './worker';
+import { debug } from './util.js';
+import { parseConfig, ParsedConfig, TransformConfig } from './config.js';
 import path from 'path';
+
+import WorkerPool from 'piscina';
 
 // tslint:disable:no-console
 
 nun.configure({ autoescape: false });
-
-export enum ProcessingMode {
-  SQL = 'sql-file',
-  TS = 'query-file',
-}
 
 interface TransformJob {
   files: string[];
@@ -27,28 +23,19 @@ interface TransformJob {
 }
 
 class FileProcessor {
-  private readonly worker: WorkerInterface;
+  private readonly pool: WorkerPool;
   public readonly workQueue: Promise<unknown>[] = [];
 
   constructor(private readonly config: ParsedConfig) {
-    this.worker = new JestWorker(require.resolve('./worker'), {
-      exposedMethods: ['processFile'],
-      setupArgs: [this.config],
-      computeWorkerKey: (method, fileName): string | null => {
-        switch (method) {
-          case processFile.name:
-            return fileName as string;
-          default:
-            return null;
-        }
-      },
-    }) as WorkerInterface;
-    this.worker.getStdout().pipe(process.stdout);
-    this.worker.getStderr().pipe(process.stderr);
+    this.pool = new WorkerPool({
+      filename: new URL('./worker.js', import.meta.url).href,
+      workerData: config,
+    });
+    console.log(`Using a pool of ${this.pool.threads.length} threads.`);
   }
 
   public async shutdown() {
-    await this.worker.end();
+    await this.pool.destroy();
   }
 
   public push(job: TransformJob) {
@@ -57,7 +44,10 @@ class FileProcessor {
         try {
           fileName = path.relative(process.cwd(), fileName);
           console.log(`Processing ${fileName}`);
-          const result = await this.worker.processFile(fileName, job.transform);
+          const result = await this.pool.run({
+            fileName,
+            transform: job.transform,
+          });
           if (result.skipped) {
             console.log(
               `Skipped ${fileName}: no changes or no queries detected`,
@@ -76,7 +66,7 @@ class FileProcessor {
             console.log(`Error processing file: ${JSON.stringify(err)}`);
           }
           if (this.config.failOnError) {
-            await this.worker.end();
+            await this.pool.destroy();
             process.exit(1);
           }
         }
@@ -86,10 +76,13 @@ class FileProcessor {
 }
 
 async function main(
-  config: ParsedConfig,
+  cfg: ParsedConfig | Promise<ParsedConfig>,
+  // tslint:disable-next-line:no-shadowed-variable
   isWatchMode: boolean,
+  // tslint:disable-next-line:no-shadowed-variable
   fileOverride?: string,
 ) {
+  const config = await cfg;
   const connection = new AsyncQueue();
   debug('starting codegenerator');
   await startup(config.db, connection);
@@ -143,64 +136,61 @@ async function main(
   }
 }
 
-if (require.main === module) {
-  const args = yargs(hideBin(process.argv))
-    .version()
-    .env()
-    .options({
-      config: {
-        alias: 'c',
-        type: 'string',
-        description: 'Config file path',
-        demandOption: true,
-      },
-      watch: {
-        alias: 'w',
-        description: 'Watch mode',
-        type: 'boolean',
-      },
-      uri: {
-        type: 'string',
-        description: 'DB connection URI (overrides config)',
-      },
-      file: {
-        alias: 'f',
-        type: 'string',
-        conflicts: 'watch',
-        description:
-          'File path (process single file, incompatible with --watch)',
-      },
-    })
-    .epilogue(
-      'For more information, find our manual at https://pgtyped.vercel.app/',
-    )
-    .parseSync();
+const args = yargs(hideBin(process.argv))
+  .version()
+  .env()
+  .options({
+    config: {
+      alias: 'c',
+      type: 'string',
+      description: 'Config file path',
+      demandOption: true,
+    },
+    watch: {
+      alias: 'w',
+      description: 'Watch mode',
+      type: 'boolean',
+    },
+    uri: {
+      type: 'string',
+      description: 'DB connection URI (overrides config)',
+    },
+    file: {
+      alias: 'f',
+      type: 'string',
+      conflicts: 'watch',
+      description: 'File path (process single file, incompatible with --watch)',
+    },
+  })
+  .epilogue(
+    'For more information, find our manual at https://pgtyped.vercel.app/',
+  )
+  .parseSync();
 
-  const {
-    watch: isWatchMode,
-    file: fileOverride,
-    config: configPath,
-    uri: connectionUri,
-  } = args;
+const {
+  watch: isWatchMode,
+  file: fileOverride,
+  config: configPath,
+  uri: connectionUri,
+} = args;
 
-  if (typeof configPath !== 'string') {
-    console.log('Config file required. See help -h for details.\nExiting.');
-    process.exit(0);
-  }
+if (typeof configPath !== 'string') {
+  console.log('Config file required. See help -h for details.\nExiting.');
+  process.exit(0);
+}
 
-  if (isWatchMode && fileOverride) {
-    console.log('File override is not compatible with watch mode.\nExiting.');
-    process.exit(0);
-  }
+if (isWatchMode && fileOverride) {
+  console.log('File override is not compatible with watch mode.\nExiting.');
+  process.exit(0);
+}
 
-  try {
-    const config = parseConfig(configPath, connectionUri);
-    main(config, isWatchMode || false, fileOverride).catch((e) =>
-      debug('error in main: %o', e.message),
-    );
-  } catch (e) {
-    console.error('Failed to parse config file:');
-    console.error((e as any).message);
-    process.exit();
-  }
+try {
+  const config = parseConfig(configPath, connectionUri);
+  main(config, isWatchMode || false, fileOverride).catch((e) =>
+    debug('error in main: %o', e.message),
+  );
+} catch (e) {
+  console.error('Failed to parse config file:');
+  console.error((e as any).message);
+  process.exit();
 }

@@ -1,10 +1,10 @@
-import { messages } from '../src/messages';
+import { messages } from '../src/messages.js';
 import {
   buildMessage,
   parseMessage,
   parseMultiple,
   parseOneOf,
-} from '../src/protocol';
+} from '../src/protocol.js';
 
 test('buildMessage for StartupMessage works', () => {
   const base = buildMessage(messages.startupMessage, {

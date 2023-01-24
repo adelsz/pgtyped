@@ -1,27 +1,17 @@
-export { getTypes, startup, IParseError } from './actions';
+import { InterpolatedQuery } from '@pgtyped/runtime';
+import { IParseError, IQueryTypes } from './actions.js';
+
+export { getTypes, startup, IParseError, IQueryTypes } from './actions.js';
 
 export {
-  ParamTransform,
-  IQueryParameters,
-  IInterpolatedQuery,
-} from './preprocessor';
+  isAlias,
+  isEnum,
+  isEnumArray,
+  isImport,
+  MappableType,
+  Type,
+} from './type.js';
 
-export { processTSQueryAST } from './preprocessor-ts';
-export { processSQLQueryIR } from './preprocessor-sql';
-
-export { AsyncQueue } from '@pgtyped/wire';
-
-export {
-  default as parseTypeScriptFile,
-  TSQueryAST,
-} from './loader/typescript';
-
-export {
-  default as parseSQLFile,
-  SQLQueryAST,
-  SQLQueryIR,
-  prettyPrintEvents,
-  queryASTToIR,
-} from './loader/sql';
-
-export { default as sql, TaggedQuery, PreparedQuery } from './tag';
+export type TypeSource = (
+  queryData: InterpolatedQuery,
+) => Promise<IQueryTypes | IParseError>;

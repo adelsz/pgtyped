@@ -1,12 +1,16 @@
 /** @fileoverview Config file parser */
 
-import * as Either from 'fp-ts/lib/Either';
+import { createRequire } from 'module';
+import * as Either from 'fp-ts/lib/Either.js';
 import { join, isAbsolute } from 'path';
 import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
 import tls from 'tls';
-import parseDatabaseUri, { DatabaseConfig } from 'ts-parse-database-url';
+import { default as dbUrlModule, DatabaseConfig } from 'ts-parse-database-url';
 import { TypeMapping } from './types';
+
+// module import hack
+const { default: parseDatabaseUri } = dbUrlModule as any;
 
 const transformCodecProps = {
   include: t.string,
@@ -95,6 +99,8 @@ function convertParsedURLToDBConfig({
     dbName: database,
   };
 }
+
+const require = createRequire(import.meta.url);
 
 export function parseConfig(
   path: string,

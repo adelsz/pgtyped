@@ -6,7 +6,7 @@ import {
   int32,
   sumSize,
   notNullTerminatedString,
-} from '../src/helpers';
+} from '../src/helpers.js';
 
 test('cString works', () => {
   const str = 'a';
