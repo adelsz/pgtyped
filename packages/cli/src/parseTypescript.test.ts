@@ -1,4 +1,4 @@
-import parseCode from './index.js';
+import { parseCode } from './parseTypescript.js';
 
 test('parser finds string template in correct file', () => {
   const fileContent = `

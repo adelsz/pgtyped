@@ -7,7 +7,7 @@ import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
 import tls from 'tls';
 import { default as dbUrlModule, DatabaseConfig } from 'ts-parse-database-url';
-import { TypeMapping } from './types';
+import { TypeMapping } from './types.js';
 
 // module import hack
 const { default: parseDatabaseUri } = dbUrlModule as any;

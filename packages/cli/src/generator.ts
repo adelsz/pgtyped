@@ -6,19 +6,20 @@ import {
 
 import {
   parseSQLFile,
-  parseTypeScriptFile,
   prettyPrintEvents,
   queryASTToIR,
   SQLQueryAST,
   SQLQueryIR,
   TSQueryAST,
 } from '@pgtyped/parser';
+
 import { getTypes, TypeSource } from '@pgtyped/query';
 import { camelCase } from 'camel-case';
 import { pascalCase } from 'pascal-case';
 import path from 'path';
 import { ParsedConfig } from './config.js';
 import { TypeAllocator, TypeMapping } from './types.js';
+import { parseCode as parseTypescriptFile } from './parseTypescript.js';
 
 export enum ProcessingMode {
   SQL = 'sql-file',
@@ -252,7 +253,7 @@ async function generateTypedecsFromFile(
 
   const { queries, events } =
     mode === 'ts'
-      ? parseTypeScriptFile(contents, fileName)
+      ? parseTypescriptFile(contents, fileName)
       : parseSQLFile(contents);
   if (events.length > 0) {
     prettyPrintEvents(contents, events);

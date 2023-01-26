@@ -28,7 +28,7 @@
   },
   "scripts": {
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
-    "build:cjs": "esbuild --bundle --sourcemap --platform=node --target=node14 src/index.ts --minify --external:chalk --external:typescript --external:antlr4ts --outfile=lib/index.cjs",
+    "build:cjs": "esbuild --bundle --sourcemap --platform=node --target=node14 src/index.ts --minify --external:chalk --external:antlr4ts --outfile=lib/index.cjs",
     "build": "tsc && npm run build:cjs",
     "check": "tsc --noEmit",
     "watch": "tsc --watch --preserveWatchOutput"
@@ -42,8 +42,5 @@
     "@types/chalk": "^2.2.0",
     "@types/debug": "^4.1.4",
     "esbuild": "^0.17.4"
-  },
-  "peerDependencies": {
-    "typescript": "3.1 - 4"
   }
 }

@@ -309,7 +309,7 @@ export function queryASTToIR(query: SQLQueryAST): SQLQueryIR {
   };
 }
 
-export { prettyPrintEvents } from './logger.js';
+export { prettyPrintEvents, ParseEvent } from './logger.js';
 export type SQLQueryAST = QueryAST;
 export type SQLQueryIR = QueryIR;
 export default parseText;

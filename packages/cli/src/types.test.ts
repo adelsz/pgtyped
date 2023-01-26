@@ -1,4 +1,4 @@
-import { DefaultTypeMapping, TypeAllocator } from './types';
+import { DefaultTypeMapping, TypeAllocator } from './types.js';
 
 describe('TypeAllocator', () => {
   test('Allows overrides', () => {

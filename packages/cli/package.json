@@ -58,5 +58,8 @@
     "@types/fs-extra": "11.0.1",
     "@types/glob": "8.0.1",
     "@types/yargs": "17.0.20"
+  },
+  "peerDependencies": {
+    "typescript": "3.1 - 4"
   }
 }

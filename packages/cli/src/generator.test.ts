@@ -1,15 +1,16 @@
 import { ParameterTransform } from '@pgtyped/runtime';
 
-import { parseSQLFile, parseTypeScriptFile } from '@pgtyped/parser';
+import { parseSQLFile } from '@pgtyped/parser';
 import { IQueryTypes } from '@pgtyped/query/lib/actions';
-import { ParsedConfig } from './config';
+import { ParsedConfig } from './config.js';
 import {
   escapeComment,
   generateInterface,
   queryToTypeDeclarations,
   ProcessingMode,
 } from './generator';
-import { DefaultTypeMapping, TypeAllocator } from './types';
+import { parseCode as parseTypeScriptFile } from './parseTypescript.js';
+import { DefaultTypeMapping, TypeAllocator } from './types.js';
 
 const partialConfig = { hungarianNotation: true } as ParsedConfig;
 

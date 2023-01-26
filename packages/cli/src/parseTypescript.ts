@@ -1,15 +1,11 @@
 import ts from 'typescript';
-import parseQuery, { Query } from './query.js';
-import { ParseEvent } from '../sql/logger.js';
-
-export const parseTSQuery = parseQuery;
-
-export type TSQueryAST = Query;
 
 interface INode {
   queryName: string;
   queryText: string;
 }
+
+import { parseTSQuery, TSQueryAST, ParseEvent } from '@pgtyped/parser';
 
 export type TSParseResult = { queries: TSQueryAST[]; events: ParseEvent[] };
 
@@ -41,7 +37,7 @@ export function parseFile(sourceFile: ts.SourceFile): TSParseResult {
   const queries: TSQueryAST[] = [];
   const events: ParseEvent[] = [];
   for (const node of foundNodes) {
-    const { query, events: qEvents } = parseQuery(
+    const { query, events: qEvents } = parseTSQuery(
       node.queryText,
       node.queryName,
     );
@@ -52,7 +48,7 @@ export function parseFile(sourceFile: ts.SourceFile): TSParseResult {
   return { queries, events };
 }
 
-const parseCode = (fileContent: string, fileName = 'unnamed.ts') => {
+export const parseCode = (fileContent: string, fileName = 'unnamed.ts') => {
   const sourceFile = ts.createSourceFile(
     fileName,
     fileContent,
@@ -61,5 +57,3 @@ const parseCode = (fileContent: string, fileName = 'unnamed.ts') => {
   );
   return parseFile(sourceFile);
 };
-
-export default parseCode;
