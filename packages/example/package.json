@@ -6,29 +6,30 @@
   "private": true,
   "homepage": "",
   "license": "MIT",
-  "main": "lib/index.js",
+  "exports": "./lib/index.js",
+  "type": "module",
   "directories": {
     "lib": "lib"
   },
-  "files": [
-    "lib"
-  ],
+  "engines": {
+    "node": ">=14.16"
+  },
   "scripts": {
-    "test": "docker-compose run build && docker-compose run test",
+    "test": "docker-compose run build && docker-compose run test && docker-compose run test-cjs",
     "typegen": "pgtyped -c config.json",
-    "build": "tsc --declaration",
-    "watch": "tsc --declaration --watch --preserveWatchOutput",
+    "build": "tsc && tsc --module commonjs --outDir lib-cjs",
+    "watch": "tsc --watch --preserveWatchOutput",
     "check": "tsc --noEmit"
   },
   "dependencies": {
     "@pgtyped/cli": "^1.1.0",
     "@pgtyped/query": "^1.1.0",
-    "@types/pg": "8.6.6",
     "expect": "27.5.1",
     "pg": "8.7.3",
     "typescript": "4.9.4"
   },
   "devDependencies": {
-    "ts-node": "10.8.2"
+    "@types/pg": "8.6.6",
+    "ts-node": "10.9.1"
   }
 }

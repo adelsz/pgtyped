@@ -1,5 +1,6 @@
 import expect from 'expect';
-import { Client } from 'pg';
+import pg from 'pg';
+const {Client} = pg;
 import {
   aggregateEmailsAndTest,
   findBookUnicode,
@@ -9,16 +10,16 @@ import {
   updateBooks,
   updateBooksCustom,
   updateBooksRankNotNull,
-} from './books/books.queries';
-import { getAllComments } from './comments/comments.queries';
+} from './books/books.queries.js';
+import { getAllComments } from './comments/comments.queries.js';
 import {
   insertNotification,
   insertNotifications,
-} from './notifications/notifications';
+} from './notifications/notifications.js';
 import {
   sendNotifications,
   thresholdFrogs,
-} from './notifications/notifications.queries';
+} from './notifications/notifications.queries.js';
 
 // tslint:disable:no-console
 

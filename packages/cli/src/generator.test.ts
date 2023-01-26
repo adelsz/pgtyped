@@ -1,16 +1,16 @@
-import * as queryModule from '@pgtyped/query';
-import { parseSQLFile, parseTypeScriptFile } from '@pgtyped/query';
+import { ParameterTransform } from '@pgtyped/runtime';
+
+import { parseSQLFile } from '@pgtyped/parser';
 import { IQueryTypes } from '@pgtyped/query/lib/actions';
-import { ParsedConfig } from './config';
+import { ParsedConfig } from './config.js';
 import {
   escapeComment,
   generateInterface,
   queryToTypeDeclarations,
+  ProcessingMode,
 } from './generator';
-import { ProcessingMode } from './index';
-import { DefaultTypeMapping, TypeAllocator } from './types';
-
-const getTypesMocked = jest.spyOn(queryModule, 'getTypes').mockName('getTypes');
+import { parseCode as parseTypeScriptFile } from './parseTypescript.js';
+import { DefaultTypeMapping, TypeAllocator } from './types.js';
 
 const partialConfig = { hungarianNotation: true } as ParsedConfig;
 
@@ -56,20 +56,20 @@ describe('query-to-interface translation', () => {
           mapping: [
             {
               name: 'userId',
-              type: queryModule.ParamTransform.Scalar,
+              type: ParameterTransform.Scalar,
               assignedIndex: 1,
               required: false,
             },
           ],
         },
       };
-      getTypesMocked.mockResolvedValue(mockTypes);
+      const typeSource = async (_: any) => mockTypes;
       const types = new TypeAllocator(DefaultTypeMapping);
       // Test out imports
       types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
-        null,
+        typeSource,
         types,
         partialConfig,
       );
@@ -118,25 +118,25 @@ export interface IGetNotificationsQuery {
           mapping: [
             {
               name: 'notification',
-              type: queryModule.ParamTransform.Pick,
+              type: ParameterTransform.Pick,
               dict: {
                 payload: {
                   name: 'payload',
                   assignedIndex: 1,
                   required: false,
-                  type: queryModule.ParamTransform.Scalar,
+                  type: ParameterTransform.Scalar,
                 },
                 user_id: {
                   name: 'user_id',
                   assignedIndex: 2,
                   required: false,
-                  type: queryModule.ParamTransform.Scalar,
+                  type: ParameterTransform.Scalar,
                 },
                 type: {
                   name: 'type',
                   assignedIndex: 3,
                   required: false,
-                  type: queryModule.ParamTransform.Scalar,
+                  type: ParameterTransform.Scalar,
                 },
               },
             },
@@ -144,10 +144,10 @@ export interface IGetNotificationsQuery {
         },
       };
       const types = new TypeAllocator(DefaultTypeMapping);
-      getTypesMocked.mockResolvedValue(mockTypes);
+      const typeSource = async (_: any) => mockTypes;
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
-        null,
+        typeSource,
         types,
         partialConfig,
       );
@@ -207,19 +207,19 @@ export interface IInsertNotificationsQuery {
           mapping: [
             {
               name: 'userName',
-              type: queryModule.ParamTransform.Scalar,
+              type: ParameterTransform.Scalar,
               required: false,
               assignedIndex: 1,
             },
             {
               name: 'userId',
-              type: queryModule.ParamTransform.Scalar,
+              type: ParameterTransform.Scalar,
               required: false,
               assignedIndex: 2,
             },
             {
               name: 'userNote',
-              type: queryModule.ParamTransform.Scalar,
+              type: ParameterTransform.Scalar,
               required: false,
               assignedIndex: 3,
             },
@@ -227,10 +227,10 @@ export interface IInsertNotificationsQuery {
         },
       };
       const types = new TypeAllocator(DefaultTypeMapping);
-      getTypesMocked.mockResolvedValue(mockTypes);
+      const typeSource = async (_: any) => mockTypes;
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
-        null,
+        typeSource,
         types,
         partialConfig,
       );
@@ -288,20 +288,20 @@ export interface IDeleteUsersQuery {
           mapping: [
             {
               name: 'userId',
-              type: queryModule.ParamTransform.Scalar,
+              type: ParameterTransform.Scalar,
               required: false,
               assignedIndex: 1,
             },
           ],
         },
       };
-      getTypesMocked.mockResolvedValue(mockTypes);
+      const typeSource = async (_: any) => mockTypes;
       const types = new TypeAllocator(DefaultTypeMapping);
       // Test out imports
       types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
-        null,
+        typeSource,
         types,
         { camelCaseColumnNames: true, hungarianNotation: true } as ParsedConfig,
       );
@@ -364,20 +364,20 @@ export interface IGetNotificationsQuery {
           mapping: [
             {
               name: 'userIds',
-              type: queryModule.ParamTransform.Spread,
+              type: ParameterTransform.Spread,
               assignedIndex: 1,
               required: false,
             },
           ],
         },
       };
-      getTypesMocked.mockResolvedValue(mockTypes);
+      const typeSource = async (_: any) => mockTypes;
       const types = new TypeAllocator(DefaultTypeMapping);
       // Test out imports
       types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
-        null,
+        typeSource,
         types,
         { camelCaseColumnNames: true, hungarianNotation: true } as ParsedConfig,
       );
@@ -436,20 +436,20 @@ export interface IGetNotificationsQuery {
           mapping: [
             {
               name: 'userId',
-              type: queryModule.ParamTransform.Scalar,
+              type: ParameterTransform.Scalar,
               required: false,
               assignedIndex: 1,
             },
           ],
         },
       };
-      getTypesMocked.mockResolvedValue(mockTypes);
+      const typeSource = async (_: any) => mockTypes;
       const types = new TypeAllocator(DefaultTypeMapping);
       // Test out imports
       types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
-        null,
+        typeSource,
         types,
         partialConfig,
       );
@@ -508,20 +508,20 @@ export interface IGetNotificationsQuery {
           mapping: [
             {
               name: 'userId',
-              type: queryModule.ParamTransform.Scalar,
+              type: ParameterTransform.Scalar,
               required: false,
               assignedIndex: 1,
             },
           ],
         },
       };
-      getTypesMocked.mockResolvedValue(mockTypes);
+      const typeSource = async (_: any) => mockTypes;
       const types = new TypeAllocator(DefaultTypeMapping);
       // Test out imports
       types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
-        null,
+        typeSource,
         types,
         partialConfig,
       );

@@ -1,4 +1,4 @@
-import { generateHash, reduceTypeRows } from './actions';
+import { generateHash, reduceTypeRows } from './actions.js';
 
 test('test postgres md5 hash generation', () => {
   const salt = [0x81, 0xcc, 0x95, 0x8b];

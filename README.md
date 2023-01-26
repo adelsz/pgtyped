@@ -18,18 +18,21 @@ No need to map or translate your DB schema to TypeScript, PgTyped automatically 
 4. Useful parameter interpolation helpers for arrays and objects.
 5. No need to define your DB schema in TypeScript, your running DB is the live source of type data.
 6. Prevents SQL injections by not doing explicit parameter substitution. Instead, queries and parameters are sent separately to the DB driver, allowing parameter substitution to be safely done by the PostgreSQL server.
+7. Native ESM support. Runtime dependencies are also provided as CommonJS.
 
 ### Documentation
 
-Visit our new documentation page at [https://pgtyped.now.sh/](https://pgtyped.now.sh/)
+Visit our documentation page at [https://pgtyped.vercel.app/](https://pgtyped.vercel.app/)
 
 ### Getting started
 
-1. `npm install @pgtyped/cli @pgtyped/query typescript` (typescript is a required peer dependency for pgtyped)
-2. Create a PgTyped `config.json` file.
-3. Run `npx pgtyped -w -c config.json` to start PgTyped in watch mode.
+1. `npm install -D @pgtyped/cli typescript` (typescript is a required peer dependency for pgtyped)
+2. `npm install @pgtyped/runtime` (`@pgtyped/runtime` is the only required runtime dependency of pgtyped)
+3. Create a PgTyped `config.json` file.
+4. Run `npx pgtyped -w -c config.json` to start PgTyped in watch mode.
 
-Refer to the [example app](./packages/example/README.md) for a preconfigured example.
+More info on getting started can be found in the [Getting Started](https://pgtyped.vercel.app/docs/getting-started) page.
+You can also refer to the [example app](./packages/example/README.md) for a preconfigured example.
 
 ### Example
 
@@ -101,7 +104,7 @@ main();
 
 ### Resources
 
-1. [Configuring Pgtyped](https://pgtyped.vercel.app/docs/cli)
+1. [Configuring pgTyped](https://pgtyped.vercel.app/docs/cli)
 2. [Writing queries in SQL files](https://pgtyped.vercel.app/docs/sql-file-intro)
 3. [Advanced queries and parameter expansions in SQL files](https://pgtyped.vercel.app/docs/sql-file)
 4. [Writing queries in TS files](https://pgtyped.vercel.app/docs/ts-file-intro)

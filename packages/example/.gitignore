@@ -1,3 +1,5 @@
 node_modules
 coverage
 lib
+lib-cjs
+!lib-cjs/package.json

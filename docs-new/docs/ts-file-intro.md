@@ -9,7 +9,7 @@ PgTyped supports inlined queries using the `sql` template literal.
 To see how that works lets write some queries in `users/queries.ts`:
 
 ```ts title="users/queries.ts"
-import { sql } from '@pgtyped/query';
+import { sql } from '@pgtyped/runtime';
 import { ISelectUserIdsQuery } from './queries.types.ts';
 
 export const selectUserIds = sql<
@@ -45,7 +45,7 @@ export interface ISelectUserIdsResult {
 We can now pass the `ISelectUserIdsQuery` as a generic parameter to our query in `users/queries.ts`:
 
 ```ts title="users/queries.ts"
-import { sql } from '@pgtyped/query';
+import { sql } from '@pgtyped/runtime';
 import { ISelectUserIdsQuery } from './queries.types.ts';
 
 export const selectUserIds = sql<

@@ -2,13 +2,13 @@ import { AsyncQueue, messages, PreparedObjectType } from '@pgtyped/wire';
 import crypto from 'crypto';
 import debugBase from 'debug';
 import * as tls from 'tls';
-import { IInterpolatedQuery, QueryParam } from './preprocessor';
+import type { InterpolatedQuery, QueryParameter } from '@pgtyped/runtime';
 import {
   checkServerFinalMessage,
   createClientSASLContinueResponse,
   createInitialSASLResponse,
-} from './sasl-helpers';
-import { DatabaseTypeKind, isEnum, MappableType } from './type';
+} from './sasl-helpers.js';
+import { DatabaseTypeKind, isEnum, MappableType } from './type.js';
 
 const debugQuery = debugBase('client:query');
 
@@ -146,7 +146,7 @@ export async function runQuery(query: string, queue: AsyncQueue) {
 
 export interface IQueryTypes {
   paramMetadata: {
-    mapping: QueryParam[];
+    mapping: QueryParameter[];
     params: MappableType[];
   };
   returnTypes: Array<{
@@ -383,7 +383,7 @@ async function getComments(
 }
 
 export async function getTypes(
-  queryData: IInterpolatedQuery,
+  queryData: InterpolatedQuery,
   queue: AsyncQueue,
 ): Promise<IQueryTypes | IParseError> {
   const typeData = await getTypeData(queryData.query, queue);

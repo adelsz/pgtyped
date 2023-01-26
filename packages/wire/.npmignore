@@ -1,4 +1,0 @@
-src/**/*
-lib/**/*.test.*
-tsconfig.json
-*.tgz

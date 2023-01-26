@@ -39,5 +39,11 @@ services:
     <<: *build
     depends_on:
       - build
-    command: npx ts-node src/index.ts
+    command: node lib/index.js
+
+  test-cjs:
+    <<: *build
+    depends_on:
+      - build
+    command: node lib-cjs/index.js
 

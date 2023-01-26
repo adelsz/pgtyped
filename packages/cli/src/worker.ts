@@ -1,27 +1,31 @@
 import nun from 'nunjucks';
 import path from 'path';
 import fs from 'fs-extra';
-import JestWorker from 'jest-worker';
-import { generateDeclarationFile } from './generator';
-import { AsyncQueue, startup } from '@pgtyped/query';
-import { ParsedConfig, TransformConfig } from './config';
+import { generateDeclarationFile } from './generator.js';
+import { startup } from '@pgtyped/query';
+import { ParsedConfig, TransformConfig } from './config.js';
+import { AsyncQueue } from '@pgtyped/wire';
+import worker from 'piscina';
 
+let connected = false;
 const connection = new AsyncQueue();
-let config: ParsedConfig;
+const config: ParsedConfig = worker.workerData;
 
-export async function setup(c: ParsedConfig) {
-  config = c;
-  await startup(config.db, connection);
-}
-
-export async function processFile(
-  fileName: string,
-  transform: TransformConfig,
-): Promise<{
+export default async function processFile({
+  fileName,
+  transform,
+}: {
+  fileName: string;
+  transform: TransformConfig;
+}): Promise<{
   skipped: boolean;
   typeDecsLength: number;
   relativePath: string;
 }> {
+  if (!connected) {
+    await startup(config.db, connection);
+    connected = true;
+  }
   const ppath = path.parse(fileName);
   let decsFileName;
   if (transform.emitTemplate) {
@@ -60,8 +64,4 @@ export async function processFile(
     typeDecsLength: 0,
     relativePath,
   };
-}
-
-export interface WorkerInterface extends JestWorker {
-  processFile: typeof processFile;
 }

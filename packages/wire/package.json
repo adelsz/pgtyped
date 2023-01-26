@@ -1,6 +1,13 @@
 {
   "name": "@pgtyped/wire",
   "version": "1.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    }
+  },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "license": "MIT",
@@ -12,24 +19,14 @@
   "publishConfig": {
     "access": "public"
   },
+  "files": [
+    "lib"
+  ],
   "scripts": {
-    "test": "jest",
-    "build": "tsc --declaration",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "build": "tsc",
     "check": "tsc --noEmit",
-    "watch": "tsc --declaration --watch --preserveWatchOutput"
-  },
-  "jest": {
-    "roots": [
-      "src"
-    ],
-    "testRegex": "\\.test\\.tsx?$",
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "snapshotFormat": {
-      "escapeString": true,
-      "printBasicPrototype": true
-    }
+    "watch": "tsc --watch --preserveWatchOutput"
   },
   "dependencies": {
     "debug": "^4.1.1"

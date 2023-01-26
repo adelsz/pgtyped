@@ -7,9 +7,9 @@ import {
   parseMultiple,
   parseOneOf,
   ParseResult,
-} from './protocol';
+} from './protocol.js';
 
-import { IClientMessage, IServerMessage, messages } from './messages';
+import { IClientMessage, IServerMessage, messages } from './messages.js';
 
 import debugBase from 'debug';
 const debug = debugBase('pg-wire:socket');

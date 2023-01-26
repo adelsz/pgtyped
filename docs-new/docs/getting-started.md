@@ -6,7 +6,8 @@ sidebar_label: Getting Started
 
 ### Installation
 
-1. `npm install @pgtyped/cli @pgtyped/query typescript` (TS is a required peer dependency)
+1. `npm install -D @pgtyped/cli typescript` (typescript is a required peer dependency for pgtyped)
+2. `npm install @pgtyped/runtime` (runtime is the only required runtime dependency for pgtyped)
 2. Create a PgTyped `config.json` file.
 3. Run `npx pgtyped -w -c config.json` to start PgTyped in watch mode.
 

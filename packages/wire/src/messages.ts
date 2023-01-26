@@ -10,7 +10,7 @@ import {
   int16,
   int32,
   notNullTerminatedString,
-} from './helpers';
+} from './helpers.js';
 
 export interface IClientMessage<Params extends object | void> {
   name: string;
