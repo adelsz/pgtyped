@@ -2,14 +2,15 @@ import {test, expect, afterEach, beforeEach, beforeAll, describe} from '@jest/gl
 import pg from 'pg';
 const {Client} = pg;
 import {
-  aggregateEmailsAndTest,
-  findBookUnicode,
-  findBookById,
-  getBooksByAuthorName,
-  insertBooks,
-  updateBooks,
-  updateBooksCustom,
-  updateBooksRankNotNull,
+    aggregateEmailsAndTest,
+    findBookUnicode,
+    findBookById,
+    getBooksByAuthorName,
+    insertBooks,
+    updateBooks,
+    updateBooksCustom,
+    updateBooksRankNotNull,
+    findBookNameOrRank,
 } from './books/books.queries.js';
 import { getAllComments } from './comments/comments.queries.js';
 import {
@@ -61,6 +62,13 @@ test('select query with unicode characters', () => {
 test('select query with parameters', async () => {
     const comments = await getAllComments.run({ id: 1 }, client);
     expect(comments).toMatchSnapshot();
+})
+
+test('select query with dynamic or', () => {
+    const result = findBookNameOrRank.run({
+        rank: 1,
+    }, client);
+    expect(result).resolves.toMatchSnapshot();
 })
 
 test('select query with date type override (TS)', async () => {

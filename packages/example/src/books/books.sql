@@ -1,6 +1,11 @@
 /* @name FindBookById */
 SELECT * FROM books WHERE id = :id;
 
+/* @name FindBookNameOrRank */
+SELECT id, name
+FROM books
+WHERE (name = :name OR rank = :rank);
+
 /* @name FindBookUnicode */
 SELECT * FROM books WHERE name = 'שקל';
 

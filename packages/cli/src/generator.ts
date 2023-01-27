@@ -27,6 +27,7 @@ export enum ProcessingMode {
 }
 
 export interface IField {
+  optional?: boolean;
   fieldName: string;
   fieldType: string;
   comment?: string;
@@ -47,9 +48,9 @@ export const generateInterface = (interfaceName: string, fields: IField[]) => {
     .sort((a, b) => a.fieldName.localeCompare(b.fieldName));
   const contents = sortedFields
     .map(
-      ({ fieldName, fieldType, comment }) =>
+      ({ fieldName, fieldType, comment, optional }) =>
         (comment ? `  /** ${escapeComment(comment)} */\n` : '') +
-        `  ${fieldName}: ${fieldType};`,
+        `  ${fieldName}${optional ? '?' : ''}: ${fieldType};`,
     )
     .join('\n');
   return interfaceGen(interfaceName, contents);
@@ -153,7 +154,12 @@ export async function queryToTypeDeclarations(
         tsTypeName += ' | null | void';
       }
 
+      // Allow optional scalar parameters to be missing from parameters object
+      const optional =
+        param.type === ParameterTransform.Scalar && !param.required;
+
       paramFieldTypes.push({
+        optional,
         fieldName: param.name,
         fieldType: isArray ? `readonly (${tsTypeName})[]` : tsTypeName,
       });

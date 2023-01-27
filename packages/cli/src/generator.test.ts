@@ -82,7 +82,7 @@ export type Json = null | boolean | number | string | Json[] | { [key: string]: 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
-  userId: string | null | void;
+  userId?: string | null | void;
 }
 
 /** 'GetNotifications' return type */
@@ -236,9 +236,9 @@ export interface IInsertNotificationsQuery {
       );
       const expected = `/** 'DeleteUsers' parameters type */
 export interface IDeleteUsersParams {
-  userId: string | null | void;
-  userName: string | null | void;
-  userNote: string | null | void;
+  userId?: string | null | void;
+  userName?: string | null | void;
+  userNote?: string | null | void;
 }
 
 /** 'DeleteUsers' return type */
@@ -314,7 +314,7 @@ export type Json = null | boolean | number | string | Json[] | { [key: string]: 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
-  userId: string | null | void;
+  userId?: string | null | void;
 }
 
 /** 'GetNotifications' return type */
@@ -462,7 +462,7 @@ export type Json = null | boolean | number | string | Json[] | { [key: string]: 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
-  userId: string | null | void;
+  userId?: string | null | void;
 }
 
 /** 'GetNotifications' return type */
@@ -534,7 +534,7 @@ export type Json = null | boolean | number | string | Json[] | { [key: string]: 
       expect(types.declaration()).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
-  userId: string | null | void;
+  userId?: string | null | void;
 }
 
 /** 'GetNotifications' return type */
