@@ -13,7 +13,7 @@ export interface IGetUsersWithCommentsResult {
   first_name: string | null;
   id: number;
   last_name: string | null;
-  registration_date: Date;
+  registration_date: string;
   user_name: string;
 }
 

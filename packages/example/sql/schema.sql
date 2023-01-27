@@ -17,7 +17,8 @@ CREATE TABLE notifications (
   id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users,
   payload jsonb NOT NULL,
-  type notification_type NOT NULL DEFAULT 'notification'
+  type notification_type NOT NULL DEFAULT 'notification',
+  created_at DATE NOT NULL DEFAULT CURRENT_DATE
 );
 
 CREATE TABLE authors (

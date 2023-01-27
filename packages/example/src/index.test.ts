@@ -17,9 +17,11 @@ import {
   insertNotifications,
 } from './notifications/notifications.js';
 import {
-  sendNotifications,
-  thresholdFrogs,
+    getNotifications,
+    sendNotifications,
+    thresholdFrogs,
 } from './notifications/notifications.queries.js';
+import {getUsersWithComment} from "./users/sample.js";
 
 const dbConfig = {
   host: process.env.PGHOST ?? '127.0.0.1',
@@ -32,6 +34,12 @@ const dbConfig = {
 // Connect to the database once before all tests
 let client: any;
 beforeAll(async () => {
+    // Parse dates as strings for demo and testing purposes
+    pg.types.setTypeParser(pg.types.builtins.DATE, function(val) {
+        return val;
+    })
+
+    // Create a new client and connect to the database
     client = new Client(dbConfig);
     await client.connect();
 });
@@ -53,6 +61,18 @@ test('select query with unicode characters', () => {
 test('select query with parameters', async () => {
     const comments = await getAllComments.run({ id: 1 }, client);
     expect(comments).toMatchSnapshot();
+})
+
+test('select query with date type override (TS)', async () => {
+    const comments = await getUsersWithComment(0, client);
+    const dateAsString: string = comments.registration_date;
+    expect(typeof dateAsString).toBe("string");
+})
+
+test('select query with date type override (SQL)', async () => {
+    const notifications = await getNotifications.run({userId: 1}, client);
+    const dateAsString: string = notifications[0].created_at;
+    expect(typeof dateAsString).toBe("string");
 })
 
 test('insert query with parameter spread', async () => {

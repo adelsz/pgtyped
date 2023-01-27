@@ -44,6 +44,7 @@ export type IGetAllNotificationsParams = void;
 
 /** 'GetAllNotifications' return type */
 export interface IGetAllNotificationsResult {
+  created_at: string;
   id: number;
   payload: Json;
   type: notification_type;

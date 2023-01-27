@@ -18,7 +18,7 @@
     "test": "docker-compose run build && docker-compose run test && docker-compose run test-cjs",
     "typegen": "pgtyped -c config.json",
     "build": "echo 'No build step required. Use npm test instead'",
-    "watch": "tsc --watch --preserveWatchOutput",
+    "watch": "echo 'No build step required. Use npm test instead'",
     "check": "tsc --noEmit"
   },
   "dependencies": {
