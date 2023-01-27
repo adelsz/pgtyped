@@ -12,5 +12,5 @@ export async function getUsersWithComment(
     GROUP BY u.id
     HAVING count(bc.id) > $minCommentCount!::int`;
   const result = await getUsersWithComments.run({ minCommentCount }, client);
-  return result[0].user_name;
+  return result[0];
 }

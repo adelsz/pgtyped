@@ -11,6 +11,9 @@
       "emitTemplate": "{{dir}}/{{name}}.types.ts"
     }
   ],
+  "typesOverrides": {
+    "date": "string"
+  },
   "srcDir": "./src/",
   "dbUrl": "postgres://postgres:password@localhost/postgres"
 }

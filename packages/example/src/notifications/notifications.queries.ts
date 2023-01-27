@@ -44,6 +44,7 @@ export interface IGetNotificationsParams {
 
 /** 'GetNotifications' return type */
 export interface IGetNotificationsResult {
+  created_at: string;
   id: number;
   payload: Json;
   type: notification_type;
