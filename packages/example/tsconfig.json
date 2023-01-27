@@ -1,23 +1,11 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "ES6",
-    "module": "ES2020",
-    "sourceMap": true,
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictBindCallApply": true,
-    "strictPropertyInitialization": true,
-    "esModuleInterop": true,
     "outDir": "./lib/",
     "rootDir": "./src/",
-    "moduleResolution": "node"
+    "module": "commonjs",
   },
   "exclude": [
     "lib"
   ],
-  "include": [
-    "./src"
-  ]
 }

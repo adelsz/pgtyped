@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`select query with join and a parameter override 1`] = `
+Array [
+  Object {
+    "author_id": 2,
+    "categories": null,
+    "id": 2,
+    "name": "The Dragons Of Eden",
+    "rank": 4,
+  },
+]
+`;
+
+exports[`select query with json fields and casts 1`] = `Array []`;
+
+exports[`select query with parameters 1`] = `
+Array [
+  Object {
+    "body": "Fantastic read, recommend it!",
+    "book_id": 1,
+    "id": 1,
+    "user_id": 1,
+  },
+  Object {
+    "body": "Did not like it, expected much more...",
+    "book_id": 2,
+    "id": 2,
+    "user_id": 1,
+  },
+]
+`;
+
+exports[`select query with unicode characters 1`] = `Array []`;

@@ -39,11 +39,11 @@ services:
     <<: *build
     depends_on:
       - build
-    command: node lib/index.js
+    command: npx jest index.test.ts
 
   test-cjs:
     <<: *build
     depends_on:
       - build
-    command: node lib-cjs/index.js
+    command: npx jest -c jest-cjs.config.ts index.test.ts
 

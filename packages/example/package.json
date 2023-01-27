@@ -17,7 +17,7 @@
   "scripts": {
     "test": "docker-compose run build && docker-compose run test && docker-compose run test-cjs",
     "typegen": "pgtyped -c config.json",
-    "build": "tsc && tsc --module commonjs --outDir lib-cjs",
+    "build": "echo 'No build step required. Use npm test instead'",
     "watch": "tsc --watch --preserveWatchOutput",
     "check": "tsc --noEmit"
   },
