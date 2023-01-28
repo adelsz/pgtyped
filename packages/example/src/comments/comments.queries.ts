@@ -70,7 +70,12 @@ export interface IInsertCommentParams {
 }
 
 /** 'InsertComment' return type */
-export type IInsertCommentResult = void;
+export interface IInsertCommentResult {
+  body: string | null;
+  book_id: number | null;
+  id: number;
+  user_id: number | null;
+}
 
 /** 'InsertComment' query type */
 export interface IInsertCommentQuery {
@@ -78,13 +83,14 @@ export interface IInsertCommentQuery {
   result: IInsertCommentResult;
 }
 
-const insertCommentIR: any = {"usedParamSet":{"comments":true},"params":[{"name":"comments","required":false,"transform":{"type":"pick_array_spread","keys":[{"name":"userId","required":true},{"name":"commentBody","required":true}]},"locs":[{"a":49,"b":57}]}],"statement":"INSERT INTO book_comments (user_id, body)\nVALUES :comments"};
+const insertCommentIR: any = {"usedParamSet":{"comments":true},"params":[{"name":"comments","required":false,"transform":{"type":"pick_array_spread","keys":[{"name":"userId","required":true},{"name":"commentBody","required":true}]},"locs":[{"a":73,"b":81}]}],"statement":"INSERT INTO book_comments (user_id, body)\n-- NOTE: this is a note\nVALUES :comments RETURNING *"};
 
 /**
  * Query generated from SQL:
  * ```
  * INSERT INTO book_comments (user_id, body)
- * VALUES :comments
+ * -- NOTE: this is a note
+ * VALUES :comments RETURNING *
  * ```
  */
 export const insertComment = new PreparedQuery<IInsertCommentParams,IInsertCommentResult>(insertCommentIR);

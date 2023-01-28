@@ -14,4 +14,5 @@ SELECT * FROM book_comments WHERE id in :ids AND id in :ids!;
   @param comments -> ((userId!, commentBody!)...)
 */
 INSERT INTO book_comments (user_id, body)
-VALUES :comments;
+-- NOTE: this is a note
+VALUES :comments RETURNING *;

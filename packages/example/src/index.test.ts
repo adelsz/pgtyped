@@ -12,7 +12,7 @@ import {
     updateBooksRankNotNull,
     findBookNameOrRank,
 } from './books/books.queries.js';
-import { getAllComments } from './comments/comments.queries.js';
+import {getAllComments, insertComment} from './comments/comments.queries.js';
 import {
   insertNotification,
   insertNotifications,
@@ -106,6 +106,11 @@ test('insert query with parameter spread', async () => {
 
 test('update query with a non-null parameter override', async () => {
     await updateBooks.run({ id: 2, rank: 12, name: 'Another title' }, client);
+})
+
+test('insert query with an inline sql comment', async () => {
+    const result = await insertComment.run({ comments: [{ commentBody: "Just a comment", userId: 1}] }, client);
+    expect(result).toMatchSnapshot();
 })
 
 test('dynamic update query', async () => {

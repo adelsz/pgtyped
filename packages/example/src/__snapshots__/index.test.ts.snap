@@ -1,5 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`insert query with an inline sql comment 1`] = `
+Array [
+  Object {
+    "body": "Just a comment",
+    "book_id": null,
+    "id": 6,
+    "user_id": 1,
+  },
+]
+`;
+
 exports[`select query with dynamic or 1`] = `
 Array [
   Object {
