@@ -10,6 +10,6 @@ No need to map or translate your DB schema to TypeScript, PgTyped automatically 
 
 ## Project goals
 
-- **Smooth dev experience** - Provide a smooth and reliable development experience for engineers that want to use raw SQL queries.
+- **Smooth developer experience** - Provide a smooth and reliable development experience for engineers that want to use raw SQL queries.
 - **Static typing** - SQL queries are validated and fully usable by the typechecker.
 - **No magic** - PgTyped is not a query builder or an ORM.

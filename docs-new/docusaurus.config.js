@@ -7,6 +7,11 @@ module.exports = {
   organizationName: 'adelsz', // Usually your GitHub org/user name.
   projectName: 'pgtyped', // Usually your repo name.
   themeConfig: {
+    docs: {
+      sidebar: {
+        hideable: true,
+      },
+    },
     navbar: {
       logo: {
         alt: 'pgtyped',

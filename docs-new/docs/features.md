@@ -10,3 +10,4 @@ sidebar_label: Features
 - **Interpolation helpers** - Useful parameter interpolation helpers for arrays and objects.
 - **Single source of types** - No need to define your DB schema in TypeScript, your running DB is the live source of type data.
 - **Prevents SQL injections** - PgTyped doesn't do explicit parameter substitution. Instead, queries and parameters are sent separately to the DB driver, allowing parameter substitution to be safely done by the PostgreSQL server.
+- **ESM first** - PgTyped is written in TypeScript and uses ESM modules. The runtime and generated code is also ESM, but CommonJS is also supported.

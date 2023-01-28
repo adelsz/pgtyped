@@ -1,7 +1,7 @@
 ---
 id: cli
-title: CLI config
-sidebar_label: CLI config
+title: CLI Usage and Configuration
+sidebar_label: CLI Usage and Configuration
 ---
 
 `pgtyped` CLI can be launched in build or watch mode.
@@ -36,7 +36,10 @@ PgTyped supports common PostgreSQL environment variables:
 
 These variables will override values provided in `config.json`.
 
-### Configuration file format
+### Example configuration file
+
+Below is an example configuration file, with comments explaining each field.  
+For a full list of options, see the [Configuration file format](#configuration-file-format) section.  
 
 ```js title="config.json"
 {
@@ -72,6 +75,43 @@ These variables will override values provided in `config.json`.
 }
 ```
 
+:::note
+Configuration file can be also be written in JS format and default exported as an object.
+:::
+
+### Configuration file format
+
+| Name                    | Type                      | Description                                                                                                                                                                |
+|-------------------------|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `transforms`            | `Transform[]`             | An array of transforms to apply to the files.                                                                                                                              |
+| `srcDir`                | `string`                  | Directory to scan or watch for query files.                                                                                                                                |
+| `db`                    | `DatabaseConfig`          | A database config.                                                                                                                                                         |
+| `failOnError?`          | `boolean`                | Whether to fail on a file processing error and abort generation. **Default:** `false`                                                                                      |
+| `dbUrl?`                | `string`                 | A connection string to the database. Example: `postgres://user:password@host/database`. Overrides (merged) with `db` config.                                               |
+| `camelCaseColumnNames?` | `boolean`                | Whether to convert column names to camelCase. _Note that this only coverts the types. You need to do this at runtime independently using a library like `pg-camelcase`_.   |
+| `typesOverrides?`       | `Record<string, string>` | A map of type overrides. Similarly to `camelCaseColumnNames`, this only affects the types. _You need to do this at runtime independently using a library like `pg-types`._ |
+
+Fields marked with `?` are optional.
+
+#### Transform
+
+| Name           | Type     | Description                                                                                       |
+|----------------|----------|---------------------------------------------------------------------------------------------------|
+| `mode`         | `string`   | The mode to use. Can be `sql` or `ts`.                                                            |
+| `include`      | `string` | A glob pattern to match files to process. Example: `"**/*.sql"`.                                  |
+| `emitTemplate` | `string` | A template to use for the output file name. See [Customizing generated file paths](#customizing-generated-file-paths) for more details. |
+
+#### DatabaseConfig
+
+| Name        | Type                                | Description                                                                                                                                                                                                                                                                                |
+|-------------|-------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `host?`     | `string`                            | The database host. Defaults to `127.0.0.1`.                                                                                                                                                                                                                                                |
+| `port?`     | `number`                            | The database port. Defaults to `5432`.                                                                                                                                                                                                                                                     |
+| `user?`     | `string`                            | The database user. Defaults to `postgres`.                                                                                                                                                                                                                                                 |
+| `dbName?`   | `string`                            | The database name. Defaults to `postgres`.                                                                                                                                                                                                                                                 |
+| `password?` | `string`                            | The database password. Defaults to empty string.                                                                                                                                                                                                                                           |
+| `ssl?`      | `boolean` or `TLSConnectionOptions` | Determines whether to use SSL to connect to the database. Also accepts a TLS connection options object as defined in the Node.js [socket method](https://nodejs.org/api/tls.html#new-tlstlssocketsocket-options). More details on this in the [Configuring SSL](#configuring-ssl) section. |
+
 ### Customizing generated file paths
 
 By default, PgTyped saves generated files in the same folder as the source files it parses.
@@ -89,7 +129,7 @@ For example, when parsing source/query file `/home/user/dir/file.sql`, these par
 (All spaces in the "" line should be ignored. They are purely for formatting.)
 ```
 
-### Configuring SSL options
+### Configuring SSL
 
 By default, if enabled it will attempt to verify the SSL connection with the local certificates on the machine.
 
