@@ -2,6 +2,7 @@
 id: intro
 title: Overview
 sidebar_label: Overview
+slug: /
 ---
 
 PgTyped makes it possible to use raw SQL in TypeScript with guaranteed type-safety.  

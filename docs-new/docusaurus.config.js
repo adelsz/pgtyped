@@ -30,23 +30,21 @@ module.exports = {
       style: 'dark',
       copyright: `Copyright © ${new Date().getFullYear()} Adel Salakh. Built with Docusaurus.`,
     },
-    googleAnalytics: {
-      trackingID: 'UA-168210187-1',
-    },
-    gtag: {
-      trackingID: 'UA-168210187-1',
-    },
   },
   presets: [
     [
       '@docusaurus/preset-classic',
       {
         docs: {
-          // It is recommended to set document id as docs home page (`docs/` path).
-          homePageId: 'intro',
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           editUrl: 'https://github.com/adelsz/pgtyped/edit/master/docs-new/',
+        },
+        googleAnalytics: {
+          trackingID: 'UA-168210187-1',
+        },
+        gtag: {
+          trackingID: 'UA-168210187-1',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
