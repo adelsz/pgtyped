@@ -11,7 +11,7 @@ export type stringArray = (string)[];
 
 /** 'FindBookById' parameters type */
 export interface IFindBookByIdParams {
-  id: number | null | void;
+  id?: number | null | void;
 }
 
 /** 'FindBookById' return type */
@@ -38,6 +38,37 @@ const findBookByIdIR: any = {"usedParamSet":{"id":true},"params":[{"name":"id","
  * ```
  */
 export const findBookById = new PreparedQuery<IFindBookByIdParams,IFindBookByIdResult>(findBookByIdIR);
+
+
+/** 'FindBookNameOrRank' parameters type */
+export interface IFindBookNameOrRankParams {
+  name?: string | null | void;
+  rank?: number | null | void;
+}
+
+/** 'FindBookNameOrRank' return type */
+export interface IFindBookNameOrRankResult {
+  id: number;
+  name: string | null;
+}
+
+/** 'FindBookNameOrRank' query type */
+export interface IFindBookNameOrRankQuery {
+  params: IFindBookNameOrRankParams;
+  result: IFindBookNameOrRankResult;
+}
+
+const findBookNameOrRankIR: any = {"usedParamSet":{"name":true,"rank":true},"params":[{"name":"name","required":false,"transform":{"type":"scalar"},"locs":[{"a":41,"b":45}]},{"name":"rank","required":false,"transform":{"type":"scalar"},"locs":[{"a":57,"b":61}]}],"statement":"SELECT id, name\nFROM books\nWHERE (name = :name OR rank = :rank)"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT id, name
+ * FROM books
+ * WHERE (name = :name OR rank = :rank)
+ * ```
+ */
+export const findBookNameOrRank = new PreparedQuery<IFindBookNameOrRankParams,IFindBookNameOrRankResult>(findBookNameOrRankIR);
 
 
 /** 'FindBookUnicode' parameters type */
@@ -105,7 +136,7 @@ export const insertBooks = new PreparedQuery<IInsertBooksParams,IInsertBooksResu
 /** 'UpdateBooksCustom' parameters type */
 export interface IUpdateBooksCustomParams {
   id: number;
-  rank: number | null | void;
+  rank?: number | null | void;
 }
 
 /** 'UpdateBooksCustom' return type */
@@ -139,8 +170,8 @@ export const updateBooksCustom = new PreparedQuery<IUpdateBooksCustomParams,IUpd
 /** 'UpdateBooks' parameters type */
 export interface IUpdateBooksParams {
   id: number;
-  name: string | null | void;
-  rank: number | null | void;
+  name?: string | null | void;
+  rank?: number | null | void;
 }
 
 /** 'UpdateBooks' return type */
@@ -171,7 +202,7 @@ export const updateBooks = new PreparedQuery<IUpdateBooksParams,IUpdateBooksResu
 /** 'UpdateBooksRankNotNull' parameters type */
 export interface IUpdateBooksRankNotNullParams {
   id: number;
-  name: string | null | void;
+  name?: string | null | void;
   rank: number;
 }
 
@@ -234,7 +265,7 @@ export const getBooksByAuthorName = new PreparedQuery<IGetBooksByAuthorNameParam
 
 /** 'AggregateEmailsAndTest' parameters type */
 export interface IAggregateEmailsAndTestParams {
-  testAges: numberArray | null | void;
+  testAges?: numberArray | null | void;
 }
 
 /** 'AggregateEmailsAndTest' return type */

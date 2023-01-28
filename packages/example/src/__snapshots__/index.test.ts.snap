@@ -1,5 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`select query with dynamic or 1`] = `
+Array [
+  Object {
+    "id": 1,
+    "name": "Black Swan",
+  },
+]
+`;
+
 exports[`select query with join and a parameter override 1`] = `
 Array [
   Object {

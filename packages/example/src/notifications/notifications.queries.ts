@@ -39,7 +39,7 @@ export const sendNotifications = new PreparedQuery<ISendNotificationsParams,ISen
 
 /** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
-  userId: number | null | void;
+  userId?: number | null | void;
 }
 
 /** 'GetNotifications' return type */
