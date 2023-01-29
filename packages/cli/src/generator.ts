@@ -101,6 +101,11 @@ export async function queryToTypeDeclarations(
     // tslint:disable:no-console
     if (typeError) {
       console.error('Error in query. Details: %o', typeData);
+      if (config.failOnError) {
+        throw new Error(
+          `Query "${queryName}" is invalid. Can't generate types.`,
+        );
+      }
     } else {
       console.error(
         `Query '${queryName}' is invalid. Query contains an anonymous column. Consider giving the column an explicit name.`,

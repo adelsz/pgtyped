@@ -59,6 +59,13 @@ class FileProcessor {
           }
         } catch (err) {
           if (err instanceof Error) {
+
+            const isWorkerTermination =
+              err.message === 'Terminating worker thread';
+            if (isWorkerTermination) {
+              return;
+            }
+
             console.log(
               `Error processing file: ${err.stack || JSON.stringify(err)}`,
             );
