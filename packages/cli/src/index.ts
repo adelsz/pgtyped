@@ -59,7 +59,6 @@ class FileProcessor {
           }
         } catch (err) {
           if (err instanceof Error) {
-
             const isWorkerTermination =
               err.message === 'Terminating worker thread';
             if (isWorkerTermination) {
