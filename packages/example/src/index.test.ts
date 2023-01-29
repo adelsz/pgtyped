@@ -33,7 +33,7 @@ const dbConfig = {
 };
 
 // Connect to the database once before all tests
-let client: any;
+let client: pg.Client;
 beforeAll(async () => {
     // Parse dates as strings for demo and testing purposes
     pg.types.setTypeParser(pg.types.builtins.DATE, function(val) {
@@ -51,8 +51,8 @@ afterAll(async () => {
 })
 
 // Run each test in a transaction that is rolled back at the end
-beforeEach( () => client.query('BEGIN;'))
-afterEach( () => client.query('ROLLBACK;'))
+beforeEach( () => client.query('BEGIN'))
+afterEach( () => client.query('ROLLBACK'))
 
 test('select query with unicode characters', () => {
     const result = findBookUnicode.run(undefined, client);
@@ -109,8 +109,10 @@ test('update query with a non-null parameter override', async () => {
 })
 
 test('insert query with an inline sql comment', async () => {
-    const result = await insertComment.run({ comments: [{ commentBody: "Just a comment", userId: 1}] }, client);
-    expect(result).toMatchSnapshot();
+    const [result] = await insertComment.run({ comments: [{ commentBody: "Just a comment", userId: 1}] }, client);
+    expect(result).toMatchSnapshot({
+        id: expect.any(Number),
+    });
 })
 
 test('dynamic update query', async () => {
@@ -159,7 +161,7 @@ test('insert query with an enum field', async () => {
     );
 });
 
-test('multiple insert queres with an enum field', async () => {
+test('multiple insert queries with an enum field', async () => {
     await insertNotifications.run(
         {
         params: [
