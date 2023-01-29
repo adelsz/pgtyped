@@ -32,7 +32,7 @@ PgTyped supports common PostgreSQL environment variables:
 - `PGPASSWORD`
 - `PGDATABASE`
 - `PGPORT`
-- `PGURI`
+- `PGURI` or `DATABASE_URL`
 
 These variables will override values provided in `config.json`.
 
