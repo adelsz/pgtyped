@@ -10,7 +10,7 @@ import {
     updateBooks,
     updateBooksCustom,
     updateBooksRankNotNull,
-    findBookNameOrRank,
+    findBookNameOrRank, getBooks,
 } from './books/books.queries.js';
 import {getAllComments, insertComment} from './comments/comments.queries.js';
 import {
@@ -189,4 +189,9 @@ test('multiple insert queries with an enum field', async () => {
 test('select query with json fields and casts', async () => {
     const notifications = await thresholdFrogs.run({ numFrogs: 80 }, client);
     expect(notifications).toMatchSnapshot();
+})
+
+test('select query nullability override on return field', async () => {
+    const result = await getBooks.run(undefined, client);
+    expect(result).toMatchSnapshot();
 })

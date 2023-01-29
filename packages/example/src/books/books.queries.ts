@@ -291,3 +291,29 @@ const aggregateEmailsAndTestIR: any = {"usedParamSet":{"testAges":true},"params"
 export const aggregateEmailsAndTest = new PreparedQuery<IAggregateEmailsAndTestParams,IAggregateEmailsAndTestResult>(aggregateEmailsAndTestIR);
 
 
+/** 'GetBooks' parameters type */
+export type IGetBooksParams = void;
+
+/** 'GetBooks' return type */
+export interface IGetBooksResult {
+  id: number;
+  name: string;
+}
+
+/** 'GetBooks' query type */
+export interface IGetBooksQuery {
+  params: IGetBooksParams;
+  result: IGetBooksResult;
+}
+
+const getBooksIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT id, name as \"name!\" FROM books"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT id, name as "name!" FROM books
+ * ```
+ */
+export const getBooks = new PreparedQuery<IGetBooksParams,IGetBooksResult>(getBooksIR);
+
+

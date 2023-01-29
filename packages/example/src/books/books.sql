@@ -55,3 +55,6 @@ WHERE a.first_name || ' ' || a.last_name = :authorName!;
 
 /* @name AggregateEmailsAndTest */
 SELECT array_agg(email) as "emails!", array_agg(age) = :testAges as ageTest FROM users;
+
+/* @name GetBooks */
+SELECT id, name as "name!" FROM books;

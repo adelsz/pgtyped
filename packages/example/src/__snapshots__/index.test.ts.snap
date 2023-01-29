@@ -9,6 +9,27 @@ Object {
 }
 `;
 
+exports[`select query nullability override on return field 1`] = `
+Array [
+  Object {
+    "id": 1,
+    "name": "Black Swan",
+  },
+  Object {
+    "id": 2,
+    "name": "The Dragons Of Eden",
+  },
+  Object {
+    "id": 3,
+    "name": "Mysteries of a Barbershop",
+  },
+  Object {
+    "id": 4,
+    "name": "In the Jungle of Cities",
+  },
+]
+`;
+
 exports[`select query with dynamic or 1`] = `
 Array [
   Object {
