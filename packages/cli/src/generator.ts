@@ -20,6 +20,7 @@ import path from 'path';
 import { ParsedConfig } from './config.js';
 import { TypeAllocator, TypeMapping } from './types.js';
 import { parseCode as parseTypescriptFile } from './parseTypescript.js';
+import { IQueryTypes } from '@pgtyped/query/lib/actions';
 
 export enum ProcessingMode {
   SQL = 'sql-file',
@@ -89,9 +90,27 @@ export async function queryToTypeDeclarations(
   const interfaceName = pascalCase(queryName);
   const interfacePrefix = config.hungarianNotation ? 'I' : '';
 
-  if ('errorCode' in typeData) {
-    // tslint:disable-next-line:no-console
-    console.error('Error in query. Details: %o', typeData);
+  const typeError = 'errorCode' in typeData;
+  const hasAnonymousColumns =
+    !typeError &&
+    (typeData as IQueryTypes).returnTypes.some(
+      ({ returnName }) => returnName === '?column?',
+    );
+
+  if (typeError || hasAnonymousColumns) {
+    // tslint:disable:no-console
+    if (typeError) {
+      console.error('Error in query. Details: %o', typeData);
+    } else {
+      console.error(
+        `Query '${queryName}' is invalid. Query contains an anonymous column. Consider giving the column an explicit name.`,
+      );
+    }
+    let explanation = '';
+    if (hasAnonymousColumns) {
+      explanation = `Query contains an anonymous column. Consider giving the column an explicit name.`;
+    }
+
     const returnInterface = generateTypeAlias(
       `${interfacePrefix}${interfaceName}Result`,
       'never',
@@ -100,8 +119,8 @@ export async function queryToTypeDeclarations(
       `${interfacePrefix}${interfaceName}Params`,
       'never',
     );
-    const resultErrorComment = `/** Query '${queryName}' is invalid, so its result is assigned type 'never' */\n`;
-    const paramErrorComment = `/** Query '${queryName}' is invalid, so its parameters are assigned type 'never' */\n`;
+    const resultErrorComment = `/** Query '${queryName}' is invalid, so its result is assigned type 'never'.\n * ${explanation} */\n`;
+    const paramErrorComment = `/** Query '${queryName}' is invalid, so its parameters are assigned type 'never'.\n * ${explanation} */\n`;
     return `${resultErrorComment}${returnInterface}${paramErrorComment}${paramInterface}`;
   }
 

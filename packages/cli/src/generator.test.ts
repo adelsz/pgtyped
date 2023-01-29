@@ -583,3 +583,43 @@ test('interface generation', () => {
   const result = generateInterface('User', fields);
   expect(result).toEqual(expected);
 });
+
+test(`Fail on anonymous column return type`, async () => {
+  const queryString = `
+    /* @name GetNotifications */
+    SELECT COUNT(*) FROM notifications;
+    `;
+  const mockTypes: IQueryTypes = {
+    returnTypes: [
+      {
+        returnName: '?column?',
+        columnName: '?column?',
+        type: 'integer',
+      },
+    ],
+    paramMetadata: {
+      params: [],
+      mapping: [],
+    },
+  };
+  const typeSource = async (_: any) => mockTypes;
+  const types = new TypeAllocator(DefaultTypeMapping);
+  // Test out imports
+  types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
+  const result = await queryToTypeDeclarations(
+    parsedQuery(ProcessingMode.SQL, queryString),
+    typeSource,
+    types,
+    partialConfig,
+  );
+  const expected = `/** Query 'GetNotifications' is invalid, so its result is assigned type 'never'.
+ * Query contains an anonymous column. Consider giving the column an explicit name. */
+export type IGetNotificationsResult = never;
+
+/** Query 'GetNotifications' is invalid, so its parameters are assigned type 'never'.
+ * Query contains an anonymous column. Consider giving the column an explicit name. */
+export type IGetNotificationsParams = never;
+
+`;
+  expect(result).toEqual(expected);
+});
