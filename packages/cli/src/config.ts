@@ -129,7 +129,7 @@ export function parseConfig(
     password: process.env.PGPASSWORD,
     dbName: process.env.PGDATABASE,
     port: process.env.PGPORT ? Number(process.env.PGPORT) : undefined,
-    uri: process.env.PGURI,
+    uri: process.env.PGURI ?? process.env.DATABASE_URL,
   };
 
   const {
