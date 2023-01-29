@@ -12,7 +12,7 @@ import {
     updateBooksRankNotNull,
     findBookNameOrRank, getBooks,
 } from './books/books.queries.js';
-import {getAllComments, insertComment} from './comments/comments.queries.js';
+import {getAllComments, insertComment, selectExistsTest} from './comments/comments.queries.js';
 import {
   insertNotification,
   insertNotifications,
@@ -193,5 +193,10 @@ test('select query with json fields and casts', async () => {
 
 test('select query nullability override on return field', async () => {
     const result = await getBooks.run(undefined, client);
+    expect(result).toMatchSnapshot();
+})
+
+test('select exists query, testing #472', async () => {
+    const result = await selectExistsTest.run(undefined, client);
     expect(result).toMatchSnapshot();
 })

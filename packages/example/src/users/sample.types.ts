@@ -23,3 +23,17 @@ export interface IGetUsersWithCommentsQuery {
   result: IGetUsersWithCommentsResult;
 }
 
+/** 'SelectExistsQuery' parameters type */
+export type ISelectExistsQueryParams = void;
+
+/** 'SelectExistsQuery' return type */
+export interface ISelectExistsQueryResult {
+  isTransactionExists: boolean | null;
+}
+
+/** 'SelectExistsQuery' query type */
+export interface ISelectExistsQueryQuery {
+  params: ISelectExistsQueryParams;
+  result: ISelectExistsQueryResult;
+}
+

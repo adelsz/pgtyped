@@ -96,3 +96,28 @@ const insertCommentIR: any = {"usedParamSet":{"comments":true},"params":[{"name"
 export const insertComment = new PreparedQuery<IInsertCommentParams,IInsertCommentResult>(insertCommentIR);
 
 
+/** 'SelectExistsTest' parameters type */
+export type ISelectExistsTestParams = void;
+
+/** 'SelectExistsTest' return type */
+export interface ISelectExistsTestResult {
+  isTransactionExists: boolean | null;
+}
+
+/** 'SelectExistsTest' query type */
+export interface ISelectExistsTestQuery {
+  params: ISelectExistsTestParams;
+  result: ISelectExistsTestResult;
+}
+
+const selectExistsTestIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT EXISTS ( SELECT 1 WHERE true ) AS \"isTransactionExists\""};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT EXISTS ( SELECT 1 WHERE true ) AS "isTransactionExists"
+ * ```
+ */
+export const selectExistsTest = new PreparedQuery<ISelectExistsTestParams,ISelectExistsTestResult>(selectExistsTestIR);
+
+

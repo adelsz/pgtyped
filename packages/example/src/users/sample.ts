@@ -14,3 +14,5 @@ export async function getUsersWithComment(
   const result = await getUsersWithComments.run({ minCommentCount }, client);
   return result[0];
 }
+
+const selectExistsQuery = sql`SELECT EXISTS ( SELECT 1 WHERE true ) AS "isTransactionExists";`;

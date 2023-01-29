@@ -9,6 +9,14 @@ Object {
 }
 `;
 
+exports[`select exists query, testing #472 1`] = `
+Array [
+  Object {
+    "isTransactionExists": true,
+  },
+]
+`;
+
 exports[`select query nullability override on return field 1`] = `
 Array [
   Object {
