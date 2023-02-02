@@ -7,7 +7,7 @@
   "scripts": {
     "clean": "rm -r packages/*/lib",
     "build": "lerna run build",
-    "watch": "lerna run --parallel watch",
+    "watch": "lerna run --parallel --stream watch -- --preserveWatchOutput",
     "lint": "tslint --project tsconfig.json -t verbose",
     "lint!": "npm run lint -- --fix",
     "test": "npm run lint && lerna run --stream test"
