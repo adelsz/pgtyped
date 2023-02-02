@@ -1,5 +1,11 @@
 import { messages } from '../src/messages.js';
-import { buildMessage, parseMessage, parseOneOf } from '../src/protocol.js';
+import {
+  buildMessage,
+  IMessagePayload,
+  parseMessage,
+  parseOneOf,
+  ParseResult,
+} from '../src/protocol.js';
 
 test('buildMessage for StartupMessage works', () => {
   const base = buildMessage(messages.startupMessage, {
@@ -219,6 +225,7 @@ test('parseMessage for NoData works', () => {
   const buf = Buffer.from([0x6e, 0x00, 0x00, 0x00, 0x04]);
 
   const result = parseMessage(messages.noData, buf);
+  assertParseSuccess(result);
 
   const { bufferOffset } = result;
 
@@ -315,6 +322,14 @@ test('parseOneOf results in MessageMismatchError when no message matches buffer'
   expect(result.bufferOffset).toBe(buf.length);
 });
 
+function assertParseSuccess<A>(
+  result: ParseResult<A>,
+): asserts result is IMessagePayload<A> {
+  if (result.type !== 'MessagePayload') {
+    throw new Error('Expected MessagePayload');
+  }
+}
+
 test('parseMultiple works with SASL Authentication example with two parameter statuses', () => {
   // prettier-ignore
   const buf = Buffer.from([
@@ -342,6 +357,7 @@ test('parseMultiple works with SASL Authentication example with two parameter st
       buf,
       bufferOffset,
     );
+    assertParseSuccess(result);
     bufferOffset = result.bufferOffset;
     expect(result).toEqual({
       messageName: 'AuthenticationSASLFinal',
@@ -355,6 +371,7 @@ test('parseMultiple works with SASL Authentication example with two parameter st
   }
   {
     const result = parseMessage(messages.authenticationOk, buf, bufferOffset);
+    assertParseSuccess(result);
     bufferOffset = result.bufferOffset;
     expect(result).toEqual({
       messageName: 'AuthenticationOk',
@@ -367,6 +384,7 @@ test('parseMultiple works with SASL Authentication example with two parameter st
   }
   {
     const result = parseMessage(messages.parameterStatus, buf, bufferOffset);
+    assertParseSuccess(result);
     bufferOffset = result.bufferOffset;
     expect(result).toEqual({
       messageName: 'ParameterStatus',
@@ -380,6 +398,7 @@ test('parseMultiple works with SASL Authentication example with two parameter st
   }
   {
     const result = parseMessage(messages.parameterStatus, buf, bufferOffset);
+    assertParseSuccess(result);
     bufferOffset = result.bufferOffset;
     expect(result).toEqual({
       messageName: 'ParameterStatus',
