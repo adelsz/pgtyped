@@ -76,7 +76,7 @@ For a full list of options, see the [Configuration file format](#configuration-f
 ```
 
 :::note
-Configuration file can be also be written in JS format and default exported as an object.
+Configuration file can be also be written in CommonJS format and default exported as an object. If your project is of ESM type then you will need to give the config file a `.cjs` extension instead of `.js`.
 :::
 
 ### Configuration file format
