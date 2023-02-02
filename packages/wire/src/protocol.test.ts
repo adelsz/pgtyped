@@ -1,9 +1,10 @@
 import { messages } from '../src/messages.js';
 import {
   buildMessage,
+  IMessagePayload,
   parseMessage,
-  parseMultiple,
   parseOneOf,
+  ParseResult,
 } from '../src/protocol.js';
 
 test('buildMessage for StartupMessage works', () => {
@@ -224,6 +225,7 @@ test('parseMessage for NoData works', () => {
   const buf = Buffer.from([0x6e, 0x00, 0x00, 0x00, 0x04]);
 
   const result = parseMessage(messages.noData, buf);
+  assertParseSuccess(result);
 
   const { bufferOffset } = result;
 
@@ -320,6 +322,14 @@ test('parseOneOf results in MessageMismatchError when no message matches buffer'
   expect(result.bufferOffset).toBe(buf.length);
 });
 
+function assertParseSuccess<A>(
+  result: ParseResult<A>,
+): asserts result is IMessagePayload<A> {
+  if (result.type !== 'MessagePayload') {
+    throw new Error('Expected MessagePayload');
+  }
+}
+
 test('parseMultiple works with SASL Authentication example with two parameter statuses', () => {
   // prettier-ignore
   const buf = Buffer.from([
@@ -340,44 +350,75 @@ test('parseMultiple works with SASL Authentication example with two parameter st
 
     0x5a, 0x00, 0x00, 0x00, 0x05, 0x49,
   ]);
-  let bufOffset = 0;
-  const results = parseMultiple(
-    [
+  let bufferOffset = 0;
+  {
+    const result = parseMessage(
       messages.authenticationSASLFinal,
-      messages.authenticationOk,
-      messages.parameterStatus,
-      messages.readyForQuery,
-    ],
-    buf,
-    bufOffset,
-  );
-  const expectedMessageData = [
-    {
-      status: null,
-      SASLData: 'v=RmE40SXBwskKrDeQaFSQTkug/X/p06V20bXnyxRXWbs=',
-    },
-    {
-      status: null,
-    },
-    {
-      name: 'client_encoding',
-      value: 'UTF8',
-    },
-    {
-      name: 'DateStyle',
-      value: 'ISO, DMY',
-    },
-    { trxStatus: 'I' },
-  ];
-  results.map((result, i) => {
-    if (result.type !== 'MessagePayload') {
-      throw new Error(`Expected MessagePayload for message at index: ${i}`);
-    }
-    const { data, bufferOffset } = result;
-    expect(data).toEqual(expectedMessageData[i]);
-
-    bufOffset = bufferOffset;
-  });
-
-  expect(bufOffset).toBe(buf.length);
+      buf,
+      bufferOffset,
+    );
+    assertParseSuccess(result);
+    bufferOffset = result.bufferOffset;
+    expect(result).toEqual({
+      messageName: 'AuthenticationSASLFinal',
+      type: 'MessagePayload',
+      bufferOffset: 55,
+      data: {
+        status: null,
+        SASLData: 'v=RmE40SXBwskKrDeQaFSQTkug/X/p06V20bXnyxRXWbs=',
+      },
+    });
+  }
+  {
+    const result = parseMessage(messages.authenticationOk, buf, bufferOffset);
+    assertParseSuccess(result);
+    bufferOffset = result.bufferOffset;
+    expect(result).toEqual({
+      messageName: 'AuthenticationOk',
+      type: 'MessagePayload',
+      bufferOffset: 64,
+      data: {
+        status: null,
+      },
+    });
+  }
+  {
+    const result = parseMessage(messages.parameterStatus, buf, bufferOffset);
+    assertParseSuccess(result);
+    bufferOffset = result.bufferOffset;
+    expect(result).toEqual({
+      messageName: 'ParameterStatus',
+      type: 'MessagePayload',
+      bufferOffset: 90,
+      data: {
+        name: 'client_encoding',
+        value: 'UTF8',
+      },
+    });
+  }
+  {
+    const result = parseMessage(messages.parameterStatus, buf, bufferOffset);
+    assertParseSuccess(result);
+    bufferOffset = result.bufferOffset;
+    expect(result).toEqual({
+      messageName: 'ParameterStatus',
+      type: 'MessagePayload',
+      bufferOffset: 114,
+      data: {
+        name: 'DateStyle',
+        value: 'ISO, DMY',
+      },
+    });
+  }
+  {
+    const result = parseMessage(messages.readyForQuery, buf, bufferOffset);
+    expect(result).toEqual({
+      messageName: 'ReadyForQuery',
+      type: 'MessagePayload',
+      bufferOffset: 120,
+      data: {
+        trxStatus: 'I',
+      },
+    });
+  }
 });

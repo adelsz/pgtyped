@@ -58,3 +58,6 @@ SELECT array_agg(email) as "emails!", array_agg(age) = :testAges as ageTest FROM
 
 /* @name GetBooks */
 SELECT id, name as "name!" FROM books;
+
+/* @name GetBookCountries */
+SELECT * FROM book_country;

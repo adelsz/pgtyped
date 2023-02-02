@@ -77,6 +77,11 @@ interface IMessageMismatchError {
   bufferOffset: number;
 }
 
+interface IIncompleteMessageError {
+  type: 'IncompleteMessageError';
+  messageName: string;
+}
+
 interface IServerError {
   type: 'ServerError';
   severity:
@@ -95,7 +100,8 @@ interface IServerError {
 export type ParseResult<Params> =
   | IMessagePayload<Params>
   | IMessageMismatchError
-  | IServerError;
+  | IServerError
+  | IIncompleteMessageError;
 
 const errorResponseMessageIndicator =
   pgMessages.errorResponse.indicator.charCodeAt(0);
@@ -118,6 +124,13 @@ export const parseMessage = <Params extends object>(
 
   // Add extra one because message id isnt counted into size
   const messageEnd = messageSize + messageOffset + 1;
+
+  if (messageEnd > buf.length) {
+    return {
+      type: 'IncompleteMessageError',
+      messageName: message.name,
+    };
+  }
 
   if (indicator !== expectedIndicator && !isUnexpectedErrorMessage) {
     return {
@@ -271,25 +284,4 @@ export const parseOneOf = (
     messageName,
     bufferOffset: lastBufferOffset,
   };
-};
-
-export const parseMultiple = (
-  messages: Array<IServerMessage<any>>,
-  buffer: Buffer,
-  offset: number,
-): ParseResult<object>[] => {
-  const result: ParseResult<object>[] = [];
-  const bufferEnd = buffer.byteLength;
-  let lastBufferOffset = offset;
-
-  while (lastBufferOffset < bufferEnd) {
-    const parseResult = parseOneOf(messages, buffer, lastBufferOffset);
-    if (parseResult.type !== 'MessageMismatchError') {
-      result.push(parseResult);
-      lastBufferOffset = parseResult.bufferOffset;
-    } else {
-      return [parseResult];
-    }
-  }
-  return result;
 };
