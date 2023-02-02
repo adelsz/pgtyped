@@ -4,7 +4,6 @@ import * as tls from 'tls';
 import {
   buildMessage,
   parseMessage,
-  parseMultiple,
   parseOneOf,
   ParseResult,
 } from './protocol.js';
@@ -195,26 +194,6 @@ export class AsyncQueue {
         resolve,
         reject,
         parser,
-      };
-      this.processQueue();
-    });
-  }
-
-  /**
-   * Waits for the next buffer consisting of multiple messages to arrive and parses it, resolving with the parsed
-   * values.
-   * @param serverMessages The array of messages to match
-   * @returns The parsed params
-   */
-  public async multiMessageReply<Messages extends Array<IServerMessage<any>>>(
-    ...serverMessages: Messages
-  ): Promise<Record<string, any>> {
-    return new Promise((resolve, reject) => {
-      this.replyPending = {
-        resolve,
-        reject,
-        parser: (buf: Buffer, offset: number) =>
-          parseMultiple(serverMessages, buf, offset),
       };
       this.processQueue();
     });

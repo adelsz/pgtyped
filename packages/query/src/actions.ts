@@ -89,15 +89,20 @@ export async function startup(
         response: SASLContinueResponse,
       });
 
-      const finalMessage = await queue.multiMessageReply(
-        messages.authenticationSASLFinal,
-        messages.authenticationOk,
-        messages.parameterStatus,
-        messages.backendKeyData,
-        messages.readyForQuery,
-      );
+      const finalSASL = await queue.reply(messages.authenticationSASLFinal);
+      await queue.reply(messages.authenticationOk);
+      while (true) {
+        const res = await queue.reply(
+          messages.parameterStatus,
+          messages.backendKeyData,
+          messages.readyForQuery,
+        );
+        // break when we get readyForQuery
+        if ('trxStatus' in res) {
+          break;
+        }
+      }
 
-      const finalSASL = finalMessage.AuthenticationSASLFinal;
       if ('SASLData' in finalSASL) {
         checkServerFinalMessage(finalSASL.SASLData, calculatedServerSignature);
       } else {
