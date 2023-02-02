@@ -121,6 +121,11 @@ export class AsyncQueue {
     }
     const parsed = this.replyPending.parser(this.buffer, this.bufferOffset);
 
+    if (parsed.type === 'IncompleteMessageError') {
+      debug('received incomplete message');
+      return;
+    }
+
     // Move queue cursor in any case
     if (parsed.bufferOffset === this.buffer.length) {
       this.bufferOffset = 0;
