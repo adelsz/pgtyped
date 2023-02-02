@@ -17,8 +17,8 @@ type Box<T> = T extends IServerMessage<infer P> ? P : any;
 type Boxified<T extends [any] | any[]> = { [P in keyof T]: Box<T[P]> };
 
 export class AsyncQueue {
-  public queue: Buffer[] = [];
   public bufferOffset: number = 0;
+  public buffer: Buffer = Buffer.alloc(0);
   public socket: net.Socket;
   public replyPending: {
     resolve: (data: any) => any;
@@ -39,7 +39,7 @@ export class AsyncQueue {
     const attachDataListener = () => {
       this.socket.on('data', (buffer: Buffer) => {
         debug('received %o bytes', buffer.length);
-        this.queue.push(buffer);
+        this.buffer = Buffer.concat([this.buffer, buffer]);
         this.processQueue();
       });
     };
@@ -116,17 +116,15 @@ export class AsyncQueue {
   }
 
   public processQueue() {
-    if (!this.replyPending || this.queue.length === 0) {
+    if (!this.replyPending || this.buffer.length === 0) {
       return;
     }
-    const buf = this.queue[0];
-
-    const parsed = this.replyPending.parser(buf, this.bufferOffset);
+    const parsed = this.replyPending.parser(this.buffer, this.bufferOffset);
 
     // Move queue cursor in any case
-    if (parsed.bufferOffset >= buf.length) {
+    if (parsed.bufferOffset === this.buffer.length) {
       this.bufferOffset = 0;
-      this.queue.pop();
+      this.buffer = Buffer.alloc(0);
     } else {
       this.bufferOffset = parsed.bufferOffset;
     }
