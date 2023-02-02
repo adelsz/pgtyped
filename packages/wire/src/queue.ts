@@ -23,10 +23,7 @@ export class AsyncQueue {
   public replyPending: {
     resolve: (data: any) => any;
     reject: (data: any) => any;
-    parser: (
-      buf: Buffer,
-      offset: number,
-    ) => ParseResult<object> | ParseResult<object>[];
+    parser: (buf: Buffer, offset: number) => ParseResult<object>;
   } | null = null;
   constructor() {
     this.socket = new net.Socket({});
@@ -126,51 +123,22 @@ export class AsyncQueue {
 
     const parsed = this.replyPending.parser(buf, this.bufferOffset);
 
-    if (Array.isArray(parsed)) {
-      // Move queue cursor in any case
-      const lastBufferOffset = parsed[parsed.length - 1].bufferOffset;
-      if (lastBufferOffset >= buf.length) {
-        this.bufferOffset = 0;
-        this.queue.pop();
-      } else {
-        this.bufferOffset = lastBufferOffset;
-      }
-
-      const res = parsed.reduce(
-        (acc, result) => ({
-          ...acc,
-          ...(result.type !== 'ServerError' &&
-          result.type !== 'MessageMismatchError'
-            ? { [result.messageName]: result.data }
-            : {}),
-        }),
-        {},
-      ) as Record<keyof IServerMessage<any>, IServerMessage<any>>;
-
-      if (!Object.keys(res).length) {
-        this.replyPending.reject(parsed);
-      } else {
-        debug('resolved awaited %o message', res);
-        this.replyPending.resolve(res);
-      }
+    // Move queue cursor in any case
+    if (parsed.bufferOffset >= buf.length) {
+      this.bufferOffset = 0;
+      this.queue.pop();
     } else {
-      // Move queue cursor in any case
-      if (parsed.bufferOffset >= buf.length) {
-        this.bufferOffset = 0;
-        this.queue.pop();
-      } else {
-        this.bufferOffset = parsed.bufferOffset;
-      }
+      this.bufferOffset = parsed.bufferOffset;
+    }
 
-      if (parsed.type === 'ServerError') {
-        this.replyPending.reject(parsed);
-      } else if (parsed.type === 'MessagePayload') {
-        debug('resolved awaited %o message', parsed.messageName);
-        this.replyPending.resolve(parsed.data);
-      } else {
-        debug('received ignored message');
-        this.processQueue();
-      }
+    if (parsed.type === 'ServerError') {
+      this.replyPending.reject(parsed);
+    } else if (parsed.type === 'MessagePayload') {
+      debug('resolved awaited %o message', parsed.messageName);
+      this.replyPending.resolve(parsed.data);
+    } else {
+      debug('received ignored message');
+      this.processQueue();
     }
   }
   /**
