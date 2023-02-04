@@ -12,8 +12,10 @@ import path from 'path';
 
 const String: Type = { name: 'string' };
 const Number: Type = { name: 'number' };
+const NumberOrString: Type = { name: 'number | string' };
 const Boolean: Type = { name: 'boolean' };
 const Date: Type = { name: 'Date' };
+const DateOrString: Type = { name: 'Date | string' };
 const Bytes: Type = { name: 'Buffer' };
 const Void: Type = { name: 'undefined' };
 const Json: Type = {
@@ -28,68 +30,68 @@ const getArray = (baseType: Type): Type => ({
 
 export const DefaultTypeMapping = Object.freeze({
   // Integer types
-  int2: Number,
-  int4: Number,
-  int8: String,
-  smallint: Number,
-  int: Number,
-  bigint: String,
+  int2: { parameter: Number, return: Number },
+  int4: { parameter: Number, return: Number },
+  int8: { parameter: NumberOrString, return: String },
+  smallint: { parameter: Number, return: Number },
+  int: { parameter: Number, return: Number },
+  bigint: { parameter: NumberOrString, return: String },
 
   // Precision types
-  real: Number,
-  float4: Number,
-  float: Number,
-  float8: Number,
-  numeric: String,
-  decimal: String,
+  real: { parameter: Number, return: Number },
+  float4: { parameter: Number, return: Number },
+  float: { parameter: Number, return: Number },
+  float8: { parameter: Number, return: Number },
+  numeric: { parameter: NumberOrString, return: String },
+  decimal: { parameter: NumberOrString, return: String },
 
   // Serial types
-  smallserial: Number,
-  serial: Number,
-  bigserial: String,
+  smallserial: { parameter: Number, return: Number },
+  serial: { parameter: Number, return: Number },
+  bigserial: { parameter: NumberOrString, return: String },
 
   // Common string types
-  uuid: String,
-  text: String,
-  varchar: String,
-  char: String,
-  bpchar: String,
-  citext: String,
-  name: String,
+  uuid: { parameter: String, return: String },
+  text: { parameter: String, return: String },
+  varchar: { parameter: String, return: String },
+  char: { parameter: String, return: String },
+  bpchar: { parameter: String, return: String },
+  citext: { parameter: String, return: String },
+  name: { parameter: String, return: String },
 
   // Bool types
-  bit: Boolean, // TODO: better bit array support
-  bool: Boolean,
-  boolean: Boolean,
+  bit: { parameter: Boolean, return: Boolean }, // TODO: { parameter: better, return: better } bit array support
+  bool: { parameter: Boolean, return: Boolean },
+  boolean: { parameter: Boolean, return: Boolean },
 
   // Dates and times
-  date: Date,
-  timestamp: Date,
-  timestamptz: Date,
-  time: Date,
-  timetz: Date,
-  interval: String,
+  date: { parameter: DateOrString, return: Date },
+  timestamp: { parameter: DateOrString, return: Date },
+  timestamptz: { parameter: DateOrString, return: Date },
+  time: { parameter: DateOrString, return: Date },
+  timetz: { parameter: DateOrString, return: Date },
+  interval: { parameter: DateOrString, return: String },
 
   // Network address types
-  inet: String,
-  cidr: String,
-  macaddr: String,
-  macaddr8: String,
+  inet: { parameter: String, return: String },
+  cidr: { parameter: String, return: String },
+  macaddr: { parameter: String, return: String },
+  macaddr8: { parameter: String, return: String },
 
   // Extra types
-  money: String,
-  tsvector: String,
-  void: Void,
+  money: { parameter: String, return: String },
+  tsvector: { parameter: String, return: String },
+  void: { parameter: Void, return: Void },
 
   // JSON types
-  json: Json,
-  jsonb: Json,
+  json: { parameter: Json, return: Json },
+  jsonb: { parameter: Json, return: Json },
 
   // Bytes
-  bytea: Bytes,
+  bytea: { parameter: Bytes, return: Bytes },
 
   // Postgis types
-  point: getArray(Number),
+  point: { parameter: getArray(Number), return: getArray(Number) },
 });
 
 export type BuiltinTypes = keyof typeof DefaultTypeMapping;
@@ -108,10 +110,10 @@ export function TypeMapping(
     output[typeName] = {
       parameter:
         overrides[typeName]?.parameter ??
-        DefaultTypeMapping[typeName as BuiltinTypes],
+        DefaultTypeMapping[typeName as BuiltinTypes].parameter,
       return:
         overrides[typeName]?.return ??
-        DefaultTypeMapping[typeName as BuiltinTypes],
+        DefaultTypeMapping[typeName as BuiltinTypes].return,
     };
   }
 
