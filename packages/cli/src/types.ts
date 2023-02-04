@@ -6,7 +6,9 @@ import {
   isImport,
   MappableType,
   Type,
+  ImportedType,
 } from '@pgtyped/query';
+import path from 'path';
 
 const String: Type = { name: 'string' };
 const Number: Type = { name: 'number' };
@@ -92,14 +94,95 @@ export const DefaultTypeMapping = Object.freeze({
 
 export type BuiltinTypes = keyof typeof DefaultTypeMapping;
 
-export type TypeMapping = Record<BuiltinTypes, Type> & Record<string, Type>;
+export type TypeDefinition = { parameter: Type; return: Type };
 
-export function TypeMapping(overrides?: Partial<TypeMapping>): TypeMapping {
-  return { ...DefaultTypeMapping, ...overrides };
+export type TypeMapping = Record<BuiltinTypes, TypeDefinition> &
+  Record<string, TypeDefinition>;
+
+export function TypeMapping(
+  overrides: Record<string, Partial<TypeDefinition>> = {},
+): TypeMapping {
+  const output = { ...overrides };
+
+  for (const typeName of Object.keys(DefaultTypeMapping)) {
+    output[typeName] = {
+      parameter:
+        overrides[typeName]?.parameter ??
+        DefaultTypeMapping[typeName as BuiltinTypes],
+      return:
+        overrides[typeName]?.return ??
+        DefaultTypeMapping[typeName as BuiltinTypes],
+    };
+  }
+
+  return output as TypeMapping;
 }
 
-function declareImport([...names]: Set<string>, from: string): string {
-  return `import { ${names.sort().join(', ')} } from '${from}';\n`;
+export function declareImport(
+  imports: ImportedType[],
+  decsFileName: string,
+): string {
+  // name => alias
+  const names = new Map<string, string>();
+  let defaultImportAlias: string | null = null;
+
+  for (const imp of imports) {
+    if (imp.aliasOf === 'default') {
+      defaultImportAlias ??= imp.name;
+
+      if (imp.name !== defaultImportAlias) {
+        throw new Error(
+          `Default import from package "${imp.from}" is aliased differently multiple times (${imp.name} and ${defaultImportAlias})`,
+        );
+      }
+
+      continue;
+    }
+
+    const namedImport = imp.aliasOf ?? imp.name;
+
+    if (!names.has(namedImport)) {
+      names.set(namedImport, imp.name);
+    } else if (names.get(namedImport) !== imp.name) {
+      throw new Error(
+        `Import ${namedImport} from package "${
+          imp.from
+        }" is aliased differently multiple times (${imp.name} and ${names.get(
+          namedImport,
+        )})`,
+      );
+    }
+  }
+
+  let from = imports[0].from;
+
+  if (from.startsWith('.')) {
+    from = path.relative(path.dirname(decsFileName), imports[0].from);
+
+    if (!from.startsWith('.')) {
+      from = './' + from;
+    }
+  }
+
+  const parts = ['import'];
+  const subParts = [];
+
+  if (defaultImportAlias) {
+    subParts.push(defaultImportAlias);
+  }
+
+  if (names.size) {
+    subParts.push(
+      `{ ${[...names.entries()]
+        .map(([name, alias]) => (name === alias ? name : `${name} as ${alias}`))
+        .join(', ')} }`,
+    );
+  }
+
+  parts.push(subParts.join(', '));
+  parts.push(`from '${from}';\n`);
+
+  return parts.join(' ');
 }
 
 function declareAlias(name: string, definition: string): string {
@@ -107,15 +190,21 @@ function declareAlias(name: string, definition: string): string {
 }
 
 function declareStringUnion(name: string, values: string[]) {
-  return declareAlias(name, values.sort().map((v) => `'${v}'`).join(' | '));
+  return declareAlias(
+    name,
+    values
+      .sort()
+      .map((v) => `'${v}'`)
+      .join(' | '),
+  );
 }
 
 /** Wraps a TypeMapping to track which types have been used, to accumulate errors,
  * and emit necessary type definitions. */
 export class TypeAllocator {
   errors: Error[] = [];
-  // from -> names
-  imports: { [k: string]: Set<string> } = {};
+  // from -> ImportedType[]
+  imports: { [k: string]: ImportedType[] } = {};
   // name -> definition (if any)
   types: { [k: string]: Type } = {};
 
@@ -129,7 +218,7 @@ export class TypeAllocator {
   }
 
   /** Lookup a database-provided type name in the allocator's map */
-  use(typeNameOrType: MappableType): string {
+  use(typeNameOrType: MappableType, scope: 'parameter' | 'return'): string {
     let typ: Type | null = null;
 
     if (typeof typeNameOrType == 'string') {
@@ -140,9 +229,9 @@ export class TypeAllocator {
         // ^ Converts _varchar -> varchar, then wraps the type in an array
         // type wrapper
         if (this.isMappedType(arrayValueType)) {
-          typ = getArray(this.mapping[arrayValueType]);
+          typ = getArray(this.mapping[arrayValueType][scope]);
           // make sure the element type is used so it appears in the declaration
-          this.use(this.mapping[arrayValueType]);
+          this.use(this.mapping[arrayValueType][scope], scope);
         }
       }
 
@@ -158,13 +247,13 @@ export class TypeAllocator {
           );
           return 'unknown';
         }
-        typ = this.mapping[typeNameOrType];
+        typ = this.mapping[typeNameOrType][scope];
       }
     } else {
       if (isEnumArray(typeNameOrType)) {
         typ = getArray(typeNameOrType.elementType);
         // make sure the element type is used so it appears in the declaration
-        this.use(typeNameOrType.elementType);
+        this.use(typeNameOrType.elementType, scope);
       } else {
         typ = typeNameOrType;
       }
@@ -175,18 +264,17 @@ export class TypeAllocator {
 
     // Merge imports
     if (isImport(typ)) {
-      this.imports[typ.from] = (this.imports[typ.from] ?? new Set()).add(
-        typ.name,
-      );
+      this.imports[typ.from] = this.imports[typ.from] ?? [];
+      this.imports[typ.from].push(typ);
     }
 
     return typ.name;
   }
 
   /** Emit a typescript definition for all types that have been used */
-  declaration(): string {
-    const imports = Object.entries(this.imports)
-      .map(([from, names]) => declareImport(names, from))
+  declaration(decsFileName: string): string {
+    const imports = Object.values(this.imports)
+      .map((imports) => declareImport(imports, decsFileName))
       .sort()
       .join('\n');
 

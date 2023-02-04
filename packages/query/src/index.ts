@@ -10,6 +10,7 @@ export {
   isImport,
   MappableType,
   Type,
+  ImportedType,
 } from './type.js';
 
 export type TypeSource = (

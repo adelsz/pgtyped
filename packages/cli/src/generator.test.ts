@@ -10,7 +10,7 @@ import {
   ProcessingMode,
 } from './generator';
 import { parseCode as parseTypeScriptFile } from './parseTypescript.js';
-import { DefaultTypeMapping, TypeAllocator } from './types.js';
+import { TypeAllocator, TypeMapping } from './types.js';
 
 const partialConfig = { hungarianNotation: true } as ParsedConfig;
 
@@ -64,9 +64,9 @@ describe('query-to-interface translation', () => {
         },
       };
       const typeSource = async (_: any) => mockTypes;
-      const types = new TypeAllocator(DefaultTypeMapping);
+      const types = new TypeAllocator(TypeMapping());
       // Test out imports
-      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
+      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' }, 'return');
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
         typeSource,
@@ -79,7 +79,7 @@ export type PayloadType = 'dynamite' | 'message';
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
 
-      expect(types.declaration()).toEqual(expectedTypes);
+      expect(types.declaration('file.ts')).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
   userId?: string | null | void;
@@ -143,7 +143,7 @@ export interface IGetNotificationsQuery {
           ],
         },
       };
-      const types = new TypeAllocator(DefaultTypeMapping);
+      const types = new TypeAllocator(TypeMapping());
       const typeSource = async (_: any) => mockTypes;
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
@@ -226,7 +226,7 @@ export interface IInsertNotificationsQuery {
           ],
         },
       };
-      const types = new TypeAllocator(DefaultTypeMapping);
+      const types = new TypeAllocator(TypeMapping());
       const typeSource = async (_: any) => mockTypes;
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
@@ -296,9 +296,9 @@ export interface IDeleteUsersQuery {
         },
       };
       const typeSource = async (_: any) => mockTypes;
-      const types = new TypeAllocator(DefaultTypeMapping);
+      const types = new TypeAllocator(TypeMapping());
       // Test out imports
-      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
+      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' }, 'return');
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
         typeSource,
@@ -311,7 +311,7 @@ export type PayloadType = 'dynamite' | 'message';
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
 
-      expect(types.declaration()).toEqual(expectedTypes);
+      expect(types.declaration('file.ts')).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
   userId?: string | null | void;
@@ -372,9 +372,9 @@ export interface IGetNotificationsQuery {
         },
       };
       const typeSource = async (_: any) => mockTypes;
-      const types = new TypeAllocator(DefaultTypeMapping);
+      const types = new TypeAllocator(TypeMapping());
       // Test out imports
-      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
+      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' }, 'return');
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
         typeSource,
@@ -387,7 +387,7 @@ export type PayloadType = 'dynamite' | 'message';
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
 
-      expect(types.declaration()).toEqual(expectedTypes);
+      expect(types.declaration('file.ts')).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
   userIds: readonly (string | null | void)[];
@@ -444,9 +444,9 @@ export interface IGetNotificationsQuery {
         },
       };
       const typeSource = async (_: any) => mockTypes;
-      const types = new TypeAllocator(DefaultTypeMapping);
+      const types = new TypeAllocator(TypeMapping());
       // Test out imports
-      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
+      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' }, 'return');
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
         typeSource,
@@ -459,7 +459,7 @@ export type PayloadType = 'dynamite' | 'message';
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
 
-      expect(types.declaration()).toEqual(expectedTypes);
+      expect(types.declaration('file.ts')).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
   userId?: string | null | void;
@@ -516,9 +516,9 @@ export interface IGetNotificationsQuery {
         },
       };
       const typeSource = async (_: any) => mockTypes;
-      const types = new TypeAllocator(DefaultTypeMapping);
+      const types = new TypeAllocator(TypeMapping());
       // Test out imports
-      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
+      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' }, 'return');
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
         typeSource,
@@ -531,7 +531,7 @@ export type PayloadType = 'dynamite' | 'message';
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
 
-      expect(types.declaration()).toEqual(expectedTypes);
+      expect(types.declaration('file.ts')).toEqual(expectedTypes);
       const expected = `/** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
   userId?: string | null | void;
@@ -603,9 +603,9 @@ test(`Fail on anonymous column return type`, async () => {
     },
   };
   const typeSource = async (_: any) => mockTypes;
-  const types = new TypeAllocator(DefaultTypeMapping);
+  const types = new TypeAllocator(TypeMapping());
   // Test out imports
-  types.use({ name: 'PreparedQuery', from: '@pgtyped/query' });
+  types.use({ name: 'PreparedQuery', from: '@pgtyped/query' }, 'return');
   const result = await queryToTypeDeclarations(
     parsedQuery(ProcessingMode.SQL, queryString),
     typeSource,

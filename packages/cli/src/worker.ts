@@ -44,6 +44,7 @@ export default async function processFile({
     connection,
     transform.mode,
     config,
+    decsFileName,
   );
   const relativePath = path.relative(process.cwd(), decsFileName);
   if (typeDecs.length > 0) {
