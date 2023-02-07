@@ -4,7 +4,7 @@ title: Typing
 sidebar_label: Typing
 ---
 
-`pgtyped` to override built-in types if you so desire by providing custom TS types or importing your own.
+`pgtyped` allows you to override built-in types by providing custom TS types or by importing your own.
 
 ### Changing the types returned by Postgres
 
@@ -20,11 +20,12 @@ types.setTypeParser(types.builtins.DATE, (val: string) => val);
 types.setTypeParser(types.builtins.NUMERIC, (val: string) => Number(val));
 ```
 
-This is very straight forward, but `pgtyped` is not aware of those custom parsers, you need to indicate those changes in the config file.
+This is posrt of the [`pg` lib](https://github.com/brianc/node-pg-types) and has nothing to do with `pgtyped`.
+For `pgtyped` to be aware of those custom parsers, you need to indicate those changes in the config file.
 
 ### Overriding default mapping
 
-In the config file you override the default type mapping:
+In the config file you can override the default type mapping:
 ```json
 {
   "typesOverrides": { 
@@ -34,13 +35,13 @@ In the config file you override the default type mapping:
 }
 ```
 
-You can also specify imported types that you declare yourself:
+You can also specify imported types from your project or from another npm package:
 ```json
 {
   "typesOverrides": { 
     "timestamptz": "dayjs#Dayjs", // import { Dayjs } from 'dayjs';
+    "money": "my-package#Foo as MyType", // import { Foo as MyType } from 'my-package';
     "char": "my-package as MyType", // import MyType from 'my-package';
-    "money": "my-package#Foo as MyType", // import { Foo as MyType} from 'my-package';
     "numeric": "./path/to/file#MyCustomType", // import { MyCustomType } from './path/to/file';
     "float": "./path/to/file#MyCustomType as Alias", // import { MyCustomType as Alias } from './path/to/file';
     "smallint": "../myFile as MyType" // import MyType from '../myFile';
@@ -48,7 +49,7 @@ You can also specify imported types that you declare yourself:
 }
 ```
 
-All relative paths must be relative to the roo of your project.
+All relative paths must be relative to the root of your project.
 
 ### Different types for parameters and return type
 
