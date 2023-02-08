@@ -1,4 +1,4 @@
-version: '3.1'
+version: '3.9'
 
 services:
 
@@ -26,10 +26,12 @@ services:
     volumes:
       - ../../:/app
     working_dir: /app/packages/example
-    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: none
     depends_on:
       - db
-    command: node /app/packages/cli/lib/index.js --config config.json
+    command: sh -c "node /app/packages/cli/lib/index.js --config config.json && ./check-git-diff.sh"
 
   watch:
     <<: *build
