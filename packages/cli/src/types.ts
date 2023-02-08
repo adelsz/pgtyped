@@ -201,6 +201,11 @@ function declareStringUnion(name: string, values: string[]) {
   );
 }
 
+export enum TypeScope {
+  Parameter = 'parameter',
+  Return = 'return',
+}
+
 /** Wraps a TypeMapping to track which types have been used, to accumulate errors,
  * and emit necessary type definitions. */
 export class TypeAllocator {
@@ -220,7 +225,7 @@ export class TypeAllocator {
   }
 
   /** Lookup a database-provided type name in the allocator's map */
-  use(typeNameOrType: MappableType, scope: 'parameter' | 'return'): string {
+  use(typeNameOrType: MappableType, scope: TypeScope): string {
     let typ: Type | null = null;
 
     if (typeof typeNameOrType == 'string') {

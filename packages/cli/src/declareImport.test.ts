@@ -77,4 +77,31 @@ describe('relative imports', () => {
       ),
     ).toBe("import Alias from '../../../my/custom/path';\n");
   });
+
+  test('sub dir with extension', () => {
+    expect(
+      declareImport(
+        [{ name: 'Alias', from: './my/custom/path.js', aliasOf: 'default' }],
+        './my/file.ts',
+      ),
+    ).toBe("import Alias from './custom/path.js';\n");
+  });
+
+  test('parent dir with extension', () => {
+    expect(
+      declareImport(
+        [{ name: 'Alias', from: './my/custom/path.ts', aliasOf: 'default' }],
+        './foo/bar/file.ts',
+      ),
+    ).toBe("import Alias from '../../my/custom/path.ts';\n");
+  });
+
+  test('parent parent dir with extension', () => {
+    expect(
+      declareImport(
+        [{ name: 'Alias', from: '../my/custom/path.ts', aliasOf: 'default' }],
+        './foo/bar/file.ts',
+      ),
+    ).toBe("import Alias from '../../../my/custom/path.ts';\n");
+  });
 });

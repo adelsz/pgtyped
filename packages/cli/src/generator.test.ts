@@ -6,11 +6,11 @@ import { ParsedConfig } from './config.js';
 import {
   escapeComment,
   generateInterface,
-  queryToTypeDeclarations,
   ProcessingMode,
+  queryToTypeDeclarations,
 } from './generator';
 import { parseCode as parseTypeScriptFile } from './parseTypescript.js';
-import { TypeAllocator, TypeMapping } from './types.js';
+import { TypeAllocator, TypeMapping, TypeScope } from './types.js';
 
 const partialConfig = { hungarianNotation: true } as ParsedConfig;
 
@@ -66,7 +66,10 @@ describe('query-to-interface translation', () => {
       const typeSource = async (_: any) => mockTypes;
       const types = new TypeAllocator(TypeMapping());
       // Test out imports
-      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' }, 'return');
+      types.use(
+        { name: 'PreparedQuery', from: '@pgtyped/query' },
+        TypeScope.Return,
+      );
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
         typeSource,
@@ -298,7 +301,10 @@ export interface IDeleteUsersQuery {
       const typeSource = async (_: any) => mockTypes;
       const types = new TypeAllocator(TypeMapping());
       // Test out imports
-      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' }, 'return');
+      types.use(
+        { name: 'PreparedQuery', from: '@pgtyped/query' },
+        TypeScope.Return,
+      );
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
         typeSource,
@@ -374,7 +380,10 @@ export interface IGetNotificationsQuery {
       const typeSource = async (_: any) => mockTypes;
       const types = new TypeAllocator(TypeMapping());
       // Test out imports
-      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' }, 'return');
+      types.use(
+        { name: 'PreparedQuery', from: '@pgtyped/query' },
+        TypeScope.Return,
+      );
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
         typeSource,
@@ -446,7 +455,10 @@ export interface IGetNotificationsQuery {
       const typeSource = async (_: any) => mockTypes;
       const types = new TypeAllocator(TypeMapping());
       // Test out imports
-      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' }, 'return');
+      types.use(
+        { name: 'PreparedQuery', from: '@pgtyped/query' },
+        TypeScope.Return,
+      );
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
         typeSource,
@@ -518,7 +530,10 @@ export interface IGetNotificationsQuery {
       const typeSource = async (_: any) => mockTypes;
       const types = new TypeAllocator(TypeMapping());
       // Test out imports
-      types.use({ name: 'PreparedQuery', from: '@pgtyped/query' }, 'return');
+      types.use(
+        { name: 'PreparedQuery', from: '@pgtyped/query' },
+        TypeScope.Return,
+      );
       const result = await queryToTypeDeclarations(
         parsedQuery(mode, queryString),
         typeSource,
@@ -605,7 +620,10 @@ test(`Fail on anonymous column return type`, async () => {
   const typeSource = async (_: any) => mockTypes;
   const types = new TypeAllocator(TypeMapping());
   // Test out imports
-  types.use({ name: 'PreparedQuery', from: '@pgtyped/query' }, 'return');
+  types.use(
+    { name: 'PreparedQuery', from: '@pgtyped/query' },
+    TypeScope.Return,
+  );
   const result = await queryToTypeDeclarations(
     parsedQuery(ProcessingMode.SQL, queryString),
     typeSource,

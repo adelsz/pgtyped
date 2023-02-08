@@ -1,5 +1,7 @@
 import { stringToType } from './config.js';
 
+export {};
+
 test('typescript type', () => {
   expect(stringToType('string | boolean')).toEqual({
     name: 'string | boolean',
@@ -29,6 +31,29 @@ test('relative named import alias', () => {
   expect(stringToType('./relative#NamedImport as AliasedImport')).toEqual({
     name: 'AliasedImport',
     from: './relative',
+    aliasOf: 'NamedImport',
+  });
+});
+
+test('relative import default with extension', () => {
+  expect(stringToType('./relative.ts as DefaultImport')).toEqual({
+    name: 'DefaultImport',
+    from: './relative.ts',
+    aliasOf: 'default',
+  });
+});
+
+test('relative named import with extension', () => {
+  expect(stringToType('./relative.js#NamedImport')).toEqual({
+    name: 'NamedImport',
+    from: './relative.js',
+  });
+});
+
+test('relative named import alias with extension', () => {
+  expect(stringToType('./relative.ts#NamedImport as AliasedImport')).toEqual({
+    name: 'AliasedImport',
+    from: './relative.ts',
     aliasOf: 'NamedImport',
   });
 });
