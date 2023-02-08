@@ -23,6 +23,7 @@ services:
       PGUSER: postgres
       PGDATABASE: postgres
       PGPASSWORD: password
+      CI: $CI
     volumes:
       - ../../:/app
     working_dir: /app/packages/example
