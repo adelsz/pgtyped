@@ -1,7 +1,7 @@
 import {
+  ParameterTransform,
   processSQLQueryIR,
   processTSQueryAST,
-  ParameterTransform,
 } from '@pgtyped/runtime';
 
 import {
@@ -18,7 +18,7 @@ import { camelCase } from 'camel-case';
 import { pascalCase } from 'pascal-case';
 import path from 'path';
 import { ParsedConfig } from './config.js';
-import { TypeAllocator, TypeMapping } from './types.js';
+import { TypeAllocator, TypeMapping, TypeScope } from './types.js';
 import { parseCode as parseTypescriptFile } from './parseTypescript.js';
 import { IQueryTypes } from '@pgtyped/query/lib/actions';
 
@@ -135,7 +135,7 @@ export async function queryToTypeDeclarations(
   const paramFieldTypes: IField[] = [];
 
   returnTypes.forEach(({ returnName, type, nullable, comment }) => {
-    let tsTypeName = types.use(type);
+    let tsTypeName = types.use(type, TypeScope.Return);
 
     const lastCharacter = returnName[returnName.length - 1]; // Checking for type hints
     const addNullability = lastCharacter === '?';
@@ -172,7 +172,7 @@ export async function queryToTypeDeclarations(
           ? param.assignedIndex[0]
           : param.assignedIndex;
       const pgTypeName = params[assignedIndex - 1];
-      let tsTypeName = types.use(pgTypeName);
+      let tsTypeName = types.use(pgTypeName, TypeScope.Parameter);
 
       if (!param.required) {
         tsTypeName += ' | null | void';
@@ -191,7 +191,10 @@ export async function queryToTypeDeclarations(
       const isArray = param.type === ParameterTransform.PickSpread;
       let fieldType = Object.values(param.dict)
         .map((p) => {
-          const paramType = types.use(params[p.assignedIndex - 1]);
+          const paramType = types.use(
+            params[p.assignedIndex - 1],
+            TypeScope.Parameter,
+          );
           return p.required
             ? `    ${p.name}: ${paramType}`
             : `    ${p.name}: ${paramType} | null | void`;
@@ -349,11 +352,16 @@ export async function generateDeclarationFile(
   connection: any,
   mode: 'ts' | 'sql',
   config: ParsedConfig,
+  decsFileName: string,
 ): Promise<{ typeDecs: ITypedQuery[]; declarationFileContents: string }> {
   const types = new TypeAllocator(TypeMapping(config.typesOverrides));
 
   if (mode === 'sql') {
-    types.use({ name: 'PreparedQuery', from: '@pgtyped/runtime' });
+    // Second parameter has no effect here, we could have used any value
+    types.use(
+      { name: 'PreparedQuery', from: '@pgtyped/runtime' },
+      TypeScope.Return,
+    );
   }
   const typeDecs = await generateTypedecsFromFile(
     contents,
@@ -374,7 +382,7 @@ export async function generateDeclarationFile(
 
   let declarationFileContents = '';
   declarationFileContents += `/** Types generated for queries found in "${stableFilePath}" */\n`;
-  declarationFileContents += types.declaration();
+  declarationFileContents += types.declaration(decsFileName);
   declarationFileContents += '\n';
   for (const typeDec of typeDecs) {
     declarationFileContents += typeDec.typeDeclaration;

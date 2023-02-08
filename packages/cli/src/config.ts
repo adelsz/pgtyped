@@ -7,7 +7,8 @@ import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
 import tls from 'tls';
 import { default as dbUrlModule, DatabaseConfig } from 'ts-parse-database-url';
-import { TypeMapping } from './types.js';
+import { TypeDefinition } from './types.js';
+import { Type } from '@pgtyped/query';
 
 // module import hack
 const { default: parseDatabaseUri } = dbUrlModule as any;
@@ -51,7 +52,19 @@ const configParser = t.type({
     }),
     t.undefined,
   ]),
-  typesOverrides: t.union([t.record(t.string, t.string), t.undefined]),
+  typesOverrides: t.union([
+    t.record(
+      t.string,
+      t.union([
+        t.string,
+        t.type({
+          parameter: t.union([t.string, t.undefined]),
+          return: t.union([t.string, t.undefined]),
+        }),
+      ]),
+    ),
+    t.undefined,
+  ]),
 });
 
 export type IConfig = typeof configParser._O;
@@ -70,7 +83,7 @@ export interface ParsedConfig {
   hungarianNotation: boolean;
   transforms: IConfig['transforms'];
   srcDir: IConfig['srcDir'];
-  typesOverrides: Partial<TypeMapping>;
+  typesOverrides: Record<string, Partial<TypeDefinition>>;
 }
 
 function merge<T>(base: T, ...overrides: Partial<T>[]): T {
@@ -101,6 +114,32 @@ function convertParsedURLToDBConfig({
 }
 
 const require = createRequire(import.meta.url);
+
+export function stringToType(str: string): Type {
+  if (
+    str.startsWith('./') ||
+    str.startsWith('../') ||
+    str.includes('#') ||
+    str.includes(' as ')
+  ) {
+    const [firstSection, alias] = str.split(' as ');
+    const [from, namedImport] = firstSection.split('#');
+
+    if (!alias && !namedImport) {
+      throw new Error(
+        `Relative import "${str}" should have an alias if you want to import default (eg. "${str} as MyAlias") or have a named import (eg. "${str}#MyType")`,
+      );
+    }
+
+    return {
+      name: alias ?? namedImport,
+      from,
+      aliasOf: alias ? namedImport ?? 'default' : undefined,
+    };
+  }
+
+  return { name: str };
+}
 
 export function parseConfig(
   path: string,
@@ -159,10 +198,22 @@ export function parseConfig(
 
   const finalDBConfig = merge(defaultDBConfig, db, urlDBConfig, envDBConfig);
 
-  const parsedTypesOverrides: Partial<TypeMapping> = {};
+  const parsedTypesOverrides: Record<string, Partial<TypeDefinition>> = {};
 
-  for (const [builtIn, mappedTo] of Object.entries(typesOverrides ?? {})) {
-    parsedTypesOverrides[builtIn] = { name: mappedTo };
+  for (const [typeName, mappedTo] of Object.entries(typesOverrides ?? {})) {
+    if (typeof mappedTo === 'string') {
+      parsedTypesOverrides[typeName] = {
+        parameter: stringToType(mappedTo),
+        return: stringToType(mappedTo),
+      };
+    } else {
+      parsedTypesOverrides[typeName] = {
+        parameter: mappedTo.parameter
+          ? stringToType(mappedTo.parameter)
+          : undefined,
+        return: mappedTo.return ? stringToType(mappedTo.return) : undefined,
+      };
+    }
   }
 
   return {

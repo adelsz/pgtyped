@@ -69,8 +69,11 @@ For a full list of options, see the [Configuration file format](#configuration-f
     "port": 5432, // DB port (optional)
     "ssl": false // Whether or not to connect to DB with SSL (optional)
   },
-  "typesOverrides": {
-    "date": "string" // Override default Postgres => TypeScript mapping
+  "typesOverrides": { // Override default Postgres => TypeScript mapping
+    "date": "string", 
+    "timestamptz": "string", 
+    "numeric": "number", 
+    "my_enum": "./path/to/enums#MyEnum" // Will import MyEnum from ./path/to/enums
   }
 }
 ```

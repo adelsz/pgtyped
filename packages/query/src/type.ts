@@ -15,6 +15,7 @@ export interface NamedType {
 
 export interface ImportedType extends NamedType {
   from: string;
+  aliasOf?: string;
 }
 
 export interface AliasedType extends NamedType {
