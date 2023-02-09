@@ -16,6 +16,9 @@ import { types } from 'pg'
 // DATE are now returned as string instead of Date objects
 types.setTypeParser(types.builtins.DATE, (val: string) => val);
 
+// INT8 (bigint) are now returned as BigInt instead of string
+types.setTypeParser(types.builtins.INT8, (val: string) => BigInt(val));
+
 // DECIMAL and other precision types are now returned as number instead of string
 types.setTypeParser(types.builtins.NUMERIC, (val: string) => Number(val));
 ```
@@ -30,6 +33,7 @@ In the config file you can override the default type mapping:
 {
   "typesOverrides": { 
     "date": "string",
+    "int8": "BigInt",
     "numeric": "number"
   }
 }
