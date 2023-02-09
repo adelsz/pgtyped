@@ -319,6 +319,31 @@ const getBooksIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT id, n
 export const getBooks = new PreparedQuery<IGetBooksParams,IGetBooksResult>(getBooksIR);
 
 
+/** 'CountBooks' parameters type */
+export type ICountBooksParams = void;
+
+/** 'CountBooks' return type */
+export interface ICountBooksResult {
+  book_count: BigInt | null;
+}
+
+/** 'CountBooks' query type */
+export interface ICountBooksQuery {
+  params: ICountBooksParams;
+  result: ICountBooksResult;
+}
+
+const countBooksIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT count(*) as book_count FROM books"};
+
+/**
+ * Query generated from SQL:
+ * ```
+ * SELECT count(*) as book_count FROM books
+ * ```
+ */
+export const countBooks = new PreparedQuery<ICountBooksParams,ICountBooksResult>(countBooksIR);
+
+
 /** 'GetBookCountries' parameters type */
 export type IGetBookCountriesParams = void;
 

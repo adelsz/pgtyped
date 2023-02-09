@@ -12,7 +12,8 @@
     }
   ],
   "typesOverrides": {
-    "date": "string"
+    "date": "string",
+    "int8": "BigInt"
   },
   "srcDir": "./src/",
   "dbUrl": "postgres://postgres:password@localhost/postgres"

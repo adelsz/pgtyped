@@ -10,7 +10,7 @@ import {
     updateBooks,
     updateBooksCustom,
     updateBooksRankNotNull,
-    findBookNameOrRank, getBooks,
+    findBookNameOrRank, getBooks, countBooks,
 } from './books/books.queries.js';
 import {getAllComments, insertComment, selectExistsTest} from './comments/comments.queries.js';
 import {
@@ -38,6 +38,10 @@ beforeAll(async () => {
     // Parse dates as strings for demo and testing purposes
     pg.types.setTypeParser(pg.types.builtins.DATE, function(val) {
         return val;
+    })
+
+    pg.types.setTypeParser(pg.types.builtins.INT8, function(val) {
+      return BigInt(val);
     })
 
     // Create a new client and connect to the database
@@ -186,6 +190,7 @@ test('multiple insert queries with an enum field', async () => {
   );
 })
 
+
 test('select query with json fields and casts', async () => {
     const notifications = await thresholdFrogs.run({ numFrogs: 80 }, client);
     expect(notifications).toMatchSnapshot();
@@ -200,3 +205,9 @@ test('select exists query, testing #472', async () => {
     const result = await selectExistsTest.run(undefined, client);
     expect(result).toMatchSnapshot();
 })
+
+test('select query with a bigint field', async () => {
+    const [row] = await countBooks.run(undefined, client);
+    expect(typeof row.book_count).toBe("bigint");
+    expect(row.book_count).toBe(BigInt(4));
+});
