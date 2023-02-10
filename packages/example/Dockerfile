@@ -1,6 +1,8 @@
-ARG NODE_IMAGE=node:19-alpine
+ARG NODE_IMAGE
 
 FROM $NODE_IMAGE
+
+RUN echo "Using Node.js version: $(node --version)"
 
 RUN apk add --update --no-cache postgresql-client git
 

@@ -17,7 +17,7 @@ services:
     build:
       context: .
       args:
-        NODE_IMAGE: "node:${NODE_VERSION}-alpine"
+        NODE_IMAGE: "node:${NODE_VERSION:-18}-alpine"
     environment:
       PGHOST: db
       PGUSER: postgres
