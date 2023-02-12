@@ -168,9 +168,7 @@ const args = yargs(hideBin(process.argv))
       description: 'File path (process single file, incompatible with --watch)',
     },
   })
-  .epilogue(
-    'For more information, find our manual at https://pgtyped.vercel.app/',
-  )
+  .epilogue('For more information, find our manual at https://pgtyped.dev/')
   .parseSync();
 
 const {

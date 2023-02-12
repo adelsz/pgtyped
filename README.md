@@ -1,6 +1,6 @@
 <img width="340" height="150" align="right" src="https://raw.githubusercontent.com/adelsz/pgtyped/master/header.png">
 
-# [PgTyped](https://pgtyped.vercel.app/)
+# [PgTyped](https://pgtyped.dev/)
 
 ![Version](https://img.shields.io/github/v/release/adelsz/pgtyped)
 [![Actions Status](https://github.com/adelsz/pgtyped/workflows/CI/badge.svg)](https://github.com/adelsz/pgtyped/actions) [![Join the chat at https://gitter.im/pgtyped/community](https://badges.gitter.im/pgtyped/community.svg)](https://gitter.im/pgtyped/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -22,7 +22,7 @@ No need to map or translate your DB schema to TypeScript, PgTyped automatically 
 
 ### Documentation
 
-Visit our documentation page at [https://pgtyped.vercel.app/](https://pgtyped.vercel.app/)
+Visit our documentation page at [https://pgtyped.dev/](https://pgtyped.dev/)
 
 ### Getting started
 
@@ -31,7 +31,7 @@ Visit our documentation page at [https://pgtyped.vercel.app/](https://pgtyped.ve
 3. Create a PgTyped `config.json` file.
 4. Run `npx pgtyped -w -c config.json` to start PgTyped in watch mode.
 
-More info on getting started can be found in the [Getting Started](https://pgtyped.vercel.app/docs/getting-started) page.
+More info on getting started can be found in the [Getting Started](https://pgtyped.dev/docs/getting-started) page.
 You can also refer to the [example app](./packages/example/README.md) for a preconfigured example.
 
 ### Example
@@ -104,11 +104,11 @@ main();
 
 ### Resources
 
-1. [Configuring pgTyped](https://pgtyped.vercel.app/docs/cli)
-2. [Writing queries in SQL files](https://pgtyped.vercel.app/docs/sql-file-intro)
-3. [Advanced queries and parameter expansions in SQL files](https://pgtyped.vercel.app/docs/sql-file)
-4. [Writing queries in TS files](https://pgtyped.vercel.app/docs/ts-file-intro)
-5. [Advanced queries and parameter expansions in TS files](https://pgtyped.vercel.app/docs/ts-file)
+1. [Configuring pgTyped](https://pgtyped.dev/docs/cli)
+2. [Writing queries in SQL files](https://pgtyped.dev/docs/sql-file-intro)
+3. [Advanced queries and parameter expansions in SQL files](https://pgtyped.dev/docs/sql-file)
+4. [Writing queries in TS files](https://pgtyped.dev/docs/ts-file-intro)
+5. [Advanced queries and parameter expansions in TS files](https://pgtyped.dev/docs/ts-file)
 
 ### Project state:
 

@@ -1,7 +1,7 @@
 module.exports = {
   title: 'PgTyped',
   tagline: 'Typesafe SQL in TypeScript',
-  url: 'https://pgtyped.now.sh',
+  url: 'https://pgtyped.dev',
   baseUrl: '/',
   favicon: 'img/favicon.ico',
   organizationName: 'adelsz', // Usually your GitHub org/user name.
