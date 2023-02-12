@@ -45,11 +45,8 @@ module.exports = {
           // Please change this to your repo.
           editUrl: 'https://github.com/adelsz/pgtyped/edit/master/docs-new/',
         },
-        googleAnalytics: {
-          trackingID: 'UA-168210187-1',
-        },
         gtag: {
-          trackingID: 'UA-168210187-1',
+          trackingID: 'G-M3YNPCWP14',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
