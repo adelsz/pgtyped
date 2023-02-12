@@ -21,7 +21,7 @@ statement
 statementBody
     : (LINE_COMMENT | ignoredComment | param | word)*;
 
-word: WORD | ID | STRING | S_REQUIRED_MARK;
+word: WORD | ID | STRING | S_REQUIRED_MARK | DOLLAR_STRING;
 
 param: PARAM_MARK paramId;
 
