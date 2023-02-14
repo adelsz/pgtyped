@@ -8,7 +8,8 @@ VALUES :notifications RETURNING id as notification_id;
 /* @name GetNotifications */
 SELECT *
   FROM notifications
- WHERE user_id = :userId;
+ WHERE user_id = :userId
+ AND created_at > :date!;
 
 
 /*

@@ -234,15 +234,10 @@ export class TypeAllocator {
 
         const arrayValueType = typeNameOrType.slice(1);
         // ^ Converts _varchar -> varchar, then wraps the type in an array
-        // type wrapper
-        if (this.isMappedType(arrayValueType)) {
-          typ = getArray(this.mapping[arrayValueType][scope]);
-          // make sure the element type is used so it appears in the declaration
-          this.use(this.mapping[arrayValueType][scope], scope);
-        }
-      }
 
-      if (typ == null) {
+        const mappedType = this.use(arrayValueType, scope);
+        typ = getArray({ name: mappedType });
+      } else {
         if (!this.isMappedType(typeNameOrType)) {
           if (this.allowUnmappedTypes) {
             return typeNameOrType;
@@ -258,11 +253,19 @@ export class TypeAllocator {
       }
     } else {
       if (isEnumArray(typeNameOrType)) {
-        typ = getArray(typeNameOrType.elementType);
+        if (this.mapping[typeNameOrType.elementType.name]?.[scope]) {
+          typ = getArray({
+            name: typeNameOrType.elementType.name,
+            definition:
+              this.mapping[typeNameOrType.elementType.name][scope].name,
+          });
+        } else {
+          typ = getArray(typeNameOrType.elementType);
+        }
         // make sure the element type is used so it appears in the declaration
         this.use(typeNameOrType.elementType, scope);
       } else {
-        typ = typeNameOrType;
+        typ = this.mapping[typeNameOrType.name]?.[scope] ?? typeNameOrType;
       }
     }
 

@@ -1,6 +1,9 @@
 /* @name FindBookById */
 SELECT * FROM books WHERE id = :id;
 
+/* @name FindBookByCategory */
+SELECT * FROM books WHERE :category = ANY(categories);
+
 /* @name FindBookNameOrRank */
 SELECT id, name
 FROM books

@@ -39,6 +39,7 @@ export const sendNotifications = new PreparedQuery<ISendNotificationsParams,ISen
 
 /** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
+  date: Date | string;
   userId?: number | null | void;
 }
 
@@ -57,7 +58,7 @@ export interface IGetNotificationsQuery {
   result: IGetNotificationsResult;
 }
 
-const getNotificationsIR: any = {"usedParamSet":{"userId":true},"params":[{"name":"userId","required":false,"transform":{"type":"scalar"},"locs":[{"a":47,"b":53}]}],"statement":"SELECT *\n  FROM notifications\n WHERE user_id = :userId"};
+const getNotificationsIR: any = {"usedParamSet":{"userId":true,"date":true},"params":[{"name":"userId","required":false,"transform":{"type":"scalar"},"locs":[{"a":47,"b":53}]},{"name":"date","required":true,"transform":{"type":"scalar"},"locs":[{"a":73,"b":78}]}],"statement":"SELECT *\n  FROM notifications\n WHERE user_id = :userId\n AND created_at > :date!"};
 
 /**
  * Query generated from SQL:
@@ -65,6 +66,7 @@ const getNotificationsIR: any = {"usedParamSet":{"userId":true},"params":[{"name
  * SELECT *
  *   FROM notifications
  *  WHERE user_id = :userId
+ *  AND created_at > :date!
  * ```
  */
 export const getNotifications = new PreparedQuery<IGetNotificationsParams,IGetNotificationsResult>(getNotificationsIR);

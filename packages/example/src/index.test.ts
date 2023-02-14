@@ -1,28 +1,36 @@
-import {test, expect, afterEach, beforeEach, beforeAll, describe} from '@jest/globals';
+import { afterEach, beforeAll, beforeEach, expect, test } from '@jest/globals';
 import pg from 'pg';
-const {Client} = pg;
 import {
-    aggregateEmailsAndTest,
-    findBookUnicode,
-    findBookById,
-    getBooksByAuthorName,
-    insertBooks,
-    updateBooks,
-    updateBooksCustom,
-    updateBooksRankNotNull,
-    findBookNameOrRank, getBooks, countBooks,
+  aggregateEmailsAndTest,
+  countBooks,
+  findBookById,
+  findBookNameOrRank,
+  findBookUnicode,
+  getBooks,
+  getBooksByAuthorName,
+  insertBooks,
+  updateBooks,
+  updateBooksCustom,
+  updateBooksRankNotNull,
 } from './books/books.queries.js';
-import {getAllComments, insertComment, selectExistsTest} from './comments/comments.queries.js';
+import {
+  getAllComments,
+  insertComment,
+  selectExistsTest,
+} from './comments/comments.queries.js';
 import {
   insertNotification,
   insertNotifications,
 } from './notifications/notifications.js';
 import {
-    getNotifications,
-    sendNotifications,
-    thresholdFrogs,
+  getNotifications,
+  sendNotifications,
+  thresholdFrogs,
 } from './notifications/notifications.queries.js';
-import {getUsersWithComment} from "./users/sample.js";
+import { getUsersWithComment } from './users/sample.js';
+import { Category } from './customTypes';
+
+const { Client } = pg;
 
 const dbConfig = {
   host: process.env.PGHOST ?? '127.0.0.1',
@@ -35,179 +43,190 @@ const dbConfig = {
 // Connect to the database once before all tests
 let client: pg.Client;
 beforeAll(async () => {
-    // Parse dates as strings for demo and testing purposes
-    pg.types.setTypeParser(pg.types.builtins.DATE, function(val) {
-        return val;
-    })
+  // Parse dates as strings for demo and testing purposes
+  pg.types.setTypeParser(pg.types.builtins.DATE, function (val) {
+    return val;
+  });
 
-    pg.types.setTypeParser(pg.types.builtins.INT8, function(val) {
-      return BigInt(val);
-    })
+  pg.types.setTypeParser(pg.types.builtins.INT8, function (val) {
+    return BigInt(val);
+  });
 
-    // Create a new client and connect to the database
-    client = new Client(dbConfig);
-    await client.connect();
+  // Create a new client and connect to the database
+  client = new Client(dbConfig);
+  await client.connect();
 });
 
 // Disconnect from the database after all tests
 afterAll(async () => {
-    await client.end();
-})
+  await client.end();
+});
 
 // Run each test in a transaction that is rolled back at the end
-beforeEach( () => client.query('BEGIN'))
-afterEach( () => client.query('ROLLBACK'))
+beforeEach(() => client.query('BEGIN'));
+afterEach(() => client.query('ROLLBACK'));
 
 test('select query with unicode characters', () => {
-    const result = findBookUnicode.run(undefined, client);
-    expect(result).resolves.toMatchSnapshot();
-})
+  const result = findBookUnicode.run(undefined, client);
+  expect(result).resolves.toMatchSnapshot();
+});
 
 test('select query with parameters', async () => {
-    const comments = await getAllComments.run({ id: 1 }, client);
-    expect(comments).toMatchSnapshot();
-})
+  const comments = await getAllComments.run({ id: 1 }, client);
+  expect(comments).toMatchSnapshot();
+});
 
 test('select query with dynamic or', () => {
-    const result = findBookNameOrRank.run({
-        rank: 1,
-    }, client);
-    expect(result).resolves.toMatchSnapshot();
-})
+  const result = findBookNameOrRank.run(
+    {
+      rank: 1,
+    },
+    client,
+  );
+  expect(result).resolves.toMatchSnapshot();
+});
 
 test('select query with date type override (TS)', async () => {
-    const comments = await getUsersWithComment(0, client);
-    const dateAsString: string = comments.registration_date;
-    expect(typeof dateAsString).toBe("string");
-})
+  const comments = await getUsersWithComment(0, client);
+  const dateAsString: string = comments.registration_date;
+  expect(typeof dateAsString).toBe('string');
+});
 
 test('select query with date type override (SQL)', async () => {
-    const notifications = await getNotifications.run({userId: 1}, client);
-    const dateAsString: string = notifications[0].created_at;
-    expect(typeof dateAsString).toBe("string");
-})
+  const notifications = await getNotifications.run(
+    { userId: 1, date: '2000-01-01' },
+    client,
+  );
+  const dateAsString: string = notifications[0].created_at;
+  expect(typeof dateAsString).toBe('string');
+});
 
 test('insert query with parameter spread', async () => {
   const [{ book_id: insertedBookId }] = await insertBooks.run(
-      {
-        books: [
-          {
-            authorId: 1,
-            name: 'A Brief History of Time: From the Big Bang to Black Holes',
-            rank: 1,
-            categories: ['novel', 'science-fiction'],
-          },
-        ],
-      },
-      client,
+    {
+      books: [
+        {
+          authorId: 1,
+          name: 'A Brief History of Time: From the Big Bang to Black Holes',
+          rank: 1,
+          categories: [Category.Novel, Category.ScienceFiction],
+        },
+      ],
+    },
+    client,
   );
   const { 0: insertedBook } = await findBookById.run(
-      { id: insertedBookId },
-      client,
+    { id: insertedBookId },
+    client,
   );
-  expect(insertedBook.categories).toEqual("{novel,science-fiction}");
-})
+  expect(insertedBook.categories).toEqual('{novel,science-fiction}');
+});
 
 test('update query with a non-null parameter override', async () => {
-    await updateBooks.run({ id: 2, rank: 12, name: 'Another title' }, client);
-})
+  await updateBooks.run({ id: 2, rank: 12, name: 'Another title' }, client);
+});
 
 test('insert query with an inline sql comment', async () => {
-    const [result] = await insertComment.run({ comments: [{ commentBody: "Just a comment", userId: 1}] }, client);
-    expect(result).toMatchSnapshot({
-        id: expect.any(Number),
-    });
-})
+  const [result] = await insertComment.run(
+    { comments: [{ commentBody: 'Just a comment', userId: 1 }] },
+    client,
+  );
+  expect(result).toMatchSnapshot({
+    id: expect.any(Number),
+  });
+});
 
 test('dynamic update query', async () => {
-    await updateBooksCustom.run({ id: 2, rank: 13 }, client);
-})
+  await updateBooksCustom.run({ id: 2, rank: 13 }, client);
+});
 
 test('update query with a multiple non-null parameter overrides', async () => {
-    await updateBooksRankNotNull.run({ id: 2, rank: 12, name: 'Another title' }, client);
-})
+  await updateBooksRankNotNull.run(
+    { id: 2, rank: 12, name: 'Another title' },
+    client,
+  );
+});
 
 test('select query with join and a parameter override', async () => {
-    const books = await getBooksByAuthorName.run(
-      {
-        authorName: 'Carl Sagan',
-      },
-      client,
-    );
-    expect(books).toMatchSnapshot();
-})
+  const books = await getBooksByAuthorName.run(
+    {
+      authorName: 'Carl Sagan',
+    },
+    client,
+  );
+  expect(books).toMatchSnapshot();
+});
 
 test('select query with aggregation', async () => {
-    const [aggregateData] = await aggregateEmailsAndTest.run(
-        { testAges: [35, 23, 19] },
-        client,
-    );
-    expect(aggregateData.agetest).toBe(true);
+  const [aggregateData] = await aggregateEmailsAndTest.run(
+    { testAges: [35, 23, 19] },
+    client,
+  );
+  expect(aggregateData.agetest).toBe(true);
   expect(aggregateData.emails).toEqual([
     'alex.doe@example.com',
     'jane.holmes@example.com',
     'andrewjackson@example.com',
   ]);
-})
+});
 
 test('insert query with an enum field', async () => {
-    await sendNotifications.run(
+  await sendNotifications.run(
+    {
+      notifications: [
         {
-        notifications: [
-            {
-            user_id: 2,
-            payload: { num_frogs: 82 },
-            type: 'reminder',
-            },
-        ],
+          user_id: 2,
+          payload: { num_frogs: 82 },
+          type: 'reminder',
         },
-        client,
-    );
+      ],
+    },
+    client,
+  );
 });
 
 test('multiple insert queries with an enum field', async () => {
-    await insertNotifications.run(
+  await insertNotifications.run(
+    {
+      params: [
         {
-        params: [
-            {
-            user_id: 1,
-            payload: { num_frogs: 1002 },
-            type: 'reminder',
-            },
-        ],
-        },
-        client,
-    );
-  await insertNotification.run(
-      {
-        notification: {
           user_id: 1,
           payload: { num_frogs: 1002 },
           type: 'reminder',
         },
-      },
-      client,
+      ],
+    },
+    client,
   );
-})
-
+  await insertNotification.run(
+    {
+      notification: {
+        user_id: 1,
+        payload: { num_frogs: 1002 },
+        type: 'reminder',
+      },
+    },
+    client,
+  );
+});
 
 test('select query with json fields and casts', async () => {
-    const notifications = await thresholdFrogs.run({ numFrogs: 80 }, client);
-    expect(notifications).toMatchSnapshot();
-})
+  const notifications = await thresholdFrogs.run({ numFrogs: 80 }, client);
+  expect(notifications).toMatchSnapshot();
+});
 
 test('select query nullability override on return field', async () => {
-    const result = await getBooks.run(undefined, client);
-    expect(result).toMatchSnapshot();
-})
+  const result = await getBooks.run(undefined, client);
+  expect(result).toMatchSnapshot();
+});
 
 test('select exists query, testing #472', async () => {
-    const result = await selectExistsTest.run(undefined, client);
-    expect(result).toMatchSnapshot();
-})
+  const result = await selectExistsTest.run(undefined, client);
+  expect(result).toMatchSnapshot();
+});
 
 test('select query with a bigint field', async () => {
-    const [row] = await countBooks.run(undefined, client);
-    expect(typeof row.book_count).toBe("bigint");
-    expect(row.book_count).toBe(BigInt(4));
+  const [row] = await countBooks.run(undefined, client);
+  expect(typeof row.book_count).toBe('bigint');
+  expect(row.book_count).toBe(BigInt(4));
 });
