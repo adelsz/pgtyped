@@ -113,6 +113,10 @@ export async function startup(
       await queue.send(messages.passwordMessage, { password });
       await queue.reply(messages.authenticationOk);
       await queue.reply(messages.readyForQuery);
+    } else {
+      await queue.send(messages.passwordMessage, { password });
+      await queue.reply(messages.authenticationOk);
+      await queue.reply(messages.readyForQuery);
     }
   } catch (e) {
     // tslint:disable-next-line:no-console
