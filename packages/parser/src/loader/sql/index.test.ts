@@ -140,3 +140,17 @@ test('Comment starts in strings are ignored', () => {
   const parseTree = parse(text);
   expect(parseTree).toMatchSnapshot();
 });
+
+test('Dollar quoted strings are supported', () => {
+  const text = `
+  /* @name CreateUpdatedAtFunction */
+  CREATE FUNCTION UpdatedAt()
+  RETURNS TRIGGER AS $$
+      BEGIN
+          NEW.updatedAt = NOW();
+          RETURN NEW;
+      END;
+  $$ LANGUAGE plpgsql;`;
+  const parseTree = parse(text);
+  expect(parseTree).toMatchSnapshot();
+});

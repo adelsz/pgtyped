@@ -36,19 +36,21 @@ export class SQLParser extends Parser {
 	public static readonly EOF_STATEMENT = 6;
 	public static readonly WSL = 7;
 	public static readonly STRING = 8;
-	public static readonly PARAM_MARK = 9;
-	public static readonly WS = 10;
-	public static readonly TRANSFORM_ARROW = 11;
-	public static readonly SPREAD = 12;
-	public static readonly NAME_TAG = 13;
-	public static readonly TYPE_TAG = 14;
-	public static readonly OB = 15;
-	public static readonly CB = 16;
-	public static readonly COMMA = 17;
-	public static readonly C_REQUIRED_MARK = 18;
-	public static readonly ANY = 19;
-	public static readonly CLOSE_COMMENT = 20;
-	public static readonly CAST = 21;
+	public static readonly DOLLAR_STRING = 9;
+	public static readonly PARAM_MARK = 10;
+	public static readonly WS = 11;
+	public static readonly TRANSFORM_ARROW = 12;
+	public static readonly SPREAD = 13;
+	public static readonly NAME_TAG = 14;
+	public static readonly TYPE_TAG = 15;
+	public static readonly OB = 16;
+	public static readonly CB = 17;
+	public static readonly COMMA = 18;
+	public static readonly C_REQUIRED_MARK = 19;
+	public static readonly ANY = 20;
+	public static readonly CLOSE_COMMENT = 21;
+	public static readonly DOLLAR = 22;
+	public static readonly CAST = 23;
 	public static readonly RULE_input = 0;
 	public static readonly RULE_query = 1;
 	public static readonly RULE_queryDef = 2;
@@ -70,22 +72,23 @@ export class SQLParser extends Parser {
 	public static readonly RULE_paramName = 18;
 	// tslint:disable:no-trailing-whitespace
 	public static readonly ruleNames: string[] = [
-		"input", "query", "queryDef", "ignoredComment", "statement", "statementBody", 
-		"word", "param", "paramId", "nameTag", "paramTag", "paramTransform", "transformRule", 
-		"spreadTransform", "pickTransform", "spreadPickTransform", "key", "queryName", 
+		"input", "query", "queryDef", "ignoredComment", "statement", "statementBody",
+		"word", "param", "paramId", "nameTag", "paramTag", "paramTransform", "transformRule",
+		"spreadTransform", "pickTransform", "spreadPickTransform", "key", "queryName",
 		"paramName",
 	];
 
 	private static readonly _LITERAL_NAMES: Array<string | undefined> = [
-		undefined, undefined, undefined, "'/*'", undefined, undefined, "';'", 
-		undefined, undefined, "':'", undefined, "'->'", "'...'", "'@name'", "'@param'", 
-		"'('", "')'", "','", undefined, undefined, "'*/'", "'::'",
+		undefined, undefined, undefined, "'/*'", undefined, undefined, "';'",
+		undefined, undefined, undefined, "':'", undefined, "'->'", "'...'", "'@name'",
+		"'@param'", "'('", "')'", "','", undefined, undefined, "'*/'", "'$'",
+		"'::'",
 	];
 	private static readonly _SYMBOLIC_NAMES: Array<string | undefined> = [
-		undefined, "ID", "LINE_COMMENT", "OPEN_COMMENT", "S_REQUIRED_MARK", "WORD", 
-		"EOF_STATEMENT", "WSL", "STRING", "PARAM_MARK", "WS", "TRANSFORM_ARROW", 
-		"SPREAD", "NAME_TAG", "TYPE_TAG", "OB", "CB", "COMMA", "C_REQUIRED_MARK", 
-		"ANY", "CLOSE_COMMENT", "CAST",
+		undefined, "ID", "LINE_COMMENT", "OPEN_COMMENT", "S_REQUIRED_MARK", "WORD",
+		"EOF_STATEMENT", "WSL", "STRING", "DOLLAR_STRING", "PARAM_MARK", "WS",
+		"TRANSFORM_ARROW", "SPREAD", "NAME_TAG", "TYPE_TAG", "OB", "CB", "COMMA",
+		"C_REQUIRED_MARK", "ANY", "CLOSE_COMMENT", "DOLLAR", "CAST",
 	];
 	public static readonly VOCABULARY: Vocabulary = new VocabularyImpl(SQLParser._LITERAL_NAMES, SQLParser._SYMBOLIC_NAMES, []);
 
@@ -254,7 +257,7 @@ export class SQLParser extends Parser {
 			this.state = 68;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SQLParser.ID) | (1 << SQLParser.LINE_COMMENT) | (1 << SQLParser.OPEN_COMMENT) | (1 << SQLParser.S_REQUIRED_MARK) | (1 << SQLParser.WORD) | (1 << SQLParser.EOF_STATEMENT) | (1 << SQLParser.WSL) | (1 << SQLParser.STRING) | (1 << SQLParser.PARAM_MARK) | (1 << SQLParser.WS) | (1 << SQLParser.TRANSFORM_ARROW) | (1 << SQLParser.SPREAD) | (1 << SQLParser.NAME_TAG) | (1 << SQLParser.TYPE_TAG) | (1 << SQLParser.OB) | (1 << SQLParser.CB) | (1 << SQLParser.COMMA) | (1 << SQLParser.C_REQUIRED_MARK) | (1 << SQLParser.ANY) | (1 << SQLParser.CAST))) !== 0)) {
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SQLParser.ID) | (1 << SQLParser.LINE_COMMENT) | (1 << SQLParser.OPEN_COMMENT) | (1 << SQLParser.S_REQUIRED_MARK) | (1 << SQLParser.WORD) | (1 << SQLParser.EOF_STATEMENT) | (1 << SQLParser.WSL) | (1 << SQLParser.STRING) | (1 << SQLParser.DOLLAR_STRING) | (1 << SQLParser.PARAM_MARK) | (1 << SQLParser.WS) | (1 << SQLParser.TRANSFORM_ARROW) | (1 << SQLParser.SPREAD) | (1 << SQLParser.NAME_TAG) | (1 << SQLParser.TYPE_TAG) | (1 << SQLParser.OB) | (1 << SQLParser.CB) | (1 << SQLParser.COMMA) | (1 << SQLParser.C_REQUIRED_MARK) | (1 << SQLParser.ANY) | (1 << SQLParser.DOLLAR) | (1 << SQLParser.CAST))) !== 0)) {
 				{
 				{
 				this.state = 65;
@@ -331,7 +334,7 @@ export class SQLParser extends Parser {
 			this.state = 82;
 			this._errHandler.sync(this);
 			_la = this._input.LA(1);
-			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SQLParser.ID) | (1 << SQLParser.LINE_COMMENT) | (1 << SQLParser.OPEN_COMMENT) | (1 << SQLParser.S_REQUIRED_MARK) | (1 << SQLParser.WORD) | (1 << SQLParser.STRING) | (1 << SQLParser.PARAM_MARK))) !== 0)) {
+			while ((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SQLParser.ID) | (1 << SQLParser.LINE_COMMENT) | (1 << SQLParser.OPEN_COMMENT) | (1 << SQLParser.S_REQUIRED_MARK) | (1 << SQLParser.WORD) | (1 << SQLParser.STRING) | (1 << SQLParser.DOLLAR_STRING) | (1 << SQLParser.PARAM_MARK))) !== 0)) {
 				{
 				this.state = 80;
 				this._errHandler.sync(this);
@@ -358,6 +361,7 @@ export class SQLParser extends Parser {
 				case SQLParser.S_REQUIRED_MARK:
 				case SQLParser.WORD:
 				case SQLParser.STRING:
+				case SQLParser.DOLLAR_STRING:
 					{
 					this.state = 79;
 					this.word();
@@ -397,7 +401,7 @@ export class SQLParser extends Parser {
 			{
 			this.state = 85;
 			_la = this._input.LA(1);
-			if (!((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SQLParser.ID) | (1 << SQLParser.S_REQUIRED_MARK) | (1 << SQLParser.WORD) | (1 << SQLParser.STRING))) !== 0))) {
+			if (!((((_la) & ~0x1F) === 0 && ((1 << _la) & ((1 << SQLParser.ID) | (1 << SQLParser.S_REQUIRED_MARK) | (1 << SQLParser.WORD) | (1 << SQLParser.STRING) | (1 << SQLParser.DOLLAR_STRING))) !== 0))) {
 			this._errHandler.recoverInline(this);
 			} else {
 				if (this._input.LA(1) === Token.EOF) {
@@ -822,7 +826,7 @@ export class SQLParser extends Parser {
 	}
 
 	public static readonly _serializedATN: string =
-		"\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03\x17\x8F\x04\x02" +
+		"\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03\x19\x8F\x04\x02" +
 		"\t\x02\x04\x03\t\x03\x04\x04\t\x04\x04\x05\t\x05\x04\x06\t\x06\x04\x07" +
 		"\t\x07\x04\b\t\b\x04\t\t\t\x04\n\t\n\x04\v\t\v\x04\f\t\f\x04\r\t\r\x04" +
 		"\x0E\t\x0E\x04\x0F\t\x0F\x04\x10\t\x10\x04\x11\t\x11\x04\x12\t\x12\x04" +
@@ -839,8 +843,8 @@ export class SQLParser extends Parser {
 		"\x03\x11\x03\x12\x03\x12\x05\x12\x89\n\x12\x03\x13\x03\x13\x03\x14\x03" +
 		"\x14\x03\x14\x02\x02\x02\x15\x02\x02\x04\x02\x06\x02\b\x02\n\x02\f\x02" +
 		"\x0E\x02\x10\x02\x12\x02\x14\x02\x16\x02\x18\x02\x1A\x02\x1C\x02\x1E\x02" +
-		" \x02\"\x02$\x02&\x02\x02\x04\x03\x02\x16\x16\x05\x02\x03\x03\x06\x07" +
-		"\n\n\x02\x89\x02/\x03\x02\x02\x02\x045\x03\x02\x02\x02\x068\x03\x02\x02" +
+		" \x02\"\x02$\x02&\x02\x02\x04\x03\x02\x17\x17\x05\x02\x03\x03\x06\x07" +
+		"\n\v\x02\x89\x02/\x03\x02\x02\x02\x045\x03\x02\x02\x02\x068\x03\x02\x02" +
 		"\x02\bB\x03\x02\x02\x02\nK\x03\x02\x02\x02\fT\x03\x02\x02\x02\x0EW\x03" +
 		"\x02\x02\x02\x10Y\x03\x02\x02\x02\x12\\\x03\x02\x02\x02\x14`\x03\x02\x02" +
 		"\x02\x16c\x03\x02\x02\x02\x18g\x03\x02\x02\x02\x1Am\x03\x02\x02\x02\x1C" +
@@ -852,29 +856,29 @@ export class SQLParser extends Parser {
 		"34\x07\x02\x02\x034\x03\x03\x02\x02\x0256\x05\x06\x04\x0267\x05\n\x06" +
 		"\x027\x05\x03\x02\x02\x0289\x07\x05\x02\x029=\x05\x14\v\x02:<\x05\x16" +
 		"\f\x02;:\x03\x02\x02\x02<?\x03\x02\x02\x02=;\x03\x02\x02\x02=>\x03\x02" +
-		"\x02\x02>@\x03\x02\x02\x02?=\x03\x02\x02\x02@A\x07\x16\x02\x02A\x07\x03" +
+		"\x02\x02>@\x03\x02\x02\x02?=\x03\x02\x02\x02@A\x07\x17\x02\x02A\x07\x03" +
 		"\x02\x02\x02BF\x07\x05\x02\x02CE\n\x02\x02\x02DC\x03\x02\x02\x02EH\x03" +
 		"\x02\x02\x02FD\x03\x02\x02\x02FG\x03\x02\x02\x02GI\x03\x02\x02\x02HF\x03" +
-		"\x02\x02\x02IJ\x07\x16\x02\x02J\t\x03\x02\x02\x02KL\x05\f\x07\x02LM\x07" +
+		"\x02\x02\x02IJ\x07\x17\x02\x02J\t\x03\x02\x02\x02KL\x05\f\x07\x02LM\x07" +
 		"\b\x02\x02M\v\x03\x02\x02\x02NS\x07\x04\x02\x02OS\x05\b\x05\x02PS\x05" +
 		"\x10\t\x02QS\x05\x0E\b\x02RN\x03\x02\x02\x02RO\x03\x02\x02\x02RP\x03\x02" +
 		"\x02\x02RQ\x03\x02\x02\x02SV\x03\x02\x02\x02TR\x03\x02\x02\x02TU\x03\x02" +
 		"\x02\x02U\r\x03\x02\x02\x02VT\x03\x02\x02\x02WX\t\x03\x02\x02X\x0F\x03" +
-		"\x02\x02\x02YZ\x07\v\x02\x02Z[\x05\x12\n\x02[\x11\x03\x02\x02\x02\\^\x07" +
+		"\x02\x02\x02YZ\x07\f\x02\x02Z[\x05\x12\n\x02[\x11\x03\x02\x02\x02\\^\x07" +
 		"\x03\x02\x02]_\x07\x06\x02\x02^]\x03\x02\x02\x02^_\x03\x02\x02\x02_\x13" +
-		"\x03\x02\x02\x02`a\x07\x0F\x02\x02ab\x05$\x13\x02b\x15\x03\x02\x02\x02" +
-		"cd\x07\x10\x02\x02de\x05&\x14\x02ef\x05\x18\r\x02f\x17\x03\x02\x02\x02" +
-		"gh\x07\r\x02\x02hi\x05\x1A\x0E\x02i\x19\x03\x02\x02\x02jn\x05\x1C\x0F" +
+		"\x03\x02\x02\x02`a\x07\x10\x02\x02ab\x05$\x13\x02b\x15\x03\x02\x02\x02" +
+		"cd\x07\x11\x02\x02de\x05&\x14\x02ef\x05\x18\r\x02f\x17\x03\x02\x02\x02" +
+		"gh\x07\x0E\x02\x02hi\x05\x1A\x0E\x02i\x19\x03\x02\x02\x02jn\x05\x1C\x0F" +
 		"\x02kn\x05\x1E\x10\x02ln\x05 \x11\x02mj\x03\x02\x02\x02mk\x03\x02\x02" +
-		"\x02ml\x03\x02\x02\x02n\x1B\x03\x02\x02\x02op\x07\x11\x02\x02pq\x07\x0E" +
-		"\x02\x02qr\x07\x12\x02\x02r\x1D\x03\x02\x02\x02st\x07\x11\x02\x02ty\x05" +
-		"\"\x12\x02uv\x07\x13\x02\x02vx\x05\"\x12\x02wu\x03\x02\x02\x02x{\x03\x02" +
+		"\x02ml\x03\x02\x02\x02n\x1B\x03\x02\x02\x02op\x07\x12\x02\x02pq\x07\x0F" +
+		"\x02\x02qr\x07\x13\x02\x02r\x1D\x03\x02\x02\x02st\x07\x12\x02\x02ty\x05" +
+		"\"\x12\x02uv\x07\x14\x02\x02vx\x05\"\x12\x02wu\x03\x02\x02\x02x{\x03\x02" +
 		"\x02\x02yw\x03\x02\x02\x02yz\x03\x02\x02\x02z}\x03\x02\x02\x02{y\x03\x02" +
-		"\x02\x02|~\x07\x13\x02\x02}|\x03\x02\x02\x02}~\x03\x02\x02\x02~\x7F\x03" +
-		"\x02\x02\x02\x7F\x80\x07\x12\x02\x02\x80\x1F\x03\x02\x02\x02\x81\x82\x07" +
-		"\x11\x02\x02\x82\x83\x05\x1E\x10\x02\x83\x84\x07\x0E\x02\x02\x84\x85\x07" +
-		"\x12\x02\x02\x85!\x03\x02\x02\x02\x86\x88\x07\x03\x02\x02\x87\x89\x07" +
-		"\x14\x02\x02\x88\x87\x03\x02\x02\x02\x88\x89\x03\x02\x02\x02\x89#\x03" +
+		"\x02\x02|~\x07\x14\x02\x02}|\x03\x02\x02\x02}~\x03\x02\x02\x02~\x7F\x03" +
+		"\x02\x02\x02\x7F\x80\x07\x13\x02\x02\x80\x1F\x03\x02\x02\x02\x81\x82\x07" +
+		"\x12\x02\x02\x82\x83\x05\x1E\x10\x02\x83\x84\x07\x0F\x02\x02\x84\x85\x07" +
+		"\x13\x02\x02\x85!\x03\x02\x02\x02\x86\x88\x07\x03\x02\x02\x87\x89\x07" +
+		"\x15\x02\x02\x88\x87\x03\x02\x02\x02\x88\x89\x03\x02\x02\x02\x89#\x03" +
 		"\x02\x02\x02\x8A\x8B\x07\x03\x02\x02\x8B%\x03\x02\x02\x02\x8C\x8D\x07" +
 		"\x03\x02\x02\x8D\'\x03\x02\x02\x02\r+1=FRT^my}\x88";
 	public static __ATN: ATN;
@@ -1156,6 +1160,7 @@ export class WordContext extends ParserRuleContext {
 	public ID(): TerminalNode | undefined { return this.tryGetToken(SQLParser.ID, 0); }
 	public STRING(): TerminalNode | undefined { return this.tryGetToken(SQLParser.STRING, 0); }
 	public S_REQUIRED_MARK(): TerminalNode | undefined { return this.tryGetToken(SQLParser.S_REQUIRED_MARK, 0); }
+	public DOLLAR_STRING(): TerminalNode | undefined { return this.tryGetToken(SQLParser.DOLLAR_STRING, 0); }
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
 		super(parent, invokingState);
 	}
