@@ -105,6 +105,34 @@ Object {
 }
 `;
 
+exports[`Dollar quoted strings are supported 1`] = `
+Object {
+  "events": Array [],
+  "queries": Array [
+    Object {
+      "name": "CreateUpdatedAtFunction",
+      "params": Array [],
+      "statement": Object {
+        "body": "CREATE FUNCTION UpdatedAt()
+  RETURNS TRIGGER AS $$
+      BEGIN
+          NEW.updatedAt = NOW();
+          RETURN NEW;
+      END;
+  $$ LANGUAGE plpgsql",
+        "loc": Object {
+          "a": 41,
+          "b": 191,
+          "col": 2,
+          "line": 3,
+        },
+      },
+      "usedParamSet": Object {},
+    },
+  ],
+}
+`;
+
 exports[`Double and single quotes are supported 1`] = `
 Object {
   "events": Array [],
