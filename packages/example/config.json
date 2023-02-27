@@ -12,8 +12,11 @@
     }
   ],
   "typesOverrides": {
-    "date": "string",
-    "int8": "BigInt"
+    "date": {
+      "return": "string"
+    },
+    "int8": "BigInt",
+    "category": { "return": "./src/customTypes#Category" }
   },
   "srcDir": "./src/",
   "dbUrl": "postgres://postgres:password@localhost/postgres"
