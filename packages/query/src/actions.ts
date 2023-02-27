@@ -105,19 +105,19 @@ export async function startup(
 
       if ('SASLData' in finalSASL) {
         checkServerFinalMessage(finalSASL.SASLData, calculatedServerSignature);
+        return;
       } else {
         throw new Error('SASL: No final SASL data returned');
       }
-    } else if ('salt' in result) {
-      password = generateHash(options.user, password, result.salt);
-      await queue.send(messages.passwordMessage, { password });
-      await queue.reply(messages.authenticationOk);
-      await queue.reply(messages.readyForQuery);
-    } else {
-      await queue.send(messages.passwordMessage, { password });
-      await queue.reply(messages.authenticationOk);
-      await queue.reply(messages.readyForQuery);
     }
+    if ('salt' in result) {
+      // hash password for md5 auth
+      password = generateHash(options.user, password, result.salt);
+    }
+    // handles both cleartext and md5 password auth
+    await queue.send(messages.passwordMessage, { password });
+    await queue.reply(messages.authenticationOk);
+    await queue.reply(messages.readyForQuery);
   } catch (e) {
     // tslint:disable-next-line:no-console
     console.error(`Connection failed: ${(e as any).message}`);
