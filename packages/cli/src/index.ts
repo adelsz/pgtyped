@@ -115,7 +115,7 @@ async function main(
        * If the user didn't provide the -f paramter, we're using the list of files we got from glob.
        * If he did, we're using glob file list to detect if his provided file should be used with this transform.
        */
-      let fileList = glob.sync(pattern);
+      let fileList = glob.globSync(pattern);
       if (fileOverride) {
         fileList = fileList.includes(fileOverride) ? [fileOverride] : [];
         if (fileList.length > 0) {
