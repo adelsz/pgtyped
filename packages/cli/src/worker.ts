@@ -11,6 +11,10 @@ let connected = false;
 const connection = new AsyncQueue();
 const config: ParsedConfig = worker.workerData;
 
+interface extendedParsedPath extends path.ParsedPath {
+  dir_base: string,
+}
+
 export default async function processFile({
   fileName,
   transform,
@@ -26,7 +30,9 @@ export default async function processFile({
     await startup(config.db, connection);
     connected = true;
   }
-  const ppath = path.parse(fileName);
+  const ppath = path.parse(fileName) as extendedParsedPath;
+  ppath.dir_base = path.basename(ppath.dir);
+
   let decsFileName;
   if (transform.emitTemplate) {
     decsFileName = nun.renderString(transform.emitTemplate, ppath);

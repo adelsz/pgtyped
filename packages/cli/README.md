@@ -64,16 +64,16 @@ Config file format (`config.json`):
 
 By default, PgTyped saves generated files in the same folder as the source files it parses.  
 This behavior can be customized using the `emitTemplate` config parameter.  
-In that template, four parameters are available for interpolation: `root`, `dir`, `base`, `name` and `ext`.  
+In that template, following parameters are available for interpolation: `root`, `dir`, `dir_base`, `base`, `name` and `ext`.  
 For example, when parsing source/query file `/home/user/dir/file.sql`, these parameters are assigned the following values:
 
 ```
-┌─────────────────────┬────────────┐
-│          dir        │    base    │
-├──────┬              ├──────┬─────┤
-│ root │              │ name │ ext │
-"  /    home/user/dir / file  .sql "
-└──────┴──────────────┴──────┴─────┘
+┌───────────────────────────┬────────────┐
+│          dir              │    base    │
+├──────┬─────────┬──────────├──────┬─────┤
+│ root │         │ dir_base │ name │ ext │
+"  /    home/user/    dir   / file  .sql "
+└──────┴────────────────────┴──────┴─────┘
 (All spaces in the "" line should be ignored. They are purely for formatting.)
 ```
 
