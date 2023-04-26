@@ -1,16 +1,18 @@
-import { ParameterTransform } from '@pgtyped/runtime';
-
-import { parseSQLFile } from '@pgtyped/parser';
+import { parseSQLFile, TSQueryAST } from '@pgtyped/parser';
 import { IQueryTypes } from '@pgtyped/query/lib/actions';
+import { ParameterTransform } from '@pgtyped/runtime';
+import { pascalCase } from 'pascal-case';
 import { ParsedConfig } from './config.js';
 import {
   escapeComment,
   generateInterface,
+  genTypedSQLOverloadFunctions,
+  ITSTypedQuery,
   ProcessingMode,
   queryToTypeDeclarations,
 } from './generator';
-import { parseCode as parseTypeScriptFile } from './parseTypescript.js';
-import { TypeAllocator, TypeMapping, TypeScope } from './types.js';
+import { parseCode as parseTypeScriptFile } from './parseTypescript';
+import { TypeAllocator, TypeMapping, TypeScope } from './types';
 
 const partialConfig = { hungarianNotation: true } as ParsedConfig;
 
@@ -639,5 +641,29 @@ export type IGetNotificationsResult = never;
 export type IGetNotificationsParams = never;
 
 `;
+  expect(result).toEqual(expected);
+});
+
+test('should generate the correct SQL overload functions', async () => {
+  const queryStringTS = `
+      const getUsers = sql\`SELECT id from users\`;
+      `;
+  const query = parsedQuery(ProcessingMode.TS, queryStringTS);
+  const typedQuery: ITSTypedQuery = {
+    mode: 'ts' as const,
+    fileName: 'test.ts',
+    query: {
+      name: query.ast.name,
+      ast: query.ast as TSQueryAST,
+      queryTypeAlias: `I${pascalCase(query.ast.name)}Query`,
+    },
+    typeDeclaration: '',
+  };
+  const result = genTypedSQLOverloadFunctions('sqlFunc', {
+    typedQueries: [typedQuery],
+    typeDefinitions: { imports: {}, aliases: [], enums: [] },
+    fileName: 'test.ts',
+  });
+  const expected = `export function sqlFunc(s: \`SELECT id from users\`): ReturnType<typeof sourceSql<IGetUsersQuery>>;`;
   expect(result).toEqual(expected);
 });

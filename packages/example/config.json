@@ -9,6 +9,12 @@
       "mode": "ts",
       "include": "**/*.ts",
       "emitTemplate": "{{dir}}/{{name}}.types.ts"
+    },
+    {
+      "mode": "ts-typed-sql-tag",
+      "include": "**/*.ts",
+      "functionName": "sql",
+      "emitFileName": "sql/index.ts"
     }
   ],
   "typesOverrides": {

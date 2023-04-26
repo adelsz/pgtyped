@@ -1,13 +1,14 @@
 // Default types
 import {
+  ImportedType,
   isAlias,
   isEnum,
   isEnumArray,
   isImport,
   MappableType,
   Type,
-  ImportedType,
 } from '@pgtyped/query';
+import { AliasedType, EnumType } from '@pgtyped/query/lib/type.js';
 import path from 'path';
 
 const String: Type = { name: 'string' };
@@ -206,6 +207,14 @@ export enum TypeScope {
   Return = 'return',
 }
 
+type importsType = { [k: string]: ImportedType[] };
+
+export type TypeDefinitions = {
+  imports: importsType;
+  enums: EnumType[];
+  aliases: AliasedType[];
+};
+
 /** Wraps a TypeMapping to track which types have been used, to accumulate errors,
  * and emit necessary type definitions. */
 export class TypeAllocator {
@@ -281,26 +290,43 @@ export class TypeAllocator {
     return typ.name;
   }
 
+  // In order to get the results out of the Piscina pool, we need to have
+  //  a serializable variant
+  public toTypeDefinitions(): TypeDefinitions {
+    return {
+      imports: this.imports,
+      enums: Object.values(this.types).filter(isEnum),
+      aliases: Object.values(this.types).filter(isAlias),
+    };
+  }
+
+  // Static so we can also use this for serialized typeDefinitions
+  public static typeDefinitionDeclarations(
+    decsFileName: string,
+    types: TypeDefinitions,
+  ): string {
+    return [
+      Object.values(types.imports)
+        .map((i) => declareImport(i, decsFileName))
+        .join('\n'),
+      types.enums
+        .map((t) => declareStringUnion(t.name, t.enumValues))
+        .sort()
+        .join('\n'),
+      types.aliases
+        .map((t) => declareAlias(t.name, t.definition))
+        .sort()
+        .join('\n'),
+    ]
+      .filter((s) => s)
+      .join('\n');
+  }
+
   /** Emit a typescript definition for all types that have been used */
   declaration(decsFileName: string): string {
-    const imports = Object.values(this.imports)
-      .map((imports) => declareImport(imports, decsFileName))
-      .sort()
-      .join('\n');
-
-    // Declare database enums as string unions to maintain assignability of their values between query files
-    const enums = Object.values(this.types)
-      .filter(isEnum)
-      .map((t) => declareStringUnion(t.name, t.enumValues))
-      .sort()
-      .join('\n');
-
-    const aliases = Object.values(this.types)
-      .filter(isAlias)
-      .map((t) => declareAlias(t.name, t.definition))
-      .sort()
-      .join('\n');
-
-    return [imports, enums, aliases].filter((s) => s).join('\n');
+    return TypeAllocator.typeDefinitionDeclarations(
+      decsFileName,
+      this.toTypeDefinitions(),
+    );
   }
 }

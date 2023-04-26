@@ -1,14 +1,14 @@
 /** @fileoverview Config file parser */
 
-import { createRequire } from 'module';
+import { Type } from '@pgtyped/query';
 import * as Either from 'fp-ts/lib/Either.js';
-import { join, isAbsolute } from 'path';
 import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
+import { createRequire } from 'module';
+import { isAbsolute, join } from 'path';
 import tls from 'tls';
-import { default as dbUrlModule, DatabaseConfig } from 'ts-parse-database-url';
+import { DatabaseConfig, default as dbUrlModule } from 'ts-parse-database-url';
 import { TypeDefinition } from './types.js';
-import { Type } from '@pgtyped/query';
 
 // module import hack
 const { default: parseDatabaseUri } = dbUrlModule as any;
@@ -25,12 +25,27 @@ const TSTransformCodec = t.type({
   ...transformCodecProps,
 });
 
+const TSTypedSQLTagTransformCodec = t.type({
+  mode: t.literal('ts-typed-sql-tag'),
+  include: t.string,
+  functionName: t.string,
+  emitFileName: t.string,
+});
+
+export type TSTypedSQLTagTransformConfig = t.TypeOf<
+  typeof TSTypedSQLTagTransformCodec
+>;
+
 const SQLTransformCodec = t.type({
   mode: t.literal('sql'),
   ...transformCodecProps,
 });
 
-const TransformCodec = t.union([TSTransformCodec, SQLTransformCodec]);
+const TransformCodec = t.union([
+  TSTransformCodec,
+  SQLTransformCodec,
+  TSTypedSQLTagTransformCodec,
+]);
 
 export type TransformConfig = t.TypeOf<typeof TransformCodec>;
 
@@ -189,7 +204,9 @@ export function parseConfig(
     ? convertParsedURLToDBConfig(parseDatabaseUri(dbUri))
     : {};
 
-  if (transforms.some((tr) => !!tr.emitFileName)) {
+  if (
+    transforms.some((tr) => tr.mode !== 'ts-typed-sql-tag' && !!tr.emitFileName)
+  ) {
     // tslint:disable:no-console
     console.log(
       'Warning: Setting "emitFileName" is deprecated. Consider using "emitTemplate" instead.',

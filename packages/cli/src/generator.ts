@@ -1,10 +1,4 @@
 import {
-  ParameterTransform,
-  processSQLQueryIR,
-  processTSQueryAST,
-} from '@pgtyped/runtime';
-
-import {
   parseSQLFile,
   prettyPrintEvents,
   queryASTToIR,
@@ -14,13 +8,18 @@ import {
 } from '@pgtyped/parser';
 
 import { getTypes, TypeSource } from '@pgtyped/query';
+import { IQueryTypes } from '@pgtyped/query/lib/actions';
+import {
+  ParameterTransform,
+  processSQLQueryIR,
+  processTSQueryAST,
+} from '@pgtyped/runtime';
 import { camelCase } from 'camel-case';
 import { pascalCase } from 'pascal-case';
 import path from 'path';
-import { ParsedConfig } from './config.js';
-import { TypeAllocator, TypeMapping, TypeScope } from './types.js';
+import { ParsedConfig, TransformConfig } from './config.js';
 import { parseCode as parseTypescriptFile } from './parseTypescript.js';
-import { IQueryTypes } from '@pgtyped/query/lib/actions';
+import { TypeAllocator, TypeDefinitions, TypeScope } from './types.js';
 
 export enum ProcessingMode {
   SQL = 'sql-file',
@@ -249,54 +248,67 @@ export async function queryToTypeDeclarations(
   );
 }
 
-type ITypedQuery =
-  | {
-      mode: 'ts';
-      fileName: string;
-      query: {
-        name: string;
-        ast: TSQueryAST;
-      };
-      typeDeclaration: string;
-    }
-  | {
-      mode: 'sql';
-      fileName: string;
-      query: {
-        name: string;
-        ast: SQLQueryAST;
-        ir: SQLQueryIR;
-        paramTypeAlias: string;
-        returnTypeAlias: string;
-      };
-      typeDeclaration: string;
-    };
+export type ITSTypedQuery = {
+  mode: 'ts';
+  fileName: string;
+  query: {
+    name: string;
+    ast: TSQueryAST;
+    queryTypeAlias: string;
+  };
+  typeDeclaration: string;
+};
 
-async function generateTypedecsFromFile(
+type ISQLTypedQuery = {
+  mode: 'sql';
+  fileName: string;
+  query: {
+    name: string;
+    ast: SQLQueryAST;
+    ir: SQLQueryIR;
+    paramTypeAlias: string;
+    returnTypeAlias: string;
+  };
+  typeDeclaration: string;
+};
+
+export type ITypedQuery = ITSTypedQuery | ISQLTypedQuery;
+export type TypeDeclarationSet = {
+  typedQueries: ITypedQuery[];
+  typeDefinitions: TypeDefinitions;
+  fileName: string;
+};
+export async function generateTypedecsFromFile(
   contents: string,
   fileName: string,
   connection: any,
-  mode: 'ts' | 'sql',
+  transform: TransformConfig,
   types: TypeAllocator,
   config: ParsedConfig,
-): Promise<ITypedQuery[]> {
-  const results: ITypedQuery[] = [];
+): Promise<TypeDeclarationSet> {
+  const typedQueries: ITypedQuery[] = [];
   const interfacePrefix = config.hungarianNotation ? 'I' : '';
   const typeSource: TypeSource = (query) => getTypes(query, connection);
 
   const { queries, events } =
-    mode === 'ts'
-      ? parseTypescriptFile(contents, fileName)
-      : parseSQLFile(contents);
+    transform.mode === 'sql'
+      ? parseSQLFile(contents)
+      : parseTypescriptFile(contents, fileName, transform);
+
   if (events.length > 0) {
     prettyPrintEvents(contents, events);
     if (events.find((e) => 'critical' in e)) {
-      return results;
+      return {
+        typedQueries,
+        typeDefinitions: types.toTypeDefinitions(),
+        fileName,
+      };
     }
   }
+
   for (const queryAST of queries) {
     let typedQuery: ITypedQuery;
-    if (mode === 'sql') {
+    if (transform.mode === 'sql') {
       const sqlQueryAST = queryAST as SQLQueryAST;
       const result = await queryToTypeDeclarations(
         { ast: sqlQueryAST, mode: ProcessingMode.SQL },
@@ -337,55 +349,22 @@ async function generateTypedecsFromFile(
         query: {
           name: tsQueryAST.name,
           ast: tsQueryAST,
+          queryTypeAlias: `${interfacePrefix}${pascalCase(
+            tsQueryAST.name,
+          )}Query`,
         },
         typeDeclaration: result,
       };
     }
-    results.push(typedQuery);
+    typedQueries.push(typedQuery);
   }
-  return results;
+  return { typedQueries, typeDefinitions: types.toTypeDefinitions(), fileName };
 }
 
-export async function generateDeclarationFile(
-  contents: string,
-  fileName: string,
-  connection: any,
-  mode: 'ts' | 'sql',
-  config: ParsedConfig,
-  decsFileName: string,
-): Promise<{ typeDecs: ITypedQuery[]; declarationFileContents: string }> {
-  const types = new TypeAllocator(TypeMapping(config.typesOverrides));
-
-  if (mode === 'sql') {
-    // Second parameter has no effect here, we could have used any value
-    types.use(
-      { name: 'PreparedQuery', from: '@pgtyped/runtime' },
-      TypeScope.Return,
-    );
-  }
-  const typeDecs = await generateTypedecsFromFile(
-    contents,
-    fileName,
-    connection,
-    mode,
-    types,
-    config,
-  );
-
-  // file paths in generated files must be stable across platforms
-  // https://github.com/adelsz/pgtyped/issues/230
-  const isWindowsPath = path.sep === '\\';
-  // always emit POSIX paths
-  const stableFilePath = isWindowsPath
-    ? fileName.replace(/\\/g, '/')
-    : fileName;
-
-  let declarationFileContents = '';
-  declarationFileContents += `/** Types generated for queries found in "${stableFilePath}" */\n`;
-  declarationFileContents += types.declaration(decsFileName);
-  declarationFileContents += '\n';
+export function generateDeclarations(typeDecs: ITypedQuery[]): string {
+  let typeDeclarations = '';
   for (const typeDec of typeDecs) {
-    declarationFileContents += typeDec.typeDeclaration;
+    typeDeclarations += typeDec.typeDeclaration;
     if (typeDec.mode === 'ts') {
       continue;
     }
@@ -393,20 +372,52 @@ export async function generateDeclarationFile(
       .split('\n')
       .map((s: string) => ' * ' + s)
       .join('\n');
-    declarationFileContents += `const ${
-      typeDec.query.name
-    }IR: any = ${JSON.stringify(typeDec.query.ir)};\n\n`;
-    declarationFileContents +=
+    typeDeclarations += `const ${typeDec.query.name}IR: any = ${JSON.stringify(
+      typeDec.query.ir,
+    )};\n\n`;
+    typeDeclarations +=
       `/**\n` +
       ` * Query generated from SQL:\n` +
       ` * \`\`\`\n` +
       `${queryPP}\n` +
       ` * \`\`\`\n` +
       ` */\n`;
-    declarationFileContents +=
+    typeDeclarations +=
       `export const ${typeDec.query.name} = ` +
       `new PreparedQuery<${typeDec.query.paramTypeAlias},${typeDec.query.returnTypeAlias}>` +
       `(${typeDec.query.name}IR);\n\n\n`;
   }
-  return { declarationFileContents, typeDecs };
+  return typeDeclarations;
+}
+
+export function generateDeclarationFile(typeDecSet: TypeDeclarationSet) {
+  // file paths in generated files must be stable across platforms
+  // https://github.com/adelsz/pgtyped/issues/230
+  const isWindowsPath = path.sep === '\\';
+  // always emit POSIX paths
+  const stableFilePath = isWindowsPath
+    ? typeDecSet.fileName.replace(/\\/g, '/')
+    : typeDecSet.fileName;
+
+  let content = `/** Types generated for queries found in "${stableFilePath}" */\n`;
+  content += TypeAllocator.typeDefinitionDeclarations(
+    typeDecSet.fileName,
+    typeDecSet.typeDefinitions,
+  );
+  content += '\n';
+  content += generateDeclarations(typeDecSet.typedQueries);
+  return content;
+}
+
+export function genTypedSQLOverloadFunctions(
+  functionName: string,
+  typeDecSet: TypeDeclarationSet,
+) {
+  return (typeDecSet.typedQueries as ITSTypedQuery[])
+    .map(
+      (typeDec) =>
+        `export function ${functionName}(s: \`${typeDec.query.ast.text}\`): ReturnType<typeof sourceSql<${typeDec.query.queryTypeAlias}>>;`,
+    )
+    .filter((s) => s)
+    .join('\n');
 }
