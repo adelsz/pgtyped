@@ -9,8 +9,8 @@ import PiscinaPool from 'piscina';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { parseConfig, ParsedConfig, TransformConfig } from './config.js';
-import { TypedSQLTagTransformer } from './typedSQLTagTransformer.js';
-import { typescriptAndSQLTransformer } from './typescriptAndSQLTransformer.js';
+import { TypedSqlTagTransformer } from './typedSqlTagTransformer.js';
+import { TypescriptAndSqlTransformer } from './typescriptAndSqlTransformer.js';
 import { debug } from './util.js';
 
 // tslint:disable:no-console
@@ -75,19 +75,15 @@ async function main(
 
   const transformTask = async (transform: TransformConfig) => {
     if (transform.mode === 'ts-typed-sql-tag') {
-      const typedSQLTagTransformer = new TypedSQLTagTransformer(
-        pool,
-        config,
-        transform,
-      );
-      return typedSQLTagTransformer.start(isWatchMode);
+      const transformer = new TypedSqlTagTransformer(pool, config, transform);
+      return transformer.start(isWatchMode);
     } else {
-      const sqlAndTSTransformer = new typescriptAndSQLTransformer(
+      const transformer = new TypescriptAndSqlTransformer(
         pool,
         config,
         transform,
       );
-      return sqlAndTSTransformer.start(isWatchMode);
+      return transformer.start(isWatchMode);
     }
   };
 

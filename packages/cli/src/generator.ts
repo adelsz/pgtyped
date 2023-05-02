@@ -411,9 +411,9 @@ export function generateDeclarationFile(typeDecSet: TypeDeclarationSet) {
 
 export function genTypedSQLOverloadFunctions(
   functionName: string,
-  typeDecSet: TypeDeclarationSet,
+  typedQueries: ITSTypedQuery[],
 ) {
-  return (typeDecSet.typedQueries as ITSTypedQuery[])
+  return typedQueries
     .map(
       (typeDec) =>
         `export function ${functionName}(s: \`${typeDec.query.ast.text}\`): ReturnType<typeof sourceSql<${typeDec.query.queryTypeAlias}>>;`,

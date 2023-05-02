@@ -659,11 +659,7 @@ test('should generate the correct SQL overload functions', async () => {
     },
     typeDeclaration: '',
   };
-  const result = genTypedSQLOverloadFunctions('sqlFunc', {
-    typedQueries: [typedQuery],
-    typeDefinitions: { imports: {}, aliases: [], enums: [] },
-    fileName: 'test.ts',
-  });
+  const result = genTypedSQLOverloadFunctions('sqlFunc', [typedQuery]);
   const expected = `export function sqlFunc(s: \`SELECT id from users\`): ReturnType<typeof sourceSql<IGetUsersQuery>>;`;
   expect(result).toEqual(expected);
 });

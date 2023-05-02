@@ -6,7 +6,9 @@ import { TransformJob, WorkerPool } from './index.js';
 import { debug } from './util.js';
 import { processFileFnResult } from './worker.js';
 
-export class typescriptAndSQLTransformer {
+// tslint:disable:no-console
+
+export class TypescriptAndSqlTransformer {
   public readonly workQueue: Promise<unknown>[] = [];
   private readonly includePattern: string;
   private fileOverrideUsed = false;

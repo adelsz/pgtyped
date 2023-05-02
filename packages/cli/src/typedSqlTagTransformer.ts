@@ -6,6 +6,7 @@ import { ParsedConfig, TSTypedSQLTagTransformConfig } from './config.js';
 import {
   generateDeclarations,
   genTypedSQLOverloadFunctions,
+  ITSTypedQuery,
   TypeDeclarationSet,
 } from './generator.js';
 import { TransformJob, WorkerPool } from './index.js';
@@ -15,7 +16,8 @@ import { getTypeDecsFnResult } from './worker.js';
 
 type TypedSQLTagTransformResult = TypeDeclarationSet | undefined;
 
-export class TypedSQLTagTransformer {
+// tslint:disable:no-console
+export class TypedSqlTagTransformer {
   public readonly workQueue: Promise<TypedSQLTagTransformResult>[] = [];
   private readonly cache: Record<string, TypeDeclarationSet> = {};
   private readonly includePattern: string;
@@ -63,7 +65,7 @@ export class TypedSQLTagTransformer {
       return this.watch();
     }
 
-    let fileList = globSync(this.includePattern, {
+    const fileList = globSync(this.includePattern, {
       ignore: [this.localFileName],
     });
 
@@ -109,13 +111,15 @@ export class TypedSQLTagTransformer {
     const typeDecsSets: TypeDeclarationSet[] = [];
 
     for (const result of queueResults) {
-      if (result) {
-        if (result.typedQueries.length > 0) typeDecsSets.push(result);
+      if (result?.typedQueries.length) {
+        typeDecsSets.push(result);
         if (useCache) this.cache[result.fileName] = result;
       }
     }
 
-    return this.generateTypedSQLTagFile(typeDecsSets);
+    return this.generateTypedSQLTagFile(
+      useCache ? Object.values(this.cache) : typeDecsSets,
+    );
   }
 
   private async removeFileFromCache(fileToRemove: string) {
@@ -133,30 +137,27 @@ export class TypedSQLTagTransformer {
 
   private async generateTypedSQLTagFile(typeDecsSets: TypeDeclarationSet[]) {
     console.log(`Generating ${this.fullFileName}...`);
-    const typeDefinitions = typeDecsSets
-      .map((typeDecSet) =>
-        TypeAllocator.typeDefinitionDeclarations(
-          this.transform.emitFileName,
-          typeDecSet.typeDefinitions,
-        ),
-      )
-      .filter((s) => s)
-      .join('\n');
+    let typeDefinitions = '';
+    let queryTypes = '';
+    let typedSQLOverloadFns = '';
 
-    const queryTypes = typeDecsSets
-      .map((typeDecSet) => generateDeclarations(typeDecSet.typedQueries))
-      .join('\n');
-
-    const typedSQLOverloadFns = typeDecsSets
-      .map((set) =>
-        genTypedSQLOverloadFunctions(this.transform.functionName, set),
-      )
-      .join('\n');
+    for (const typeDecSet of typeDecsSets) {
+      typeDefinitions += TypeAllocator.typeDefinitionDeclarations(
+        this.transform.emitFileName,
+        typeDecSet.typeDefinitions,
+      );
+      queryTypes += generateDeclarations(typeDecSet.typedQueries);
+      typedSQLOverloadFns += genTypedSQLOverloadFunctions(
+        this.transform.functionName,
+        typeDecSet.typedQueries as ITSTypedQuery[],
+      );
+    }
 
     let content = this.contentStart;
     content += typeDefinitions;
     content += queryTypes;
     content += typedSQLOverloadFns;
+    content += '\n\n';
     content += this.contentEnd.join('\n');
     await fs.outputFile(this.fullFileName, content);
     console.log(`Saved ${this.fullFileName}`);

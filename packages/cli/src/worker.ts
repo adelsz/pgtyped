@@ -67,8 +67,6 @@ export async function processFile({
   fileName: string;
   transform: TransformConfig;
 }): Promise<IWorkerResult> {
-  const contents = await connectAndGetFileContents(fileName);
-
   const ppath = path.parse(fileName);
   let decsFileName;
   if ('emitTemplate' in transform && transform.emitTemplate) {

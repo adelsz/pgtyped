@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { sql as sourceSql } from "@pgtyped/runtime";
+import { sql as sourceSql } from '@pgtyped/runtime';
 
 export type notification_type = 'deadline' | 'notification' | 'reminder';
 
@@ -40,7 +40,6 @@ export interface ISelectExistsQueryQuery {
   params: ISelectExistsQueryParams;
   result: ISelectExistsQueryResult;
 }
-
 
 /** 'InsertNotifications' parameters type */
 export interface IInsertNotificationsParams {
@@ -100,12 +99,13 @@ export function sql(s: `SELECT u.* FROM users u
     INNER JOIN book_comments bc ON u.id = bc.user_id
     GROUP BY u.id
     HAVING count(bc.id) > $minCommentCount!::int`): ReturnType<typeof sourceSql<IGetUsersWithCommentsQuery>>;
-export function sql(s: `SELECT EXISTS ( SELECT 1 WHERE true ) AS "isTransactionExists"`): ReturnType<typeof sourceSql<ISelectExistsQueryQuery>>;
-export function sql(s: `INSERT INTO notifications (payload, user_id, type)
+export function sql(s: `SELECT EXISTS ( SELECT 1 WHERE true ) AS "isTransactionExists"`): ReturnType<typeof sourceSql<ISelectExistsQueryQuery>>;export function sql(s: `INSERT INTO notifications (payload, user_id, type)
 values $$params(payload!, user_id!, type!)`): ReturnType<typeof sourceSql<IInsertNotificationsQuery>>;
 export function sql(s: `INSERT INTO notifications (payload, user_id, type)
     values $notification(payload!, user_id!, type!)`): ReturnType<typeof sourceSql<IInsertNotificationQuery>>;
-export function sql(s: `SELECT * FROM notifications`): ReturnType<typeof sourceSql<IGetAllNotificationsQuery>>;export function sql(s: string): unknown;
+export function sql(s: `SELECT * FROM notifications`): ReturnType<typeof sourceSql<IGetAllNotificationsQuery>>;
+
+export function sql(s: string): unknown;
 export function sql(s: string): unknown {
   return sourceSql([s] as any);
 }
