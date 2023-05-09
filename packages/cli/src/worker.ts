@@ -7,6 +7,10 @@ import { ParsedConfig, TransformConfig } from './config.js';
 import { AsyncQueue } from '@pgtyped/wire';
 import worker from 'piscina';
 
+// disable autoescape as it breaks windows paths
+// see https://github.com/adelsz/pgtyped/issues/519 for details
+nun.configure({ autoescape: false });
+
 let connected = false;
 const connection = new AsyncQueue();
 const config: ParsedConfig = worker.workerData;
