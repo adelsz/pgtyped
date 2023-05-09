@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped/example",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "A package demonstrating how pgtyped works.",
   "author": "Adel Salakh",
   "private": true,
@@ -22,7 +22,7 @@
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@pgtyped/cli": "^2.2.0",
+    "@pgtyped/cli": "^2.2.1",
     "@pgtyped/query": "^2.2.0",
     "expect": "29.5.0",
     "pg": "8.10.0",
