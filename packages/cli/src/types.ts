@@ -242,8 +242,6 @@ export class TypeAllocator {
         // ^ Converts _varchar -> varchar, then wraps the type in an array
 
         const mappedType = this.use(arrayValueType, scope);
-        console.log(mappedType);
-
         typ = getArray({ name: mappedType });
       } else {
         if (!this.isMappedType(typeNameOrType)) {
