@@ -1,0 +1,12 @@
+{
+  "transforms": [
+    {
+      "mode": "sql",
+      "include": "**/*.sql",
+      "emitTemplate": "_queries/{{name}}.queries.ts"
+    }
+  ],
+  "camelCaseColumnNames": true,
+  "dbUrl": "postgres://postgres:postgres@localhost:5432/postgres",
+  "srcDir": "./rawsql/"
+}

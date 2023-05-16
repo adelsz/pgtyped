@@ -25,7 +25,7 @@
     "access": "public"
   },
   "scripts": {
-    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test": "set NODE_OPTIONS='--experimental-vm-modules'; jest",
     "build": "tsc",
     "check": "tsc --noEmit",
     "watch": "tsc --watch --preserveWatchOutput"
