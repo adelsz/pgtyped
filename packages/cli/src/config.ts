@@ -82,9 +82,7 @@ export type IConfig = typeof configParser._O;
 function parseEnvTemplate(input?: string): string | undefined {
   const templateStringRegex = new RegExp('{{\\w+}}', 'g');
   const result = input ? templateStringRegex.exec(input) : undefined;
-  return result
-    ? result.input.substring(2, result.input.length - 2)
-    : undefined;
+  return result?.input?.substring(2, result.input.length - 2);
 }
 
 export function getEnvDBConfig(dBConfig: Partial<DBConfigArgs>) {

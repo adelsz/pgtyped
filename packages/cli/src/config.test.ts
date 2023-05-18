@@ -13,6 +13,7 @@ describe('getEnvDBConfig', () => {
     process.env.PGDATABASE = 'pg_db_name';
     process.env.PGPORT = '1111';
     process.env.PGURI = 'pg_uri';
+    process.env.DATABASE_URL = 'pg_url';
 
     // Custom
     process.env.URI_ENV = 'host_from_env';
@@ -60,6 +61,22 @@ describe('getEnvDBConfig', () => {
       dbName: 'pg_db_name',
       port: 1111,
       uri: 'pg_uri',
+    });
+  });
+
+  test('Parses default ENV port=DATABASE_URL', () => {
+    process.env.PGURI = undefined;
+
+    const dbConfig: Partial<DBConfigArgs> = {};
+    const parsedConfig = getEnvDBConfig(dbConfig);
+
+    expect(parsedConfig).toEqual({
+      host: 'pg_host',
+      user: 'pg_user',
+      password: 'pg_password',
+      dbName: 'pg_db_name',
+      port: 1111,
+      uri: 'pg_url',
     });
   });
 
