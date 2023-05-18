@@ -37,7 +37,6 @@ describe('getEnvDBConfig', () => {
       port: '{{PORT_ENV}}',
       uri: '{{URI_ENV}}',
     };
-
     const parsedConfig = getEnvDBConfig(dbConfig);
 
     expect(parsedConfig).toEqual({
@@ -52,7 +51,6 @@ describe('getEnvDBConfig', () => {
 
   test('Parses default ENV', () => {
     const dbConfig: Partial<DBConfigArgs> = {};
-
     const parsedConfig = getEnvDBConfig(dbConfig);
 
     expect(parsedConfig).toEqual({
