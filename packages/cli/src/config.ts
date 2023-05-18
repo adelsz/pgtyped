@@ -45,7 +45,7 @@ const configParser = t.type({
     t.type({
       host: t.union([t.string, t.undefined]),
       password: t.union([t.string, t.undefined]),
-      port: t.union([t.number, t.undefined]),
+      port: t.union([t.number, t.string, t.undefined]),
       user: t.union([t.string, t.undefined]),
       dbName: t.union([t.string, t.undefined]),
       ssl: t.union([t.UnknownRecord, t.boolean, t.undefined]),
@@ -67,7 +67,43 @@ const configParser = t.type({
   ]),
 });
 
+export type DBConfigArgs = {
+  host: string;
+  user: string;
+  password: string;
+  dbName: string;
+  port: number | string;
+  ssl: tls.ConnectionOptions | boolean;
+  uri: string;
+};
+
 export type IConfig = typeof configParser._O;
+
+function parseEnvTemplate(input?: string): string | undefined {
+  const templateStringRegex = new RegExp('{{\\w+}}', 'g');
+  const result = input ? templateStringRegex.exec(input) : undefined;
+  return result
+    ? result.input.substring(2, result.input.length - 2)
+    : undefined;
+}
+
+export function getEnvDBConfig(dBConfig: Partial<DBConfigArgs>) {
+  const host = parseEnvTemplate(dBConfig.host) ?? 'PGHOST';
+  const user = parseEnvTemplate(dBConfig.user) ?? 'PGUSER';
+  const password = parseEnvTemplate(dBConfig.password) ?? 'PGPASSWORD';
+  const dbName = parseEnvTemplate(dBConfig.dbName) ?? 'PGDATABASE';
+  const port = parseEnvTemplate(dBConfig?.port?.toString()) ?? 'PGPORT';
+  const uri = parseEnvTemplate(dBConfig.uri) ?? 'PGURI';
+
+  return {
+    host: process.env[host],
+    user: process.env[user],
+    password: process.env[password],
+    dbName: process.env[dbName],
+    port: process.env[port] ? Number(process.env[port]) : undefined,
+    uri: process.env[uri] ?? process.env.DATABASE_URL,
+  };
+}
 
 export interface ParsedConfig {
   db: {
@@ -162,15 +198,6 @@ export function parseConfig(
     port: 5432,
   };
 
-  const envDBConfig = {
-    host: process.env.PGHOST,
-    user: process.env.PGUSER,
-    password: process.env.PGPASSWORD,
-    dbName: process.env.PGDATABASE,
-    port: process.env.PGPORT ? Number(process.env.PGPORT) : undefined,
-    uri: process.env.PGURI ?? process.env.DATABASE_URL,
-  };
-
   const {
     db = defaultDBConfig,
     dbUrl: configDbUri,
@@ -181,6 +208,8 @@ export function parseConfig(
     hungarianNotation,
     typesOverrides,
   } = configObject as IConfig;
+
+  const envDBConfig = getEnvDBConfig(db);
 
   // CLI connectionUri flag takes precedence over the env and config one
   const dbUri = argConnectionUri || envDBConfig.uri || configDbUri;
@@ -196,7 +225,18 @@ export function parseConfig(
     );
   }
 
-  const finalDBConfig = merge(defaultDBConfig, db, urlDBConfig, envDBConfig);
+  // The port may be a template string
+  const dbConfig = {
+    ...db,
+    port: typeof db.port === 'string' ? Number(db.port) : db.port,
+  };
+
+  const finalDBConfig = merge(
+    defaultDBConfig,
+    dbConfig,
+    urlDBConfig,
+    envDBConfig,
+  );
 
   const parsedTypesOverrides: Record<string, Partial<TypeDefinition>> = {};
 
