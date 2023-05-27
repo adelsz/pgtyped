@@ -54,7 +54,7 @@
     "yargs": "^17.0.1"
   },
   "devDependencies": {
-    "@types/debug": "4.1.7",
+    "@types/debug": "4.1.8",
     "@types/fs-extra": "11.0.1",
     "@types/glob": "8.1.0",
     "@types/nunjucks": "^3.1.3",
