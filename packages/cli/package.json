@@ -48,7 +48,7 @@
     "io-ts-reporters": "^2.0.1",
     "nunjucks": "3.2.4",
     "pascal-case": "^3.1.1",
-    "piscina": "^3.2.0",
+    "piscina": "^4.0.0",
     "tinypool": "^0.3.0",
     "ts-parse-database-url": "^1.0.3",
     "yargs": "^17.0.1"
