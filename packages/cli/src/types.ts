@@ -159,7 +159,8 @@ export function declareImport(
   let from = imports[0].from;
 
   if (from.startsWith('.')) {
-    from = path.relative(path.dirname(decsFileName), imports[0].from);
+    const nonPosixFrom = path.relative(path.dirname(decsFileName), imports[0].from);
+    from = nonPosixFrom.split(path.sep).join(path.posix.sep);
 
     if (!from.startsWith('.')) {
       from = './' + from;
