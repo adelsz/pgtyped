@@ -159,8 +159,11 @@ export function declareImport(
   let from = imports[0].from;
 
   if (from.startsWith('.')) {
-    const nonPosixFrom = path.relative(path.dirname(decsFileName), imports[0].from);
-    from = nonPosixFrom.split(path.sep).join(path.posix.sep);
+    from = path.relative(path.dirname(decsFileName), imports[0].from);
+    if (os.platform() === "win32") {
+      // make sure we use posix separators in TS import declarations (see #533)
+      from = from.split(path.sep).join(path.posix.sep);
+    }
 
     if (!from.startsWith('.')) {
       from = './' + from;
