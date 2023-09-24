@@ -29,7 +29,7 @@
     "typescript": "4.9.4"
   },
   "devDependencies": {
-    "@types/pg": "8.10.2",
+    "@types/pg": "8.10.3",
     "ts-node": "10.9.1"
   }
 }
