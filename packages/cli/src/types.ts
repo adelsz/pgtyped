@@ -13,10 +13,16 @@ import path from 'path';
 
 const String: Type = { name: 'string' };
 const Number: Type = { name: 'number' };
-const NumberOrString: Type = { name: 'number | string' };
+const NumberOrString: Type = {
+  name: 'NumberOrString',
+  definition: 'number | string',
+};
 const Boolean: Type = { name: 'boolean' };
 const Date: Type = { name: 'Date' };
-const DateOrString: Type = { name: 'Date | string' };
+const DateOrString: Type = {
+  name: 'DateOrString',
+  definition: 'Date | string',
+};
 const Bytes: Type = { name: 'Buffer' };
 const Void: Type = { name: 'undefined' };
 const Json: Type = {
