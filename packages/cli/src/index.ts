@@ -29,6 +29,7 @@ class FileProcessor {
   constructor(private readonly config: ParsedConfig) {
     this.pool = new WorkerPool({
       filename: new URL('./worker.js', import.meta.url).href,
+      maxThreads: 8,
       workerData: config,
     });
     console.log(`Using a pool of ${this.pool.threads.length} threads.`);
