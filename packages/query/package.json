@@ -6,7 +6,9 @@
     ".": {
       "import": "./lib/index.js",
       "types": "./lib/index.d.ts"
-    }
+    },
+    "./lib/actions.js": "./lib/actions.js",
+    "./lib/type.js": "./lib/type.js"
   },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

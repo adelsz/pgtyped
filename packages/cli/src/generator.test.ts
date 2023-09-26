@@ -1,14 +1,14 @@
 import { ParameterTransform } from '@pgtyped/runtime';
 
 import { parseSQLFile } from '@pgtyped/parser';
-import { IQueryTypes } from '@pgtyped/query/lib/actions';
+import { IQueryTypes } from '@pgtyped/query/lib/actions.js';
 import { ParsedConfig } from './config.js';
 import {
   escapeComment,
   generateInterface,
   ProcessingMode,
   queryToTypeDeclarations,
-} from './generator';
+} from './generator.js';
 import { parseCode as parseTypeScriptFile } from './parseTypescript.js';
 import { TypeAllocator, TypeMapping, TypeScope } from './types.js';
 

@@ -20,7 +20,7 @@ import path from 'path';
 import { ParsedConfig } from './config.js';
 import { TypeAllocator, TypeMapping, TypeScope } from './types.js';
 import { parseCode as parseTypescriptFile } from './parseTypescript.js';
-import { IQueryTypes } from '@pgtyped/query/lib/actions';
+import { IQueryTypes } from '@pgtyped/query/lib/actions.js';
 
 export enum ProcessingMode {
   SQL = 'sql-file',
