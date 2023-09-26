@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped/wire",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "type": "module",
   "exports": {
     ".": {
@@ -33,6 +33,6 @@
   },
   "devDependencies": {
     "@types/debug": "^4.1.7",
-    "@types/node": "18.15.0"
+    "@types/node": "18.16.19"
   }
 }

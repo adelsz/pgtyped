@@ -11,9 +11,17 @@ import {
 } from './generator.js';
 import { TypeAllocator, TypeMapping, TypeScope } from './types.js';
 
+// disable autoescape as it breaks windows paths
+// see https://github.com/adelsz/pgtyped/issues/519 for details
+nun.configure({ autoescape: false });
+
 let connected = false;
 const connection = new AsyncQueue();
 const config: ParsedConfig = worker.workerData;
+
+interface ExtendedParsedPath extends path.ParsedPath {
+  dir_base: string;
+}
 
 export type IWorkerResult = {
   skipped: boolean;
@@ -67,7 +75,8 @@ export async function processFile({
   fileName: string;
   transform: TransformConfig;
 }): Promise<IWorkerResult> {
-  const ppath = path.parse(fileName);
+  const ppath = path.parse(fileName) as ExtendedParsedPath;
+  ppath.dir_base = path.basename(ppath.dir);
   let decsFileName;
   if ('emitTemplate' in transform && transform.emitTemplate) {
     decsFileName = nun.renderString(transform.emitTemplate, ppath);

@@ -84,24 +84,25 @@ Configuration file can be also be written in CommonJS format and default exporte
 
 ### Configuration file format
 
-| Name                    | Type                      | Description                                                                                                                                                                |
-|-------------------------|---------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `transforms`            | `Transform[]`             | An array of transforms to apply to the files.                                                                                                                              |
-| `srcDir`                | `string`                  | Directory to scan or watch for query files.                                                                                                                                |
-| `db`                    | `DatabaseConfig`          | A database config.                                                                                                                                                         |
+| Name                    | Type                     | Description                                                                                                                                                                |
+|-------------------------|--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `transforms`            | `Transform[]`            | An array of transforms to apply to the files.                                                                                                                              |
+| `srcDir`                | `string`                 | Directory to scan or watch for query files.                                                                                                                                |
+| `db`                    | `DatabaseConfig`         | A database config.                                                                                                                                                         |
 | `failOnError?`          | `boolean`                | Whether to fail on a file processing error and abort generation. **Default:** `false`                                                                                      |
 | `dbUrl?`                | `string`                 | A connection string to the database. Example: `postgres://user:password@host/database`. Overrides (merged) with `db` config.                                               |
 | `camelCaseColumnNames?` | `boolean`                | Whether to convert column names to camelCase. _Note that this only coverts the types. You need to do this at runtime independently using a library like `pg-camelcase`_.   |
 | `typesOverrides?`       | `Record<string, string>` | A map of type overrides. Similarly to `camelCaseColumnNames`, this only affects the types. _You need to do this at runtime independently using a library like `pg-types`._ |
+| `maxWorkerThreads`      | `number`                 | The maximum number of worker threads to use for type generation. **The default is based on the number of available CPUs.**                                                 | 
 
 Fields marked with `?` are optional.
 
 #### Transform
 
-| Name           | Type     | Description                                                                                       |
-|----------------|----------|---------------------------------------------------------------------------------------------------|
-| `mode`         | `string`   | The mode to use. Can be `sql` or `ts`.                                                            |
-| `include`      | `string` | A glob pattern to match files to process. Example: `"**/*.sql"`.                                  |
+| Name           | Type     | Description                                                                                                                             |
+|----------------|----------|-----------------------------------------------------------------------------------------------------------------------------------------|
+| `mode`         | `string` | The mode to use. Can be `sql` or `ts`.                                                                                                  |
+| `include`      | `string` | A glob pattern to match files to process. Example: `"**/*.sql"`.                                                                        |
 | `emitTemplate` | `string` | A template to use for the output file name. See [Customizing generated file paths](#customizing-generated-file-paths) for more details. |
 
 #### DatabaseConfig

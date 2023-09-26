@@ -8,15 +8,22 @@ import {
   MappableType,
   Type,
 } from '@pgtyped/query';
+import os from 'os';
 import { AliasedType, EnumType } from '@pgtyped/query/lib/type.js';
 import path from 'path';
 
 const String: Type = { name: 'string' };
 const Number: Type = { name: 'number' };
-const NumberOrString: Type = { name: 'number | string' };
+const NumberOrString: Type = {
+  name: 'NumberOrString',
+  definition: 'number | string',
+};
 const Boolean: Type = { name: 'boolean' };
 const Date: Type = { name: 'Date' };
-const DateOrString: Type = { name: 'Date | string' };
+const DateOrString: Type = {
+  name: 'DateOrString',
+  definition: 'Date | string',
+};
 const Bytes: Type = { name: 'Buffer' };
 const Void: Type = { name: 'undefined' };
 const Json: Type = {
@@ -161,18 +168,37 @@ export function declareImport(
 
   if (from.startsWith('.')) {
     from = path.relative(path.dirname(decsFileName), imports[0].from);
+    if (os.platform() === "win32") {
+      // make sure we use posix separators in TS import declarations (see #533)
+      from = from.split(path.sep).join(path.posix.sep);
+    }
 
     if (!from.startsWith('.')) {
       from = './' + from;
     }
   }
 
-  const parts = ['import'];
-  const subParts = [];
+  const lines = [];
 
   if (defaultImportAlias) {
-    subParts.push(defaultImportAlias);
+    const defaultImportDec = `import type ${defaultImportAlias} from '${from}';`;
+    if (names.size > 0) {
+      // A type-only import can specify a default import or named bindings, but not both.
+      lines.push(defaultImportDec);
+    } else {
+      return `${defaultImportDec}\n`
+    }
   }
+
+  // Handle named bindings
+
+  const parts = ['import'];
+
+  if (from !== '@pgtyped/runtime') {
+    parts.push('type');
+  }
+
+  const subParts = [];
 
   if (names.size) {
     subParts.push(
@@ -185,7 +211,9 @@ export function declareImport(
   parts.push(subParts.join(', '));
   parts.push(`from '${from}';\n`);
 
-  return parts.join(' ');
+  lines.push(parts.join(' '));
+
+  return lines.join('\n');
 }
 
 function declareAlias(name: string, definition: string): string {

@@ -1,12 +1,14 @@
 {
   "name": "@pgtyped/query",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "type": "module",
   "exports": {
     ".": {
       "import": "./lib/index.js",
       "types": "./lib/index.d.ts"
-    }
+    },
+    "./lib/actions.js": "./lib/actions.js",
+    "./lib/type.js": "./lib/type.js"
   },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -33,7 +35,7 @@
   },
   "dependencies": {
     "@pgtyped/runtime": "^2.1.0",
-    "@pgtyped/wire": "^2.1.0",
+    "@pgtyped/wire": "^2.2.0",
     "chalk": "^4.1.0",
     "debug": "^4.1.1"
   },

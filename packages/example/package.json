@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped/example",
-  "version": "2.1.0",
+  "version": "2.2.1",
   "description": "A package demonstrating how pgtyped works.",
   "author": "Adel Salakh",
   "private": true,
@@ -22,14 +22,14 @@
     "check": "tsc --noEmit"
   },
   "dependencies": {
-    "@pgtyped/cli": "^2.1.0",
-    "@pgtyped/query": "^2.1.0",
-    "expect": "29.5.0",
-    "pg": "8.10.0",
+    "@pgtyped/cli": "^2.2.1",
+    "@pgtyped/query": "^2.2.0",
+    "expect": "29.6.4",
+    "pg": "8.11.3",
     "typescript": "4.9.4"
   },
   "devDependencies": {
-    "@types/pg": "8.6.6",
+    "@types/pg": "8.10.3",
     "ts-node": "10.9.1"
   }
 }

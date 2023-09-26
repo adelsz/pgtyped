@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped/cli",
-  "version": "2.1.0",
+  "version": "2.2.1",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -35,28 +35,27 @@
   },
   "dependencies": {
     "@pgtyped/parser": "^2.1.0",
-    "@pgtyped/query": "^2.1.0",
-    "@pgtyped/wire": "^2.1.0",
+    "@pgtyped/query": "^2.2.0",
+    "@pgtyped/wire": "^2.2.0",
     "camel-case": "^4.1.1",
     "chalk": "^4.0.0",
     "chokidar": "^3.3.1",
     "debug": "^4.1.1",
     "fp-ts": "^2.5.3",
     "fs-extra": "^11.0.0",
-    "glob": "^10.0.0",
+    "glob": "^10.3.7",
     "io-ts": "^2.2.20",
     "io-ts-reporters": "^2.0.1",
     "nunjucks": "3.2.4",
     "pascal-case": "^3.1.1",
-    "piscina": "^3.2.0",
-    "tinypool": "^0.3.0",
+    "piscina": "^4.0.0",
+    "tinypool": "^0.8.0",
     "ts-parse-database-url": "^1.0.3",
     "yargs": "^17.0.1"
   },
   "devDependencies": {
-    "@types/debug": "4.1.7",
-    "@types/fs-extra": "11.0.1",
-    "@types/glob": "8.1.0",
+    "@types/debug": "4.1.9",
+    "@types/fs-extra": "11.0.2",
     "@types/nunjucks": "^3.1.3",
     "@types/yargs": "17.0.24"
   },

@@ -1,6 +1,6 @@
 import { ParseEvent, parseTSQuery, TSQueryAST } from '@pgtyped/parser';
 import ts from 'typescript';
-import { TransformConfig } from './config';
+import { TransformConfig } from './config.js';
 
 interface INode {
   queryName: string;

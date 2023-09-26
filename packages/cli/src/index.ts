@@ -27,6 +27,7 @@ export class WorkerPool {
   constructor(private readonly config: ParsedConfig) {
     this.pool = new PiscinaPool({
       filename: new URL('./worker.js', import.meta.url).href,
+      maxThreads: config.maxWorkerThreads,
       workerData: config,
     });
     console.log(`Using a pool of ${this.pool.threads.length} threads.`);
