@@ -15,8 +15,8 @@ let connected = false;
 const connection = new AsyncQueue();
 const config: ParsedConfig = worker.workerData;
 
-interface extendedParsedPath extends path.ParsedPath {
-  dir_base: string,
+interface ExtendedParsedPath extends path.ParsedPath {
+  dir_base: string;
 }
 
 export default async function processFile({
@@ -34,7 +34,7 @@ export default async function processFile({
     await startup(config.db, connection);
     connected = true;
   }
-  const ppath = path.parse(fileName) as extendedParsedPath;
+  const ppath = path.parse(fileName) as ExtendedParsedPath;
   ppath.dir_base = path.basename(ppath.dir);
 
   let decsFileName;
