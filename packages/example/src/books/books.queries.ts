@@ -1,5 +1,5 @@
 /** Types generated for queries found in "src/books/books.sql" */
-import { Category } from '../customTypes';
+import type { Category } from '../customTypes';
 
 import { PreparedQuery } from '@pgtyped/runtime';
 

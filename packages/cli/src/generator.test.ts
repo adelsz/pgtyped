@@ -67,7 +67,7 @@ describe('query-to-interface translation', () => {
       const types = new TypeAllocator(TypeMapping());
       // Test out imports
       types.use(
-        { name: 'PreparedQuery', from: '@pgtyped/query' },
+        { name: 'PreparedQuery', from: '@pgtyped/runtime' },
         TypeScope.Return,
       );
       const result = await queryToTypeDeclarations(
@@ -76,7 +76,7 @@ describe('query-to-interface translation', () => {
         types,
         partialConfig,
       );
-      const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
+      const expectedTypes = `import { PreparedQuery } from '@pgtyped/runtime';
 
 export type PayloadType = 'dynamite' | 'message';
 
@@ -302,7 +302,7 @@ export interface IDeleteUsersQuery {
       const types = new TypeAllocator(TypeMapping());
       // Test out imports
       types.use(
-        { name: 'PreparedQuery', from: '@pgtyped/query' },
+        { name: 'PreparedQuery', from: '@pgtyped/runtime' },
         TypeScope.Return,
       );
       const result = await queryToTypeDeclarations(
@@ -311,7 +311,7 @@ export interface IDeleteUsersQuery {
         types,
         { camelCaseColumnNames: true, hungarianNotation: true } as ParsedConfig,
       );
-      const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
+      const expectedTypes = `import { PreparedQuery } from '@pgtyped/runtime';
 
 export type PayloadType = 'dynamite' | 'message';
 
@@ -381,7 +381,7 @@ export interface IGetNotificationsQuery {
       const types = new TypeAllocator(TypeMapping());
       // Test out imports
       types.use(
-        { name: 'PreparedQuery', from: '@pgtyped/query' },
+        { name: 'PreparedQuery', from: '@pgtyped/runtime' },
         TypeScope.Return,
       );
       const result = await queryToTypeDeclarations(
@@ -390,7 +390,7 @@ export interface IGetNotificationsQuery {
         types,
         { camelCaseColumnNames: true, hungarianNotation: true } as ParsedConfig,
       );
-      const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
+      const expectedTypes = `import { PreparedQuery } from '@pgtyped/runtime';
 
 export type PayloadType = 'dynamite' | 'message';
 
@@ -456,7 +456,7 @@ export interface IGetNotificationsQuery {
       const types = new TypeAllocator(TypeMapping());
       // Test out imports
       types.use(
-        { name: 'PreparedQuery', from: '@pgtyped/query' },
+        { name: 'PreparedQuery', from: '@pgtyped/runtime' },
         TypeScope.Return,
       );
       const result = await queryToTypeDeclarations(
@@ -465,7 +465,7 @@ export interface IGetNotificationsQuery {
         types,
         partialConfig,
       );
-      const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
+      const expectedTypes = `import { PreparedQuery } from '@pgtyped/runtime';
 
 export type PayloadType = 'dynamite' | 'message';
 
@@ -531,7 +531,7 @@ export interface IGetNotificationsQuery {
       const types = new TypeAllocator(TypeMapping());
       // Test out imports
       types.use(
-        { name: 'PreparedQuery', from: '@pgtyped/query' },
+        { name: 'PreparedQuery', from: '@pgtyped/runtime' },
         TypeScope.Return,
       );
       const result = await queryToTypeDeclarations(
@@ -540,7 +540,7 @@ export interface IGetNotificationsQuery {
         types,
         partialConfig,
       );
-      const expectedTypes = `import { PreparedQuery } from '@pgtyped/query';
+      const expectedTypes = `import { PreparedQuery } from '@pgtyped/runtime';
 
 export type PayloadType = 'dynamite' | 'message';
 
@@ -621,7 +621,7 @@ test(`Fail on anonymous column return type`, async () => {
   const types = new TypeAllocator(TypeMapping());
   // Test out imports
   types.use(
-    { name: 'PreparedQuery', from: '@pgtyped/query' },
+    { name: 'PreparedQuery', from: '@pgtyped/runtime' },
     TypeScope.Return,
   );
   const result = await queryToTypeDeclarations(

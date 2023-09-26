@@ -177,12 +177,27 @@ export function declareImport(
     }
   }
 
-  const parts = ['import'];
-  const subParts = [];
+  const lines = [];
 
   if (defaultImportAlias) {
-    subParts.push(defaultImportAlias);
+    const defaultImportDec = `import type ${defaultImportAlias} from '${from}';`;
+    if (names.size > 0) {
+      // A type-only import can specify a default import or named bindings, but not both.
+      lines.push(defaultImportDec);
+    } else {
+      return `${defaultImportDec}\n`
+    }
   }
+
+  // Handle named bindings
+
+  const parts = ['import'];
+
+  if (from !== '@pgtyped/runtime') {
+    parts.push('type');
+  }
+
+  const subParts = [];
 
   if (names.size) {
     subParts.push(
@@ -195,7 +210,9 @@ export function declareImport(
   parts.push(subParts.join(', '));
   parts.push(`from '${from}';\n`);
 
-  return parts.join(' ');
+  lines.push(parts.join(' '));
+
+  return lines.join('\n');
 }
 
 function declareAlias(name: string, definition: string): string {

@@ -6,7 +6,7 @@ test('default', () => {
       [{ name: 'Alias', from: 'package', aliasOf: 'default' }],
       './',
     ),
-  ).toBe("import Alias from 'package';\n");
+  ).toBe("import type Alias from 'package';\n");
 });
 
 test('named', () => {
@@ -19,7 +19,7 @@ test('named', () => {
       ],
       './',
     ),
-  ).toBe("import { Foo, Bar, Baz } from 'package';\n");
+  ).toBe("import type { Foo, Bar, Baz } from 'package';\n");
 });
 
 test('named aliased', () => {
@@ -31,7 +31,7 @@ test('named aliased', () => {
       ],
       './',
     ),
-  ).toBe("import { Foo as Alias1, Bar as Alias2 } from 'package';\n");
+  ).toBe("import type { Foo as Alias1, Bar as Alias2 } from 'package';\n");
 });
 
 test('mix', () => {
@@ -46,7 +46,7 @@ test('mix', () => {
       './',
     ),
   ).toBe(
-    "import Alias, { Foo as Alias1, Bar, Baz as Alias2 } from 'package';\n",
+    "import type Alias from 'package';\nimport type { Foo as Alias1, Bar, Baz as Alias2 } from 'package';\n",
   );
 });
 
@@ -57,7 +57,7 @@ describe('relative imports', () => {
         [{ name: 'Alias', from: './my/custom/path', aliasOf: 'default' }],
         './my/file.ts',
       ),
-    ).toBe("import Alias from './custom/path';\n");
+    ).toBe("import type Alias from './custom/path';\n");
   });
 
   test('parent dir', () => {
@@ -66,7 +66,7 @@ describe('relative imports', () => {
         [{ name: 'Alias', from: './my/custom/path', aliasOf: 'default' }],
         './foo/bar/file.ts',
       ),
-    ).toBe("import Alias from '../../my/custom/path';\n");
+    ).toBe("import type Alias from '../../my/custom/path';\n");
   });
 
   test('parent parent dir', () => {
@@ -75,7 +75,7 @@ describe('relative imports', () => {
         [{ name: 'Alias', from: '../my/custom/path', aliasOf: 'default' }],
         './foo/bar/file.ts',
       ),
-    ).toBe("import Alias from '../../../my/custom/path';\n");
+    ).toBe("import type Alias from '../../../my/custom/path';\n");
   });
 
   test('sub dir with extension', () => {
@@ -84,7 +84,7 @@ describe('relative imports', () => {
         [{ name: 'Alias', from: './my/custom/path.js', aliasOf: 'default' }],
         './my/file.ts',
       ),
-    ).toBe("import Alias from './custom/path.js';\n");
+    ).toBe("import type Alias from './custom/path.js';\n");
   });
 
   test('parent dir with extension', () => {
@@ -93,7 +93,7 @@ describe('relative imports', () => {
         [{ name: 'Alias', from: './my/custom/path.ts', aliasOf: 'default' }],
         './foo/bar/file.ts',
       ),
-    ).toBe("import Alias from '../../my/custom/path.ts';\n");
+    ).toBe("import type Alias from '../../my/custom/path.ts';\n");
   });
 
   test('parent parent dir with extension', () => {
@@ -102,6 +102,6 @@ describe('relative imports', () => {
         [{ name: 'Alias', from: '../my/custom/path.ts', aliasOf: 'default' }],
         './foo/bar/file.ts',
       ),
-    ).toBe("import Alias from '../../../my/custom/path.ts';\n");
+    ).toBe("import type Alias from '../../../my/custom/path.ts';\n");
   });
 });
