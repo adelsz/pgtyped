@@ -35,6 +35,8 @@ const TransformCodec = t.union([TSTransformCodec, SQLTransformCodec]);
 export type TransformConfig = t.TypeOf<typeof TransformCodec>;
 
 const configParser = t.type({
+  // maximum number of worker threads to use for the codegen worker pool
+  maxWorkerThreads: t.union([t.number, t.undefined]),
   transforms: t.array(TransformCodec),
   srcDir: t.string,
   failOnError: t.union([t.boolean, t.undefined]),
@@ -78,6 +80,7 @@ export interface ParsedConfig {
     port: number;
     ssl?: tls.ConnectionOptions | boolean;
   };
+  maxWorkerThreads: number | undefined;
   failOnError: boolean;
   camelCaseColumnNames: boolean;
   hungarianNotation: boolean;
@@ -172,6 +175,7 @@ export function parseConfig(
   };
 
   const {
+    maxWorkerThreads,
     db = defaultDBConfig,
     dbUrl: configDbUri,
     transforms,
@@ -224,5 +228,6 @@ export function parseConfig(
     camelCaseColumnNames: camelCaseColumnNames ?? false,
     hungarianNotation: hungarianNotation ?? true,
     typesOverrides: parsedTypesOverrides,
+    maxWorkerThreads,
   };
 }
