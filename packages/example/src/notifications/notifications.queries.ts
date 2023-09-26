@@ -3,6 +3,8 @@ import { PreparedQuery } from '@pgtyped/runtime';
 
 export type notification_type = 'deadline' | 'notification' | 'reminder';
 
+export type DateOrString = Date | string;
+
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 
 /** 'SendNotifications' parameters type */
@@ -39,7 +41,7 @@ export const sendNotifications = new PreparedQuery<ISendNotificationsParams,ISen
 
 /** 'GetNotifications' parameters type */
 export interface IGetNotificationsParams {
-  date: Date | string;
+  date: DateOrString;
   userId?: number | null | void;
 }
 
