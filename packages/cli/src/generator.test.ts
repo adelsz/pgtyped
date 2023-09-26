@@ -578,6 +578,22 @@ test('comment escaping', () => {
   );
 });
 
+test('interface generation with escaped keys', () => {
+  const expected = `export interface ExplainResult {
+  "QUERY PLAN": string;
+}
+
+`;
+  const fields = [
+    {
+      fieldName: 'QUERY PLAN',
+      fieldType: 'string',
+    },
+  ];
+  const result = generateInterface('ExplainResult', fields);
+  expect(result).toEqual(expected);
+});
+
 test('interface generation', () => {
   const expected = `export interface User {
   age: number;
