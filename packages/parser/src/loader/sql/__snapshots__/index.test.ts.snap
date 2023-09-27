@@ -706,6 +706,28 @@ Object {
 }
 `;
 
+exports[`Query with a PG range 1`] = `
+Object {
+  "events": Array [],
+  "queries": Array [
+    Object {
+      "name": "TestRange",
+      "params": Array [],
+      "statement": Object {
+        "body": "select (ARRAY[1,2,3,4])[2:3] as arr",
+        "loc": Object {
+          "a": 27,
+          "b": 61,
+          "col": 2,
+          "line": 3,
+        },
+      },
+      "usedParamSet": Object {},
+    },
+  ],
+}
+`;
+
 exports[`Unused parameters produce warnings 1`] = `
 Object {
   "events": Array [

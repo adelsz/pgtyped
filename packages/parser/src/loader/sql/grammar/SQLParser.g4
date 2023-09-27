@@ -19,9 +19,12 @@ statement
     : statementBody EOF_STATEMENT;
 
 statementBody
-    : (LINE_COMMENT | ignoredComment | param | word)*;
+    : (LINE_COMMENT | ignoredComment | param | word | range)*;
 
 word: WORD | ID | STRING | S_REQUIRED_MARK | DOLLAR_STRING;
+
+// required to avoid errors when matching strings like "[1:2]" as params
+range: PARAM_MARK word;
 
 param: PARAM_MARK paramId;
 

@@ -154,3 +154,11 @@ test('Dollar quoted strings are supported', () => {
   const parseTree = parse(text);
   expect(parseTree).toMatchSnapshot();
 });
+
+test('Query with a PG range', () => {
+  const text = `
+  /* @name TestRange */
+  select (ARRAY[1,2,3,4])[2:3] as arr;`;
+  const parseTree = parse(text);
+  expect(parseTree).toMatchSnapshot();
+});

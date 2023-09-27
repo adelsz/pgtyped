@@ -3,7 +3,7 @@
 
 import { ParseTreeVisitor } from "antlr4ts/tree/ParseTreeVisitor.js";
 
-import { InputContext } from "./SQLParser.js";
+import {InputContext, RangeContext} from "./SQLParser.js";
 import { QueryContext } from "./SQLParser.js";
 import { QueryDefContext } from "./SQLParser.js";
 import { IgnoredCommentContext } from "./SQLParser.js";
@@ -80,6 +80,13 @@ export interface SQLParserVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitWord?: (ctx: WordContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SQLParser.range`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitRange?: (ctx: RangeContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SQLParser.param`.

@@ -3,7 +3,7 @@
 
 import { ParseTreeListener } from "antlr4ts/tree/ParseTreeListener.js";
 
-import { InputContext } from "./SQLParser.js";
+import {InputContext, RangeContext} from "./SQLParser.js";
 import { QueryContext } from "./SQLParser.js";
 import { QueryDefContext } from "./SQLParser.js";
 import { IgnoredCommentContext } from "./SQLParser.js";
@@ -105,6 +105,17 @@ export interface SQLParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitWord?: (ctx: WordContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `SQLParser.range`.
+	 * @param ctx the parse tree
+	 */
+	enterRange?: (ctx: RangeContext) => void;
+	/**
+	 * Exit a parse tree produced by `SQLParser.range`.
+	 * @param ctx the parse tree
+	 */
+	exitRange?: (ctx: RangeContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `SQLParser.param`.
