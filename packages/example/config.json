@@ -11,7 +11,7 @@
       "emitTemplate": "{{dir}}/{{name}}.types.ts"
     },
     {
-      "mode": "ts-typed-sql-tag",
+      "mode": "ts-implicit",
       "include": "**/*.ts",
       "functionName": "sql",
       "emitFileName": "sql/index.ts"

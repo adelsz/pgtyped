@@ -18,7 +18,7 @@ export function parseFile(
 
   function parseNode(node: ts.Node) {
     if (
-      transformConfig?.mode === 'ts-typed-sql-tag' &&
+      transformConfig?.mode === 'ts-implicit' &&
       node.kind === ts.SyntaxKind.CallExpression
     ) {
       const callNode = node as ts.CallExpression;

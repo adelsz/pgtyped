@@ -75,7 +75,7 @@ async function main(
   const pool = new WorkerPool(config);
 
   const transformTask = async (transform: TransformConfig) => {
-    if (transform.mode === 'ts-typed-sql-tag') {
+    if (transform.mode === 'ts-implicit') {
       const transformer = new TypedSqlTagTransformer(pool, config, transform);
       return transformer.start(isWatchMode);
     } else {

@@ -26,7 +26,7 @@ const TSTransformCodec = t.type({
 });
 
 const TSTypedSQLTagTransformCodec = t.type({
-  mode: t.literal('ts-typed-sql-tag'),
+  mode: t.literal('ts-implicit'),
   include: t.string,
   functionName: t.string,
   emitFileName: t.string,
@@ -209,7 +209,7 @@ export function parseConfig(
     : {};
 
   if (
-    transforms.some((tr) => tr.mode !== 'ts-typed-sql-tag' && !!tr.emitFileName)
+    transforms.some((tr) => tr.mode !== 'ts-implicit' && !!tr.emitFileName)
   ) {
     // tslint:disable:no-console
     console.log(
