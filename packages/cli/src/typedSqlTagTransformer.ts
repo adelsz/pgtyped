@@ -6,7 +6,7 @@ import { ParsedConfig, TSTypedSQLTagTransformConfig } from './config.js';
 import {
   generateDeclarations,
   genTypedSQLOverloadFunctions,
-  ITSTypedQuery,
+  TSTypedQuery,
   TypeDeclarationSet,
 } from './generator.js';
 import { TransformJob, WorkerPool } from './index.js';
@@ -149,7 +149,7 @@ export class TypedSqlTagTransformer {
       queryTypes += generateDeclarations(typeDecSet.typedQueries);
       typedSQLOverloadFns += genTypedSQLOverloadFunctions(
         this.transform.functionName,
-        typeDecSet.typedQueries as ITSTypedQuery[],
+        typeDecSet.typedQueries as TSTypedQuery[],
       );
     }
 

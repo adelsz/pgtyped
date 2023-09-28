@@ -261,7 +261,7 @@ export async function queryToTypeDeclarations(
   );
 }
 
-export type ITSTypedQuery = {
+export type TSTypedQuery = {
   mode: 'ts';
   fileName: string;
   query: {
@@ -272,7 +272,7 @@ export type ITSTypedQuery = {
   typeDeclaration: string;
 };
 
-type ISQLTypedQuery = {
+type SQLTypedQuery = {
   mode: 'sql';
   fileName: string;
   query: {
@@ -285,9 +285,9 @@ type ISQLTypedQuery = {
   typeDeclaration: string;
 };
 
-export type ITypedQuery = ITSTypedQuery | ISQLTypedQuery;
+export type TypedQuery = TSTypedQuery | SQLTypedQuery;
 export type TypeDeclarationSet = {
-  typedQueries: ITypedQuery[];
+  typedQueries: TypedQuery[];
   typeDefinitions: TypeDefinitions;
   fileName: string;
 };
@@ -299,7 +299,7 @@ export async function generateTypedecsFromFile(
   types: TypeAllocator,
   config: ParsedConfig,
 ): Promise<TypeDeclarationSet> {
-  const typedQueries: ITypedQuery[] = [];
+  const typedQueries: TypedQuery[] = [];
   const interfacePrefix = config.hungarianNotation ? 'I' : '';
   const typeSource: TypeSource = (query) => getTypes(query, connection);
 
@@ -320,7 +320,7 @@ export async function generateTypedecsFromFile(
   }
 
   for (const queryAST of queries) {
-    let typedQuery: ITypedQuery;
+    let typedQuery: TypedQuery;
     if (transform.mode === 'sql') {
       const sqlQueryAST = queryAST as SQLQueryAST;
       const result = await queryToTypeDeclarations(
@@ -374,7 +374,7 @@ export async function generateTypedecsFromFile(
   return { typedQueries, typeDefinitions: types.toTypeDefinitions(), fileName };
 }
 
-export function generateDeclarations(typeDecs: ITypedQuery[]): string {
+export function generateDeclarations(typeDecs: TypedQuery[]): string {
   let typeDeclarations = '';
   for (const typeDec of typeDecs) {
     typeDeclarations += typeDec.typeDeclaration;
@@ -424,7 +424,7 @@ export function generateDeclarationFile(typeDecSet: TypeDeclarationSet) {
 
 export function genTypedSQLOverloadFunctions(
   functionName: string,
-  typedQueries: ITSTypedQuery[],
+  typedQueries: TSTypedQuery[],
 ) {
   return typedQueries
     .map(

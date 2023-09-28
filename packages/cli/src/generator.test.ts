@@ -7,7 +7,7 @@ import {
   escapeComment,
   generateInterface,
   genTypedSQLOverloadFunctions,
-  ITSTypedQuery,
+  TSTypedQuery,
   ProcessingMode,
   queryToTypeDeclarations,
 } from './generator.js';
@@ -665,7 +665,7 @@ test('should generate the correct SQL overload functions', async () => {
       const getUsers = sql\`SELECT id from users\`;
       `;
   const query = parsedQuery(ProcessingMode.TS, queryStringTS);
-  const typedQuery: ITSTypedQuery = {
+  const typedQuery: TSTypedQuery = {
     mode: 'ts' as const,
     fileName: 'test.ts',
     query: {
