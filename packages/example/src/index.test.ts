@@ -28,7 +28,7 @@ import {
   thresholdFrogs,
 } from './notifications/notifications.queries.js';
 import { getUsersWithComment } from './users/sample.js';
-import { Category } from './customTypes';
+import { Category } from './customTypes.js';
 
 const { Client } = pg;
 

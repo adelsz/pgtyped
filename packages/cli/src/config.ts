@@ -208,9 +208,7 @@ export function parseConfig(
     ? convertParsedURLToDBConfig(parseDatabaseUri(dbUri))
     : {};
 
-  if (
-    transforms.some((tr) => tr.mode !== 'ts-implicit' && !!tr.emitFileName)
-  ) {
+  if (transforms.some((tr) => tr.mode !== 'ts-implicit' && !!tr.emitFileName)) {
     // tslint:disable:no-console
     console.log(
       'Warning: Setting "emitFileName" is deprecated. Consider using "emitTemplate" instead.',

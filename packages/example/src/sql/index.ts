@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { sql as sourceSql } from '@pgtyped/runtime';
 
 export type notification_type = 'deadline' | 'notification' | 'reminder';
