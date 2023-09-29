@@ -23,11 +23,16 @@ interface ExtendedParsedPath extends path.ParsedPath {
   dir_base: string;
 }
 
-export type IWorkerResult = {
-  skipped: boolean;
-  typeDecsLength: number;
-  relativePath: string;
-};
+export type IWorkerResult =
+  | {
+      skipped: boolean;
+      typeDecsLength: number;
+      relativePath: string;
+    }
+  | {
+      error: any;
+      relativePath: string;
+    };
 
 async function connectAndGetFileContents(fileName: string) {
   if (!connected) {
@@ -85,7 +90,15 @@ export async function processFile({
     decsFileName = path.resolve(ppath.dir, `${ppath.name}.${suffix}`);
   }
 
-  const typeDecSet = await getTypeDecs({ fileName, transform });
+  let typeDecSet;
+  try {
+    typeDecSet = await getTypeDecs({ fileName, transform });
+  } catch (e) {
+    return {
+      error: e,
+      relativePath: path.relative(process.cwd(), fileName),
+    };
+  }
   const relativePath = path.relative(process.cwd(), decsFileName);
 
   if (typeDecSet.typedQueries.length > 0) {
