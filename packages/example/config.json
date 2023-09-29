@@ -9,6 +9,12 @@
       "mode": "ts",
       "include": "**/*.ts",
       "emitTemplate": "{{dir}}/{{name}}.types.ts"
+    },
+    {
+      "mode": "ts-implicit",
+      "include": "index.test.ts",
+      "functionName": "sql",
+      "emitFileName": "./src/sql/index.ts"
     }
   ],
   "typesOverrides": {
@@ -16,7 +22,7 @@
       "return": "string"
     },
     "int8": "BigInt",
-    "category": { "return": "./src/customTypes#Category" }
+    "category": { "return": "./src/customTypes.js#Category" }
   },
   "srcDir": "./src/",
   "dbUrl": "postgres://postgres:password@localhost/postgres"

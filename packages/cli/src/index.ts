@@ -3,31 +3,29 @@
 import { startup } from '@pgtyped/query';
 import { AsyncQueue } from '@pgtyped/wire';
 import chokidar from 'chokidar';
-import { globSync } from 'glob';
 import nun from 'nunjucks';
+
+import PiscinaPool from 'piscina';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { debug } from './util.js';
 import { parseConfig, ParsedConfig, TransformConfig } from './config.js';
-import path from 'path';
-
-import WorkerPool from 'piscina';
+import { TypedSqlTagTransformer } from './typedSqlTagTransformer.js';
+import { TypescriptAndSqlTransformer } from './typescriptAndSqlTransformer.js';
+import { debug } from './util.js';
 
 // tslint:disable:no-console
 
 nun.configure({ autoescape: false });
 
-interface TransformJob {
+export interface TransformJob {
   files: string[];
-  transform: TransformConfig;
 }
 
-class FileProcessor {
-  private readonly pool: WorkerPool;
-  public readonly workQueue: Promise<unknown>[] = [];
+export class WorkerPool {
+  private pool: PiscinaPool;
 
   constructor(private readonly config: ParsedConfig) {
-    this.pool = new WorkerPool({
+    this.pool = new PiscinaPool({
       filename: new URL('./worker.js', import.meta.url).href,
       maxThreads: config.maxWorkerThreads,
       workerData: config,
@@ -39,46 +37,24 @@ class FileProcessor {
     await this.pool.destroy();
   }
 
-  public push(job: TransformJob) {
-    this.workQueue.push(
-      ...job.files.map(async (fileName) => {
-        try {
-          fileName = path.relative(process.cwd(), fileName);
-          console.log(`Processing ${fileName}`);
-          const result = await this.pool.run({
-            fileName,
-            transform: job.transform,
-          });
-          if (result.skipped) {
-            console.log(
-              `Skipped ${fileName}: no changes or no queries detected`,
-            );
-          } else {
-            console.log(
-              `Saved ${result.typeDecsLength} query types from ${fileName} to ${result.relativePath}`,
-            );
-          }
-        } catch (err) {
-          if (err instanceof Error) {
-            const isWorkerTermination =
-              err.message === 'Terminating worker thread';
-            if (isWorkerTermination) {
-              return;
-            }
-
-            console.log(
-              `Error processing file: ${err.stack || JSON.stringify(err)}`,
-            );
-          } else {
-            console.log(`Error processing file: ${JSON.stringify(err)}`);
-          }
-          if (this.config.failOnError) {
-            await this.pool.destroy();
-            process.exit(1);
-          }
+  public async run<T>(opts: T, functionName: string) {
+    try {
+      return this.pool.run(opts, { name: functionName });
+    } catch (err) {
+      if (err instanceof Error) {
+        const isWorkerTermination = err.message === 'Terminating worker thread';
+        if (isWorkerTermination) {
+          return;
         }
-      }),
-    );
+        console.log(
+          `Error processing file: ${err.stack || JSON.stringify(err)}`,
+        );
+        if (this.config.failOnError) {
+          await this.pool.destroy();
+          process.exit(1);
+        }
+      }
+    }
   }
 }
 
@@ -96,49 +72,32 @@ async function main(
 
   debug('connected to database %o', config.db.dbName);
 
-  const fileProcessor = new FileProcessor(config);
-  let fileOverrideUsed = false;
-  for (const transform of config.transforms) {
-    const pattern = `${config.srcDir}/**/${transform.include}`;
-    if (isWatchMode) {
-      const cb = (filePath: string) => {
-        fileProcessor.push({
-          files: [filePath],
-          transform,
-        });
-      };
-      chokidar
-        .watch(pattern, { persistent: true })
-        .on('add', cb)
-        .on('change', cb);
+  const pool = new WorkerPool(config);
+
+  const transformTask = async (transform: TransformConfig) => {
+    if (transform.mode === 'ts-implicit') {
+      const transformer = new TypedSqlTagTransformer(pool, config, transform);
+      return transformer.start(isWatchMode);
     } else {
-      /**
-       * If the user didn't provide the -f paramter, we're using the list of files we got from glob.
-       * If he did, we're using glob file list to detect if his provided file should be used with this transform.
-       */
-      let fileList = globSync(pattern);
-      if (fileOverride) {
-        fileList = fileList.includes(fileOverride) ? [fileOverride] : [];
-        if (fileList.length > 0) {
-          fileOverrideUsed = true;
-        }
-      }
-      debug('found query files %o', fileList);
-      const transformJob = {
-        files: fileList,
+      const transformer = new TypescriptAndSqlTransformer(
+        pool,
+        config,
         transform,
-      };
-      fileProcessor.push(transformJob);
+      );
+      return transformer.start(isWatchMode);
     }
-  }
-  if (fileOverride && !fileOverrideUsed) {
-    console.log(
-      'File override specified, but file was not found in provided transforms',
-    );
-  }
+  };
+
+  const tasks = config.transforms.map(transformTask);
+
   if (!isWatchMode) {
-    await Promise.all(fileProcessor.workQueue);
-    await fileProcessor.shutdown();
+    const transforms = await Promise.all(tasks);
+    if (fileOverride && !transforms.some((x) => x)) {
+      console.log(
+        'File override specified, but file was not found in provided transforms',
+      );
+    }
+    await pool.shutdown();
     process.exit(0);
   }
 }

@@ -79,3 +79,15 @@ Array [
 `;
 
 exports[`select query with unicode characters 1`] = `Array []`;
+
+exports[`ts-implicit mode query 1`] = `
+Array [
+  Object {
+    "author_id": 1,
+    "categories": null,
+    "id": 1,
+    "name": "Black Swan",
+    "rank": 1,
+  },
+]
+`;
