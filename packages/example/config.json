@@ -14,7 +14,7 @@
       "mode": "ts-implicit",
       "include": "**/*.ts",
       "functionName": "sql",
-      "emitFileName": "sql/index.ts"
+      "emitFileName": "./src/sql/index.ts"
     }
   ],
   "typesOverrides": {

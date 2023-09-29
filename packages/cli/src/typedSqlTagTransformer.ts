@@ -30,7 +30,7 @@ export class TypedSqlTagTransformer {
     private readonly transform: TSTypedSQLTagTransformConfig,
   ) {
     this.includePattern = `${this.config.srcDir}/**/${transform.include}`;
-    this.localFileName = `${this.config.srcDir}${this.transform.emitFileName}`;
+    this.localFileName = this.transform.emitFileName;
     this.fullFileName = path.relative(process.cwd(), this.localFileName);
   }
 
