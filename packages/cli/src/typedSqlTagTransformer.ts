@@ -127,7 +127,7 @@ export class TypedSqlTagTransformer {
     return this.generateTypedSQLTagFile(Object.values(this.cache));
   }
 
-  private contentStart = `/* eslint-disable */\nimport { ${this.transform.functionName} as sourceSql } from '@pgtyped/runtime';\n\n`;
+  private contentStart = `import { ${this.transform.functionName} as sourceSql } from '@pgtyped/runtime';\n\n`;
   private contentEnd = [
     `export function ${this.transform.functionName}(s: string): unknown;`,
     `export function ${this.transform.functionName}(s: string): unknown {`,

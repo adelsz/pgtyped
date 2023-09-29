@@ -76,8 +76,12 @@ export class TypescriptAndSqlTransformer {
       'processFile',
     )) as Awaited<processFileFnResult>;
 
-    if (result.skipped) {
+    if ('skipped' in result && result.skipped) {
       console.log(`Skipped ${fileName}: no changes or no queries detected`);
+    } else if ('error' in result) {
+      console.error(
+        `Error processing ${fileName}: ${result.error.message}\n${result.error.stack}`,
+      );
     } else {
       console.log(
         `Saved ${result.typeDecsLength} query types from ${fileName} to ${result.relativePath}`,

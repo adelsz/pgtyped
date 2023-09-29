@@ -12,7 +12,7 @@
     },
     {
       "mode": "ts-implicit",
-      "include": "**/*.ts",
+      "include": "index.test.ts",
       "functionName": "sql",
       "emitFileName": "./src/sql/index.ts"
     }
@@ -22,7 +22,7 @@
       "return": "string"
     },
     "int8": "BigInt",
-    "category": { "return": "./src/customTypes#Category" }
+    "category": { "return": "./src/customTypes.js#Category" }
   },
   "srcDir": "./src/",
   "dbUrl": "postgres://postgres:password@localhost/postgres"
