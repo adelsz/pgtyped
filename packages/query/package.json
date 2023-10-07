@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped/query",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "type": "module",
   "exports": {
     ".": {
@@ -34,8 +34,8 @@
     "watch": "tsc --watch --preserveWatchOutput"
   },
   "dependencies": {
-    "@pgtyped/runtime": "^2.1.0",
-    "@pgtyped/wire": "^2.2.0",
+    "@pgtyped/runtime": "^2.3.0",
+    "@pgtyped/wire": "^2.3.0",
     "chalk": "^4.1.0",
     "debug": "^4.1.1"
   },
