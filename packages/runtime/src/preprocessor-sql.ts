@@ -8,7 +8,7 @@ import {
   ParameterTransform,
   QueryParameter,
   replaceIntervals,
-  Scalar,
+  Scalar, ScalarArrayLiteralParameter,
 } from './preprocessor.js';
 
 /* Processes query AST formed by new parser from pure SQL files */
@@ -49,6 +49,36 @@ export const processSQLQueryIR = (
         intervals.push({
           ...loc,
           sub: `(${sub})`,
+        }),
+      );
+      continue;
+    }
+
+    // Handle array literal spread transform
+    if (usedParam.transform.type === TransformType.ArrayLiteralSpread) {
+      let sub: string;
+      if (passedParams) {
+        const paramValue = passedParams[usedParam.name];
+        sub = (paramValue as Scalar[])
+          .map((val) => {
+            bindings.push(val);
+            return `$${i++}`;
+          })
+          .join(',');
+      } else {
+        const idx = i++;
+        paramMapping.push({
+          name: usedParam.name,
+          type: ParameterTransform.ArrayLiteralSpread,
+          assignedIndex: idx,
+          required: usedParam.required,
+        } as ScalarArrayLiteralParameter);
+        sub = `$${idx}`;
+      }
+      usedParam.locs.forEach((loc) =>
+        intervals.push({
+          ...loc,
+          sub: `ARRAY[${sub}]`,
         }),
       );
       continue;
