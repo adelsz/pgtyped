@@ -30,6 +30,6 @@
   },
   "devDependencies": {
     "@types/pg": "8.10.9",
-    "ts-node": "10.9.1"
+    "ts-node": "10.9.2"
   }
 }
