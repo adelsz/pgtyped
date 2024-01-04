@@ -3,27 +3,21 @@ import { CharStreams, CommonTokenStream } from 'antlr4ts';
 import { ParseTreeWalker } from 'antlr4ts/tree/ParseTreeWalker.js';
 import { QueryLexer } from './parser/QueryLexer.js';
 import {
+  FormatterContext,
   ParamContext,
-  ParamNameContext,
-  PickKeyContext,
+  ParamIndexedContext,
+  ParamNamedContext,
   QueryContext,
   QueryParser,
-  ScalarParamNameContext,
 } from './parser/QueryParser.js';
 import { Logger, ParseEvent } from '../sql/logger.js';
 import { Interval } from 'antlr4ts/misc/index.js';
 
 export enum ParamType {
   Scalar = 'scalar',
-  Object = 'object',
   ScalarArray = 'scalar_array',
-  ObjectArray = 'object_array',
-}
-
-export interface ParamKey {
-  name: string;
-  required: boolean;
-  nullable?: boolean;
+  Identifier = 'identifier', // not supported, but we give a proper error message
+  Raw = 'raw', // not supported, but we give a proper error message
 }
 
 export type ParamSelection =
@@ -34,15 +28,17 @@ export type ParamSelection =
       type: ParamType.ScalarArray;
     }
   | {
-      type: ParamType.Object | ParamType.ObjectArray;
-      keys: ParamKey[];
+      type: ParamType.Identifier;
+    }
+  | {
+      type: ParamType.Raw;
     };
 
 export interface Param {
   name: string;
   selection: ParamSelection;
   required: boolean;
-  nullable: boolean | undefined;
+  nullable: boolean;
   location: CodeInterval;
 }
 
@@ -59,17 +55,10 @@ export interface Query {
   text: string;
 }
 
-export function assert(condition: any): asserts condition {
-  if (!condition) {
-    throw new Error('Assertion Failed');
-  }
-}
-
-class ParseListener implements QueryParserListener {
+class ParserListener implements QueryParserListener {
   logger: Logger;
   query: Partial<Query> = {};
   private currentParam: Partial<Param> = {};
-  private currentSelection: Partial<ParamSelection> = {};
 
   constructor(queryName: string, logger: Logger) {
     this.query.name = queryName;
@@ -89,20 +78,55 @@ class ParseListener implements QueryParserListener {
     };
   }
 
-  enterParamName(ctx: ParamNameContext) {
+  enterParamNamed(ctx: ParamNamedContext) {
     this.currentParam = {
-      name: ctx.text,
-      selection: undefined,
+      name: ctx.ID().text,
+      nullable: ctx.NULLABILITY_MARK() !== undefined,
+      required: true,
+      selection: { type: ParamType.Scalar },
     };
   }
 
-  enterScalarParamName(ctx: ScalarParamNameContext) {
-    const required = !!ctx.REQUIRED_MARK();
-    const name = ctx.ID().text;
-
+  enterParamIndexed(ctx: ParamIndexedContext) {
     this.currentParam = {
-      name,
-      required,
+      name: ctx.INTEGER().text,
+      nullable: ctx.NULLABILITY_MARK() !== undefined,
+      required: true,
+      selection: { type: ParamType.Scalar },
+    };
+  }
+
+  enterFormatter(ctx: FormatterContext) {
+    const fmtText = ctx.ID()?.text;
+    const fmtShort = ctx.FORMATTER_SHORT()?.text;
+    let type: ParamType | undefined;
+    switch (fmtText) {
+      case 'list':
+      case 'csv':
+        type = ParamType.ScalarArray;
+        break;
+      case 'alias':
+      case 'name':
+        type = ParamType.Identifier;
+        break;
+      case 'raw':
+        type = ParamType.Raw;
+        break;
+    }
+    if (!type) {
+      switch (fmtShort) {
+        case '~':
+          type = ParamType.Identifier;
+          break;
+        case '^':
+          type = ParamType.Raw;
+          break;
+        default:
+          type = ParamType.Scalar;
+      }
+    }
+    this.currentParam.selection = {
+      type,
     };
   }
 
@@ -114,49 +138,12 @@ class ParseListener implements QueryParserListener {
       col: ctx.start.charPositionInLine,
     };
     this.currentParam.location = defLoc;
-    this.currentParam.selection = this.currentSelection as ParamSelection;
     this.query.params!.push(this.currentParam as Param);
-    this.currentSelection = {};
     this.currentParam = {};
-  }
-
-  enterScalarParam() {
-    this.currentSelection = {
-      type: ParamType.Scalar,
-    };
-  }
-
-  enterPickParam() {
-    this.currentSelection = {
-      type: ParamType.Object,
-      keys: [],
-    };
-  }
-
-  enterArrayPickParam() {
-    this.currentSelection = {
-      type: ParamType.ObjectArray,
-      keys: [],
-    };
-  }
-
-  enterArrayParam() {
-    this.currentSelection = {
-      type: ParamType.ScalarArray,
-    };
-  }
-
-  enterPickKey(ctx: PickKeyContext) {
-    assert('keys' in this.currentSelection);
-
-    const required = !!ctx.REQUIRED_MARK();
-    const name = ctx.ID().text;
-
-    this.currentSelection.keys!.push({ name, required });
   }
 }
 
-function parseText(
+export function parseTextPgPromise(
   text: string,
   queryName: string = 'query',
 ): { query: Query; events: ParseEvent[] } {
@@ -172,13 +159,11 @@ function parseText(
 
   const tree = parser.input();
 
-  const listener = new ParseListener(queryName, logger);
+  const listener = new ParserListener(queryName, logger);
   ParseTreeWalker.DEFAULT.walk(listener as QueryParserListener, tree);
 
   return {
-    query: listener.query as any,
+    query: listener.query as Query,
     events: logger.parseEvents,
   };
 }
-
-export default parseText;

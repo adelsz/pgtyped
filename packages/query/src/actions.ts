@@ -200,9 +200,15 @@ type TypeData =
 export async function getTypeData(
   query: string,
   queue: AsyncQueue,
+  schema: string | undefined,
 ): Promise<TypeData> {
   const uniqueName = crypto.createHash('md5').update(query).digest('hex');
   // Send all the messages needed and then flush
+  if (schema) {
+    await queue.send(messages.query, {
+      query: `SET search_path TO ${schema};`,
+    });
+  }
   await queue.send(messages.parse, {
     name: uniqueName,
     query,
@@ -394,8 +400,9 @@ async function getComments(
 export async function getTypes(
   queryData: InterpolatedQuery,
   queue: AsyncQueue,
+  schema: string | undefined,
 ): Promise<IQueryTypes | IParseError> {
-  const typeData = await getTypeData(queryData.query, queue);
+  const typeData = await getTypeData(queryData.query, queue, schema);
   if ('errorCode' in typeData) {
     return typeData;
   }

@@ -1,5 +1,5 @@
-import { TSQueryAST, assert } from '@pgtyped/parser';
-import { Param, ParamKey, ParamType } from '@pgtyped/parser';
+import { TSQueryAST, assert, PgPromiseQueryAST } from '@pgtyped/parser';
+import { ParamKey, ParamType } from '@pgtyped/parser';
 import {
   DictArrayParameter,
   DictParameter,
@@ -14,8 +14,14 @@ import {
   Scalar,
 } from './preprocessor.js';
 
+export interface ParamBase {
+  name: string;
+  required: boolean;
+  nullable: boolean | undefined;
+}
+
 function processScalar(
-  { name, required }: Param,
+  { name, required, nullable }: ParamBase,
   nextIndex: number,
   existingConfig?: ScalarParameter,
   parameters?: QueryParameters,
@@ -39,6 +45,7 @@ function processScalar(
       type: ParameterTransform.Scalar,
       name,
       required,
+      nullable,
     };
 
     if (parameters) {
@@ -50,7 +57,7 @@ function processScalar(
 }
 
 function processScalarArray(
-  { name, required }: Param,
+  { name, required, nullable }: ParamBase,
   nextIndex: number,
   existingConfig?: ScalarArrayParameter,
   parameters?: QueryParameters,
@@ -82,6 +89,7 @@ function processScalarArray(
       type: ParameterTransform.Spread,
       name,
       required,
+      nullable,
     };
   }
   const replacement = '(' + assignedIndex.map((v) => `$${v}`).join(', ') + ')';
@@ -111,7 +119,7 @@ function processObject(
       dict: {},
     } as DictParameter);
 
-  const keyIndices = keys.map(({ name, required }) => {
+  const keyIndices = keys.map(({ name, required, nullable }) => {
     if (name in config.dict) {
       config.dict[name].required = config.dict[name].required || required;
       // reuse index if parameter was seen before
@@ -124,6 +132,7 @@ function processObject(
       name,
       required,
       type: ParameterTransform.Scalar,
+      nullable,
     };
     if (parameters) {
       const value = (parameters[paramName] as NestedParameters)[name];
@@ -178,7 +187,7 @@ function processObjectArray(
       replacement = '()';
     }
   } else {
-    const keyIndices = keys.map(({ name, required }) => {
+    const keyIndices = keys.map(({ name, required, nullable }) => {
       if (name in config.dict) {
         // reuse index if parameter was seen before
         return `$${config.dict[name].assignedIndex}`;
@@ -190,6 +199,7 @@ function processObjectArray(
         name,
         required,
         type: ParameterTransform.Scalar,
+        nullable,
       };
       return `$${assignedIndex}`;
     });
@@ -201,7 +211,7 @@ function processObjectArray(
 
 /* Processes query strings produced by old parser from SQL-in-TS statements */
 export const processTSQueryAST = (
-  query: TSQueryAST,
+  query: TSQueryAST | PgPromiseQueryAST,
   parameters?: QueryParameters,
 ): InterpolatedQuery => {
   const bindings: Scalar[] = [];

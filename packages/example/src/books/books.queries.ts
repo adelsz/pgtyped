@@ -7,11 +7,11 @@ export type Iso31661Alpha2 = 'AD' | 'AE' | 'AF' | 'AG' | 'AI' | 'AL' | 'AM' | 'A
 
 export type category = 'novel' | 'science-fiction' | 'thriller';
 
-export type categoryArray = (Category)[];
+export type categoryArray = readonly (Category)[];
 
-export type numberArray = (number)[];
+export type numberArray = readonly (number)[];
 
-export type stringArray = (string)[];
+export type stringArray = readonly (string)[];
 
 /** 'FindBookById' parameters type */
 export interface IFindBookByIdParams {
