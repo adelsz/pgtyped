@@ -307,6 +307,23 @@ export async function explainQuery(
     );
 
     return explain.map((e) => e[0]);
+  } catch (e: any) {
+    // This is most likely from the `runQuery` statement
+    /* Example error:
+     * ```
+     * {
+     *   type: 'ServerError',
+     *   bufferOffset: 100,
+     *   severity: 'ERROR',
+     *   message: 'permission denied for table user_emails'
+     * }
+     * ```
+     */
+    console.error('Error occurred whilst testing query:', e);
+    return {
+      errorCode: '_ERROR',
+      message: e.message,
+    };
   } finally {
     // Release prepared statement
     await queue.send(messages.close, {
