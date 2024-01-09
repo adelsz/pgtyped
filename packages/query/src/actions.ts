@@ -43,6 +43,7 @@ export async function startup(
       user: options.user,
       database: options.dbName,
       client_encoding: "'utf-8'",
+      application_name: 'pgtyped',
     };
     await queue.send(messages.startupMessage, { params: startupParams });
     const result = await queue.reply(
