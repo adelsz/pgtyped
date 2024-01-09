@@ -19,3 +19,11 @@ export interface IInsertUserEmailQuery {
   result: IInsertUserEmailResult;
 }
 
+/** Query 'ForbiddenInsertUserEmailWithId' is invalid, so its result is assigned type 'never'.
+ *  */
+export type IForbiddenInsertUserEmailWithIdResult = never;
+
+/** Query 'ForbiddenInsertUserEmailWithId' is invalid, so its parameters are assigned type 'never'.
+ *  */
+export type IForbiddenInsertUserEmailWithIdParams = never;
+
