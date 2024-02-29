@@ -112,6 +112,16 @@ export const parseMessage = <Params extends object>(
   messageOffset: number = 0,
 ): ParseResult<Params> => {
   let bufferOffset = messageOffset;
+
+  // Check if we have enough data to read the indicator and message size
+  // The + 5 is made up of 1 byte for readInt8 and 4 bytes for readUInt32BE
+  if (bufferOffset + 5 > buf.length) {
+    return {
+      type: "IncompleteMessageError",
+      messageName: message.name,
+    };
+  }
+
   const indicator = buf.readInt8(bufferOffset);
   const expectedIndicator = message.indicator.charCodeAt(0);
   const isUnexpectedErrorMessage =
