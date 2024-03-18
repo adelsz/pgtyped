@@ -190,10 +190,9 @@ function parseFile(
         const queryType = checker.getTypeAtLocation(res.queryArgument);
         // TS computes a template literal containing only union literal placeholders to a union of literals
         if (
-          queryType.flags & ts.TypeFlags.Union &&
-          (queryType as ts.UnionType).types.every(
-            (t) => t.flags & ts.TypeFlags.StringLiteral,
-          )
+          (queryType.isUnion() &&
+            queryType.types.every((t) => t.isStringLiteral())) ||
+          queryType.isStringLiteral()
         ) {
           foundNodes.push({
             queryName: baseName,
@@ -223,13 +222,12 @@ function parseFile(
 }
 
 function typeToStringOrStringArray(type: ts.Type) {
-  if (type.flags & ts.TypeFlags.Union) {
-    const r = type as ts.UnionType;
-    if (r.types.every((t) => t.flags & ts.TypeFlags.StringLiteral)) {
-      return r.types.map((t) => (t as ts.StringLiteralType).value);
+  if (type.isUnion()) {
+    if (type.types.every((t) => t.isStringLiteral())) {
+      return type.types.map((t) => (t as ts.StringLiteralType).value);
     }
-  } else if (type.flags & ts.TypeFlags.StringLiteral) {
-    return (type as ts.StringLiteralType).value;
+  } else if (type.isStringLiteral()) {
+    return type.value;
   }
   throw Error(
     'Expected type to be either a string literal or a union of string literals',
