@@ -12,6 +12,7 @@ import { parseConfig, ParsedConfig, TransformConfig } from './config.js';
 import { TypedSqlTagTransformer } from './typedSqlTagTransformer.js';
 import { TypescriptAndSqlTransformer } from './typescriptAndSqlTransformer.js';
 import { debug } from './util.js';
+import { TsPgPromiseTransformer } from './tsPgPromiseTransformer.js';
 
 // tslint:disable:no-console
 
@@ -37,13 +38,14 @@ export class WorkerPool {
     await this.pool.destroy();
   }
 
-  public async run<T>(opts: T, functionName: string) {
+  public async run<T>(opts: T, functionName: string, signal?: AbortSignal) {
     try {
-      return this.pool.run(opts, { name: functionName });
+      return this.pool.run(opts, { name: functionName, signal });
     } catch (err) {
       if (err instanceof Error) {
         const isWorkerTermination = err.message === 'Terminating worker thread';
-        if (isWorkerTermination) {
+        const isAbort = err.name === 'AbortError';
+        if (isWorkerTermination || isAbort) {
           return;
         }
         console.log(
@@ -77,6 +79,9 @@ async function main(
   const transformTask = async (transform: TransformConfig) => {
     if (transform.mode === 'ts-implicit') {
       const transformer = new TypedSqlTagTransformer(pool, config, transform);
+      return transformer.start(isWatchMode);
+    } else if (transform.mode === 'ts-pg-promise') {
+      const transformer = new TsPgPromiseTransformer(pool, config, transform);
       return transformer.start(isWatchMode);
     } else {
       const transformer = new TypescriptAndSqlTransformer(

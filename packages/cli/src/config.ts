@@ -32,8 +32,25 @@ const TSTypedSQLTagTransformCodec = t.type({
   emitFileName: t.string,
 });
 
+const TSPgPromiseTransformCodec = t.type({
+  mode: t.literal('ts-pg-promise'),
+  include: t.string,
+  exclude: t.union([t.string, t.undefined]),
+  emitFileName: t.string,
+  tsconfigPath: t.string,
+  maxMethodParameterUnionTypeLength: t.union([t.number, t.undefined]),
+  argumentTypeWarning: t.union([t.boolean, t.undefined]),
+  parameterKindWarning: t.union([t.boolean, t.undefined]),
+  variableNames: t.array(t.string),
+  interfaceName: t.string,
+});
+
 export type TSTypedSQLTagTransformConfig = t.TypeOf<
   typeof TSTypedSQLTagTransformCodec
+>;
+
+export type TSPgPromiseTransformConfig = t.TypeOf<
+  typeof TSPgPromiseTransformCodec
 >;
 
 const SQLTransformCodec = t.type({
@@ -45,9 +62,31 @@ const TransformCodec = t.union([
   TSTransformCodec,
   SQLTransformCodec,
   TSTypedSQLTagTransformCodec,
+  TSPgPromiseTransformCodec,
 ]);
 
+const EnumsAsEnumsCodec = t.type({
+  style: t.literal('enum'),
+  nameCase: t.union([t.literal('keep'), t.literal('pascal')]),
+  keyCase: t.union([
+    t.literal('upper'),
+    t.literal('lower'),
+    t.literal('sameAsValue'),
+  ]),
+  dropNameSuffix: t.union([t.string, t.undefined]),
+});
+
+const EnumsAsTypesCodec = t.type({
+  style: t.literal('type'),
+});
+
+const EnumCodec = t.union([EnumsAsEnumsCodec, EnumsAsTypesCodec]);
+
+export type EnumsAsEnumsConfig = t.TypeOf<typeof EnumsAsEnumsCodec>;
+
 export type TransformConfig = t.TypeOf<typeof TransformCodec>;
+
+export type EnumConfig = t.TypeOf<typeof EnumCodec>;
 
 const configParser = t.type({
   // maximum number of worker threads to use for the codegen worker pool
@@ -56,6 +95,9 @@ const configParser = t.type({
   srcDir: t.string,
   failOnError: t.union([t.boolean, t.undefined]),
   camelCaseColumnNames: t.union([t.boolean, t.undefined]),
+  anonymousColumnWarning: t.union([t.boolean, t.undefined]),
+  enums: t.union([EnumCodec, t.undefined]),
+  interfaceComments: t.union([t.boolean, t.undefined]),
   hungarianNotation: t.union([t.boolean, t.undefined]),
   dbUrl: t.union([t.string, t.undefined]),
   db: t.union([
@@ -66,6 +108,7 @@ const configParser = t.type({
       user: t.union([t.string, t.undefined]),
       dbName: t.union([t.string, t.undefined]),
       ssl: t.union([t.UnknownRecord, t.boolean, t.undefined]),
+      schema: t.union([t.string, t.undefined]),
     }),
     t.undefined,
   ]),
@@ -94,10 +137,14 @@ export interface ParsedConfig {
     dbName: string;
     port: number;
     ssl?: tls.ConnectionOptions | boolean;
+    schema?: string;
   };
   maxWorkerThreads: number | undefined;
   failOnError: boolean;
   camelCaseColumnNames: boolean;
+  anonymousColumnWarning: boolean;
+  enums: EnumConfig | undefined;
+  interfaceComments: boolean;
   hungarianNotation: boolean;
   transforms: IConfig['transforms'];
   srcDir: IConfig['srcDir'];
@@ -199,6 +246,9 @@ export function parseConfig(
     camelCaseColumnNames,
     hungarianNotation,
     typesOverrides,
+    enums,
+    interfaceComments,
+    anonymousColumnWarning,
   } = configObject as IConfig;
 
   // CLI connectionUri flag takes precedence over the env and config one
@@ -208,7 +258,14 @@ export function parseConfig(
     ? convertParsedURLToDBConfig(parseDatabaseUri(dbUri))
     : {};
 
-  if (transforms.some((tr) => tr.mode !== 'ts-implicit' && !!tr.emitFileName)) {
+  if (
+    transforms.some(
+      (tr) =>
+        tr.mode !== 'ts-implicit' &&
+        tr.mode !== 'ts-pg-promise' &&
+        !!tr.emitFileName,
+    )
+  ) {
     // tslint:disable:no-console
     console.log(
       'Warning: Setting "emitFileName" is deprecated. Consider using "emitTemplate" instead.',
@@ -241,8 +298,11 @@ export function parseConfig(
     srcDir,
     failOnError: failOnError ?? false,
     camelCaseColumnNames: camelCaseColumnNames ?? false,
+    anonymousColumnWarning: anonymousColumnWarning ?? true,
     hungarianNotation: hungarianNotation ?? true,
     typesOverrides: parsedTypesOverrides,
     maxWorkerThreads,
+    enums,
+    interfaceComments: interfaceComments ?? true,
   };
 }
