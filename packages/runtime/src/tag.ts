@@ -3,7 +3,7 @@ import { processSQLQueryIR } from './preprocessor-sql.js';
 import { processTSQueryAST } from './preprocessor-ts.js';
 
 export interface IDatabaseConnection {
-  query: (query: string, bindings: any[]) => Promise<{ rows: any[] }>;
+  query: (config: { text: string, values: any[] }) => Promise<{ rows: any[] }>;
 }
 
 /** Check for column modifier suffixes (exclamation and question marks). */
@@ -41,7 +41,7 @@ export class TaggedQuery<TTypePair extends { params: any; result: any }> {
         this.query,
         params as any,
       );
-      const result = await connection.query(processedQuery, bindings);
+      const result = await connection.query({ text: processedQuery, values: bindings });
       return mapQueryResultRows(result.rows);
     };
   }
@@ -75,7 +75,7 @@ export class PreparedQuery<TParamType, TResultType> {
         this.queryIR,
         params as any,
       );
-      const result = await connection.query(processedQuery, bindings);
+      const result = await connection.query({ text: processedQuery, values: bindings });
       return mapQueryResultRows(result.rows);
     };
   }
