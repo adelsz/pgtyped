@@ -4,7 +4,11 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
+      "types": {
+        "import": "./lib/index.d.ts",
+        "require": "./lib/index.d.cts",
+        "default": "./lib/index.d.ts"
+      },
       "import": "./lib/index.js",
       "require": "./lib/index.cjs",
       "default": "./lib/index.js"
@@ -29,7 +33,7 @@
   "scripts": {
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "build:cjs": "esbuild --bundle --sourcemap --platform=node --target=node14 src/index.ts --minify --external:chalk --external:antlr4ts --outfile=lib/index.cjs",
-    "build": "tsc && npm run build:cjs",
+    "build": "tsc && npm run build:cjs && cp lib/index.d.ts lib/index.d.cts",
     "check": "tsc --noEmit",
     "watch": "tsc --watch --preserveWatchOutput"
   },
