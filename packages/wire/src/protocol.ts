@@ -117,7 +117,7 @@ export const parseMessage = <Params extends object>(
   // The + 5 is made up of 1 byte for readInt8 and 4 bytes for readUInt32BE
   if (bufferOffset + 5 > buf.length) {
     return {
-      type: "IncompleteMessageError",
+      type: 'IncompleteMessageError',
       messageName: message.name,
     };
   }
