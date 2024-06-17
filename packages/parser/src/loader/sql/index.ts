@@ -29,6 +29,7 @@ export enum TransformType {
 export interface ParamKey {
   name: string;
   required: boolean;
+  nullable?: boolean;
 }
 
 export type ParamTransform =
