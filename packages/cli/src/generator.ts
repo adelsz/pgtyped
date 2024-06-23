@@ -74,20 +74,22 @@ export const generateTypeAlias = (typeName: string, alias: string) =>
 
 type ParsedQuery =
   | {
-      ast: TSQueryAST;
-      mode: ProcessingMode.TS;
-    }
+    ast: TSQueryAST;
+    mode: ProcessingMode.TS;
+  }
   | {
-      ast: SQLQueryAST;
-      mode: ProcessingMode.SQL;
-    };
+    ast: SQLQueryAST;
+    mode: ProcessingMode.SQL;
+  };
 
 export async function queryToTypeDeclarations(
   parsedQuery: ParsedQuery,
+  fileName: string,
   typeSource: TypeSource,
   types: TypeAllocator,
   config: ParsedConfig,
 ): Promise<string> {
+
   let queryData;
   let queryName;
   if (parsedQuery.mode === ProcessingMode.TS) {
@@ -110,9 +112,10 @@ export async function queryToTypeDeclarations(
     );
 
   if (typeError || hasAnonymousColumns) {
+
     // tslint:disable:no-console
     if (typeError) {
-      console.error('Error in query. Details: %o', typeData);
+      console.error('Error in query. Details: %o', { ...typeData, queryName, fileName });
       if (config.failOnError) {
         throw new Error(
           `Query "${queryName}" is invalid. Can't generate types.`,
@@ -234,9 +237,9 @@ export async function queryToTypeDeclarations(
     `/** '${queryName}' return type */\n` +
     (returnFieldTypes.length > 0
       ? generateInterface(
-          `${interfacePrefix}${interfaceName}Result`,
-          returnFieldTypes,
-        )
+        `${interfacePrefix}${interfaceName}Result`,
+        returnFieldTypes,
+      )
       : generateTypeAlias(resultInterfaceName, 'void'));
 
   const paramInterfaceName = `${interfacePrefix}${interfaceName}Params`;
@@ -244,9 +247,9 @@ export async function queryToTypeDeclarations(
     `/** '${queryName}' parameters type */\n` +
     (paramFieldTypes.length > 0
       ? generateInterface(
-          `${interfacePrefix}${interfaceName}Params`,
-          paramFieldTypes,
-        )
+        `${interfacePrefix}${interfaceName}Params`,
+        paramFieldTypes,
+      )
       : generateTypeAlias(paramInterfaceName, 'void'));
 
   const typePairInterface =
@@ -325,6 +328,7 @@ export async function generateTypedecsFromFile(
       const sqlQueryAST = queryAST as SQLQueryAST;
       const result = await queryToTypeDeclarations(
         { ast: sqlQueryAST, mode: ProcessingMode.SQL },
+        fileName,
         typeSource,
         types,
         config,
@@ -352,6 +356,7 @@ export async function generateTypedecsFromFile(
           ast: tsQueryAST,
           mode: ProcessingMode.TS,
         },
+        fileName,
         typeSource,
         types,
         config,
