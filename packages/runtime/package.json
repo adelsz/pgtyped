@@ -45,6 +45,6 @@
   "devDependencies": {
     "@types/chalk": "^2.2.0",
     "@types/debug": "^4.1.4",
-    "esbuild": "^0.19.0"
+    "esbuild": "^0.23.0"
   }
 }
