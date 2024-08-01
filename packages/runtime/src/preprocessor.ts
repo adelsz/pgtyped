@@ -11,6 +11,7 @@ export interface ScalarParameter {
   name: string;
   type: ParameterTransform.Scalar;
   required: boolean;
+  nullable: boolean | undefined;
   assignedIndex: number;
 }
 
@@ -26,6 +27,7 @@ export interface ScalarArrayParameter {
   name: string;
   type: ParameterTransform.Spread;
   required: boolean;
+  nullable: boolean | undefined;
   assignedIndex: number | number[];
 }
 

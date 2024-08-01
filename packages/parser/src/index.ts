@@ -4,6 +4,11 @@ export {
 } from './loader/typescript/query.js';
 
 export { Param, ParamKey, ParamType } from './loader/typescript/query.js';
+export {
+  ParamType as PgPromiseParamType,
+  Param as PgPromiseParam,
+  Query as PgPromiseQueryAST,
+} from './loader/pg-promise/query.js';
 
 export {
   default as parseSQLFile,
@@ -15,3 +20,5 @@ export {
   assert,
   TransformType,
 } from './loader/sql/index.js';
+
+export { parseTextPgPromise } from './loader/pg-promise/query.js';

@@ -2,7 +2,7 @@ import { sql as sourceSql } from '@pgtyped/runtime';
 
 import type { Category } from '../customTypes.js';
 
-export type categoryArray = (Category)[];
+export type categoryArray = readonly (Category)[];
 /** 'SqlSelectFromBooksWhereIdId' parameters type */
 export interface ISqlSelectFromBooksWhereIdIdParams {
   id?: number | null | void;
