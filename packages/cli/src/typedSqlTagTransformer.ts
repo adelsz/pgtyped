@@ -49,7 +49,7 @@ export class TypedSqlTagTransformer {
     chokidar
       .watch(this.includePattern, {
         persistent: true,
-        ignored: [this.localFileName],
+        ignored: (p) => p === this.localFileName,
       })
       .on('add', cb)
       .on('change', cb)
