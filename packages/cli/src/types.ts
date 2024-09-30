@@ -11,6 +11,9 @@ import {
 import os from 'os';
 import { AliasedType, EnumType } from '@pgtyped/query/lib/type.js';
 import path from 'path';
+import { EnumConfig, EnumsAsEnumsConfig } from './config.js';
+import ts from 'typescript';
+import { pascalCase } from 'pascal-case';
 
 const String: Type = { name: 'string' };
 const Number: Type = { name: 'number' };
@@ -33,7 +36,7 @@ const Json: Type = {
 };
 const getArray = (baseType: Type): Type => ({
   name: `${baseType.name}Array`,
-  definition: `(${baseType.definition ?? baseType.name})[]`,
+  definition: `readonly (${baseType.definition ?? baseType.name})[]`,
 });
 
 export const DefaultTypeMapping = Object.freeze({
@@ -168,7 +171,7 @@ export function declareImport(
 
   if (from.startsWith('.')) {
     from = path.relative(path.dirname(decsFileName), imports[0].from);
-    if (os.platform() === "win32") {
+    if (os.platform() === 'win32') {
       // make sure we use posix separators in TS import declarations (see #533)
       from = from.split(path.sep).join(path.posix.sep);
     }
@@ -186,7 +189,7 @@ export function declareImport(
       // A type-only import can specify a default import or named bindings, but not both.
       lines.push(defaultImportDec);
     } else {
-      return `${defaultImportDec}\n`
+      return `${defaultImportDec}\n`;
     }
   }
 
@@ -262,7 +265,11 @@ export class TypeAllocator {
   }
 
   /** Lookup a database-provided type name in the allocator's map */
-  use(typeNameOrType: MappableType, scope: TypeScope): string {
+  use(
+    typeNameOrType: MappableType,
+    scope: TypeScope,
+    enumConfig: EnumsAsEnumsConfig | undefined,
+  ): string {
     let typ: Type | null = null;
 
     if (typeof typeNameOrType == 'string') {
@@ -272,7 +279,7 @@ export class TypeAllocator {
         const arrayValueType = typeNameOrType.slice(1);
         // ^ Converts _varchar -> varchar, then wraps the type in an array
 
-        const mappedType = this.use(arrayValueType, scope);
+        const mappedType = this.use(arrayValueType, scope, enumConfig);
         typ = getArray({ name: mappedType });
       } else {
         if (!this.isMappedType(typeNameOrType)) {
@@ -290,17 +297,32 @@ export class TypeAllocator {
       }
     } else {
       if (isEnumArray(typeNameOrType)) {
-        if (this.mapping[typeNameOrType.elementType.name]?.[scope]) {
+        const name = transformEnumName(
+          typeNameOrType.elementType.name,
+          enumConfig,
+        );
+        if (this.mapping[name]?.[scope]) {
           typ = getArray({
-            name: typeNameOrType.elementType.name,
-            definition:
-              this.mapping[typeNameOrType.elementType.name][scope].name,
+            name: name,
+            definition: this.mapping[name][scope].name,
           });
         } else {
-          typ = getArray(typeNameOrType.elementType);
+          typ = getArray({
+            name: transformEnumName(
+              typeNameOrType.elementType.name,
+              enumConfig,
+            ),
+            definition: typeNameOrType.elementType.definition,
+          });
         }
         // make sure the element type is used so it appears in the declaration
-        this.use(typeNameOrType.elementType, scope);
+        this.use(typeNameOrType.elementType, scope, enumConfig);
+      } else if (isEnum(typeNameOrType)) {
+        const name = transformEnumName(typeNameOrType.name, enumConfig);
+        typ = this.mapping[name]?.[scope] ?? {
+          ...typeNameOrType,
+          name: name,
+        };
       } else {
         typ = this.mapping[typeNameOrType.name]?.[scope] ?? typeNameOrType;
       }
@@ -332,15 +354,18 @@ export class TypeAllocator {
   public static typeDefinitionDeclarations(
     decsFileName: string,
     types: TypeDefinitions,
+    enumConfig: EnumConfig | undefined,
   ): string {
     return [
       Object.values(types.imports)
         .map((i) => declareImport(i, decsFileName))
         .join('\n'),
-      types.enums
-        .map((t) => declareStringUnion(t.name, t.enumValues))
-        .sort()
-        .join('\n'),
+      enumConfig?.style === 'enum'
+        ? declareEnums(types.enums, enumConfig)
+        : types.enums
+            .map((t) => declareStringUnion(t.name, t.enumValues))
+            .sort()
+            .join('\n'),
       types.aliases
         .map((t) => declareAlias(t.name, t.definition))
         .sort()
@@ -355,6 +380,64 @@ export class TypeAllocator {
     return TypeAllocator.typeDefinitionDeclarations(
       decsFileName,
       this.toTypeDefinitions(),
+      undefined,
     );
   }
 }
+
+const declareEnums = (enums: EnumType[], enumConfig: EnumsAsEnumsConfig) => {
+  const enumDeclarations = enums.map((e) => {
+    const members = [...e.enumValues]
+      .sort((a, b) => a.localeCompare(b))
+      .map((v) =>
+        ts.factory.createEnumMember(
+          transformEnumKey(v, enumConfig).replace(/[^a-zA-Z0-9_]+/g, '_'),
+          ts.factory.createStringLiteral(v),
+        ),
+      );
+
+    return ts.factory.createEnumDeclaration(
+      [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+      transformEnumName(e.name, enumConfig),
+      members,
+    );
+  });
+
+  const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
+  const sourceFile = ts.factory.createSourceFile(
+    enumDeclarations,
+    ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
+    ts.NodeFlags.None,
+  );
+  return printer.printFile(sourceFile);
+};
+
+const transformEnumName = (
+  enumName: string,
+  config: EnumsAsEnumsConfig | undefined,
+) => {
+  if (!config) {
+    return enumName;
+  }
+  const name =
+    config.dropNameSuffix && enumName.endsWith(config.dropNameSuffix)
+      ? enumName.replace(config.dropNameSuffix, '')
+      : enumName;
+  switch (config.nameCase) {
+    case 'pascal':
+      return pascalCase(name);
+    default:
+      return name;
+  }
+};
+
+const transformEnumKey = (key: string, config: EnumsAsEnumsConfig) => {
+  switch (config.keyCase) {
+    case 'upper':
+      return key.toUpperCase();
+    case 'lower':
+      return key.toLowerCase();
+    default:
+      return key;
+  }
+};

@@ -1,3 +1,4 @@
+import { TypeSource } from '@pgtyped/query';
 import { parseSQLFile, TSQueryAST } from '@pgtyped/parser';
 import { IQueryTypes } from '@pgtyped/query/lib/actions.js';
 import { ParameterTransform } from '@pgtyped/runtime';
@@ -5,24 +6,46 @@ import { pascalCase } from 'pascal-case';
 import { ParsedConfig } from './config.js';
 import {
   escapeComment,
+  generatedQueryToString,
   generateInterface,
   genTypedSQLOverloadFunctions,
-  TSTypedQuery,
   ProcessingMode,
   queryToTypeDeclarations,
+  TSTypedQuery,
+  TypePairGeneration,
 } from './generator.js';
 import { parseCode as parseTypeScriptFile } from './parseTypescript.js';
 import { TypeAllocator, TypeMapping, TypeScope } from './types.js';
 
-const partialConfig = { hungarianNotation: true } as ParsedConfig;
+const partialConfig = {
+  hungarianNotation: true,
+  interfaceComments: true,
+} as ParsedConfig;
 
-function parsedQuery(
-  mode: ProcessingMode,
-  queryString: string,
-): Parameters<typeof queryToTypeDeclarations>[0] {
+function parsedQuery(mode: ProcessingMode, queryString: string) {
   return mode === ProcessingMode.SQL
     ? { mode, ast: parseSQLFile(queryString).queries[0] }
     : { mode, ast: parseTypeScriptFile(queryString).queries[0] };
+}
+
+async function queryToTypeDeclarationsString(
+  mode: ProcessingMode,
+  queryString: string,
+  typeSource: TypeSource,
+  types: TypeAllocator,
+  config: ParsedConfig,
+) {
+  return generatedQueryToString(
+    await queryToTypeDeclarations(
+      'todo',
+      parsedQuery(mode, queryString),
+      typeSource,
+      types,
+      config,
+    ),
+    config,
+    TypePairGeneration.Include,
+  );
 }
 
 describe('query-to-interface translation', () => {
@@ -61,6 +84,7 @@ describe('query-to-interface translation', () => {
               type: ParameterTransform.Scalar,
               assignedIndex: 1,
               required: false,
+              nullable: undefined,
             },
           ],
         },
@@ -71,9 +95,11 @@ describe('query-to-interface translation', () => {
       types.use(
         { name: 'PreparedQuery', from: '@pgtyped/runtime' },
         TypeScope.Return,
+        undefined,
       );
-      const result = await queryToTypeDeclarations(
-        parsedQuery(mode, queryString),
+      const result = await queryToTypeDeclarationsString(
+        mode,
+        queryString,
         typeSource,
         types,
         partialConfig,
@@ -130,18 +156,21 @@ export interface IGetNotificationsQuery {
                   assignedIndex: 1,
                   required: false,
                   type: ParameterTransform.Scalar,
+                  nullable: undefined,
                 },
                 user_id: {
                   name: 'user_id',
                   assignedIndex: 2,
                   required: false,
                   type: ParameterTransform.Scalar,
+                  nullable: undefined,
                 },
                 type: {
                   name: 'type',
                   assignedIndex: 3,
                   required: false,
                   type: ParameterTransform.Scalar,
+                  nullable: undefined,
                 },
               },
             },
@@ -150,8 +179,9 @@ export interface IGetNotificationsQuery {
       };
       const types = new TypeAllocator(TypeMapping());
       const typeSource = async (_: any) => mockTypes;
-      const result = await queryToTypeDeclarations(
-        parsedQuery(mode, queryString),
+      const result = await queryToTypeDeclarationsString(
+        mode,
+        queryString,
         typeSource,
         types,
         partialConfig,
@@ -215,26 +245,30 @@ export interface IInsertNotificationsQuery {
               type: ParameterTransform.Scalar,
               required: false,
               assignedIndex: 1,
+              nullable: undefined,
             },
             {
               name: 'userId',
               type: ParameterTransform.Scalar,
               required: false,
               assignedIndex: 2,
+              nullable: undefined,
             },
             {
               name: 'userNote',
               type: ParameterTransform.Scalar,
               required: false,
               assignedIndex: 3,
+              nullable: undefined,
             },
           ],
         },
       };
       const types = new TypeAllocator(TypeMapping());
       const typeSource = async (_: any) => mockTypes;
-      const result = await queryToTypeDeclarations(
-        parsedQuery(mode, queryString),
+      const result = await queryToTypeDeclarationsString(
+        mode,
+        queryString,
         typeSource,
         types,
         partialConfig,
@@ -296,6 +330,7 @@ export interface IDeleteUsersQuery {
               type: ParameterTransform.Scalar,
               required: false,
               assignedIndex: 1,
+              nullable: undefined,
             },
           ],
         },
@@ -306,12 +341,17 @@ export interface IDeleteUsersQuery {
       types.use(
         { name: 'PreparedQuery', from: '@pgtyped/runtime' },
         TypeScope.Return,
+        undefined,
       );
-      const result = await queryToTypeDeclarations(
-        parsedQuery(mode, queryString),
+      const result = await queryToTypeDeclarationsString(
+        mode,
+        queryString,
         typeSource,
         types,
-        { camelCaseColumnNames: true, hungarianNotation: true } as ParsedConfig,
+        {
+          ...partialConfig,
+          camelCaseColumnNames: true,
+        } as ParsedConfig,
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/runtime';
 
@@ -375,6 +415,7 @@ export interface IGetNotificationsQuery {
               type: ParameterTransform.Spread,
               assignedIndex: 1,
               required: false,
+              nullable: undefined,
             },
           ],
         },
@@ -385,12 +426,17 @@ export interface IGetNotificationsQuery {
       types.use(
         { name: 'PreparedQuery', from: '@pgtyped/runtime' },
         TypeScope.Return,
+        undefined,
       );
-      const result = await queryToTypeDeclarations(
-        parsedQuery(mode, queryString),
+      const result = await queryToTypeDeclarationsString(
+        mode,
+        queryString,
         typeSource,
         types,
-        { camelCaseColumnNames: true, hungarianNotation: true } as ParsedConfig,
+        {
+          ...partialConfig,
+          camelCaseColumnNames: true,
+        } as ParsedConfig,
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/runtime';
 
@@ -450,6 +496,7 @@ export interface IGetNotificationsQuery {
               type: ParameterTransform.Scalar,
               required: false,
               assignedIndex: 1,
+              nullable: undefined,
             },
           ],
         },
@@ -460,9 +507,11 @@ export interface IGetNotificationsQuery {
       types.use(
         { name: 'PreparedQuery', from: '@pgtyped/runtime' },
         TypeScope.Return,
+        undefined,
       );
-      const result = await queryToTypeDeclarations(
-        parsedQuery(mode, queryString),
+      const result = await queryToTypeDeclarationsString(
+        mode,
+        queryString,
         typeSource,
         types,
         partialConfig,
@@ -525,6 +574,7 @@ export interface IGetNotificationsQuery {
               type: ParameterTransform.Scalar,
               required: false,
               assignedIndex: 1,
+              nullable: undefined,
             },
           ],
         },
@@ -535,9 +585,11 @@ export interface IGetNotificationsQuery {
       types.use(
         { name: 'PreparedQuery', from: '@pgtyped/runtime' },
         TypeScope.Return,
+        undefined,
       );
-      const result = await queryToTypeDeclarations(
-        parsedQuery(mode, queryString),
+      const result = await queryToTypeDeclarationsString(
+        mode,
+        queryString,
         typeSource,
         types,
         partialConfig,
@@ -641,20 +693,28 @@ test(`Fail on anonymous column return type`, async () => {
   types.use(
     { name: 'PreparedQuery', from: '@pgtyped/runtime' },
     TypeScope.Return,
+    undefined,
   );
-  const result = await queryToTypeDeclarations(
-    parsedQuery(ProcessingMode.SQL, queryString),
+  const result = await queryToTypeDeclarationsString(
+    ProcessingMode.SQL,
+    queryString,
     typeSource,
     types,
     partialConfig,
   );
-  const expected = `/** Query 'GetNotifications' is invalid, so its result is assigned type 'never'.
+  const expected = `/** Query 'GetNotifications' is invalid, so its result and parameters are assigned type 'unknown'.
  * Query contains an anonymous column. Consider giving the column an explicit name. */
-export type IGetNotificationsResult = never;
+export type IGetNotificationsParams = unknown;
 
-/** Query 'GetNotifications' is invalid, so its parameters are assigned type 'never'.
+/** Query 'GetNotifications' is invalid, so its result and parameters are assigned type 'unknown'.
  * Query contains an anonymous column. Consider giving the column an explicit name. */
-export type IGetNotificationsParams = never;
+export type IGetNotificationsResult = unknown;
+
+/** 'GetNotifications' query type */
+export interface IGetNotificationsQuery {
+  params: IGetNotificationsParams;
+  result: IGetNotificationsResult;
+}
 
 `;
   expect(result).toEqual(expected);
@@ -665,7 +725,7 @@ test('should generate the correct SQL overload functions', async () => {
       const getUsers = sql\`SELECT id from users\`;
       `;
   const query = parsedQuery(ProcessingMode.TS, queryStringTS);
-  const typedQuery: TSTypedQuery = {
+  const typedQuery: TSTypedQuery<TSQueryAST> = {
     mode: 'ts' as const,
     fileName: 'test.ts',
     query: {
@@ -673,7 +733,13 @@ test('should generate the correct SQL overload functions', async () => {
       ast: query.ast as TSQueryAST,
       queryTypeAlias: `I${pascalCase(query.ast.name)}Query`,
     },
-    typeDeclaration: '',
+    typeDeclaration: {
+      queryName: '',
+      tupleParams: false,
+      paramFieldTypes: [],
+      returnFieldTypes: [],
+      errorComment: null,
+    },
   };
   const result = genTypedSQLOverloadFunctions('sqlFunc', [typedQuery]);
   const expected = `export function sqlFunc(s: \`SELECT id from users\`): ReturnType<typeof sourceSql<IGetUsersQuery>>;`;

@@ -31,7 +31,8 @@
     "check": "tsc --noEmit",
     "watch": "tsc --declaration --watch --preserveWatchOutput",
     "parsegen-sql": "antlr4ts -visitor -Xexact-output-dir -o src/loader/sql/parser src/loader/sql/grammar/*.g4",
-    "parsegen-ts": "antlr4ts -visitor -Xexact-output-dir -o src/loader/typescript/parser src/loader/typescript/grammar/*.g4"
+    "parsegen-ts": "antlr4ts -visitor -Xexact-output-dir -o src/loader/typescript/parser src/loader/typescript/grammar/*.g4",
+    "parsegen-pg-promise": "antlr4ts -visitor -Xexact-output-dir -o src/loader/pg-promise/parser src/loader/pg-promise/grammar/*.g4"
   },
   "dependencies": {
     "antlr4ts": "0.5.0-alpha.4",
