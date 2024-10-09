@@ -192,7 +192,9 @@ export async function queryToTypeDeclarations(
 
       // Allow optional scalar parameters to be missing from parameters object
       const optional =
-        param.type === ParameterTransform.Scalar && !param.required;
+        param.type === ParameterTransform.Scalar &&
+        !param.required &&
+        config.optionalNullParams;
 
       paramFieldTypes.push({
         optional,
