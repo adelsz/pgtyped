@@ -149,7 +149,7 @@ if (isWatchMode && fileOverride) {
 }
 
 try {
-  chokidar.watch(configPath).on('change', () => {
+  chokidar.watch(configPath, {}).on('change', () => {
     console.log('Config file changed. Exiting.');
     process.exit();
   });
