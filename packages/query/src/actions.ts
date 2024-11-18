@@ -43,6 +43,7 @@ export async function startup(
       user: options.user,
       database: options.dbName,
       client_encoding: "'utf-8'",
+      application_name: 'pgtyped',
     };
     await queue.send(messages.startupMessage, { params: startupParams });
     const result = await queue.reply(
@@ -191,10 +192,17 @@ type TypeData =
     }
   | IParseError;
 
+// Copied from https://github.com/brianc/node-postgres/blob/860cccd53105f7bc32fed8b1de69805f0ecd12eb/lib/client.js#L285-L302
+// Ported from PostgreSQL 9.2.4 source code in src/interfaces/libpq/fe-exec.c
+// Replaced with regexp because it's 11x faster by Benjie.
+// Added `\0` escape because PostgreSQL strings cannot contain `\0` but JS strings can.
+export function escapeSqlIdentifier(str: string): string {
+  return `"${str.replace(/["\0]/g, '""')}"`;
+}
+
 /**
  * Returns the raw query type data as returned by the Describe message
  * @param query query string, can only contain proper Postgres numeric placeholders
- * @param query name, should be unique per query body
  * @param queue
  */
 export async function getTypeData(
@@ -248,6 +256,89 @@ export async function getTypeData(
   const fields = 'fields' in fieldsResult ? fieldsResult.fields : [];
   await queue.reply(messages.closeComplete);
   return { params, fields };
+}
+
+/**
+ * Checks that `EXPLAIN EXECUTE` of the prepared statement works, otherwise returns the error.
+ * @param query query string, can only contain proper Postgres numeric placeholders
+ * @param typeData type data, the result from getTypeData for this same query
+ * @param queue
+ */
+export async function explainQuery(
+  query: string,
+  typeData: TypeData,
+  queue: AsyncQueue,
+): Promise<string[] | IParseError> {
+  if ('errorCode' in typeData) return typeData;
+  const uniqueName = crypto.createHash('md5').update(query).digest('hex');
+  // Prepare query
+  await queue.send(messages.parse, {
+    name: uniqueName,
+    query,
+    dataTypes: [],
+  });
+  await queue.send(messages.flush, {});
+  const parseResult = await queue.reply(
+    messages.errorResponse,
+    messages.parseComplete,
+  );
+  try {
+    if ('fields' in parseResult) {
+      // Error case
+      const { fields: errorFields } = parseResult;
+      return {
+        errorCode: errorFields.R,
+        hint: errorFields.H,
+        message: errorFields.M,
+        position: errorFields.P,
+      };
+    }
+
+    // Explain query (will throw error on permissions failure). Leverages the
+    // fact that nullability is not checked in types at this stage, so `null` is
+    // a valid value for all types (yes, even domain types with a `non null`
+    // constraint).
+    const length = typeData.params.length;
+    const params = Array.from({ length }, () => 'null');
+    const explain = await runQuery(
+      `explain execute ${escapeSqlIdentifier(uniqueName)}${
+        params.length === 0 ? '' : ` (${params.join(', ')})`
+      };`,
+      queue,
+    );
+
+    return explain.map((e) => e[0]);
+  } catch (e: any) {
+    // This is most likely from the `runQuery` statement
+    /* Example error:
+     * ```
+     * {
+     *   type: 'ServerError',
+     *   bufferOffset: 100,
+     *   severity: 'ERROR',
+     *   message: 'permission denied for table user_emails'
+     * }
+     * ```
+     */
+    console.error('Error occurred whilst testing query:', e);
+    return {
+      errorCode: '_ERROR',
+      message: e.message,
+    };
+  } finally {
+    // Release prepared statement
+    await queue.send(messages.close, {
+      target: PreparedObjectType.Statement,
+      targetName: uniqueName,
+    });
+
+    // Flush all messages
+    await queue.send(messages.flush, {});
+
+    // Recover server state from any errors
+    await queue.send(messages.sync, {});
+    await queue.reply(messages.closeComplete);
+  }
 }
 
 enum TypeCategory {
@@ -391,6 +482,7 @@ async function getComments(
   }));
 }
 
+const doTestRuns = true;
 export async function getTypes(
   queryData: InterpolatedQuery,
   queue: AsyncQueue,
@@ -398,6 +490,13 @@ export async function getTypes(
   const typeData = await getTypeData(queryData.query, queue);
   if ('errorCode' in typeData) {
     return typeData;
+  }
+
+  if (doTestRuns) {
+    const testRunResult = await explainQuery(queryData.query, typeData, queue);
+    if (testRunResult && 'errorCode' in testRunResult) {
+      return testRunResult;
+    }
   }
 
   const { params, fields } = typeData;
