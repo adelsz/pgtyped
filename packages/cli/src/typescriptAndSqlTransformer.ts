@@ -4,7 +4,7 @@ import path from 'path';
 import { ParsedConfig, TransformConfig } from './config.js';
 import { TransformJob, WorkerPool } from './index.js';
 import { debug } from './util.js';
-import { processFileFnResult } from './worker.js';
+import { processFile, processFileFnResult } from './worker.js';
 
 // tslint:disable:no-console
 
@@ -72,7 +72,8 @@ export class TypescriptAndSqlTransformer {
       {
         fileName,
         transform: this.transform,
-      },
+        config: this.config,
+      } satisfies Parameters<typeof processFile>[0],
       'processFile',
     )) as Awaited<processFileFnResult>;
 

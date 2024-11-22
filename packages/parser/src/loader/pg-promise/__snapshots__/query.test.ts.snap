@@ -1,0 +1,347 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`array param 1`] = `
+Object {
+  "events": Array [],
+  "query": Object {
+    "name": "query",
+    "params": Array [
+      Object {
+        "location": Object {
+          "a": 33,
+          "b": 43,
+          "col": 33,
+          "line": 1,
+        },
+        "name": "ids",
+        "nullable": false,
+        "required": true,
+        "selection": Object {
+          "type": "scalar_array",
+        },
+      },
+    ],
+    "text": "select * from users where id in ($(ids:list))",
+  },
+}
+`;
+
+exports[`array param nullable 1`] = `
+Object {
+  "events": Array [],
+  "query": Object {
+    "name": "query",
+    "params": Array [
+      Object {
+        "location": Object {
+          "a": 33,
+          "b": 55,
+          "col": 33,
+          "line": 1,
+        },
+        "name": "ids",
+        "nullable": true,
+        "required": true,
+        "selection": Object {
+          "type": "scalar_array",
+        },
+      },
+    ],
+    "text": "select * from users where id in ($(ids:list)/*nullable*/)",
+  },
+}
+`;
+
+exports[`identifier param 1`] = `
+Object {
+  "events": Array [],
+  "query": Object {
+    "name": "query",
+    "params": Array [
+      Object {
+        "location": Object {
+          "a": 14,
+          "b": 26,
+          "col": 14,
+          "line": 1,
+        },
+        "name": "table",
+        "nullable": false,
+        "required": true,
+        "selection": Object {
+          "type": "identifier",
+        },
+      },
+    ],
+    "text": "select * from $(table:name)",
+  },
+}
+`;
+
+exports[`identifier param short 1`] = `
+Object {
+  "events": Array [],
+  "query": Object {
+    "name": "query",
+    "params": Array [
+      Object {
+        "location": Object {
+          "a": 14,
+          "b": 22,
+          "col": 14,
+          "line": 1,
+        },
+        "name": "table",
+        "nullable": false,
+        "required": true,
+        "selection": Object {
+          "type": "identifier",
+        },
+      },
+    ],
+    "text": "select * from $(table~)",
+  },
+}
+`;
+
+exports[`ignore line comments 1`] = `
+Object {
+  "events": Array [],
+  "query": Object {
+    "name": "query",
+    "params": Array [
+      Object {
+        "location": Object {
+          "a": 34,
+          "b": 44,
+          "col": 33,
+          "line": 2,
+        },
+        "name": "ids",
+        "nullable": false,
+        "required": true,
+        "selection": Object {
+          "type": "scalar_array",
+        },
+      },
+    ],
+    "text": "
+select * from users where id in ($(ids:list))
+-- this should be ignored: $(foo)
+-- also this: 'hi hey\\"
+-- and this: åäöÅÄÖ",
+  },
+}
+`;
+
+exports[`raw param 1`] = `
+Object {
+  "events": Array [],
+  "query": Object {
+    "name": "query",
+    "params": Array [
+      Object {
+        "location": Object {
+          "a": 14,
+          "b": 25,
+          "col": 14,
+          "line": 1,
+        },
+        "name": "table",
+        "nullable": false,
+        "required": true,
+        "selection": Object {
+          "type": "raw",
+        },
+      },
+    ],
+    "text": "select * from $(table:raw)",
+  },
+}
+`;
+
+exports[`raw param short 1`] = `
+Object {
+  "events": Array [],
+  "query": Object {
+    "name": "query",
+    "params": Array [
+      Object {
+        "location": Object {
+          "a": 14,
+          "b": 22,
+          "col": 14,
+          "line": 1,
+        },
+        "name": "table",
+        "nullable": false,
+        "required": true,
+        "selection": Object {
+          "type": "raw",
+        },
+      },
+    ],
+    "text": "select * from $(table^)",
+  },
+}
+`;
+
+exports[`scalar index param 1`] = `
+Object {
+  "events": Array [],
+  "query": Object {
+    "name": "query",
+    "params": Array [
+      Object {
+        "location": Object {
+          "a": 31,
+          "b": 32,
+          "col": 31,
+          "line": 1,
+        },
+        "name": "1",
+        "nullable": false,
+        "required": true,
+        "selection": Object {
+          "type": "scalar",
+        },
+      },
+      Object {
+        "location": Object {
+          "a": 46,
+          "b": 47,
+          "col": 46,
+          "line": 1,
+        },
+        "name": "2",
+        "nullable": false,
+        "required": true,
+        "selection": Object {
+          "type": "scalar",
+        },
+      },
+    ],
+    "text": "select * from users where id = $1 and title = $2",
+  },
+}
+`;
+
+exports[`scalar index param nullable 1`] = `
+Object {
+  "events": Array [],
+  "query": Object {
+    "name": "query",
+    "params": Array [
+      Object {
+        "location": Object {
+          "a": 31,
+          "b": 32,
+          "col": 31,
+          "line": 1,
+        },
+        "name": "1",
+        "nullable": false,
+        "required": true,
+        "selection": Object {
+          "type": "scalar",
+        },
+      },
+      Object {
+        "location": Object {
+          "a": 46,
+          "b": 59,
+          "col": 46,
+          "line": 1,
+        },
+        "name": "2",
+        "nullable": true,
+        "required": true,
+        "selection": Object {
+          "type": "scalar",
+        },
+      },
+    ],
+    "text": "select * from users where id = $1 and title = $2/*nullable*/",
+  },
+}
+`;
+
+exports[`scalar named param 1`] = `
+Object {
+  "events": Array [],
+  "query": Object {
+    "name": "query",
+    "params": Array [
+      Object {
+        "location": Object {
+          "a": 31,
+          "b": 35,
+          "col": 31,
+          "line": 1,
+        },
+        "name": "id",
+        "nullable": false,
+        "required": true,
+        "selection": Object {
+          "type": "scalar",
+        },
+      },
+      Object {
+        "location": Object {
+          "a": 49,
+          "b": 56,
+          "col": 49,
+          "line": 1,
+        },
+        "name": "title",
+        "nullable": false,
+        "required": true,
+        "selection": Object {
+          "type": "scalar",
+        },
+      },
+    ],
+    "text": "select * from users where id = $(id) and title = $(title)",
+  },
+}
+`;
+
+exports[`scalar named param nullable 1`] = `
+Object {
+  "events": Array [],
+  "query": Object {
+    "name": "query",
+    "params": Array [
+      Object {
+        "location": Object {
+          "a": 31,
+          "b": 47,
+          "col": 31,
+          "line": 1,
+        },
+        "name": "id",
+        "nullable": true,
+        "required": true,
+        "selection": Object {
+          "type": "scalar",
+        },
+      },
+      Object {
+        "location": Object {
+          "a": 61,
+          "b": 68,
+          "col": 61,
+          "line": 1,
+        },
+        "name": "title",
+        "nullable": false,
+        "required": true,
+        "selection": Object {
+          "type": "scalar",
+        },
+      },
+    ],
+    "text": "select * from users where id = $(id)/*nullable*/ and title = $(title)",
+  },
+}
+`;
