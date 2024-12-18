@@ -29,6 +29,7 @@ export class WorkerPool {
       filename: new URL('./worker.js', import.meta.url).href,
       maxThreads: config.maxWorkerThreads,
       workerData: config,
+      recordTiming: false,
     });
     console.log(`Using a pool of ${this.pool.threads.length} threads.`);
   }
