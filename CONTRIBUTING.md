@@ -62,7 +62,7 @@ The `packages/example` project is an end-to-end test suite for pgTyped. It conta
 The packages `npm test` runs the following command:
 
 ```bash
-docker-compose run build && docker-compose run test && docker-compose run test-cjs
+docker compose run build && docker compose run test && docker compose run test-cjs
 ```
 
 As you can see it runs the `build` target, then runs the `test` target twice, once with the `esm` module format and once with the `cjs` module format:
