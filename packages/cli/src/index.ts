@@ -5,7 +5,7 @@ import { AsyncQueue } from '@pgtyped/wire';
 import chokidar from 'chokidar';
 import nun from 'nunjucks';
 
-import PiscinaPool from 'piscina';
+import { Piscina as PiscinaPool } from 'piscina';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { parseConfig, ParsedConfig, TransformConfig } from './config.js';
@@ -150,7 +150,7 @@ if (isWatchMode && fileOverride) {
 }
 
 try {
-  chokidar.watch(configPath).on('change', () => {
+  chokidar.watch(configPath, {}).on('change', () => {
     console.log('Config file changed. Exiting.');
     process.exit();
   });

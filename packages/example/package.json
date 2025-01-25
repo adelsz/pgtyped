@@ -15,7 +15,7 @@
     "node": ">=14.16"
   },
   "scripts": {
-    "test": "docker-compose run build && docker-compose run test && docker-compose run test-cjs",
+    "test": "docker compose run build && docker compose run test && docker compose run test-cjs",
     "typegen": "pgtyped -c config.json",
     "build": "echo 'No build step required. Use npm test instead'",
     "watch": "echo 'No build step required. Use npm test instead'",
