@@ -25,11 +25,11 @@
     "@pgtyped/cli": "^2.3.0",
     "@pgtyped/query": "^2.3.0",
     "expect": "29.7.0",
-    "pg": "8.13.0",
+    "pg": "8.13.1",
     "typescript": "4.9.4"
   },
   "devDependencies": {
-    "@types/pg": "8.11.10",
+    "@types/pg": "8.11.11",
     "ts-node": "10.9.2"
   }
 }
