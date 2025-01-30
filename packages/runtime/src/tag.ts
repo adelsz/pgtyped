@@ -8,7 +8,10 @@ export interface ICursor<T> {
 }
 
 export interface IDatabaseConnection {
-  query: (query: string, bindings: any[]) => Promise<{ rows: any[] }>;
+  query: (
+    query: string,
+    bindings: any[],
+  ) => Promise<{ rows: any[]; rowCount: number }>;
   stream?: (query: string, bindings: any[]) => ICursor<any[]>;
 }
 
@@ -95,6 +98,11 @@ export class PreparedQuery<TParamType, TResultType> {
     dbConnection: IDatabaseConnection,
   ) => Promise<Array<TResultType>>;
 
+  public runWithCounts: (
+    params: TParamType,
+    dbConnection: IDatabaseConnection,
+  ) => Promise<{ result: Array<TResultType>; rowCount: number }>;
+
   public stream: (
     params: TParamType,
     dbConnection: IDatabaseConnection,
@@ -111,6 +119,17 @@ export class PreparedQuery<TParamType, TResultType> {
       );
       const result = await connection.query(processedQuery, bindings);
       return mapQueryResultRows(result.rows);
+    };
+    this.runWithCounts = async (params, connection) => {
+      const { query: processedQuery, bindings } = processSQLQueryIR(
+        this.queryIR,
+        params as any,
+      );
+      const result = await connection.query(processedQuery, bindings);
+      return {
+        result: mapQueryResultRows(result.rows),
+        rowCount: result.rowCount,
+      };
     };
     this.stream = (params, connection) => {
       const { query: processedQuery, bindings } = processSQLQueryIR(
