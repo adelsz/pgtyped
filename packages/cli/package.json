@@ -1,6 +1,6 @@
 {
   "name": "@pgtyped/cli",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -34,9 +34,9 @@
     "pgtyped": "lib/index.js"
   },
   "dependencies": {
-    "@pgtyped/parser": "^2.4.1",
-    "@pgtyped/query": "^2.4.1",
-    "@pgtyped/wire": "^2.4.1",
+    "@pgtyped/parser": "^2.4.2",
+    "@pgtyped/query": "^2.4.2",
+    "@pgtyped/wire": "^2.4.2",
     "camel-case": "^5.0.0",
     "chalk": "^4.0.0",
     "chokidar": "^4.0.0",
