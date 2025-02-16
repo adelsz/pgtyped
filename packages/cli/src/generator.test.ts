@@ -339,6 +339,82 @@ export interface IGetNotificationsQuery {
       expect(result).toEqual(expected);
     });
 
+    test(`Null parameters generation as required (${mode})`, async () => {
+      const queryStringSQL = `
+    /* @name GetNotifications */
+    SELECT payload, type FROM notifications WHERE id = :userId;
+    `;
+      const queryStringTS = `
+      const getNotifications = sql\`SELECT payload, type FROM notifications WHERE id = $userId\`;
+      `;
+      const queryString =
+        mode === ProcessingMode.SQL ? queryStringSQL : queryStringTS;
+      const mockTypes: IQueryTypes = {
+        returnTypes: [
+          {
+            returnName: 'payload',
+            columnName: 'payload',
+            type: 'json',
+            nullable: false,
+          },
+          {
+            returnName: 'type',
+            columnName: 'type',
+            type: { name: 'PayloadType', enumValues: ['message', 'dynamite'] },
+            nullable: false,
+          },
+        ],
+        paramMetadata: {
+          params: ['uuid'],
+          mapping: [
+            {
+              name: 'userId',
+              type: ParameterTransform.Scalar,
+              required: false,
+              assignedIndex: 1,
+            },
+          ],
+        },
+      };
+      const typeSource = async (_: any) => mockTypes;
+      const types = new TypeAllocator(TypeMapping());
+      // Test out imports
+      types.use(
+        { name: 'PreparedQuery', from: '@pgtyped/runtime' },
+        TypeScope.Return,
+      );
+      const result = await queryToTypeDeclarations(
+        parsedQuery(mode, queryString),
+        typeSource,
+        types,
+        { optionalNullParams: false, hungarianNotation: true } as ParsedConfig,
+      );
+      const expectedTypes = `import { PreparedQuery } from '@pgtyped/runtime';
+
+export type PayloadType = 'dynamite' | 'message';
+
+export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };\n`;
+
+      expect(types.declaration('file.ts')).toEqual(expectedTypes);
+      const expected = `/** 'GetNotifications' parameters type */
+export interface IGetNotificationsParams {
+  userId: string | null | void;
+}
+
+/** 'GetNotifications' return type */
+export interface IGetNotificationsResult {
+  payload: Json;
+  type: PayloadType;
+}
+
+/** 'GetNotifications' query type */
+export interface IGetNotificationsQuery {
+  params: IGetNotificationsParams;
+  result: IGetNotificationsResult;
+}\n\n`;
+      expect(result).toEqual(expected);
+    });
+
     test(`readonly array params (${mode})`, async () => {
       const queryStringSQL = `
     /*
