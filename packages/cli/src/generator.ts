@@ -398,7 +398,7 @@ export function generateDeclarations(typeDecs: TypedQuery[]): string {
     typeDeclarations +=
       `export const ${typeDec.query.name} = ` +
       `new PreparedQuery<${typeDec.query.paramTypeAlias},${typeDec.query.returnTypeAlias}>` +
-      `(${typeDec.query.name}IR);\n\n\n`;
+      `(${JSON.stringify(typeDec.query.name)},${typeDec.query.name}IR);\n\n\n`;
   }
   return typeDeclarations;
 }
