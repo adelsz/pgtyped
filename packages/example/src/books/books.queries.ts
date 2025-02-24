@@ -41,7 +41,7 @@ const findBookByIdIR: any = {"usedParamSet":{"id":true},"params":[{"name":"id","
  * SELECT * FROM books WHERE id = :id
  * ```
  */
-export const findBookById = new PreparedQuery<IFindBookByIdParams,IFindBookByIdResult>(findBookByIdIR);
+export const findBookById = new PreparedQuery<IFindBookByIdParams,IFindBookByIdResult>("findBookById",findBookByIdIR);
 
 
 /** 'FindBookByCategory' parameters type */
@@ -72,7 +72,7 @@ const findBookByCategoryIR: any = {"usedParamSet":{"category":true},"params":[{"
  * SELECT * FROM books WHERE :category = ANY(categories)
  * ```
  */
-export const findBookByCategory = new PreparedQuery<IFindBookByCategoryParams,IFindBookByCategoryResult>(findBookByCategoryIR);
+export const findBookByCategory = new PreparedQuery<IFindBookByCategoryParams,IFindBookByCategoryResult>("findBookByCategory",findBookByCategoryIR);
 
 
 /** 'FindBookNameOrRank' parameters type */
@@ -103,7 +103,7 @@ const findBookNameOrRankIR: any = {"usedParamSet":{"name":true,"rank":true},"par
  * WHERE (name = :name OR rank = :rank)
  * ```
  */
-export const findBookNameOrRank = new PreparedQuery<IFindBookNameOrRankParams,IFindBookNameOrRankResult>(findBookNameOrRankIR);
+export const findBookNameOrRank = new PreparedQuery<IFindBookNameOrRankParams,IFindBookNameOrRankResult>("findBookNameOrRank",findBookNameOrRankIR);
 
 
 /** 'FindBookUnicode' parameters type */
@@ -132,7 +132,7 @@ const findBookUnicodeIR: any = {"usedParamSet":{},"params":[],"statement":"SELEC
  * SELECT * FROM books WHERE name = 'שקל'
  * ```
  */
-export const findBookUnicode = new PreparedQuery<IFindBookUnicodeParams,IFindBookUnicodeResult>(findBookUnicodeIR);
+export const findBookUnicode = new PreparedQuery<IFindBookUnicodeParams,IFindBookUnicodeResult>("findBookUnicode",findBookUnicodeIR);
 
 
 /** 'InsertBooks' parameters type */
@@ -165,7 +165,7 @@ const insertBooksIR: any = {"usedParamSet":{"books":true},"params":[{"name":"boo
  * VALUES :books RETURNING id as book_id
  * ```
  */
-export const insertBooks = new PreparedQuery<IInsertBooksParams,IInsertBooksResult>(insertBooksIR);
+export const insertBooks = new PreparedQuery<IInsertBooksParams,IInsertBooksResult>("insertBooks",insertBooksIR);
 
 
 /** 'UpdateBooksCustom' parameters type */
@@ -199,7 +199,7 @@ const updateBooksCustomIR: any = {"usedParamSet":{"rank":true,"id":true},"params
  * WHERE id = :id!
  * ```
  */
-export const updateBooksCustom = new PreparedQuery<IUpdateBooksCustomParams,IUpdateBooksCustomResult>(updateBooksCustomIR);
+export const updateBooksCustom = new PreparedQuery<IUpdateBooksCustomParams,IUpdateBooksCustomResult>("updateBooksCustom",updateBooksCustomIR);
 
 
 /** 'UpdateBooks' parameters type */
@@ -231,7 +231,7 @@ const updateBooksIR: any = {"usedParamSet":{"name":true,"rank":true,"id":true},"
  * WHERE id = :id!
  * ```
  */
-export const updateBooks = new PreparedQuery<IUpdateBooksParams,IUpdateBooksResult>(updateBooksIR);
+export const updateBooks = new PreparedQuery<IUpdateBooksParams,IUpdateBooksResult>("updateBooks",updateBooksIR);
 
 
 /** 'UpdateBooksRankNotNull' parameters type */
@@ -262,7 +262,7 @@ const updateBooksRankNotNullIR: any = {"usedParamSet":{"rank":true,"name":true,"
  * WHERE id = :id!
  * ```
  */
-export const updateBooksRankNotNull = new PreparedQuery<IUpdateBooksRankNotNullParams,IUpdateBooksRankNotNullResult>(updateBooksRankNotNullIR);
+export const updateBooksRankNotNull = new PreparedQuery<IUpdateBooksRankNotNullParams,IUpdateBooksRankNotNullResult>("updateBooksRankNotNull",updateBooksRankNotNullIR);
 
 
 /** 'GetBooksByAuthorName' parameters type */
@@ -295,7 +295,7 @@ const getBooksByAuthorNameIR: any = {"usedParamSet":{"authorName":true},"params"
  * WHERE a.first_name || ' ' || a.last_name = :authorName!
  * ```
  */
-export const getBooksByAuthorName = new PreparedQuery<IGetBooksByAuthorNameParams,IGetBooksByAuthorNameResult>(getBooksByAuthorNameIR);
+export const getBooksByAuthorName = new PreparedQuery<IGetBooksByAuthorNameParams,IGetBooksByAuthorNameResult>("getBooksByAuthorName",getBooksByAuthorNameIR);
 
 
 /** 'AggregateEmailsAndTest' parameters type */
@@ -323,7 +323,7 @@ const aggregateEmailsAndTestIR: any = {"usedParamSet":{"testAges":true},"params"
  * SELECT array_agg(email) as "emails!", array_agg(age) = :testAges as ageTest FROM users
  * ```
  */
-export const aggregateEmailsAndTest = new PreparedQuery<IAggregateEmailsAndTestParams,IAggregateEmailsAndTestResult>(aggregateEmailsAndTestIR);
+export const aggregateEmailsAndTest = new PreparedQuery<IAggregateEmailsAndTestParams,IAggregateEmailsAndTestResult>("aggregateEmailsAndTest",aggregateEmailsAndTestIR);
 
 
 /** 'GetBooks' parameters type */
@@ -349,7 +349,7 @@ const getBooksIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT id, n
  * SELECT id, name as "name!" FROM books
  * ```
  */
-export const getBooks = new PreparedQuery<IGetBooksParams,IGetBooksResult>(getBooksIR);
+export const getBooks = new PreparedQuery<IGetBooksParams,IGetBooksResult>("getBooks",getBooksIR);
 
 
 /** 'CountBooks' parameters type */
@@ -374,7 +374,7 @@ const countBooksIR: any = {"usedParamSet":{},"params":[],"statement":"SELECT cou
  * SELECT count(*) as book_count FROM books
  * ```
  */
-export const countBooks = new PreparedQuery<ICountBooksParams,ICountBooksResult>(countBooksIR);
+export const countBooks = new PreparedQuery<ICountBooksParams,ICountBooksResult>("countBooks",countBooksIR);
 
 
 /** 'GetBookCountries' parameters type */
@@ -400,6 +400,6 @@ const getBookCountriesIR: any = {"usedParamSet":{},"params":[],"statement":"SELE
  * SELECT * FROM book_country
  * ```
  */
-export const getBookCountries = new PreparedQuery<IGetBookCountriesParams,IGetBookCountriesResult>(getBookCountriesIR);
+export const getBookCountries = new PreparedQuery<IGetBookCountriesParams,IGetBookCountriesResult>("getBookCountries",getBookCountriesIR);
 
 

@@ -28,7 +28,7 @@ const getAllCommentsIR: any = {"usedParamSet":{"id":true},"params":[{"name":"id"
  * SELECT * FROM book_comments WHERE id = :id! OR user_id = :id                                      
  * ```
  */
-export const getAllComments = new PreparedQuery<IGetAllCommentsParams,IGetAllCommentsResult>(getAllCommentsIR);
+export const getAllComments = new PreparedQuery<IGetAllCommentsParams,IGetAllCommentsResult>("getAllComments",getAllCommentsIR);
 
 
 /** 'GetAllCommentsByIds' parameters type */
@@ -58,7 +58,7 @@ const getAllCommentsByIdsIR: any = {"usedParamSet":{"ids":true},"params":[{"name
  * SELECT * FROM book_comments WHERE id in :ids AND id in :ids!
  * ```
  */
-export const getAllCommentsByIds = new PreparedQuery<IGetAllCommentsByIdsParams,IGetAllCommentsByIdsResult>(getAllCommentsByIdsIR);
+export const getAllCommentsByIds = new PreparedQuery<IGetAllCommentsByIdsParams,IGetAllCommentsByIdsResult>("getAllCommentsByIds",getAllCommentsByIdsIR);
 
 
 /** 'InsertComment' parameters type */
@@ -93,7 +93,7 @@ const insertCommentIR: any = {"usedParamSet":{"comments":true},"params":[{"name"
  * VALUES :comments RETURNING *
  * ```
  */
-export const insertComment = new PreparedQuery<IInsertCommentParams,IInsertCommentResult>(insertCommentIR);
+export const insertComment = new PreparedQuery<IInsertCommentParams,IInsertCommentResult>("insertComment",insertCommentIR);
 
 
 /** 'SelectExistsTest' parameters type */
@@ -118,6 +118,6 @@ const selectExistsTestIR: any = {"usedParamSet":{},"params":[],"statement":"SELE
  * SELECT EXISTS ( SELECT 1 WHERE true ) AS "isTransactionExists"
  * ```
  */
-export const selectExistsTest = new PreparedQuery<ISelectExistsTestParams,ISelectExistsTestResult>(selectExistsTestIR);
+export const selectExistsTest = new PreparedQuery<ISelectExistsTestParams,ISelectExistsTestResult>("selectExistsTest",selectExistsTestIR);
 
 
