@@ -29,7 +29,8 @@
     "typescript": "5.0.4"
   },
   "dependencies": {
-    "io-ts": "^2.1.2"
+    "io-ts": "^2.1.2",
+    "minimatch": "^10.0.1"
   },
   "engines": {
     "node": ">=18"
