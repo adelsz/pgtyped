@@ -32,7 +32,7 @@ export class TypescriptAndSqlTransformer {
       .watch(this.config.srcDir, {
         persistent: true,
         ignored: (fileName, stats) =>
-          !!stats?.isFile() && !minimatch(fileName, this.transform.include),
+          !stats?.isFile() || !minimatch(fileName, this.transform.include),
       })
       .on('add', cb)
       .on('change', cb);
