@@ -59,7 +59,7 @@ A query can also contain multiple expansions if needed:
 SELECT FROM users WHERE age in :ages or name in :names;
 ```
 
-At the moment, PgTyped supports three expansion types:
+At the moment, PgTyped supports four expansion types:
 
 ### Array spread
 
@@ -89,6 +89,36 @@ selectSomeUsers.run(parameters, connection);
 ```sql title="Resulting query:"
 -- Parameters: [25, 30, 35]
 SELECT FROM users WHERE age in ($1, $2, $3);
+```
+
+### Array literal
+
+The array literal expansion allows to pass an array of scalars as parameter.
+
+#### Syntax:
+
+```
+@param paramName -> ARRAY[...]
+```
+
+#### Example:
+
+```sql title="Query definition:"
+/*
+  @name selectFunctionResult
+  @param values -> ARRAY[...]
+*/
+SELECT FROM my_function(:values);
+```
+
+```ts title="Execution:"
+const parameters = { values: ['a', 'b', 'c'] };
+selectSomeUsers.run(parameters, connection);
+```
+
+```sql title="Resulting query:"
+-- Parameters: ['a', 'b', 'c']
+SELECT FROM my_function(ARRAY[$1, $2, $3]);
 ```
 
 ### Object pick
