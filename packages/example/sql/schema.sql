@@ -1,3 +1,4 @@
+BEGIN;
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   email TEXT NOT NULL,
@@ -35,12 +36,20 @@ CREATE TABLE books (
   categories category[]
 );
 
+CREATE TABLE audio_books (
+                             id SERIAL PRIMARY KEY,
+                             text_book_id INTEGER REFERENCES books,
+                             duration INTERVAL NOT NULL
+);
+
 CREATE TABLE book_comments (
   id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users,
   book_id INTEGER REFERENCES books,
   body TEXT
 );
+
+
 
 INSERT INTO users (email, user_name, first_name, last_name, age)
 VALUES ('alex.doe@example.com', 'alexd', 'Alex', 'Doe', 35),
@@ -78,6 +87,12 @@ INSERT INTO book_comments (user_id, book_id, body)
 VALUES (1, 1, 'Fantastic read, recommend it!'),
        (1, 2, 'Did not like it, expected much more...');
 
+INSERT INTO audio_books (text_book_id, duration)
+VALUES (1, '01:23:45'),
+       (2, '02:34:56'),
+       (3, '03:45:57'),
+       (4, '04:56:48');
+
 CREATE TYPE "Iso31661Alpha2" AS ENUM (
   'AD', 'AE', 'AF', 'AG', 'AI', 'AL', 'AM', 'AO', 'AQ', 'AR', 'AS', 'AT', 'AU', 'AW', 'AX', 'AZ', 'BA', 'BB', 'BD', 'BE', 'BF',
   'BG', 'BH', 'BI', 'BJ', 'BL', 'BM', 'BN', 'BO', 'BQ', 'BR', 'BS', 'BT', 'BV', 'BW', 'BY', 'BZ', 'CA', 'CC', 'CD', 'CF', 'CG',
@@ -101,3 +116,5 @@ CREATE TABLE book_country (
 
 INSERT INTO book_country (country)
 VALUES ('CZ'), ('DE');
+
+COMMIT;
