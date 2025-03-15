@@ -172,6 +172,24 @@ export async function queryToTypeDeclarations(
     });
   });
 
+  const formatArrayType = (type: string): string => {
+    if (config.nonEmptyArrayParams) {
+      // Only allow accepting an non-empty array. This prevents runtime errors.
+      // For example, the following query will throw a runtime error if an empty
+      // array is passed:
+      //   /*
+      //     @name GetNotifications
+      //     @param userIds -> (...)
+      //   */
+      //   SELECT * FROM notifications WHERE id in :userIds!
+      // As the query at runtime becomes:
+      //   SELECT * FROM notifications WHERE id in ()
+      // Which is a syntax error for postgres.
+      return `readonly [${type}, ...(${type})[]]`;
+    }
+    return `readonly (${type})[]`;
+  };
+
   const { params } = paramMetadata;
   for (const param of paramMetadata.mapping) {
     if (
@@ -197,7 +215,7 @@ export async function queryToTypeDeclarations(
       paramFieldTypes.push({
         optional,
         fieldName: param.name,
-        fieldType: isArray ? `readonly (${tsTypeName})[]` : tsTypeName,
+        fieldType: isArray ? formatArrayType(tsTypeName) : tsTypeName,
       });
     } else {
       const isArray = param.type === ParameterTransform.PickSpread;
@@ -214,7 +232,7 @@ export async function queryToTypeDeclarations(
         .join(',\n');
       fieldType = `{\n${fieldType}\n  }`;
       if (isArray) {
-        fieldType = `readonly (${fieldType})[]`;
+        fieldType = formatArrayType(fieldType);
       }
       paramFieldTypes.push({
         fieldName: param.name,
