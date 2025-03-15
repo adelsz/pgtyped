@@ -5,6 +5,7 @@ import { ParsedConfig, TransformConfig } from './config.js';
 import { TransformJob, WorkerPool } from './index.js';
 import { debug } from './util.js';
 import { processFileFnResult } from './worker.js';
+import { minimatch } from 'minimatch';
 
 // tslint:disable:no-console
 
@@ -28,8 +29,10 @@ export class TypescriptAndSqlTransformer {
     };
 
     chokidar
-      .watch(this.includePattern, {
+      .watch(this.config.srcDir, {
         persistent: true,
+        ignored: (fileName, stats) =>
+          !!stats?.isFile() && !minimatch(fileName, this.transform.include),
       })
       .on('add', cb)
       .on('change', cb);

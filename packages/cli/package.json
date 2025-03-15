@@ -46,6 +46,7 @@
     "glob": "^11.0.0",
     "io-ts": "^2.2.20",
     "io-ts-reporters": "^2.0.1",
+    "minimatch": "^10.0.1",
     "nunjucks": "3.2.4",
     "pascal-case": "^4.0.0",
     "piscina": "^4.0.0",
