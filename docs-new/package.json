@@ -9,11 +9,11 @@
     "deploy": "docusaurus deploy"
   },
   "dependencies": {
-    "@docusaurus/core": "2.3.1",
-    "@docusaurus/preset-classic": "2.3.1",
+    "@docusaurus/core": "^3.7.0",
+    "@docusaurus/preset-classic": "^3.7.0",
     "classnames": "2.5.1",
-    "react": "^17.0.0",
-    "react-dom": "^17.0.0"
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "browserslist": {
     "production": [
