@@ -1,0 +1,34 @@
+import { ATN } from "antlr4ts/atn/ATN.js";
+import { CharStream } from "antlr4ts/CharStream.js";
+import { Lexer } from "antlr4ts/Lexer.js";
+import { Vocabulary } from "antlr4ts/Vocabulary.js";
+export declare class QueryLexer extends Lexer {
+    static readonly ID = 1;
+    static readonly SINGULAR_PARAM_MARK = 2;
+    static readonly PLURAL_PARAM_MARK = 3;
+    static readonly COMMA = 4;
+    static readonly OB = 5;
+    static readonly CB = 6;
+    static readonly WORD = 7;
+    static readonly REQUIRED_MARK = 8;
+    static readonly SPECIAL = 9;
+    static readonly EOF_STATEMENT = 10;
+    static readonly WSL = 11;
+    static readonly STRING = 12;
+    static readonly channelNames: string[];
+    static readonly modeNames: string[];
+    static readonly ruleNames: string[];
+    private static readonly _LITERAL_NAMES;
+    private static readonly _SYMBOLIC_NAMES;
+    static readonly VOCABULARY: Vocabulary;
+    get vocabulary(): Vocabulary;
+    constructor(input: CharStream);
+    get grammarFileName(): string;
+    get ruleNames(): string[];
+    get serializedATN(): string;
+    get channelNames(): string[];
+    get modeNames(): string[];
+    static readonly _serializedATN: string;
+    static __ATN: ATN;
+    static get _ATN(): ATN;
+}
