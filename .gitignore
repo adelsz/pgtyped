@@ -2,9 +2,6 @@ node_modules/*
 .idea/
 
 # Ignore build files
-packages/**/*.js
-packages/**/*.d.ts
-packages/**/*.js.map
 *.java
 *.interp
 *.tokens
