@@ -58,6 +58,7 @@ const configParser = t.type({
   camelCaseColumnNames: t.union([t.boolean, t.undefined]),
   hungarianNotation: t.union([t.boolean, t.undefined]),
   nonEmptyArrayParams: t.union([t.boolean, t.undefined]),
+  optionalNullParams: t.union([t.boolean, t.undefined]),
   dbUrl: t.union([t.string, t.undefined]),
   db: t.union([
     t.type({
@@ -101,6 +102,7 @@ export interface ParsedConfig {
   camelCaseColumnNames: boolean;
   hungarianNotation: boolean;
   nonEmptyArrayParams: boolean;
+  optionalNullParams: boolean;
   transforms: IConfig['transforms'];
   srcDir: IConfig['srcDir'];
   typesOverrides: Record<string, Partial<TypeDefinition>>;
@@ -201,6 +203,7 @@ export function parseConfig(
     camelCaseColumnNames,
     hungarianNotation,
     nonEmptyArrayParams,
+    optionalNullParams,
     typesOverrides,
   } = configObject as IConfig;
 
@@ -246,6 +249,7 @@ export function parseConfig(
     camelCaseColumnNames: camelCaseColumnNames ?? false,
     hungarianNotation: hungarianNotation ?? true,
     nonEmptyArrayParams: nonEmptyArrayParams ?? false,
+    optionalNullParams: optionalNullParams ?? true,
     typesOverrides: parsedTypesOverrides,
     maxWorkerThreads,
   };
