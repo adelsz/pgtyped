@@ -802,6 +802,73 @@ export interface IGetNotificationsQuery {
 }\n\n`;
       expect(result).toEqual(expected);
     });
+
+    test(`Unnested ::text[] input parameters (${mode})`, async () => {
+      const queryStringSQL = `/* @name getNullStringUnnestedValues */
+SELECT * FROM UNNEST(:nullStringUnnestedValues!::text[]);`;
+      const queryStringTS = `const getNullStringUnnestedValues = sql\`SELECT * FROM UNNEST($nullStringUnnestedValues::text[])\``;
+
+      const queryString =
+        mode === ProcessingMode.SQL ? queryStringSQL : queryStringTS;
+
+      const mockTypes: IQueryTypes = {
+        returnTypes: [
+          {
+            columnName: 'unnest',
+            returnName: 'unnest',
+            type: 'text',
+          },
+        ],
+        paramMetadata: {
+          params: ['_text'],
+          mapping: [
+            {
+              name: 'nullStringUnnestedValues',
+              type: ParameterTransform.Scalar,
+              required: true,
+              assignedIndex: 1,
+            },
+          ],
+        },
+      };
+
+      const typeSource = async (_: any) => mockTypes;
+      const types = new TypeAllocator(TypeMapping());
+
+      // Test out imports
+      types.use(
+        { name: 'PreparedQuery', from: '@pgtyped/runtime' },
+        TypeScope.Return,
+      );
+
+      const result = await queryToTypeDeclarations(
+        parsedQuery(mode, queryString),
+        typeSource,
+        types,
+        { hungarianNotation: true } as ParsedConfig,
+      );
+
+      const expectedTypes = `import { PreparedQuery } from '@pgtyped/runtime';
+
+export type NullStringArray = (null | string)[];\n`;
+      expect(types.declaration('file.ts')).toEqual(expectedTypes);
+      const expected = `/** 'GetNullStringUnnestedValues' parameters type */
+export interface IGetNullStringUnnestedValuesParams {
+  nullStringUnnestedValues: NullStringArray;
+}
+
+/** 'GetNullStringUnnestedValues' return type */
+export interface IGetNullStringUnnestedValuesResult {
+  unnest: string | null;
+}
+
+/** 'GetNullStringUnnestedValues' query type */
+export interface IGetNullStringUnnestedValuesQuery {
+  params: IGetNullStringUnnestedValuesParams;
+  result: IGetNullStringUnnestedValuesResult;
+}\n\n`;
+      expect(result).toEqual(expected);
+    });
   });
 });
 
