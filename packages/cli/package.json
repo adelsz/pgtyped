@@ -52,7 +52,7 @@
     "piscina": "^5.0.0",
     "tinypool": "^1.0.0",
     "ts-parse-database-url": "^1.0.3",
-    "yargs": "^17.0.1"
+    "yargs": "^18.0.0"
   },
   "devDependencies": {
     "@types/debug": "4.1.12",
