@@ -24,7 +24,7 @@ const DateOrString: Type = {
   name: 'DateOrString',
   definition: 'Date | string',
 };
-const Bytes: Type = { name: 'Buffer' };
+const Bytes: Type = { name: 'Buffer', from: 'node:buffer' };
 const Void: Type = { name: 'undefined' };
 const Json: Type = {
   name: 'Json',
