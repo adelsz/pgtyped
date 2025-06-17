@@ -20,7 +20,7 @@ describe('TypeAllocator', () => {
     // expect both to be included
     expect(types.types).toMatchObject({
       Json: expect.objectContaining({ name: 'Json' }),
-      JsonArray: expect.objectContaining({ name: 'JsonArray' }),
+      NullJsonArray: expect.objectContaining({ name: 'NullJsonArray' }),
     });
   });
 });

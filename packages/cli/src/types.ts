@@ -31,9 +31,12 @@ const Json: Type = {
   definition:
     'null | boolean | number | string | Json[] | { [key: string]: Json }',
 };
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
 const getArray = (baseType: Type): Type => ({
-  name: `${baseType.name}Array`,
-  definition: `(${baseType.definition ?? baseType.name})[]`,
+  name: `Null${capitalize(baseType.name)}Array`,
+  definition: `(null | ${baseType.definition ?? baseType.name})[]`,
 });
 
 export const DefaultTypeMapping = Object.freeze({
