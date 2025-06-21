@@ -97,6 +97,7 @@ export class PreparedQuery<TParamType, TResultType> {
     params: TParamType,
     dbConnection: IDatabaseConnection,
   ) => Promise<Array<TResultType>>;
+  public readonly queryName: string;
 
   public runWithCounts: (
     params: TParamType,
@@ -110,7 +111,8 @@ export class PreparedQuery<TParamType, TResultType> {
 
   private readonly queryIR: SQLQueryIR;
 
-  constructor(queryIR: SQLQueryIR) {
+  constructor(queryName: string, queryIR: SQLQueryIR) {
+    this.queryName = queryName;
     this.queryIR = queryIR;
     this.run = async (params, connection) => {
       const { query: processedQuery, bindings } = processSQLQueryIR(
