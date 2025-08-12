@@ -1,6 +1,6 @@
 import { ParseEvent, parseTSQuery, TSQueryAST } from '@pgtyped/parser';
 import ts from 'typescript';
-import { TransformConfig } from './config.js';
+import { TransformMode } from './config.js';
 
 interface INode {
   queryName: string;
@@ -11,19 +11,19 @@ export type TSParseResult = { queries: TSQueryAST[]; events: ParseEvent[] };
 
 export function parseFile(
   sourceFile: ts.SourceFile,
-  transformConfig: TransformConfig | undefined,
+  mode: TransformMode | undefined,
 ): TSParseResult {
   const foundNodes: INode[] = [];
   parseNode(sourceFile);
 
   function parseNode(node: ts.Node) {
     if (
-      transformConfig?.mode === 'ts-implicit' &&
+      mode?.mode === 'ts-implicit' &&
       node.kind === ts.SyntaxKind.CallExpression
     ) {
       const callNode = node as ts.CallExpression;
       const functionName = callNode.expression.getText();
-      if (functionName === transformConfig.functionName) {
+      if (functionName === mode.functionName) {
         const queryName = callNode.parent.getChildren()[0].getText();
         const queryText = callNode.arguments[0].getText().slice(1, -1).trim();
         foundNodes.push({
@@ -70,7 +70,7 @@ export function parseFile(
 export const parseCode = (
   fileContent: string,
   fileName = 'unnamed.ts',
-  transformConfig?: TransformConfig,
+  mode?: TransformMode,
 ) => {
   const sourceFile = ts.createSourceFile(
     fileName,
@@ -78,5 +78,5 @@ export const parseCode = (
     ts.ScriptTarget.ES2015,
     true,
   );
-  return parseFile(sourceFile, transformConfig);
+  return parseFile(sourceFile, mode);
 };

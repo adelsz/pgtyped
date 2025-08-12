@@ -1,11 +1,13 @@
 import chokidar from 'chokidar';
 import { globSync } from 'glob';
 import path from 'path';
-import { ParsedConfig, TransformConfig } from './config.js';
-import { TransformJob, WorkerPool } from './index.js';
-import { debug } from './util.js';
-import { processFileFnResult } from './worker.js';
 import { minimatch } from 'minimatch';
+import { TransformJob, WorkerPool } from './index.js';
+import { ParsedConfig, TransformConfig } from './config.js';
+import { processFileFnResult } from './worker.js';
+import debugBase from 'debug';
+
+const debug = debugBase('pg-typegen');
 
 // tslint:disable:no-console
 

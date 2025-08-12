@@ -16,10 +16,10 @@ import {
 import { camelCase } from 'camel-case';
 import { pascalCase } from 'pascal-case';
 import path from 'path';
-import { ParsedConfig, TransformConfig } from './config.js';
 import { parseCode as parseTypescriptFile } from './parseTypescript.js';
 import { TypeAllocator, TypeDefinitions, TypeScope } from './types.js';
 import { IQueryTypes } from '@pgtyped/query/lib/actions.js';
+import { TransformMode, TypegenConfig } from './config.js';
 
 export enum ProcessingMode {
   SQL = 'sql-file',
@@ -86,7 +86,7 @@ export async function queryToTypeDeclarations(
   parsedQuery: ParsedQuery,
   typeSource: TypeSource,
   types: TypeAllocator,
-  config: ParsedConfig,
+  typegenConfig: TypegenConfig,
 ): Promise<string> {
   let queryData;
   let queryName;
@@ -100,7 +100,7 @@ export async function queryToTypeDeclarations(
 
   const typeData = await typeSource(queryData);
   const interfaceName = pascalCase(queryName);
-  const interfacePrefix = config.hungarianNotation ? 'I' : '';
+  const interfacePrefix = typegenConfig.hungarianNotation ? 'I' : '';
 
   const typeError = 'errorCode' in typeData;
   const hasAnonymousColumns =
@@ -113,7 +113,7 @@ export async function queryToTypeDeclarations(
     // tslint:disable:no-console
     if (typeError) {
       console.error('Error in query. Details: %o', typeData);
-      if (config.failOnError) {
+      if (typegenConfig.failOnError) {
         throw new Error(
           `Query "${queryName}" is invalid. Can't generate types.`,
         );
@@ -164,7 +164,7 @@ export async function queryToTypeDeclarations(
     }
 
     returnFieldTypes.push({
-      fieldName: config.camelCaseColumnNames
+      fieldName: typegenConfig.camelCaseColumnNames
         ? camelCase(returnName)
         : returnName,
       fieldType: tsTypeName,
@@ -173,7 +173,7 @@ export async function queryToTypeDeclarations(
   });
 
   const formatArrayType = (type: string): string => {
-    if (config.nonEmptyArrayParams) {
+    if (typegenConfig.nonEmptyArrayParams) {
       // Only allow accepting an non-empty array. This prevents runtime errors.
       // For example, the following query will throw a runtime error if an empty
       // array is passed:
@@ -313,18 +313,18 @@ export async function generateTypedecsFromFile(
   contents: string,
   fileName: string,
   connection: any,
-  transform: TransformConfig,
   types: TypeAllocator,
-  config: ParsedConfig,
+  mode: TransformMode,
+  typegenConfig: TypegenConfig,
 ): Promise<TypeDeclarationSet> {
   const typedQueries: TypedQuery[] = [];
-  const interfacePrefix = config.hungarianNotation ? 'I' : '';
+  const interfacePrefix = typegenConfig.hungarianNotation ? 'I' : '';
   const typeSource: TypeSource = (query) => getTypes(query, connection);
 
   const { queries, events } =
-    transform.mode === 'sql'
+    mode.mode === 'sql'
       ? parseSQLFile(contents)
-      : parseTypescriptFile(contents, fileName, transform);
+      : parseTypescriptFile(contents, fileName, mode);
 
   if (events.length > 0) {
     prettyPrintEvents(contents, events);
@@ -339,13 +339,13 @@ export async function generateTypedecsFromFile(
 
   for (const queryAST of queries) {
     let typedQuery: TypedQuery;
-    if (transform.mode === 'sql') {
+    if (mode.mode === 'sql') {
       const sqlQueryAST = queryAST as SQLQueryAST;
       const result = await queryToTypeDeclarations(
         { ast: sqlQueryAST, mode: ProcessingMode.SQL },
         typeSource,
         types,
-        config,
+        typegenConfig,
       );
       typedQuery = {
         mode: 'sql' as const,
@@ -372,7 +372,7 @@ export async function generateTypedecsFromFile(
         },
         typeSource,
         types,
-        config,
+        typegenConfig,
       );
       typedQuery = {
         mode: 'ts' as const,

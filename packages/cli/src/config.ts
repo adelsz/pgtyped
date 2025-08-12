@@ -1,14 +1,17 @@
-/** @fileoverview Config file parser */
-
 import { Type } from '@pgtyped/query';
-import * as Either from 'fp-ts/lib/Either.js';
 import * as t from 'io-ts';
-import { reporter } from 'io-ts-reporters';
-import { createRequire } from 'module';
+import * as Either from 'fp-ts/lib/Either.js';
 import { isAbsolute, join } from 'path';
-import tls from 'tls';
+import { reporter } from 'io-ts-reporters';
 import { DatabaseConfig, default as dbUrlModule } from 'ts-parse-database-url';
-import { TypeDefinition } from './types.js';
+import {
+  DbCodec,
+  DbConfig,
+  TypegenCodec,
+  TypegenConfig,
+  TypeDefinition,
+} from '@pgtyped/typegen';
+import { createRequire } from 'module';
 
 // module import hack
 const { default: parseDatabaseUri } = dbUrlModule as any;
@@ -54,56 +57,19 @@ const configParser = t.type({
   maxWorkerThreads: t.union([t.number, t.undefined]),
   transforms: t.array(TransformCodec),
   srcDir: t.string,
-  failOnError: t.union([t.boolean, t.undefined]),
-  camelCaseColumnNames: t.union([t.boolean, t.undefined]),
-  hungarianNotation: t.union([t.boolean, t.undefined]),
-  nonEmptyArrayParams: t.union([t.boolean, t.undefined]),
   dbUrl: t.union([t.string, t.undefined]),
-  db: t.union([
-    t.type({
-      host: t.union([t.string, t.undefined]),
-      password: t.union([t.string, t.undefined]),
-      port: t.union([t.number, t.undefined]),
-      user: t.union([t.string, t.undefined]),
-      dbName: t.union([t.string, t.undefined]),
-      ssl: t.union([t.UnknownRecord, t.boolean, t.undefined]),
-    }),
-    t.undefined,
-  ]),
-  typesOverrides: t.union([
-    t.record(
-      t.string,
-      t.union([
-        t.string,
-        t.type({
-          parameter: t.union([t.string, t.undefined]),
-          return: t.union([t.string, t.undefined]),
-        }),
-      ]),
-    ),
-    t.undefined,
-  ]),
+  db: t.union([DbCodec, t.undefined]),
+  ...TypegenCodec.props,
 });
 
 export type IConfig = typeof configParser._O;
 
-export interface ParsedConfig {
-  db: {
-    host: string;
-    user: string;
-    password: string | undefined;
-    dbName: string;
-    port: number;
-    ssl?: tls.ConnectionOptions | boolean;
-  };
+export interface ParsedConfig extends TypegenConfig {
+  db: DbConfig;
   maxWorkerThreads: number | undefined;
-  failOnError: boolean;
-  camelCaseColumnNames: boolean;
-  hungarianNotation: boolean;
-  nonEmptyArrayParams: boolean;
   transforms: IConfig['transforms'];
   srcDir: IConfig['srcDir'];
-  typesOverrides: Record<string, Partial<TypeDefinition>>;
+  nonEmptyArrayParams: boolean;
 }
 
 function merge<T>(base: T, ...overrides: Partial<T>[]): T {

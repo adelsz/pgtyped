@@ -2,7 +2,7 @@ import { parseSQLFile, TSQueryAST } from '@pgtyped/parser';
 import { IQueryTypes } from '@pgtyped/query/lib/actions.js';
 import { ParameterTransform } from '@pgtyped/runtime';
 import { pascalCase } from 'pascal-case';
-import { ParsedConfig } from './config.js';
+import { TypegenConfig } from './config.js';
 import {
   escapeComment,
   generateInterface,
@@ -14,7 +14,7 @@ import {
 import { parseCode as parseTypeScriptFile } from './parseTypescript.js';
 import { TypeAllocator, TypeMapping, TypeScope } from './types.js';
 
-const partialConfig = { hungarianNotation: true } as ParsedConfig;
+const partialConfig = { hungarianNotation: true } as TypegenConfig;
 
 function parsedQuery(
   mode: ProcessingMode,
@@ -311,7 +311,10 @@ export interface IDeleteUsersQuery {
         parsedQuery(mode, queryString),
         typeSource,
         types,
-        { camelCaseColumnNames: true, hungarianNotation: true } as ParsedConfig,
+        {
+          camelCaseColumnNames: true,
+          hungarianNotation: true,
+        } as TypegenConfig,
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/runtime';
 
@@ -390,7 +393,10 @@ export interface IGetNotificationsQuery {
         parsedQuery(mode, queryString),
         typeSource,
         types,
-        { camelCaseColumnNames: true, hungarianNotation: true } as ParsedConfig,
+        {
+          camelCaseColumnNames: true,
+          hungarianNotation: true,
+        } as TypegenConfig,
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/runtime';
 
@@ -469,7 +475,7 @@ export interface IGetNotificationsQuery {
         parsedQuery(mode, queryString),
         typeSource,
         types,
-        { nonEmptyArrayParams: true, hungarianNotation: true } as ParsedConfig,
+        { nonEmptyArrayParams: true, hungarianNotation: true } as TypegenConfig,
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/runtime';
 
@@ -548,7 +554,7 @@ export interface IGetNotificationsQuery {
         parsedQuery(mode, queryString),
         typeSource,
         types,
-        { nonEmptyArrayParams: true, hungarianNotation: true } as ParsedConfig,
+        { nonEmptyArrayParams: true, hungarianNotation: true } as TypegenConfig,
       );
       const expectedTypes = `import { PreparedQuery } from '@pgtyped/runtime';
 
@@ -625,7 +631,7 @@ export interface IGetNotificationsQuery {
         parsedQuery(mode, queryString),
         typeSource,
         types,
-        { nonEmptyArrayParams: true, hungarianNotation: true } as ParsedConfig,
+        { nonEmptyArrayParams: true, hungarianNotation: true } as TypegenConfig,
       );
       const expected = `/** 'InsertNotifications' parameters type */
 export interface IInsertNotificationsParams {

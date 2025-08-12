@@ -5,13 +5,14 @@ import { AsyncQueue } from '@pgtyped/wire';
 import chokidar from 'chokidar';
 import nun from 'nunjucks';
 
-import { Piscina as PiscinaPool } from 'piscina';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { parseConfig, ParsedConfig, TransformConfig } from './config.js';
+import { Piscina as PiscinaPool } from 'piscina';
+import { ParsedConfig, TransformConfig, parseConfig } from './config.js';
+import debugBase from 'debug';
 import { TypedSqlTagTransformer } from './typedSqlTagTransformer.js';
 import { TypescriptAndSqlTransformer } from './typescriptAndSqlTransformer.js';
-import { debug } from './util.js';
+export const debug = debugBase('pg-typegen');
 
 // tslint:disable:no-console
 
