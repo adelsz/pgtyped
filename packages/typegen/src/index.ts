@@ -36,9 +36,10 @@ export async function getTypes(
   },
 ): Promise<TypeDeclarationSet> {
   mode = mode ?? (fileName.endsWith('.ts') ? { mode: 'ts' } : { mode: 'sql' });
+  const manageConnection = !(connection instanceof AsyncQueue);
 
   let queue: AsyncQueue;
-  if (!(connection instanceof AsyncQueue)) {
+  if (manageConnection) {
     queue = new AsyncQueue();
     await startup(connection, queue);
   } else {
@@ -57,7 +58,7 @@ export async function getTypes(
     );
   }
 
-  return generateTypedecsFromFile(
+  const result = await generateTypedecsFromFile(
     contents,
     fileName,
     queue,
@@ -65,6 +66,12 @@ export async function getTypes(
     mode,
     config,
   );
+
+  if (manageConnection) {
+    queue.socket.end();
+  }
+
+  return result;
 }
 
 export type getTypeDecsFnResult = ReturnType<typeof getTypes>;
