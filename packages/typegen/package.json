@@ -1,24 +1,25 @@
 {
-  "name": "@pgtyped/cli",
-  "version": "2.4.3",
+  "name": "@pgtyped/typegen",
+  "version": "2.4.2",
   "type": "module",
-  "main": "lib/index.js",
   "exports": {
-    "./*": {
+    ".": {
       "import": "./lib/index.js",
       "types": "./lib/index.d.ts"
     }
   },
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/adelsz/pgtyped.git"
-  },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "files": [
     "lib"
   ],
   "engines": {
     "node": ">=14.16"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adelsz/pgtyped.git"
   },
   "homepage": "https://github.com/adelsz/pgtyped",
   "publishConfig": {
@@ -30,20 +31,21 @@
     "check": "tsc --noEmit",
     "watch": "tsc --watch --preserveWatchOutput"
   },
-  "bin": {
-    "pgtyped": "lib/index.js"
-  },
   "dependencies": {
-    "@pgtyped/typegen": "^2.4.2",
-    "piscina": "^5.0.0",
-    "yargs": "^18.0.0",
+    "@pgtyped/parser": "^2.4.2",
+    "@pgtyped/query": "^2.4.2",
+    "@pgtyped/wire": "^2.4.2",
+    "camel-case": "^5.0.0",
+    "chalk": "^4.0.0",
+    "debug": "^4.1.1",
+    "fp-ts": "^2.5.3",
+    "fs-extra": "^11.0.0",
+    "glob": "^11.0.0",
     "io-ts": "^2.2.20",
     "io-ts-reporters": "^2.0.1",
-    "ts-parse-database-url": "^1.0.3",
-    "chokidar": "^4.0.0",
     "nunjucks": "3.2.4",
-    "glob": "^11.0.0",
-    "debug": "^4.1.1"
+    "pascal-case": "^4.0.0",
+    "tinypool": "^1.0.0"
   },
   "devDependencies": {
     "@types/debug": "4.1.12",

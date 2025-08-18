@@ -25,5 +25,6 @@
     "category": { "return": "./src/customTypes.js#Category" }
   },
   "srcDir": "./src/",
-  "dbUrl": "postgres://postgres:password@localhost/postgres"
+  "dbUrl": "postgres://postgres:postgres@localhost/postgres",
+  "maxWorkerThreads": 1
 }

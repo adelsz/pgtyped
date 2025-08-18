@@ -2,17 +2,19 @@ import chokidar from 'chokidar';
 import fs from 'fs-extra';
 import { globSync } from 'glob';
 import path from 'path';
-import { ParsedConfig, TSTypedSQLTagTransformConfig } from './config.js';
 import {
+  TypeDeclarationSet,
+  getTypeDecsFnResult,
+  TypeAllocator,
   generateDeclarations,
   genTypedSQLOverloadFunctions,
   TSTypedQuery,
-  TypeDeclarationSet,
-} from './generator.js';
+} from '@pgtyped/typegen';
 import { TransformJob, WorkerPool } from './index.js';
-import { TypeAllocator } from './types.js';
-import { debug } from './util.js';
-import { getTypeDecsFnResult } from './worker.js';
+import { ParsedConfig, TSTypedSQLTagTransformConfig } from './config.js';
+import debugBase from 'debug';
+
+const debug = debugBase('pg-typegen');
 
 type TypedSQLTagTransformResult = TypeDeclarationSet | undefined;
 

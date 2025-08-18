@@ -1,15 +1,15 @@
-import { startup } from '@pgtyped/query';
-import { AsyncQueue } from '@pgtyped/wire';
+import path from 'path';
 import fs from 'fs-extra';
 import nun from 'nunjucks';
-import path from 'path';
 import worker from 'piscina';
-import { ParsedConfig, TransformConfig } from './config.js';
+import { AsyncQueue } from '@pgtyped/wire';
+import { startup } from '@pgtyped/query';
 import {
+  getTypes,
   generateDeclarationFile,
-  generateTypedecsFromFile,
-} from './generator.js';
-import { TypeAllocator, TypeMapping, TypeScope } from './types.js';
+  TransformMode,
+} from '@pgtyped/typegen';
+import { ParsedConfig, TransformConfig } from './config.js';
 
 // disable autoescape as it breaks windows paths
 // see https://github.com/adelsz/pgtyped/issues/519 for details
@@ -18,10 +18,6 @@ nun.configure({ autoescape: false });
 let connected = false;
 const connection = new AsyncQueue();
 const config: ParsedConfig = worker.workerData;
-
-interface ExtendedParsedPath extends path.ParsedPath {
-  dir_base: string;
-}
 
 export type IWorkerResult =
   | {
@@ -34,44 +30,9 @@ export type IWorkerResult =
       relativePath: string;
     };
 
-async function connectAndGetFileContents(fileName: string) {
-  if (!connected) {
-    await startup(config.db, connection);
-    connected = true;
-  }
-
-  // last part fixes https://github.com/adelsz/pgtyped/issues/390
-  return fs.readFileSync(fileName).toString().replace(/\r\n/g, '\n');
+interface ExtendedParsedPath extends path.ParsedPath {
+  dir_base: string;
 }
-
-export async function getTypeDecs({
-  fileName,
-  transform,
-}: {
-  fileName: string;
-  transform: TransformConfig;
-}) {
-  const contents = await connectAndGetFileContents(fileName);
-  const types = new TypeAllocator(TypeMapping(config.typesOverrides));
-
-  if (transform.mode === 'sql') {
-    // Second parameter has no effect here, we could have used any value
-    types.use(
-      { name: 'PreparedQuery', from: '@pgtyped/runtime' },
-      TypeScope.Return,
-    );
-  }
-  return await generateTypedecsFromFile(
-    contents,
-    fileName,
-    connection,
-    transform,
-    types,
-    config,
-  );
-}
-
-export type getTypeDecsFnResult = ReturnType<typeof getTypeDecs>;
 
 export async function processFile({
   fileName,
@@ -90,9 +51,25 @@ export async function processFile({
     decsFileName = path.resolve(ppath.dir, `${ppath.name}.${suffix}`);
   }
 
+  let mode: TransformMode;
+  if (transform.mode === 'ts-implicit') {
+    mode = { mode: 'ts-implicit', functionName: transform.functionName };
+  } else {
+    mode = { mode: transform.mode };
+  }
+
+  if (!connected) {
+    await startup(config.db, connection);
+    connected = true;
+  }
+
   let typeDecSet;
   try {
-    typeDecSet = await getTypeDecs({ fileName, transform });
+    typeDecSet = await getTypes(fileName, {
+      connection,
+      config,
+      mode,
+    });
   } catch (e) {
     return {
       error: e,
@@ -102,7 +79,7 @@ export async function processFile({
   const relativePath = path.relative(process.cwd(), decsFileName);
 
   if (typeDecSet.typedQueries.length > 0) {
-    const declarationFileContents = await generateDeclarationFile(typeDecSet);
+    const declarationFileContents = generateDeclarationFile(typeDecSet);
     const oldDeclarationFileContents = (await fs.pathExists(decsFileName))
       ? await fs.readFile(decsFileName, { encoding: 'utf-8' })
       : null;
