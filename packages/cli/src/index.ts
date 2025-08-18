@@ -78,14 +78,14 @@ async function main(
   const transformTask = async (transform: TransformConfig) => {
     if (transform.mode === 'ts-implicit') {
       const transformer = new TypedSqlTagTransformer(pool, config, transform);
-      return transformer.start(isWatchMode);
+      return transformer.start(isWatchMode, fileOverride);
     } else {
       const transformer = new TypescriptAndSqlTransformer(
         pool,
         config,
         transform,
       );
-      return transformer.start(isWatchMode);
+      return transformer.start(isWatchMode, fileOverride);
     }
   };
 
