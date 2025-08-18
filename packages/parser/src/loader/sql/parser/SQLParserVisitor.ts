@@ -3,13 +3,14 @@
 
 import { ParseTreeVisitor } from "antlr4ts/tree/ParseTreeVisitor.js";
 
-import {InputContext, RangeContext} from "./SQLParser.js";
+import { InputContext } from "./SQLParser.js";
 import { QueryContext } from "./SQLParser.js";
 import { QueryDefContext } from "./SQLParser.js";
 import { IgnoredCommentContext } from "./SQLParser.js";
 import { StatementContext } from "./SQLParser.js";
 import { StatementBodyContext } from "./SQLParser.js";
 import { WordContext } from "./SQLParser.js";
+import { RangeContext } from "./SQLParser.js";
 import { ParamContext } from "./SQLParser.js";
 import { ParamIdContext } from "./SQLParser.js";
 import { NameTagContext } from "./SQLParser.js";
@@ -19,6 +20,7 @@ import { TransformRuleContext } from "./SQLParser.js";
 import { SpreadTransformContext } from "./SQLParser.js";
 import { PickTransformContext } from "./SQLParser.js";
 import { SpreadPickTransformContext } from "./SQLParser.js";
+import { ArrayLiteralTransformContext } from "./SQLParser.js";
 import { KeyContext } from "./SQLParser.js";
 import { QueryNameContext } from "./SQLParser.js";
 import { ParamNameContext } from "./SQLParser.js";
@@ -150,6 +152,13 @@ export interface SQLParserVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitSpreadPickTransform?: (ctx: SpreadPickTransformContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `SQLParser.arrayLiteralTransform`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitArrayLiteralTransform?: (ctx: ArrayLiteralTransformContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `SQLParser.key`.
