@@ -36,7 +36,7 @@ const sendNotificationsIR: any = {"usedParamSet":{"notifications":true},"params"
  * VALUES :notifications RETURNING id as notification_id
  * ```
  */
-export const sendNotifications = new PreparedQuery<ISendNotificationsParams,ISendNotificationsResult>(sendNotificationsIR);
+export const sendNotifications = new PreparedQuery<ISendNotificationsParams,ISendNotificationsResult>("sendNotifications",sendNotificationsIR);
 
 
 /** 'GetNotifications' parameters type */
@@ -71,7 +71,7 @@ const getNotificationsIR: any = {"usedParamSet":{"userId":true,"date":true},"par
  *  AND created_at > :date!
  * ```
  */
-export const getNotifications = new PreparedQuery<IGetNotificationsParams,IGetNotificationsResult>(getNotificationsIR);
+export const getNotifications = new PreparedQuery<IGetNotificationsParams,IGetNotificationsResult>("getNotifications",getNotificationsIR);
 
 
 /** 'ThresholdFrogs' parameters type */
@@ -103,6 +103,6 @@ const thresholdFrogsIR: any = {"usedParamSet":{"numFrogs":true},"params":[{"name
  * WHERE CAST (n.payload->'num_frogs' AS int) > :numFrogs!
  * ```
  */
-export const thresholdFrogs = new PreparedQuery<IThresholdFrogsParams,IThresholdFrogsResult>(thresholdFrogsIR);
+export const thresholdFrogs = new PreparedQuery<IThresholdFrogsParams,IThresholdFrogsResult>("thresholdFrogs",thresholdFrogsIR);
 
 
