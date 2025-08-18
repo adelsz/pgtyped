@@ -20,7 +20,7 @@ services:
         NODE_IMAGE: "node:${NODE_VERSION:-18}-alpine"
     environment:
       PGHOST: db
-      PGUSER: postgres
+      PGUSER: pgtyped_test
       PGDATABASE: postgres
       PGPASSWORD: password
       CI: $CI

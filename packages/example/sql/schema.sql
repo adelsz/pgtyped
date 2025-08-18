@@ -1,3 +1,11 @@
+-- Our test user; generally has all permissions; but some are revoked later.
+CREATE USER pgtyped_test WITH LOGIN PASSWORD 'password';
+GRANT CONNECT ON DATABASE postgres TO pgtyped_test;
+GRANT USAGE ON SCHEMA public TO pgtyped_test;
+ALTER DEFAULT PRIVILEGES GRANT ALL ON TABLES TO pgtyped_test;
+ALTER DEFAULT PRIVILEGES GRANT ALL ON SEQUENCES TO pgtyped_test;
+ALTER DEFAULT PRIVILEGES GRANT ALL ON FUNCTIONS TO pgtyped_test;
+
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
   email TEXT NOT NULL,
@@ -101,3 +109,20 @@ CREATE TABLE book_country (
 
 INSERT INTO book_country (country)
 VALUES ('CZ'), ('DE');
+
+-- This table has different insert/update permissions
+CREATE TABLE user_emails (
+  id int PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  address text NOT NULL UNIQUE,
+  receives_notifications boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT NOW(),
+  updated_at timestamptz NOT NULL DEFAULT NOW()
+);
+
+REVOKE ALL ON user_emails FROM pgtyped_test;
+GRANT
+  SELECT,
+  INSERT (address, receives_notifications),
+  UPDATE (receives_notifications),
+  DELETE
+ON user_emails TO pgtyped_test;
