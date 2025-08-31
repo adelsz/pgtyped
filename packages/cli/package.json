@@ -50,7 +50,7 @@
     "nunjucks": "3.2.4",
     "pascal-case": "^4.0.0",
     "piscina": "^5.0.0",
-    "tinypool": "^1.0.0",
+    "tinypool": "^2.0.0",
     "ts-parse-database-url": "^1.0.3",
     "yargs": "^18.0.0"
   },
