@@ -802,6 +802,73 @@ export interface IGetNotificationsQuery {
 }\n\n`;
       expect(result).toEqual(expected);
     });
+
+    test(`Columns with Buffer type`, async () => {
+      const queryStringSQL = `
+    /* @name GetFiles */
+    SELECT file_data FROM uploads WHERE id = :id;
+    `;
+      const queryStringTS = `
+      const GetFiles = sql\`SELECT file_data FROM uploads WHERE id = $id\`;
+      `;
+      const queryString =
+        mode === ProcessingMode.SQL ? queryStringSQL : queryStringTS;
+      const mockTypes: IQueryTypes = {
+        returnTypes: [
+          {
+            returnName: 'file_data',
+            columnName: 'file_data',
+            type: 'bytea',
+            nullable: false,
+          },
+        ],
+        paramMetadata: {
+          params: ['uuid'],
+          mapping: [
+            {
+              name: 'id',
+              type: ParameterTransform.Scalar,
+              required: false,
+              assignedIndex: 1,
+            },
+          ],
+        },
+      };
+      const typeSource = async (_: any) => mockTypes;
+      const types = new TypeAllocator(TypeMapping());
+      // Test out imports
+      types.use(
+        { name: 'PreparedQuery', from: '@pgtyped/runtime' },
+        TypeScope.Return,
+      );
+      const result = await queryToTypeDeclarations(
+        parsedQuery(mode, queryString),
+        typeSource,
+        types,
+        partialConfig,
+      );
+      const expectedTypes = `import { PreparedQuery } from '@pgtyped/runtime';
+
+import type { Buffer } from 'node:buffer';\n`;
+
+      expect(types.declaration('file.ts')).toEqual(expectedTypes);
+      const expected = `/** 'GetFiles' parameters type */
+export interface IGetFilesParams {
+  id?: string | null | void;
+}
+
+/** 'GetFiles' return type */
+export interface IGetFilesResult {
+  file_data: Buffer;
+}
+
+/** 'GetFiles' query type */
+export interface IGetFilesQuery {
+  params: IGetFilesParams;
+  result: IGetFilesResult;
+}\n\n`;
+      expect(result).toEqual(expected);
+    });
   });
 });
 
