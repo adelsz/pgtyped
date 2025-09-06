@@ -24,7 +24,7 @@
   "dependencies": {
     "@pgtyped/cli": "^2.4.3",
     "@pgtyped/query": "^2.4.2",
-    "expect": "29.7.0",
+    "expect": "30.1.2",
     "pg": "8.14.1",
     "typescript": "4.9.4"
   },
