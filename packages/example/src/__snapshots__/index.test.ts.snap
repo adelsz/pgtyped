@@ -47,6 +47,31 @@ Array [
 ]
 `;
 
+exports[`select query with interval field 1`] = `
+Array [
+  Object {
+    "duration": "0 years 0 mons 0 days 1 hours 23 mins 45.0 secs",
+    "id": 1,
+    "text_book_id": 1,
+  },
+  Object {
+    "duration": "0 years 0 mons 0 days 2 hours 34 mins 56.0 secs",
+    "id": 2,
+    "text_book_id": 2,
+  },
+  Object {
+    "duration": "0 years 0 mons 0 days 3 hours 45 mins 57.0 secs",
+    "id": 3,
+    "text_book_id": 3,
+  },
+  Object {
+    "duration": "0 years 0 mons 0 days 4 hours 56 mins 48.0 secs",
+    "id": 4,
+    "text_book_id": 4,
+  },
+]
+`;
+
 exports[`select query with join and a parameter override 1`] = `
 Array [
   Object {
