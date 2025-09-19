@@ -85,7 +85,7 @@ async function main(
         config,
         transform,
       );
-      return transformer.start(isWatchMode);
+      return transformer.start(isWatchMode, fileOverride);
     }
   };
 
@@ -150,10 +150,12 @@ if (isWatchMode && fileOverride) {
 }
 
 try {
-  chokidar.watch(configPath, {}).on('change', () => {
-    console.log('Config file changed. Exiting.');
-    process.exit();
-  });
+  if (isWatchMode || false) {
+    chokidar.watch(configPath, {}).on('change', () => {
+      console.log('Config file changed. Exiting.');
+      process.exit();
+    });
+  }
   const config = parseConfig(configPath, connectionUri);
   main(config, isWatchMode || false, fileOverride).catch((e) =>
     debug('error in main: %o', e.message),
