@@ -5,6 +5,7 @@ export enum ParameterTransform {
   Spread,
   Pick,
   PickSpread,
+  ArrayLiteralSpread,
 }
 
 export interface ScalarParameter {
@@ -29,6 +30,13 @@ export interface ScalarArrayParameter {
   assignedIndex: number | number[];
 }
 
+export interface ScalarArrayLiteralParameter {
+  name: string;
+  type: ParameterTransform.ArrayLiteralSpread;
+  required: boolean;
+  assignedIndex: number | number[];
+}
+
 export interface DictArrayParameter {
   name: string;
   type: ParameterTransform.PickSpread;
@@ -39,6 +47,7 @@ export interface DictArrayParameter {
 export type QueryParameter =
   | ScalarParameter
   | ScalarArrayParameter
+  | ScalarArrayLiteralParameter
   | DictParameter
   | DictArrayParameter;
 

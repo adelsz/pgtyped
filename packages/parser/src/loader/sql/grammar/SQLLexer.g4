@@ -38,6 +38,8 @@ NAME_TAG  :  '@name';
 TYPE_TAG  :  '@param';
 OB: '(';
 CB: ')';
+OPEN_ARRAY: 'ARRAY[';
+CLOSE_ARRAY: ']';
 COMMA: ',';
 C_REQUIRED_MARK: '!';
 ANY: .+?;

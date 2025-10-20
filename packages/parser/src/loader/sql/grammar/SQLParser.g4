@@ -39,6 +39,7 @@ paramTransform: TRANSFORM_ARROW transformRule;
 transformRule
     : spreadTransform
     | pickTransform
+    | arrayLiteralTransform
     | spreadPickTransform;
 
 spreadTransform: OB SPREAD CB;
@@ -46,6 +47,8 @@ spreadTransform: OB SPREAD CB;
 pickTransform: OB key (COMMA key)* COMMA? CB;
 
 spreadPickTransform: OB pickTransform SPREAD CB;
+
+arrayLiteralTransform: OPEN_ARRAY SPREAD CLOSE_ARRAY;
 
 key: ID C_REQUIRED_MARK?;
 

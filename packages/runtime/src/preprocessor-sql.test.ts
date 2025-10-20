@@ -176,6 +176,46 @@ test('(SQL) array param', () => {
   expect(mappingResult).toEqual(expectedMappingResult);
 });
 
+test('(SQL) array literal', () => {
+  const query = `
+  /*
+    @name selectFunctionResult
+    @param values -> ARRAY[...]
+  */
+  SELECT FROM my_function(:values);`;
+  const fileAST = parseSQLQuery(query);
+
+  const parameters = {
+    values: ['foo', 'bar', 'baz'],
+  };
+
+  const expectedInterpolationResult = {
+    query: 'SELECT FROM my_function(ARRAY[$1,$2,$3])',
+    bindings: ['foo', 'bar', 'baz'],
+    mapping: [],
+  };
+
+  const expectedMappingResult = {
+    query: 'SELECT FROM my_function(ARRAY[$1])',
+    bindings: [],
+    mapping: [
+      {
+        name: 'values',
+        type: ParameterTransform.ArrayLiteralSpread,
+        required: false,
+        assignedIndex: 1,
+      },
+    ],
+  };
+
+  const queryIR = queryASTToIR(fileAST.queries[0]);
+  const interpolationResult = processSQLQueryIR(queryIR, parameters);
+  const mappingResult = processSQLQueryIR(queryIR);
+
+  expect(interpolationResult).toEqual(expectedInterpolationResult);
+  expect(mappingResult).toEqual(expectedMappingResult);
+});
+
 test('(SQL) array param used twice', () => {
   const query = `
   /*

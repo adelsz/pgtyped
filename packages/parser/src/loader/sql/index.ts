@@ -23,6 +23,7 @@ export enum TransformType {
   Scalar = 'scalar',
   PickTuple = 'pick_tuple',
   ArraySpread = 'array_spread',
+  ArrayLiteralSpread = 'array_literal_spread',
   PickArraySpread = 'pick_array_spread',
 }
 
@@ -37,6 +38,9 @@ export type ParamTransform =
     }
   | {
       type: TransformType.ArraySpread;
+    }
+  | {
+      type: TransformType.ArrayLiteralSpread;
     }
   | {
       type: TransformType.PickTuple | TransformType.PickArraySpread;
@@ -165,6 +169,12 @@ class ParseListener implements SQLParserListener {
   enterSpreadTransform() {
     this.currentTransform = {
       type: TransformType.ArraySpread,
+    };
+  }
+
+  enterArrayLiteralTransform() {
+    this.currentTransform = {
+      type: TransformType.ArrayLiteralSpread,
     };
   }
 
