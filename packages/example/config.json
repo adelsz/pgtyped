@@ -25,5 +25,5 @@
     "category": { "return": "./src/customTypes.js#Category" }
   },
   "srcDir": "./src/",
-  "dbUrl": "postgres://postgres:password@localhost/postgres"
+  "dbUrl": "postgres://pgtyped_test:password@localhost/postgres"
 }
