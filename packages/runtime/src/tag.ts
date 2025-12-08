@@ -1,6 +1,7 @@
 import { SQLQueryIR, parseTSQuery, TSQueryAST } from '@pgtyped/parser';
 import { processSQLQueryIR } from './preprocessor-sql.js';
 import { processTSQueryAST } from './preprocessor-ts.js';
+import { InterpolatedQuery } from "./preprocessor.js";
 
 export interface ICursor<T> {
   read(rowCount: number): Promise<T>;
@@ -46,6 +47,10 @@ export class TaggedQuery<TTypePair extends { params: any; result: any }> {
     dbConnection: IDatabaseConnection,
   ) => ICursor<Array<TTypePair['result']>>;
 
+  public compile: (
+    params: TTypePair['params'],
+  ) => InterpolatedQuery;
+
   private readonly query: TSQueryAST;
 
   constructor(query: TSQueryAST) {
@@ -76,6 +81,12 @@ export class TaggedQuery<TTypePair extends { params: any; result: any }> {
         },
       };
     };
+    this.compile = (params) => {
+      return processTSQueryAST(
+        this.query,
+        params as any,
+      );
+    }
   }
 }
 
@@ -107,6 +118,10 @@ export class PreparedQuery<TParamType, TResultType> {
     params: TParamType,
     dbConnection: IDatabaseConnection,
   ) => ICursor<Array<TResultType>>;
+
+  public compile: (
+    params: TParamType,
+  ) => InterpolatedQuery;
 
   private readonly queryIR: SQLQueryIR;
 
@@ -149,6 +164,12 @@ export class PreparedQuery<TParamType, TResultType> {
         },
       };
     };
+    this.compile = (params) => {
+      return processSQLQueryIR(
+        this.queryIR,
+        params as any,
+      );
+    }
   }
 }
 
