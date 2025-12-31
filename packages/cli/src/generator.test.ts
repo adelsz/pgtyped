@@ -914,3 +914,98 @@ test('should generate the correct SQL overload functions', async () => {
   const expected = `export function sqlFunc(s: \`SELECT id from users\`): ReturnType<typeof sourceSql<IGetUsersQuery>>;`;
   expect(result).toEqual(expected);
 });
+
+describe('enum value escaping', () => {
+  test('escapes apostrophes in enum values', async () => {
+    const queryString = `
+    /* @name GetModels */
+    SELECT model FROM cars;
+    `;
+    const mockTypes: IQueryTypes = {
+      returnTypes: [
+        {
+          returnName: 'model',
+          columnName: 'model',
+          type: { name: 'ModelType', enumValues: ["car's", 'truck'] },
+          nullable: false,
+        },
+      ],
+      paramMetadata: {
+        params: [],
+        mapping: [],
+      },
+    };
+    const typeSource = async (_: any) => mockTypes;
+    const types = new TypeAllocator(TypeMapping());
+    await queryToTypeDeclarations(
+      parsedQuery(ProcessingMode.SQL, queryString),
+      typeSource,
+      types,
+      partialConfig,
+    );
+    const expectedTypes = `export type ModelType = 'car\\'s' | 'truck';\n`;
+    expect(types.declaration('file.ts')).toEqual(expectedTypes);
+  });
+
+  test('escapes backslashes in enum values', async () => {
+    const queryString = `
+    /* @name GetPaths */
+    SELECT path FROM files;
+    `;
+    const mockTypes: IQueryTypes = {
+      returnTypes: [
+        {
+          returnName: 'path',
+          columnName: 'path',
+          type: { name: 'PathType', enumValues: ['path\\dir', 'normal'] },
+          nullable: false,
+        },
+      ],
+      paramMetadata: {
+        params: [],
+        mapping: [],
+      },
+    };
+    const typeSource = async (_: any) => mockTypes;
+    const types = new TypeAllocator(TypeMapping());
+    await queryToTypeDeclarations(
+      parsedQuery(ProcessingMode.SQL, queryString),
+      typeSource,
+      types,
+      partialConfig,
+    );
+    const expectedTypes = `export type PathType = 'normal' | 'path\\\\dir';\n`;
+    expect(types.declaration('file.ts')).toEqual(expectedTypes);
+  });
+
+  test('escapes both apostrophes and backslashes in enum values', async () => {
+    const queryString = `
+    /* @name GetComplex */
+    SELECT value FROM complex;
+    `;
+    const mockTypes: IQueryTypes = {
+      returnTypes: [
+        {
+          returnName: 'value',
+          columnName: 'value',
+          type: { name: 'ComplexType', enumValues: ["it's\\here", 'simple'] },
+          nullable: false,
+        },
+      ],
+      paramMetadata: {
+        params: [],
+        mapping: [],
+      },
+    };
+    const typeSource = async (_: any) => mockTypes;
+    const types = new TypeAllocator(TypeMapping());
+    await queryToTypeDeclarations(
+      parsedQuery(ProcessingMode.SQL, queryString),
+      typeSource,
+      types,
+      partialConfig,
+    );
+    const expectedTypes = `export type ComplexType = 'it\\'s\\\\here' | 'simple';\n`;
+    expect(types.declaration('file.ts')).toEqual(expectedTypes);
+  });
+});

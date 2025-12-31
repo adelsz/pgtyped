@@ -220,12 +220,17 @@ function declareAlias(name: string, definition: string): string {
   return `export type ${name} = ${definition};\n`;
 }
 
+/** Escape special characters in enum values for use in TypeScript string literals */
+function escapeEnumValue(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
 function declareStringUnion(name: string, values: string[]) {
   return declareAlias(
     name,
     values
       .sort()
-      .map((v) => `'${v}'`)
+      .map((v) => `'${escapeEnumValue(v)}'`)
       .join(' | '),
   );
 }
