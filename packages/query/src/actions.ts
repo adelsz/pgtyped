@@ -191,6 +191,46 @@ type TypeData =
     }
   | IParseError;
 
+async function fixDomainTypeOIDs(fields: TypeField[], queue: AsyncQueue) {
+  const columnFields = fields.filter(
+    (f) => f.tableOID > 0 && f.columnAttrNumber > 0,
+  );
+
+  if (columnFields.length === 0) {
+    return fields;
+  }
+
+  const attrMatchers = columnFields.map(
+    (f) => `(attrelid = ${f.tableOID} AND attnum = ${f.columnAttrNumber})`,
+  );
+  const attrSelection = attrMatchers.join(' OR ');
+
+  const attrTypeRows = await runQuery(
+    `SELECT attrelid, attnum, atttypid
+     FROM pg_attribute
+     WHERE ${attrSelection};`,
+    queue,
+  );
+
+  const attrTypeMap: Record<string, number> = {};
+  for (const row of attrTypeRows) {
+    const tableOID = row[0];
+    const columnAttrNumber = row[1];
+    attrTypeMap[`${tableOID}:${columnAttrNumber}`] = Number(row[2]);
+  }
+
+  return fields.map((field) => {
+    if (field.tableOID > 0 && field.columnAttrNumber > 0) {
+      const key = `${field.tableOID}:${field.columnAttrNumber}`;
+      const actualTypeOID = attrTypeMap[key];
+      if (actualTypeOID !== undefined) {
+        return { ...field, typeOID: actualTypeOID };
+      }
+    }
+    return field;
+  });
+}
+
 /**
  * Returns the raw query type data as returned by the Describe message
  * @param query query string, can only contain proper Postgres numeric placeholders
@@ -245,8 +285,11 @@ export async function getTypeData(
     messages.rowDescription,
     messages.noData,
   );
-  const fields = 'fields' in fieldsResult ? fieldsResult.fields : [];
   await queue.reply(messages.closeComplete);
+  const fields = await fixDomainTypeOIDs(
+    'fields' in fieldsResult ? fieldsResult.fields : [],
+    queue,
+  );
   return { params, fields };
 }
 
