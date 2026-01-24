@@ -4,8 +4,10 @@ import { Type } from '@pgtyped/query';
 import * as Either from 'fp-ts/lib/Either.js';
 import * as t from 'io-ts';
 import { reporter } from 'io-ts-reporters';
+import { createJiti } from 'jiti';
 import { createRequire } from 'module';
 import { isAbsolute, join } from 'path';
+import { pathToFileURL } from 'url';
 import tls from 'tls';
 import { DatabaseConfig, default as dbUrlModule } from 'ts-parse-database-url';
 import { TypeDefinition } from './types.js';
@@ -134,6 +136,7 @@ function convertParsedURLToDBConfig({
 }
 
 const require = createRequire(import.meta.url);
+const jiti = createJiti(import.meta.url);
 
 export function stringToType(str: string): Type {
   if (
@@ -161,12 +164,39 @@ export function stringToType(str: string): Type {
   return { name: str };
 }
 
-export function parseConfig(
+export async function parseConfig(
   path: string,
   argConnectionUri?: string,
-): ParsedConfig {
+): Promise<ParsedConfig> {
   const fullPath = isAbsolute(path) ? path : join(process.cwd(), path);
-  const configObject = require(fullPath);
+  
+  let configObject: unknown;
+  
+  if (fullPath.endsWith('.mjs')) {
+    // ES modules - must use dynamic import with file:// URL
+    const imported = await import(pathToFileURL(fullPath).href);
+    configObject = imported.default ?? imported;
+  } else if (fullPath.endsWith('.ts') || fullPath.endsWith('.mts') || fullPath.endsWith('.cts')) {
+    // TypeScript files - use jiti for on-the-fly transpilation
+    const imported = await jiti.import(fullPath);
+    configObject = (imported as any).default ?? imported;
+  } else if (fullPath.endsWith('.js')) {
+    // .js files - try require first (CommonJS), fall back to import (ES modules)
+    try {
+      configObject = require(fullPath);
+    } catch (err: any) {
+      if (err?.code === 'ERR_REQUIRE_ESM' || err?.message?.includes('ES Module')) {
+        // It's an ES module, use dynamic import
+        const imported = await import(pathToFileURL(fullPath).href);
+        configObject = imported.default ?? imported;
+      } else {
+        throw err;
+      }
+    }
+  } else {
+    // .json, .cjs - use require
+    configObject = require(fullPath);
+  }
 
   const result = configParser.decode(configObject);
   if (Either.isLeft(result)) {

@@ -12,7 +12,7 @@ while build mode can be used for generating types when running CI.
 
 The CLI supports a number of flags:
 
-- `--config config_file_path.json` to pass the config file path.
+- `--config config_file_path` to pass the config file path. Supported formats: `.json`, `.js`, `.cjs`, `.mjs`, `.ts`, `.mts`, `.cts`.
 - `--watch` to start in watch mode.
 - `--file file_path.ts` if you only want to process one file (which can be useful when working on a big project). Incompatible with watch mode. Uses transforms defined in the config file to determine the mode and emit template, so a file path that doesn't fit the include glob patterns will not be processed.
 - `--uri` to specify a PG connection URI (overriding the config value).
@@ -80,7 +80,13 @@ For a full list of options, see the [Configuration file format](#configuration-f
 ```
 
 :::note
-Configuration file can be also be written in CommonJS format and default exported as an object. If your project is of ESM type then you will need to give the config file a `.cjs` extension instead of `.js`.
+Configuration files can be written in multiple formats:
+- **JSON** (`.json`): Standard JSON format
+- **CommonJS** (`.js`, `.cjs`): Use `module.exports` for CommonJS, or `.cjs` extension for ESM projects
+- **ES Modules** (`.mjs`): Use `export default` for ES module format
+- **TypeScript** (`.ts`, `.mts`, `.cts`): TypeScript config files with full type checking and IntelliSense support
+
+For TypeScript config files, you can import the `IConfig` type from `@pgtyped/cli` for type safety.
 :::
 
 ### Configuration file format
