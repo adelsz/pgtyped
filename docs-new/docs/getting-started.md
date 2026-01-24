@@ -8,12 +8,12 @@ sidebar_label: Getting Started
 
 1. `npm install -D @pgtyped/cli typescript` (typescript is a required peer dependency for pgtyped)
 2. `npm install @pgtyped/runtime` (runtime is the only required runtime dependency for pgtyped)
-2. Create a PgTyped `config.json` file.
+2. Create a PgTyped configuration file (e.g., `config.json`, `config.ts`, `config.mjs`).
 3. Run `npx pgtyped -w -c config.json` to start PgTyped in watch mode.
 
 ### Configuration
 
-PgTyped requires a `config.json` file to run, a basic config file looks like this:
+PgTyped requires a configuration file to run. Supported formats include `.json`, `.js`, `.cjs`, `.mjs`, `.ts`, `.mts`, and `.cts`. A basic JSON config file looks like this:
 
 ```json title="config.json"
 {

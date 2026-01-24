@@ -154,10 +154,14 @@ try {
     console.log('Config file changed. Exiting.');
     process.exit();
   });
-  const config = parseConfig(configPath, connectionUri);
-  main(config, isWatchMode || false, fileOverride).catch((e) =>
-    debug('error in main: %o', e.message),
-  );
+  // parseConfig is now async
+  parseConfig(configPath, connectionUri)
+    .then((config) => main(config, isWatchMode || false, fileOverride))
+    .catch((e) => {
+      console.error('Failed to parse config file:');
+      console.error((e as any).message);
+      process.exit();
+    });
 } catch (e) {
   console.error('Failed to parse config file:');
   console.error((e as any).message);
