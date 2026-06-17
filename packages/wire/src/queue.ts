@@ -135,10 +135,17 @@ export class AsyncQueue {
     }
 
     if (parsed.type === 'ServerError') {
-      this.replyPending.reject(parsed);
+      // Clear replyPending *before* settling so a stray processQueue() (e.g. a
+      // socket 'data' event firing before the next reply() registers) cannot
+      // route the next message to this already-settled waiter and drop it.
+      const pending = this.replyPending;
+      this.replyPending = null;
+      pending.reject(parsed);
     } else if (parsed.type === 'MessagePayload') {
       debug('resolved awaited %o message', parsed.messageName);
-      this.replyPending.resolve(parsed.data);
+      const pending = this.replyPending;
+      this.replyPending = null;
+      pending.resolve(parsed.data);
     } else {
       debug('received ignored message');
       this.processQueue();
