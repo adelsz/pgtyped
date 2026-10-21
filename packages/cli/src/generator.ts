@@ -13,8 +13,7 @@ import {
   processSQLQueryIR,
   processTSQueryAST,
 } from '@pgtyped/runtime';
-import { camelCase } from 'camel-case';
-import { pascalCase } from 'pascal-case';
+import { camelCase, pascalCase } from 'change-case';
 import path from 'path';
 import { ParsedConfig, TransformConfig } from './config.js';
 import { parseCode as parseTypescriptFile } from './parseTypescript.js';
