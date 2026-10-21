@@ -1,7 +1,7 @@
 import { parseSQLFile, TSQueryAST } from '@pgtyped/parser';
 import { IQueryTypes } from '@pgtyped/query/lib/actions.js';
 import { ParameterTransform } from '@pgtyped/runtime';
-import { pascalCase } from 'pascal-case';
+import { pascalCase } from 'change-case';
 import { ParsedConfig } from './config.js';
 import {
   escapeComment,
@@ -27,6 +27,41 @@ function parsedQuery(
 
 describe('query-to-interface translation', () => {
   [ProcessingMode.SQL, ProcessingMode.TS].forEach((mode) => {
+    test.each([
+      ['get_HTTP_status', 'HTTP_status', 'GetHttpStatus', 'httpStatus'],
+      ['get_user_2FA', 'user_2FA', 'GetUser_2Fa', 'user_2Fa'],
+      ['get_version_42', 'version_42', 'GetVersion_42', 'version_42'],
+    ])(
+      `preserves generated identifiers for %s (${mode})`,
+      async (queryName, columnName, interfaceName, fieldName) => {
+        const queryString =
+          mode === ProcessingMode.SQL
+            ? `/* @name ${queryName} */ SELECT "${columnName}" FROM records;`
+            : `const ${queryName} = sql\`SELECT "${columnName}" FROM records\`;`;
+        const mockTypes: IQueryTypes = {
+          returnTypes: [
+            {
+              returnName: columnName,
+              columnName,
+              type: 'text',
+              nullable: false,
+            },
+          ],
+          paramMetadata: { params: [], mapping: [] },
+        };
+        const result = await queryToTypeDeclarations(
+          parsedQuery(mode, queryString),
+          async () => mockTypes,
+          new TypeAllocator(TypeMapping()),
+          { ...partialConfig, camelCaseColumnNames: true },
+        );
+        expect(result).toContain(
+          `export interface I${interfaceName}Result {\n  ${fieldName}: string;\n}`,
+        );
+        expect(result).toContain(`result: I${interfaceName}Result;`);
+      },
+    );
+
     test(`TypeMapping and declarations (${mode})`, async () => {
       const queryStringSQL = `
     /* @name GetNotifications */
